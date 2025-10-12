@@ -1,0 +1,11 @@
+.container {
+  flex: 1;
+  align-self: center;
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+}
+
+.tabs {
+  flex: 1;
+}

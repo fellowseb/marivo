@@ -1,0 +1,88 @@
+DROP VIEW IF EXISTS user_plays_view;
+DROP TABLE IF EXISTS users_in_plays;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS plays;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS public_domain_plays;
+
+CREATE TABLE users (
+    id                      integer         PRIMARY KEY 
+                                            GENERATED ALWAYS AS IDENTITY,
+    clerk_id                varchar(32)     UNIQUE 
+                                            NOT NULL
+);
+
+CREATE TABLE public_domain_plays (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    uri                     varchar(32)     NOT NULL
+                                            UNIQUE,
+    title                   varchar(64)     NOT NULL,
+    author                  varchar(64)     NOT NULL,
+    lang                    varchar(2)      NOT NULL,
+    script                  text            NOT NULL
+);
+
+CREATE TABLE plays (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    uri                     varchar(32)     NOT NULL
+                                            UNIQUE,
+    title                   varchar(64)     NOT NULL,
+    created_date            timestamp(0)    NOT NULL,
+    created_by              integer         REFERENCES users(id) 
+                                            ON DELETE SET NULL,
+    owned_by                integer         NOT NULL 
+                                            REFERENCES users(id),
+    last_modified_date      timestamp(0),
+    public_domain_play_src  integer         REFERENCES public_domain_plays(id)
+                                            ON DELETE SET NULL,
+    external_synced_src     varchar(2048)
+);
+
+CREATE TABLE roles (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    name                    varchar(32)     NOT NULL,
+    play_id                 integer         NOT NULL
+                                            REFERENCES plays(id)
+                                            ON DELETE CASCADE
+);
+
+CREATE TABLE users_in_plays (
+    user_id                 integer         NOT NULL
+                                            REFERENCES users(id)
+                                            ON DELETE CASCADE,
+    play_id                 integer         NOT NULL 
+                                            REFERENCES plays(id)
+                                            ON DELETE CASCADE,
+    role                    integer         REFERENCES roles(id)
+                                            ON DELETE SET NULL,
+
+    CONSTRAINT one_user_to_play_assoc UNIQUE (user_id, play_id)
+);
+
+CREATE VIEW user_plays_view AS
+    (SELECT
+        id,
+        title,
+        uri,
+        created_date,
+        owned_by,
+        last_modified_date,
+        NULL AS participant_id,
+        true AS is_owner
+    FROM plays)
+    UNION
+    (SELECT
+        p.id,
+        p.title,
+        p.uri,
+        p.created_date,
+        p.owned_by,
+        p.last_modified_date,
+        up.user_id AS participant_id,
+        false AS is_owner
+    FROM users_in_plays up
+        JOIN plays p ON p.id = up.play_id
+    ORDER BY created_date DESC);

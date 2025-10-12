@@ -1,0 +1,35 @@
+.scriptContent {
+  max-width: 1000px;
+  flex: 1;
+  background-color: #ffffff;
+  white-space: pre-wrap;
+  padding: 20px;
+  padding-left: 40px;
+  border: 2px solid #e4d6bc;
+  box-shadow: 6px 15px 2px #e4d6bc;
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.partName {
+  text-align: center;
+  font-family: 'Cutive Mono', monospace;
+  font-optical-sizing: auto;
+  font-size: 1.2rem;
+}
+
+.partNameDepth1 {
+  margin-top: 4rem;
+  font-size: 2rem;
+}
+
+.partNameDepth2 {
+  margin-top: 3rem;
+  font-size: 1.5rem;
+}
+
+.partNameDepth3 {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+}

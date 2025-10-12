@@ -1,0 +1,162 @@
+.container {
+  position: relative;
+  display: flex;
+  min-height: 28px;
+  min-width: 16rem;
+  align-self: center;
+  align-items: center;
+  justify-items: center;
+  flex-direction: row-reverse;
+}
+
+.playMenu {
+  align-self: stretch;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  left: 1px;
+  align-items: stretch;
+  z-index: 1001;
+  width: 100%;
+  justify-self: stretch;
+  box-shadow: 2px 2px #1f313c;
+}
+
+.menuIndicator {
+  width: 14px;
+  height: 14px;
+  mask: url('/src/assets/dots-vertical.svg') no-repeat;
+  background-color: #fef8eb;
+  z-index: 101000;
+}
+
+.container:hover .menuIndicator {
+  display: none;
+}
+
+.playMenu:hover {
+  background: white;
+  border: 2px solid #e4d6bc;
+}
+
+.playMenuItem {
+  gap: 2px;
+  border-radius: 2px;
+  cursor: pointer;
+  color: #1f313c;
+  font-size: 1.2rem;
+  font-family: Arimo;
+  height: 100%;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  align-content: center;
+  text-decoration: none;
+  text-align: right;
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  z-index: 1001;
+}
+
+.playMenu:hover .playMenuItem {
+  display: flex;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 0px;
+}
+
+.playMenu:hover .playMenuItem:hover::after {
+  content: '►';
+  right: 8px;
+  position: absolute;
+}
+
+.playMenuItemActive {
+  display: flex;
+  color: #fef8eb;
+}
+
+.playMenuItemActive .playMenuItemIcon {
+  background-color: #fef8eb;
+}
+
+.playMenuItemIcon {
+  display: inline-block;
+  border: 1px solid black;
+  height: 1.2rem;
+  width: 1.2rem;
+  mask-size: contain;
+  background-color: #1f313c;
+}
+
+.playMenu:hover .playMenuItem:hover {
+  color: #fef8eb;
+}
+
+.playMenu:hover .playMenuItem:hover .playMenuItemIcon,
+.playMenu:hover .playMenuItemIconActive {
+  background-color: #fef8eb;
+}
+
+.playMenuItemActive.playMenuItemSettings,
+.playMenu:hover .playMenuItemSettings:hover {
+  background-color: lightslategrey;
+}
+
+.playMenuItemSettingsIcon {
+  mask-image: url('/src/assets/settings-02.svg');
+  mask-size: contain;
+}
+
+.playMenuItemActive.playMenuItemScript,
+.playMenu:hover .playMenuItemScript:hover {
+  background-color: #af5e23cc;
+}
+
+.playMenuItemScriptIcon {
+  mask-image: url('/src/assets/file-O6.svg');
+  mask-size: contain;
+}
+
+.playMenuItemActive.playMenuItemStagingDirections,
+.playMenu:hover .playMenuItemStagingDirections:hover {
+  background-color: #23af80cc;
+}
+
+.playMenuItemStagingDirectionsIcon {
+  mask-image: url('../../assets/compass-03.svg');
+  mask-size: contain;
+}
+
+.playMenuItemActive.playMenuItemBlocking,
+.playMenu:hover .playMenuItemBlocking:hover {
+  background-color: #10aebccc;
+}
+
+.playMenuItemBlockingIcon {
+  mask-image: url('/src/assets/dataflow-03.svg');
+  mask-size: contain;
+}
+
+.playMenuItemActive.playMenuItemMemorize,
+.playMenu:hover .playMenuItemMemorize:hover {
+  background-color: #af2347cc;
+}
+
+.playMenuItemMemorizeIcon {
+  mask-image: url('/src/assets/check-heart.svg');
+  mask-size: contain;
+}
+
+.playMenuItemPlanningIcon {
+  mask-image: url('/src/assets/calendar.svg');
+  mask-size: contain;
+}
+
+.playMenuItemActive.playMenuItemPlanning,
+.playMenu:hover .playMenuItemPlanning:hover {
+  background-color: #ef73dfcc;
+}

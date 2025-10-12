@@ -1,0 +1,118 @@
+.repliqueCharacter {
+  font-family: 'Cutive Mono', monospace;
+  font-optical-sizing: auto;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.repliqueTextContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.repliqueText {
+  position: relative;
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  font-family: 'Cutive Mono', monospace;
+  font-optical-sizing: auto;
+  font-size: 1.2rem;
+}
+
+.repliqueText::selection {
+  background-color: lightskyblue;
+}
+
+.repliqueText:focus {
+  background-color: lightyellow;
+  outline: 0;
+}
+
+.replique {
+  padding: 8px;
+  border: 1px solid transparent;
+  position: relative;
+}
+
+.replique:hover {
+  border: 1px solid #ccc;
+}
+
+.repliqueNum {
+  position: absolute;
+  left: -30px;
+  top: 8px;
+  color: #999;
+  cursor: default;
+  font-family: 'Cutive Mono', monospace;
+  font-optical-sizing: auto;
+  font-size: 1.2rem;
+}
+
+.repliqueVersion {
+  align-self: flex-end;
+  font-weight: bold;
+  font-style: italic;
+  padding: 2px 4px 2px 4px;
+  border: 0;
+}
+
+.repliqueActions {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  display: none;
+  flex-direction: row;
+}
+
+.repliqueAction {
+  cursor: pointer;
+  padding: 2px;
+  height: 20px;
+  width: 25px;
+  border: 1px solid transparent;
+  background-color: #1f313c;
+  padding: 0px;
+  margin: 0px;
+}
+
+.replique:hover .repliqueActions {
+  display: flex;
+}
+
+.repliqueActionDisabled {
+  background-color: #999;
+}
+
+.repliqueActionDisabled:hover {
+  cursor: default;
+  background-color: #999;
+}
+
+.repliqueActionViewVersions {
+  mask: url('/src/assets/clock-rewind.svg') no-repeat center;
+  mask-size: contain;
+}
+
+.repliqueActionDelete {
+  mask: url('/src/assets/trash-03.svg') no-repeat center;
+  mask-size: contain;
+}
+
+.repliqueText em {
+  display: contents;
+  color: #999;
+}
+
+.blurOverlay {
+  background: #ffffff55;
+  backdrop-filter: blur(4px);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 19;
+}

@@ -1,0 +1,51 @@
+.playScriptMenu {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.playScriptMenuItem {
+  cursor: pointer;
+  background-color: #f4e9d2;
+  background-color: #1f313c33;
+  background-color: #1f313c33;
+  background-color: #7b520033;
+  backdrop-filter: blur(10px);
+  color: #1f313c;
+  font-size: 1.2rem;
+  font-family: Arimo;
+  border-radius: 8px;
+  width: 1rem;
+  height: 1rem;
+  padding: 4px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  align-content: center;
+  border: 1px solid #e4d6bc;
+}
+
+.playScriptMenuItemUndo {
+  background-image: url('/src/assets/flip-backward.svg');
+}
+
+.playScriptMenuItemRedo {
+  background-image: url('/src/assets/flip-forward.svg');
+}
+
+.playScriptMenuItemLayout {
+  background-image: url('/src/assets/columns-02.svg');
+}
+
+.playScriptMenuItemSearch {
+  background-image: url('/src/assets/search-sm.svg');
+}
+
+.playScriptMenuItemRecordings {
+  background-image: url('/src/assets/recording-01.svg');
+}
+
+.playScriptMenuItemHideHeader {
+  background-image: url('/src/assets/chevron-up.svg');
+}

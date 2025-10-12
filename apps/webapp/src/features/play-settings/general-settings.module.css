@@ -1,0 +1,45 @@
+.container {
+  padding: 10px;
+  padding-top: 20px;
+}
+
+.line {
+  min-height: 2rem;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.line > label {
+  display: inline-block;
+  text-align: right;
+  min-width: 14rem;
+  font-weight: bold;
+}
+
+.section {
+  margin-top: 10px;
+  border: 1px solid #1f313c55;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.sectionDanger {
+  border-color: #f43d3d;
+}
+
+.sectionTitle {
+  font-weight: bolder;
+  font-size: 0.8rem;
+  color: #1f313c55;
+}
+
+.sectionDanger > .sectionTitle {
+  color: #f43d3d;
+}
+
+.sectionDanger button {
+  background-color: #f43d3d;
+  border-color: #f43d3d;
+}

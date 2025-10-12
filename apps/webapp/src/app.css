@@ -1,0 +1,101 @@
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: stretch;
+  flex: 1;
+  min-height: calc(100vh - 8px);
+}
+
+button {
+  border: 2px solid #1f313c;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #fef8eb;
+  height: 1.8rem;
+  background-color: #1f313c;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: #dedede;
+  color: #1f313c;
+}
+
+input {
+  border: 1px solid #1f313c;
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #fef8eb;
+  color: #1f313c;
+  height: 1.5rem;
+  background-color: #1f313c;
+  background-color: #1f313c11;
+  outline: none;
+  padding: 2px;
+}
+
+input:focus {
+  border: 1px solid #e8e4da;
+}
+
+input:disabled {
+  background-color: #1f313c55;
+  color: #1f313ccc;
+}
+
+select,
+::picker(select) {
+  appearance: base-select;
+}
+
+select {
+  box-sizing: border-box;
+  border: 1px solid gray;
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  align-items: flex-end;
+  color: #1f313c;
+  background-color: #1f313c11;
+  outline: none;
+}
+
+select:focus {
+  border-color: #1f313c;
+}
+
+input[type='checkbox'] {
+  appearance: none;
+}
+
+input[type='checkbox'] {
+  margin: 0;
+  width: 20px;
+  height: 20px;
+  border: 1px solid gray;
+  vertical-align: -2px;
+  outline: none;
+}
+
+input[type='checkbox']::before {
+  display: block;
+  content: ' ';
+  width: 11px;
+  height: 11px;
+  background-color: #1f313c;
+  border-radius: 2px;
+  font-size: 1.2em;
+  transform: translate(2px, 2px) scale(0);
+  transform-origin: center;
+}
+
+input[type='checkbox']:checked::before {
+  transform: translate(2px, 2px) scale(1);
+}
+
+input[type='checkbox']:focus {
+  border-color: #1f313c;
+}
