@@ -1,3 +1,5 @@
+import type { LegitAny } from './types.ts';
+
 interface ResultInternals<TSuccess, TFailure> {
   type: 'success' | 'failure';
   dataOrThrow: () => TSuccess;
@@ -38,11 +40,11 @@ class Failure<TSuccess, TFailure>
 
 export class Result<TSuccess, TFailure> {
   static ok<TSuccess>(data: TSuccess) {
-    return new Result(new Success<TSuccess, any>(data));
+    return new Result(new Success<TSuccess, LegitAny>(data));
   }
 
   static failure<TFailure>(data: TFailure) {
-    return new Result(new Failure<any, TFailure>(data));
+    return new Result(new Failure<LegitAny, TFailure>(data));
   }
 
   public isOk(): boolean {

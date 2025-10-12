@@ -120,7 +120,7 @@ export function useCase<TUseCase extends AnyUseCase>(config: {
             ).dataOrThrow();
           }
         },
-        failure: (error) => {
+        failure: () => {
           // TODO: validate output errors
         },
       });

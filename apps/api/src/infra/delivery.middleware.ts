@@ -7,7 +7,7 @@ export function deliveryMiddleware(): RequestHandler {
     const requestId = req.headers[REQUEST_ID_HEADER];
     if (requestId) {
       if (typeof requestId === 'string') {
-        let context = req.context ?? {};
+        const context = req.context ?? {};
         context.requestId = requestId;
         req.context = context;
         res.setHeader(REQUEST_ID_HEADER, requestId);
