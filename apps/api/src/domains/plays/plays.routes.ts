@@ -1,27 +1,15 @@
-import type { Application } from 'express';
+import { Router } from 'express';
 import { useCase } from '../../shared/delivery.ts';
-import { PlaysRepository } from './plays.repository.ts';
-import {
-  GetAllPlaysUseCase,
-  GetAllPlaysUseCaseOutputSchema,
-} from './get-all-plays.use-case.ts';
-import { UserContextService } from '../../shared/use-case.ts';
+import { GetAllPlaysUseCaseOutputSchema } from './get-all-plays.use-case.ts';
+import { providers } from './plays.providers.ts';
 
-const repository = new PlaysRepository();
+const router: Router = Router();
+router.get(
+  '/',
+  useCase({
+    provider: providers.GetAllPlaysUseCase,
+    outputSchema: GetAllPlaysUseCaseOutputSchema,
+  }),
+);
 
-export default {
-  setup: (app: Application) => {
-    app.get(
-      '/plays',
-      useCase({
-        provider: {
-          instantiate(req) {
-            const userContextService = new UserContextService(req);
-            return new GetAllPlaysUseCase(repository, userContextService);
-          },
-        },
-        outputSchema: GetAllPlaysUseCaseOutputSchema,
-      }),
-    );
-  },
-};
+export default router;

@@ -1,19 +1,25 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "files": [
+    "./src/api.ts"
+  ],
   "compilerOptions": {
+    "emitDeclarationOnly": true,
     // File Layout
     // "rootDir": "./src",
-    // "outDir": "./dist",
+    "outDir": "./dist",
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
+    "noEmit": false,
     // "types": [],
     // For nodejs:
     "lib": [
       "esnext"
     ],
-    "types": [
-      "node"
+    "typeRoots": [
+      "./types",
     ],
     "allowImportingTsExtensions": true,
     // and npm install -D @types/node
@@ -38,6 +44,6 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   }
 }

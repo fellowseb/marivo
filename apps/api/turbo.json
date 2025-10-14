@@ -2,7 +2,7 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["PORT"],
+      "env": ["PORT", "TRPC_PORT"],
       "outputs": ["dist/**"]
     }
   }

@@ -25,7 +25,11 @@ function parseJwtPayload(payload: CustomJwtSessionClaims): Session {
  */
 export function userMiddleware(): RequestHandler {
   return function (req: Request, _res: Response, next: NextFunction) {
-    const { sessionClaims } = getAuth(req);
+    const auth = getAuth(req);
+    if (!auth || !auth.userId) {
+      throw new Error('Authentication error');
+    }
+    const { sessionClaims } = auth;
     if (!sessionClaims) {
       throw new Error('No session claims in inbound request');
     }

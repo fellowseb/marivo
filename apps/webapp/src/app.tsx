@@ -1,77 +1,90 @@
-import { Navigate, Route, Routes } from 'react-router';
-import PageNotFound from './components/page-not-found.component';
-import AuthLayout from './layouts/auth-layout';
-import MainLayout from './layouts/main-layout';
-import PlaysPage, {
-  PlaysPageTitle,
-} from './features/play-admin/plays-page.component';
-import PlayPage, { PlayTitle } from './features/play-admin/play-page.component';
-import PlayMenu from './features/play-admin/play-menu.component';
-import ScriptTabMenu from './features/script-edition/script-tab-menu.component';
-import Signin from './features/auth/signin.component';
-import Signup from './features/auth/signup.component';
+import superjson from 'superjson';
+import { v7 as uuidv7 } from 'uuid';
+import { StrictMode, useState } from 'react';
+import { BrowserRouter } from 'react-router';
+import { ClerkProvider, useAuth } from '@clerk/clerk-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import type { AppRouter } from '@marivo/api';
+import Routes from './routes.tsx';
 import './app.css';
-import MemorizeTabMenu from './features/lines-memorization/memorize-tab-menu.component';
-import BlockingTabMenu from './features/blocking/blocking-tab-menu.component';
-import { SignedIn, SignedOut } from '@clerk/clerk-react';
+import { TRPCProvider } from './trpc.ts';
+
+function makeQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+      },
+    },
+  });
+}
+
+let browserQueryClient: QueryClient | undefined = undefined;
+
+function getQueryClient() {
+  if (typeof window === 'undefined') {
+    return makeQueryClient();
+  } else {
+    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    return browserQueryClient;
+  }
+}
+
+interface TrpcApiProviderProps {
+  apiUrl: string;
+}
+
+function TrpcApiProvider(props: React.PropsWithChildren<TrpcApiProviderProps>) {
+  const queryClient = getQueryClient();
+  const { getToken } = useAuth();
+  const [trpcClient] = useState(() =>
+    createTRPCClient<AppRouter>({
+      links: [
+        httpBatchLink({
+          url: props.apiUrl,
+          transformer: superjson,
+          headers: async () => {
+            const token = await getToken();
+            return {
+              Authorization: `Bearer ${token}`,
+              'x-marivo-request-id': uuidv7(),
+            };
+          },
+        }),
+      ],
+    }),
+  );
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+        {props.children}
+      </TRPCProvider>
+    </QueryClientProvider>
+  );
+}
+
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+if (!PUBLISHABLE_KEY) {
+  throw new Error('Missing Clerk Publishable Key');
+}
+
+const API_URL = import.meta.env.VITE_MARIVO_TRPC_API_URL;
+if (!API_URL) {
+  throw new Error('Missing TRPC API url');
+}
 
 function App() {
   return (
-    <>
-      <SignedIn>
-        <Routes>
-          <Route
-            element={
-              <MainLayout
-                title={
-                  <Routes>
-                    <Route path="/plays" element={<PlaysPageTitle />} />
-                    <Route path="/play/:id/*" element={<PlayTitle />} />
-                  </Routes>
-                }
-                Menu={
-                  <Routes>
-                    <Route path="/play/:id/*" element={<PlayMenu />} />
-                  </Routes>
-                }
-                PageMenu={
-                  <Routes>
-                    <Route
-                      path="/play/:id/script"
-                      element={<ScriptTabMenu />}
-                    />
-                    <Route
-                      path="/play/:id/blocking"
-                      element={<BlockingTabMenu />}
-                    />
-                    <Route
-                      path="/play/:id/memorize"
-                      element={<MemorizeTabMenu />}
-                    />
-                  </Routes>
-                }
-              />
-            }
-          >
-            <Route path="/plays" element={<PlaysPage />} />
-            <Route path="/play/:id/*" element={<PlayPage />} />
-            <Route path="/" element={<Navigate to="/plays" replace />}></Route>
-            <Route path="*" element={<PageNotFound />} />
-          </Route>
-        </Routes>
-      </SignedIn>
-
-      <SignedOut>
-        <Routes>
-          <Route element={<AuthLayout />}>
-            <Route path="/signin/*" element={<Signin />} />
-            <Route path="/signup/*" element={<Signup />} />
-          </Route>
-          <Route path="/" element={<Navigate to="/signin" replace />}></Route>
-          <Route path="*" element={<Navigate to="/signin" replace />}></Route>
-        </Routes>
-      </SignedOut>
-    </>
+    <StrictMode>
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+        <TrpcApiProvider apiUrl={API_URL}>
+          <BrowserRouter>
+            <Routes />
+          </BrowserRouter>
+        </TrpcApiProvider>
+      </ClerkProvider>
+    </StrictMode>
   );
 }
 

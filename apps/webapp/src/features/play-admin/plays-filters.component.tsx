@@ -1,22 +1,9 @@
 import { useRef } from 'react';
 import styles from './plays-filters.module.css';
-
-type PlaysOrdering =
-  | 'orderByTitleAsc'
-  | 'orderByTitleDesc'
-  | 'orderByCreationDateAsc'
-  | 'orderByCreationDateDesc'
-  | 'orderByLastModificationDateAsc'
-  | 'orderByLastModificationDateDesc';
-
-export interface FilterValues {
-  title?: string;
-  orderBy?: PlaysOrdering;
-  onlyPlaysSelfOwns?: boolean;
-}
+import type { PlayFilterSortOptions, PlaysOrdering } from './plays.lib';
 
 export interface PlaysFiltersProps {
-  onFiltersChange: (filters: FilterValues) => void;
+  onFiltersChange: (options: PlayFilterSortOptions) => void;
 }
 
 function PlaysFilters(props: PlaysFiltersProps) {
