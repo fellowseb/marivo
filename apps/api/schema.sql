@@ -1,9 +1,11 @@
 DROP VIEW IF EXISTS user_plays_view;
 DROP TABLE IF EXISTS users_in_plays;
+DROP TABLE IF EXISTS invites;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS plays;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS public_domain_plays;
+DROP TYPE invite_status_enum;
 
 CREATE TABLE users (
     id                      integer         PRIMARY KEY 
@@ -47,6 +49,27 @@ CREATE TABLE roles (
     play_id                 integer         NOT NULL
                                             REFERENCES plays(id)
                                             ON DELETE CASCADE
+);
+
+CREATE TYPE invite_status_enum AS ENUM ('sent', 'rejected', 'accepted', 'resent', 'error');
+
+CREATE TABLE invites (
+    uri                     varchar(32)           NOT NULL
+                                                  UNIQUE,
+    invited_email           varchar(80)           NOT NULL,
+    play_id                 integer               NOT NULL 
+                                                  REFERENCES plays(id)
+                                                  ON DELETE CASCADE,
+    --
+    -- To be set once the users accepts to rely on deletion cascading
+    --
+    accepted_user_id        integer               REFERENCES users(id) 
+                                                  ON DELETE CASCADE,
+    status                  invite_status_enum    NOT NULL,
+    sent_date               timestamp(0)          NOT NULL,
+    treated_date            timestamp(0)          NOT NULL,
+
+    CONSTRAINT one_invite_per_play_per_email UNIQUE (invited_email, play_id)
 );
 
 CREATE TABLE users_in_plays (
