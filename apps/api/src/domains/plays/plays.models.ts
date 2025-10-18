@@ -5,4 +5,5 @@ export interface UserPlay {
   createdDate: Date;
   lastModifiedDate?: Date;
   isOwner: boolean;
+  ownerClerkId: string;
 }

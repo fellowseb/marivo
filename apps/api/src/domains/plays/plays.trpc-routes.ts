@@ -7,10 +7,11 @@ export default router({
     .output(GetAllPlaysUseCaseOutputSchema)
     .query(async ({ ctx }) => {
       const useCase = providers.GetAllPlaysUseCase.instantiate(ctx.req);
-      const playsResult = await useCase.execute();
-      return playsResult.match({
-        success: ({ plays }) => ({
+      const result = await useCase.execute();
+      return result.match({
+        success: ({ plays, invites }) => ({
           plays,
+          invites,
         }),
         failure: (error) => {
           throw new Error('Use case failed', { cause: error });

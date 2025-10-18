@@ -70,26 +70,36 @@ INSERT INTO roles (
 
 INSERT INTO users_in_plays (
     user_id,
-    play_id
+    play_id,
+    joined_date
 ) VALUES (
     2,
-    1
+    1,
+    now()
 );
 
 INSERT INTO users_in_plays (
     user_id,
     play_id,
-    role
+    role,
+    joined_date
 ) VALUES (
     2,
     2,
-    1
+    1,
+    now()
 );
 
-INSERT INTO users_in_plays (
-    user_id,
-    play_id
+INSERT INTO invites (
+    uri,
+    invited_user_id,
+    play_id,
+    status,
+    sent_date
 ) VALUES (
+    '26a0c7b0-8809-4178-8cf5-5edea6d1c6ee',
     1,
-    3
+    3,
+    'pending',
+    now()
 );

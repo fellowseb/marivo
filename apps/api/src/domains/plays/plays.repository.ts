@@ -8,6 +8,7 @@ interface GetAllPlaysRecordValues {
   uri: string;
   created_date: Date;
   is_owner: boolean;
+  owner_clerk_id: string;
   last_modified_date: Date | null;
 }
 
@@ -20,6 +21,7 @@ export class GetAllPlaysRecord extends Record<GetAllPlaysRecordValues> {
       title: this.get('title'),
       createdDate: this.get('created_date'),
       isOwner: this.get('is_owner'),
+      ownerClerkId: this.get('owner_clerk_id'),
       ...(lastModifiedDate ? { lastModifiedDate: lastModifiedDate } : {}),
     };
   }
@@ -46,6 +48,7 @@ export class PlaysRepository {
           uri,
           created_date,
           is_owner,
+          owner_clerk_id,
           last_modified_date
         FROM user_plays_view
         WHERE (

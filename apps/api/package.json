@@ -18,6 +18,7 @@
     ".": "./dist/api.d.ts"
   },
   "dependencies": {
+    "@clerk/backend": "^2.18.3",
     "@clerk/express": "^1.7.36",
     "@trpc/server": "^11.6.0",
     "@types/cors": "^2.8.19",
