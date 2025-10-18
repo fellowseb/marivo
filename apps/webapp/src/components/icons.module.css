@@ -1,0 +1,87 @@
+.script {
+  mask-image: url('/src/assets/file-O6.svg');
+}
+
+.staging {
+  mask-image: url('/src/assets/compass-03.svg');
+}
+
+.blocking {
+  mask-image: url('/src/assets/dataflow-03.svg');
+}
+
+.memorize {
+  mask-image: url('/src/assets/check-heart.svg');
+}
+
+.planning {
+  mask-image: url('/src/assets/calendar.svg');
+}
+
+.settings {
+  mask-image: url('/src/assets/settings-02.svg');
+}
+
+.new {
+  mask-image: url('/src/assets/icons/plus.svg');
+}
+
+.signout {
+  mask-image: url('/src/assets/log-out-02.svg');
+}
+
+.accept {
+  mask-image: url('/src/assets/icons/check.svg');
+}
+
+.decline {
+  mask-image: url('/src/assets/icons/x.svg');
+}
+
+.clear {
+  mask-image: url('/src/assets/icons/x-square.svg');
+}
+
+.archive {
+  mask-image: url('/src/assets/icons/archive.svg');
+}
+
+.delete {
+  mask-image: url('/src/assets/icons/trash-01.svg');
+}
+
+.undo {
+  mask-image: url('/src/assets/icons/flip-backward.svg');
+}
+
+.redo {
+  mask-image: url('/src/assets/icons/flip-forward.svg');
+}
+
+.search {
+  mask-image: url('/src/assets/icons/search-sm.svg');
+}
+
+.voiceRecording {
+  mask-image: url('/src/assets/icons/recording-01.svg');
+}
+
+.notification {
+  mask-image: url('/src/assets/icons/bell-O3.svg');
+}
+
+.user {
+  mask-image: url('/src/assets/icons/user-circle.svg');
+}
+
+.help {
+  mask-image: url('/src/assets/icons/help-circle.svg');
+}
+
+.desc {
+  mask-image: url('/src/assets/icons/arrow-narrow-down.svg');
+}
+
+.asc {
+  mask-image: url('/src/assets/icons/arrow-narrow-up.svg');
+}

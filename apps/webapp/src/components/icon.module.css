@@ -1,0 +1,22 @@
+.icon {
+  display: inline-block;
+  mask-repeat: no-repeat;
+}
+
+.sizeSmall {
+  height: 1rem;
+  width: 1rem;
+}
+
+.sizeMedium {
+  height: 1.2rem;
+  width: 1.2rem;
+}
+
+.primary {
+  background-color: #1f313c;
+}
+
+.secondary {
+  background-color: #eeeeee;
+}
