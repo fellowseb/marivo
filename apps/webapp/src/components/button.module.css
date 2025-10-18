@@ -1,0 +1,31 @@
+.button {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 4px;
+  border: 2px solid #1f313c;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #fef8eb;
+  height: 1.8rem;
+  background-color: #1f313c;
+  white-space: nowrap;
+  outline: none;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: #1f313c99;
+}
+
+.button:focus-visible {
+  border-color: #e8ce7d;
+  background-color: #e8ce7d99;
+  color: #1f313c;
+  outline: 1px solid #fef8eb;
+}
+
+.button:focus-visible .icon {
+  background-color: #1f313c;
+}
