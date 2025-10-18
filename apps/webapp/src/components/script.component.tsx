@@ -16,6 +16,7 @@ function ScriptPart(props: ScriptPartProps) {
     <div
       className={classNames({
         [styles.partName]: true,
+        [styles.partNameDepth0]: props.line.depth === 0,
         [styles.partNameDepth1]: props.line.depth === 1,
         [styles.partNameDepth2]: props.line.depth === 2,
         [styles.partNameDepth3]: props.line.depth === 3,

@@ -12,11 +12,19 @@
   flex-direction: column;
 }
 
-.partName {
-  text-align: center;
+.scriptContent * {
   font-family: 'Cutive Mono', monospace;
   font-optical-sizing: auto;
+}
+
+.partName {
+  text-align: center;
   font-size: 1.2rem;
+}
+
+.partNameDepth0 {
+  margin-top: 4rem;
+  font-size: 3rem;
 }
 
 .partNameDepth1 {
