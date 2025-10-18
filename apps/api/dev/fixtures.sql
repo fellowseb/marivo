@@ -1,13 +1,13 @@
 INSERT INTO users (
     clerk_id
 ) VALUES (
-    'user_georges_sand'
+    'user_33RCa4UgZwkczOcYLkp16CZw7g9'
 );
 
 INSERT INTO users (
     clerk_id
 ) VALUES (
-    'user_jean_claude'
+    'user_34D1o5Yq6fQVJZjxILmVY2Y3VXv'
 );
 
 INSERT INTO plays (
