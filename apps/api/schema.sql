@@ -12,7 +12,11 @@ CREATE TABLE users (
     id                      integer         PRIMARY KEY 
                                             GENERATED ALWAYS AS IDENTITY,
     clerk_id                varchar(32)     UNIQUE 
-                                            NOT NULL
+                                            NOT NULL,
+    username                varchar(80)     NOT NULL,
+    full_name               varchar(80)     NOT NULL,
+    primary_email           varchar(100)    NOT NULL,
+    profile_picture         varchar(1024)
 );
 
 CREATE TABLE public_domain_plays (
@@ -35,7 +39,7 @@ CREATE TABLE plays (
     created_date            timestamp(0)    NOT NULL,
     created_by              integer         REFERENCES users(id) 
                                             ON DELETE SET NULL,
-    owned_by                integer         NOT NULL 
+    owner_id                integer         NOT NULL
                                             REFERENCES users(id),
     last_modified_date      timestamp(0),
     public_domain_play_src  integer         REFERENCES public_domain_plays(id)
@@ -86,37 +90,38 @@ CREATE TABLE users_in_plays (
 
 CREATE VIEW user_plays_view AS
     (SELECT
-        id,
-        title,
-        uri,
-        created_date,
-        owned_by,
-        last_modified_date,
-        NULL AS participant_id,
-        NULL AS owner_clerk_id,
-        true AS is_owner
-    FROM plays)
+        p.id,
+        p.title,
+        p.uri,
+        p.created_date,
+        p.last_modified_date,
+        p.owner_id AS user_id,
+        o.username AS owner_username,
+        o.full_name AS owner_full_name,
+        'owner' AS user_role
+    FROM plays p
+        JOIN users o ON o.id = p.owner_id)
     UNION
     (SELECT
         p.id,
         p.title,
         p.uri,
         p.created_date,
-        p.owned_by,
         p.last_modified_date,
-        up.user_id AS participant_id,
-        o.clerk_id AS owner_clerk_id,
-        false AS is_owner
+        up.user_id,
+        o.username AS owner_username,
+        o.full_name AS owner_full_name,
+        'participant' AS user_role
     FROM users_in_plays up
         JOIN plays p ON p.id = up.play_id
-        JOIN users o ON o.id = p.owned_by
+        JOIN users o ON o.id = p.owner_id
     ORDER BY created_date DESC);
 
 CREATE VIEW user_pending_invites_view AS (
- SELECT i.sent_date, i.uri, i.invited_user_id, o.clerk_id as owner_clerk_id, p.title
+ SELECT i.sent_date, i.uri, i.invited_user_id, o.username as owner_username, o.full_name as owner_full_name, p.title
  FROM invites i
    JOIN plays p ON i.play_id = p.id
-   JOIN users o ON p.owned_by = o.id
+   JOIN users o ON p.owner_id = o.id
  WHERE i.status = 'pending' AND i.invited_user_id IS NOT null
  ORDER BY i.sent_date DESC
 );

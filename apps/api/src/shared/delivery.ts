@@ -1,8 +1,8 @@
 import type z from 'zod';
 import type { Request, RequestHandler, Response } from 'express';
+import { Result } from '@marivo/utils';
 import type { AnyUseCase } from './use-case.ts';
 import type { Provider } from './provider.ts';
-import { Result } from './result.ts';
 import { AppError } from './error.ts';
 
 export function sendSuccessResponse<T>(req: Request, res: Response, data: T) {

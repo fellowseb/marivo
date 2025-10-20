@@ -6,7 +6,8 @@ interface GetPendingInvitesRecordValues {
   uri: string;
   title: string;
   sent_date: Date;
-  owner_clerk_id: string;
+  owner_full_name: string;
+  owner_username: string;
 }
 
 export class GetPendingInvitesRecord extends Record<GetPendingInvitesRecordValues> {
@@ -15,7 +16,8 @@ export class GetPendingInvitesRecord extends Record<GetPendingInvitesRecordValue
       uri: this.get('uri'),
       sentDate: this.get('sent_date'),
       playTitle: this.get('title'),
-      playOwnerClerkId: this.get('owner_clerk_id'),
+      ownerUsername: this.get('owner_username'),
+      ownerFullName: this.get('owner_full_name'),
     };
   }
 }
@@ -37,7 +39,8 @@ export class InvitesRepository {
           uri,
           title,
           sent_date,
-          owner_clerk_id
+          owner_full_name,
+          owner_username
         FROM user_pending_invites_view
         WHERE (
           invited_user_id = ${params.userId}

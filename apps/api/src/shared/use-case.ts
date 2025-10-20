@@ -1,7 +1,6 @@
+import { type LegitAny, Result } from '@marivo/utils';
 import type { Request } from 'express';
 import type { AppError } from './error.ts';
-import type { Result } from './result.ts';
-import type { LegitAny } from './types.ts';
 
 export interface AuthenticatedUserContext {
   userId: number;

@@ -1,13 +1,25 @@
 INSERT INTO users (
-    clerk_id
+    clerk_id,
+    username,
+    full_name,
+    primary_email
 ) VALUES (
-    'user_33RCa4UgZwkczOcYLkp16CZw7g9'
+    'user_33RCa4UgZwkczOcYLkp16CZw7g9',
+    'fellowseb',
+    'Sébastien Wauquier',
+    'wauquier.sebastien@gmail.com'
 );
 
 INSERT INTO users (
-    clerk_id
+    clerk_id,
+    username,
+    full_name,
+    primary_email
 ) VALUES (
-    'user_34D1o5Yq6fQVJZjxILmVY2Y3VXv'
+    'user_34D1o5Yq6fQVJZjxILmVY2Y3VXv',
+    'johndoe',
+    'John Doe',
+    'lespetitsbateaux@gmail.com'
 );
 
 INSERT INTO plays (
@@ -15,7 +27,7 @@ INSERT INTO plays (
     uri,
     created_date,
     created_by,
-    owned_by
+    owner_id
 ) VALUES (
     'Crime, comptines et châtiments',
     'crime-comptines-ef83b2c695d0',
@@ -29,7 +41,7 @@ INSERT INTO plays (
     uri,
     created_date,
     created_by,
-    owned_by
+    owner_id
 ) VALUES (
     'The Mousetrap',
     'mousetrap-ef83b2c695d0',
@@ -43,7 +55,7 @@ INSERT INTO plays (
     uri,
     created_date,
     created_by,
-    owned_by
+    owner_id
 ) VALUES (
     'Huit femmes',
     'huit-femmes-ef83b2c695d0',

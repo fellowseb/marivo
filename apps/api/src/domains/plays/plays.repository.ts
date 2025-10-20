@@ -7,8 +7,9 @@ interface GetAllPlaysRecordValues {
   title: string;
   uri: string;
   created_date: Date;
-  is_owner: boolean;
-  owner_clerk_id: string;
+  user_role: 'owner' | 'participant';
+  owner_username: string;
+  owner_full_name: string;
   last_modified_date: Date | null;
 }
 
@@ -20,8 +21,9 @@ export class GetAllPlaysRecord extends Record<GetAllPlaysRecordValues> {
       uri: this.get('uri'),
       title: this.get('title'),
       createdDate: this.get('created_date'),
-      isOwner: this.get('is_owner'),
-      ownerClerkId: this.get('owner_clerk_id'),
+      isOwner: this.get('user_role') === 'owner',
+      ownerFullName: this.get('owner_full_name'),
+      ownerUsername: this.get('owner_username'),
       ...(lastModifiedDate ? { lastModifiedDate: lastModifiedDate } : {}),
     };
   }
@@ -47,19 +49,12 @@ export class PlaysRepository {
           title,
           uri,
           created_date,
-          is_owner,
-          owner_clerk_id,
+          user_role,
+          owner_full_name,
+          owner_username,
           last_modified_date
         FROM user_plays_view
-        WHERE (
-          is_owner = true 
-          AND 
-          owned_by = ${params.userId}
-        ) OR (
-          is_owner = false 
-          AND 
-          participant_id = ${params.userId}
-        );
+        WHERE user_id = ${params.userId};
     `
     ).map((record) => new GetAllPlaysRecord(record).toModel());
   }

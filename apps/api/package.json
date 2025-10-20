@@ -20,6 +20,7 @@
   "dependencies": {
     "@clerk/backend": "^2.18.3",
     "@clerk/express": "^1.7.36",
+    "@marivo/utils": "workspace:*",
     "@trpc/server": "^11.6.0",
     "@types/cors": "^2.8.19",
     "cors": "^2.8.5",
