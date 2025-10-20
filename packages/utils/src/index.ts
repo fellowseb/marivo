@@ -1,3 +1,2 @@
-export const log = (...args: unknown[]): void => {
-  console.log('LOGGER: ', ...args);
-};
+export type { LegitAny } from './types';
+export { Result } from './result';
