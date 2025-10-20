@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import styles from './plays-filters.module.css';
 import type { PlayFilterSortOptions, PlaysOrdering } from './plays.lib';
+import Button from '../../components/button.components';
+import Icon from '../../components/icon.component';
 
 export interface PlaysFiltersProps {
   onFiltersChange: (options: PlayFilterSortOptions) => void;
@@ -23,7 +25,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
     }
     if (orderByRef.current) {
       orderByRef.current.value =
-        'orderByLastModificationDateDesc' satisfies PlaysOrdering;
+        'orderByLastModificationDateAsc' satisfies PlaysOrdering;
     }
     if (onlyPlaysSelfOwnsRef.current) {
       onlyPlaysSelfOwnsRef.current.checked = false;
@@ -39,29 +41,43 @@ function PlaysFilters(props: PlaysFiltersProps) {
         placeholder="Filter by title..."
         onChange={handleFiltersChange}
         ref={titleFilterRef}
+        size={16}
       />
-      <select onChange={handleFiltersChange} ref={orderByRef}>
+      <select
+        onChange={handleFiltersChange}
+        ref={orderByRef}
+        value={orderByRef.current?.value}
+      >
+        <button>
+          <selectedcontent></selectedcontent>
+        </button>
         <option
           value={'orderByLastModificationDateAsc' satisfies PlaysOrdering}
         >
-          Last modification date ↑
+          Last modification date
+          <Icon value="asc" size="small" mode="primary" />
         </option>
         <option
           value={'orderByLastModificationDateDesc' satisfies PlaysOrdering}
         >
-          Last modification date ↓
+          Last modification date
+          <Icon value="desc" size="small" mode="primary" />
         </option>
         <option value={'orderByCreationDateAsc' satisfies PlaysOrdering}>
-          Creation date ↑
+          Creation date
+          <Icon value="asc" size="small" mode="primary" />
         </option>
         <option value={'orderByCreationDateDesc' satisfies PlaysOrdering}>
-          Creation date ↓
+          Creation date
+          <Icon value="desc" size="small" mode="primary" />
         </option>
         <option value={'orderByTitleAsc' satisfies PlaysOrdering}>
-          Title ↑
+          Title
+          <Icon value="asc" size="small" mode="primary" />
         </option>
         <option value={'orderByTitleDesc' satisfies PlaysOrdering}>
-          Title ↓
+          Title
+          <Icon value="desc" size="small" mode="primary" />
         </option>
       </select>
       <label>Plays I own</label>
@@ -70,7 +86,9 @@ function PlaysFilters(props: PlaysFiltersProps) {
         onChange={handleFiltersChange}
         ref={onlyPlaysSelfOwnsRef}
       />
-      <button onClick={handleClearClick}>↺ Clear</button>
+      <Button onClick={handleClearClick} icon="clear">
+        Clear
+      </Button>
     </div>
   );
 }

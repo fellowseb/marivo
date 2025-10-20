@@ -4,4 +4,6 @@ export interface PlayListItemModel {
   createdDate: Date;
   lastModifiedDate?: Date;
   isOwner: boolean;
+  ownerFullName?: string;
+  ownerUsername?: string;
 }

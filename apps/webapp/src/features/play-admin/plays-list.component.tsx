@@ -1,37 +1,29 @@
 import { NavLink } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useTRPC } from '../../trpc';
 import styles from './plays-list.module.css';
-import type { PlayListItemModel } from './plays.models';
-
-interface PlayInviteItemProps {
-  id: string;
-  title: string;
-  owner: string;
-}
-
-function PlayInviteItem(props: PlayInviteItemProps) {
-  return (
-    <li className={styles.invite}>
-      <span>
-        {props.owner} invited you to participate to the play{' '}
-        <div className={styles.playTitle}>{props.title}</div>
-      </span>
-      <div className={styles.inviteActions}>
-        <button>✓ Accept</button>
-        <button>𐄂 Decline</button>
-      </div>
-    </li>
-  );
-}
+import Skeleton from '../../components/skeleton.component';
+import PlaysFilters from './plays-filters.component';
+import { useState } from 'react';
+import { filterSortPlays, type PlayFilterSortOptions } from './plays.lib';
+import { PlayInvites } from './play-invites.component';
+import UnexpectedError from '../../components/unexpected-error.component';
+import DotsLoader from '../../components/dots-loader';
 
 interface PlayListItemProps {
   id: string;
   title: string;
-  owner: string;
+  ownerFullName?: string;
+  ownerUsername?: string;
+  isOwner: boolean;
   creationDate: Date;
   lastModifiedDate?: Date;
 }
 
 function PlayListItem(props: PlayListItemProps) {
+  const ownerStr = props.isOwner
+    ? 'You'
+    : `${props.ownerFullName} (${props.ownerUsername})`;
   return (
     <li className={styles.play}>
       <NavLink
@@ -40,12 +32,11 @@ function PlayListItem(props: PlayListItemProps) {
           pathname: '/play/' + props.id,
         }}
       >
-        <div className={styles.playPoster}></div>
         <div className={styles.playDetails}>
           <span className={styles.playTitle}>{props.title}</span>
           <span>
             Owned by{' '}
-            <span className={styles.playDetailsValues}>{props.owner}</span>
+            <span className={styles.playDetailsValues}>{ownerStr}</span>
           </span>
 
           <span>
@@ -57,57 +48,104 @@ function PlayListItem(props: PlayListItemProps) {
           <span>
             Dernière modification le{' '}
             <span className={styles.playDetailsValues}>
-              {props.lastModificationDate
-                ? props.lastModificationDate.toLocaleString()
+              {props.lastModifiedDate
+                ? props.lastModifiedDate.toLocaleString()
                 : '—'}
             </span>
           </span>
+        </div>
+        <div className={styles.playPoster}>
+          <div className={styles.playPosterOverlay}></div>
         </div>
       </NavLink>
     </li>
   );
 }
 
-export interface ParticipationInvite {
-  id: string;
-  owner: string;
-  title: string;
-}
-
-export interface PlayInvitesProps {
-  invites: ParticipationInvite[];
-}
-
-export function PlayInvites(props: PlayInvitesProps) {
+function NoFilteredPlays() {
   return (
-    <ul className={styles.invites}>
-      {props.invites.map(({ id, owner, title }) => (
-        <PlayInviteItem key={id} id={id} owner={owner} title={title} />
-      ))}
-    </ul>
+    <div className={styles.noPlaysContainer}>
+      <p>Filters don't match any entry !</p>
+    </div>
   );
 }
 
-interface PlayListProps {
-  plays: PlayListItemModel[];
+function NoPlays() {
+  return (
+    <div className={styles.noPlaysContainer}>
+      <p>You haven't joined any play yet !</p>
+      <p>All invites you could receive should be displayed on this page.</p>
+      <p>You can also create a new play yourself by using the button below.</p>
+    </div>
+  );
 }
 
-function PlayList(props: PlayListProps) {
+function PlayList() {
+  const trpc = useTRPC();
+  const query = useQuery(trpc.plays.list.queryOptions());
+  const [filters, setFilters] = useState<PlayFilterSortOptions>({});
+  const handleFiltersChange = (filters: PlayFilterSortOptions) => {
+    setFilters(filters);
+  };
+  const plays = query.data?.plays ?? [];
+  const invites = query.data?.invites ?? [];
+  const filteredPlays = filterSortPlays(plays, filters);
   return (
-    <ul className={styles.plays}>
-      {props.plays.map(
-        ({ uri, isOwner, title, lastModifiedDate, createdDate }) => (
-          <PlayListItem
-            key={uri}
-            id={uri}
-            owner={isOwner ? 'you' : 'Someone else'}
-            title={title}
-            lastModifiedDate={lastModifiedDate}
-            creationDate={createdDate}
-          />
-        ),
-      )}
-    </ul>
+    <>
+      <PlaysFilters onFiltersChange={handleFiltersChange} />
+      <ul className={styles.plays}>
+        {invites.length ? <PlayInvites invites={invites} /> : null}
+        {query.isError ? (
+          <UnexpectedError error={query.error?.message} />
+        ) : query.isLoading ? (
+          <>
+            <li className={styles.playSkeleton}>
+              <Skeleton />
+            </li>
+            <li className={styles.playSkeleton}>
+              <Skeleton />
+            </li>
+            <li className={styles.playSkeleton}>
+              <Skeleton />
+            </li>
+          </>
+        ) : plays.length ? (
+          filteredPlays.length ? (
+            filteredPlays.map(
+              ({
+                uri,
+                isOwner,
+                title,
+                lastModifiedDate,
+                createdDate,
+                ownerUsername,
+                ownerFullName,
+              }) => (
+                <PlayListItem
+                  key={uri}
+                  id={uri}
+                  ownerUsername={ownerUsername}
+                  ownerFullName={ownerFullName}
+                  isOwner={isOwner}
+                  title={title}
+                  lastModifiedDate={lastModifiedDate}
+                  creationDate={createdDate}
+                />
+              ),
+            )
+          ) : (
+            <NoFilteredPlays />
+          )
+        ) : (
+          <NoPlays />
+        )}
+        {query.isRefetching ? (
+          <div className={styles.loaderContainer}>
+            <DotsLoader />
+          </div>
+        ) : null}
+      </ul>
+    </>
   );
 }
 

@@ -14,6 +14,7 @@
     "@clerk/clerk-react": "^5.49.1",
     "@clerk/react-router": "^2.0.1",
     "@marivo/api": "workspace:*",
+    "@marivo/utils": "workspace:*",
     "@tanstack/react-query": "^5.90.3",
     "@trpc/client": "^11.6.0",
     "@trpc/tanstack-react-query": "^11.6.0",

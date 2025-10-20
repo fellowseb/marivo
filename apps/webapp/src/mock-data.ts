@@ -28,6 +28,10 @@ export const playsDetails = {
     script: {
       lines: [
         {
+          partName: 'Crime, Comptines et Châtiment',
+          depth: 0,
+        },
+        {
           partName: 'Acte I',
           depth: 1,
         },

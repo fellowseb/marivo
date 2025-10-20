@@ -1,31 +1,38 @@
 .header {
   display: flex;
   flex-direction: column;
-  width: 800px;
+  width: calc(100vw - (100vw - 100%));
   align-self: center;
   position: fixed;
   z-index: 1000;
   top: 0;
-  left: calc(50vw - 400px);
+  left: 0;
+  border-bottom: 2px solid #cebc96;
 }
 
 .headerInner {
-  height: 4rem;
+  height: 40px;
   display: flex;
+  gap: 8px;
   flex-direction: row;
   justify-content: space-between;
-  padding: 8px;
   align-self: stretch;
   align-items: center;
-  background-color: #f4e9d2cc;
-  background-color: #1f313c33;
   background-color: #7b520033;
-  backdrop-filter: blur(10px);
-  border: 3px solid #1f313c22;
-  border-radius: 0 0 20px 20px;
-  border-top: 0;
+  backdrop-filter: blur(20px);
   top: 0;
   transition: top 0.5s ease-out;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.menuBurger {
+  width: 20px;
+  height: 20px;
+  background-color: #333;
+  mask-image: url('/src/assets/dots-vertical.svg');
+  mask-repeat: no-repeat;
+  mask-position: 0 0;
 }
 
 .headerInner.collapsed {
@@ -34,19 +41,19 @@
 }
 
 .logoContainer {
-  width: 102px;
+  width: 120px;
+  margin-right: 40px;
 }
 
 .logo {
+  margin-top: 3px;
   display: block;
-  background-image: url('/src/assets/marivo-logo-full.webp');
+  background-image: url('/src/assets/marivo-app-logo-full-transparent.webp');
   background-size: 100%;
   background-repeat: no-repeat;
-  width: 100px;
-  height: 102px;
-  position: absolute;
+  width: 160px;
+  height: 48px;
   top: 2px;
-  left: -10px;
 }
 
 .user {
@@ -54,10 +61,27 @@
   flex-direction: row;
   gap: 4px;
   align-content: center;
+  align-items: center;
   word-wrap: true;
   text-overflow: ellipsis;
   overflow: hidden;
   text-align: center;
+}
+
+.breadcrumbs {
+  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+}
+
+.breadcrumbArrow {
+  color: #7b520033;
+  top: 1px;
+  position: relative;
 }
 
 .pageTitle {
@@ -85,6 +109,7 @@
   display: flex;
   flex-direction: row;
   gap: 2px;
+  align-items: center;
 }
 
 .userAction {
@@ -123,16 +148,18 @@
 }
 
 .pageMenu {
-  z-index: -1;
-  top: 0;
-  transition: top 0.5s ease-out;
   display: flex;
   flex-direction: row;
   gap: 8px;
   justify-content: center;
+  padding: 4px;
 }
 
-.pageMenu.collapsed {
-  position: relative;
-  top: -82px;
+.mainMenu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  background-color: #ece2cc;
+  backdrop-filter: blur(20px);
 }

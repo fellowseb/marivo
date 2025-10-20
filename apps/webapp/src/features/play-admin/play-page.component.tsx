@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, NavLink, Route, Routes } from 'react-router';
 import PageNotFound from '../../components/page-not-found.component';
 import ScriptTab from '../script-edition/script-tab.component';
 import MemorizeTab from '../lines-memorization/memorize-tab.component';
@@ -6,9 +6,28 @@ import PlaySettingsTab from '../play-settings/play-settings-tab.component';
 import PlanningTab from '../planning/planning-tab.component';
 import BlockingTab from '../blocking/blocking-tab.component';
 import StagingDirectionsTab from '../staging-directions/staging-directions-tab.component';
+import { HeaderBreadcrumbs } from '../../layouts/header.component';
+import styles from './play-page.module.css';
 
-export function PlayTitle() {
-  return 'The Mousetrap';
+export function PlayPageBreadcrumbs() {
+  return (
+    <HeaderBreadcrumbs
+      key="plays"
+      crumbs={[
+        <NavLink
+          to={{
+            pathname: '/plays',
+          }}
+        >
+          My plays
+        </NavLink>,
+        <div className={styles.playTitle}>
+          <div className={styles.playIcon}></div>
+          {'Crime, comptines et châtiments'}
+        </div>,
+      ]}
+    />
+  );
 }
 
 function PlayPage() {

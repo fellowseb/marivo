@@ -23,6 +23,11 @@ export const PLAY_MENU_DEFINITION: MenuBarDefinition = {
       icon: 'memorize',
     },
     {
+      label: 'Planning',
+      path: '../planning',
+      icon: 'planning',
+    },
+    {
       label: 'Settings',
       path: '../settings',
       icon: 'settings',

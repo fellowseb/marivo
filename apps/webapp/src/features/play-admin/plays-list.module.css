@@ -1,103 +1,70 @@
 .plays {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 0px;
   margin: 10px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  border: 1px solid #1f313c22;
+  padding: 20px 10px 20px 10px;
+  border-radius: 4px;
+  background-color: #99999914;
+  flex: 1;
 }
 
 .play {
   list-style: none;
-  min-height: 100px;
-  width: 500px;
+  padding: 0;
+  margin: 0;
+  min-width: 600px;
+  min-height: 125px;
+}
+
+.playSkeleton {
+  list-style: none;
+  margin: 0;
+  min-width: 600px;
+  min-height: 125px;
   border: 1px solid #e4d6bc;
   border-left: 10px solid #1f313c22;
   border-radius: 4px;
   background-color: #e8e4da;
-  padding: 0px;
-  display: flex;
-  flex-direction: row;
-  transition: background-color 0.5s ease-out;
-  padding: 10px;
-}
-
-.invites {
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 0px;
-}
-
-.invite {
-  list-style: none;
-  width: 500px;
-  border: 1px solid #e4d6bc;
-  border-left: 10px solid #1f313c22;
-  border-radius: 4px;
-  background-color: #60c5ea44;
-  padding: 0px;
-  display: flex;
-  flex-direction: row;
-  transition: background-color 0.5s ease-out;
-  padding: 10px;
-  gap: 10px;
-  align-items: center;
-}
-
-.invite span {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
-.inviteActions {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  padding: 12px;
 }
 
 .play > a {
+  border: 1px solid #e4d6bc;
+  border-left: 10px solid #1f313c22;
+  border-radius: 4px;
+  background-color: #e8e4da;
   color: #1f313c;
   text-decoration: none;
   margin: 0px;
   min-height: 100px;
   width: 100%;
-  padding: 2px;
+  padding: 12px;
   display: flex;
   flex-direction: row;
   transition: background-color 0.5s ease-out;
 }
 
-.play:hover {
+.play > a:focus {
+  text-decoration: none;
+  border: 1px solid #e8ce7d;
+  border-left: 10px solid #e8ce7d;
+}
+
+.play > a:hover {
   cursor: pointer;
   background-color: #fefefe;
-}
-
-.play::after {
-  width: 60px;
-  height: auto;
-  content: '';
-  background-color: #1f313c22;
-  mask: url('/src/assets/book-closed.svg') no-repeat;
-  mask-position: 0 28px;
-}
-
-.play:hover::after {
-  mask: url('/src/assets/book-open-01.svg') no-repeat;
-  mask-position: 0 28px;
-  background-color: #1f313c;
-}
-
-.play:hover {
   border-left: 10px solid #1f313c;
 }
 
 .playTitle {
   font-family: 'Lobster Two', sans-serif;
-  font-size: 1.7rem;
+  font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
@@ -111,12 +78,51 @@
   flex-direction: column;
   margin-left: 4px;
   font-style: italic;
+  flex: 1;
 }
 
 .playPoster {
-  background-color: #1f313c;
   width: 100px;
   height: 100px;
+  background-color: #1f313c22;
   border-radius: 4px;
-  display: none;
+}
+
+.playPosterOverlay {
+  width: 100px;
+  height: 100px;
+  mask: url('/src/assets/book-closed.svg') no-repeat;
+  mask-size: 60px 60px;
+  mask-position: 20px 20px;
+  background-color: #e8e4da;
+}
+
+.play:hover .playPoster {
+  background-color: #1f313c;
+}
+
+.play:hover .playPosterOverlay {
+  mask: url('/src/assets/book-open-01.svg') no-repeat;
+  mask-size: 60px 60px;
+  mask-position: 20px 20px;
+}
+
+.noPlaysContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+}
+
+.noPlaysContainer p {
+  margin: 0;
+}
+
+.loaderContainer {
+  position: absolute;
+  bottom: 0px;
+  margin-left: auto;
+  margin-right: auto;
 }

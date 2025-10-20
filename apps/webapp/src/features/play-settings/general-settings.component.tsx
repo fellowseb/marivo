@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import styles from './general-settings.module.css';
+import Button from '../../components/button.components';
 
 function GeneralSettings() {
   return (
@@ -18,13 +19,13 @@ function GeneralSettings() {
       </div>
       <div className={styles.line}>
         <label>Archive the project</label>
-        <button>Archive</button>
+        <Button icon="archive">Archive</Button>
       </div>
       <div className={classNames([styles.section, styles.sectionDanger])}>
         <div className={classNames([styles.sectionTitle])}>Danger zone</div>
         <div className={styles.line}>
           <label>Delete the project</label>
-          <button>Delete</button>
+          <Button icon="delete">Delete</Button>
         </div>
       </div>
     </div>

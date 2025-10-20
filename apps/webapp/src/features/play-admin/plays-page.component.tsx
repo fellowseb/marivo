@@ -1,42 +1,31 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import styles from './plays-page.module.css';
-import PlaysFilters from './plays-filters.component';
-import PlayList, { PlayInvites } from './plays-list.component';
-import { useTRPC } from '../../trpc';
-import { filterSortPlays, type PlayFilterSortOptions } from './plays.lib';
+import PlayList from './plays-list.component';
+import { HeaderBreadcrumbs } from '../../layouts/header.component';
+import { useNavigate } from 'react-router';
+import Button from '../../components/button.components';
 
-export function PlaysPageTitle() {
-  return 'My Plays';
+export function PlaysPageBreadcrumbs() {
+  return <HeaderBreadcrumbs key="plays" crumbs={['My plays']} />;
 }
 
 function PlaysPage() {
-  const [filters, setFilters] = useState<PlayFilterSortOptions>({});
-  const trpc = useTRPC();
-  const playsQuery = useQuery(trpc.plays.list.queryOptions());
+  const navigate = useNavigate();
 
-  const invites = [
-    {
-      id: '1',
-      title: 'La Noce des petits bourgeois',
-      owner: 'Olivier Peigné',
-    },
-  ];
-
-  const handleFiltersChange = (filters: PlayFilterSortOptions) => {
-    setFilters(filters);
+  const handleCreateNewPlay = () => {
+    navigate({
+      pathname: 'new',
+    });
   };
 
-  const filteredPlays = filterSortPlays(playsQuery.data?.plays ?? [], filters);
   return (
-    <>
-      <PlayInvites invites={invites} />
-      <PlaysFilters onFiltersChange={handleFiltersChange} />
-      <PlayList plays={filteredPlays} />
+    <div className={styles.container}>
+      <PlayList />
       <div className={styles.playListActions}>
-        <button>+ Create new play</button>
+        <Button onClick={handleCreateNewPlay} icon="new">
+          Create new play
+        </Button>
       </div>
-    </>
+    </div>
   );
 }
 

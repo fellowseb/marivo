@@ -23,6 +23,9 @@ importers:
       '@clerk/express':
         specifier: ^1.7.36
         version: 1.7.37(express@5.1.0)(react@19.2.0)
+      '@marivo/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@trpc/server':
         specifier: ^11.6.0
         version: 11.6.0(typescript@5.9.3)
@@ -117,6 +120,9 @@ importers:
       '@marivo/api':
         specifier: workspace:*
         version: link:../api
+      '@marivo/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@tanstack/react-query':
         specifier: ^5.90.3
         version: 5.90.3(react@19.2.0)

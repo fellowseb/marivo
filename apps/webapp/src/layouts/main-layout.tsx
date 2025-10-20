@@ -4,22 +4,25 @@ import Header from './header.component';
 import styles from './main-layout.module.css';
 
 interface MainLayoutProps {
-  title: ReactNode;
+  breadcrumbs: ReactNode;
   Menu?: ReactNode;
-  PageMenu?: ReactNode;
+  Toolbar?: ReactNode;
 }
 
 function MainLayout(props: MainLayoutProps) {
   return (
     <div className={styles.mainContainer}>
-      <div className={styles.headerContainer}>
-        <Header
-          pageTitle={props.title}
-          Menu={props.Menu}
-          PageMenu={props.PageMenu}
-        />
-      </div>
-      <main className={styles.main}>
+      <Header
+        pageBreadcrumbs={props.breadcrumbs}
+        Menu={props.Menu}
+        Toolbar={props.Toolbar}
+      />
+      <main
+        className={styles.main}
+        style={{
+          marginTop: props.Menu ? '7.4rem' : '4rem',
+        }}
+      >
         <Outlet />
       </main>
     </div>
