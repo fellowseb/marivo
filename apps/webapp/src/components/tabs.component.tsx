@@ -13,16 +13,17 @@ function Tab(props: TabProps) {
     props.onClick?.();
   };
   return (
-    <div
+    <a
       className={classNames({
         [styles.tab]: true,
         [styles.active]: props.isActive,
         [styles.inactive]: !props.isActive,
       })}
       onClick={handleClick}
+      href="#"
     >
       {props.name}
-    </div>
+    </a>
   );
 }
 

@@ -1,6 +1,6 @@
 .container {
   background-color: #1f313c;
-  border: 1px solid #e4d6bc;
+  border: 1px solid #ccc;
   background-color: #1f313c33;
   border-radius: 4px;
   display: flex;
@@ -31,11 +31,12 @@
   background-color: #e8e4da;
   border-radius: 4px 4px 0 0;
   cursor: pointer;
+  height: 30px;
 }
 
 .tab.active {
   font-weight: bold;
-  height: calc(1em + 1px);
+  height: 33px;
   border-bottom: 1px solid #e8e4da;
   z-index: 1;
 }
@@ -43,4 +44,10 @@
 .tab.inactive {
   background-color: #1f313c;
   background-color: transparent;
+}
+
+.tab:focus-visible {
+  border-color: #e8ce7d;
+  background-color: #e8ce7d99;
+  color: #1f313c;
 }
