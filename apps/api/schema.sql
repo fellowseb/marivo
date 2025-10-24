@@ -22,9 +22,9 @@ CREATE TABLE users (
 CREATE TABLE public_domain_plays (
     id                      integer         PRIMARY KEY
                                             GENERATED ALWAYS AS IDENTITY,
-    uri                     varchar(32)     NOT NULL
+    uri                     varchar(36)     NOT NULL
                                             UNIQUE,
-    title                   varchar(64)     NOT NULL,
+    title                   varchar(100)    NOT NULL,
     author                  varchar(64)     NOT NULL,
     lang                    varchar(2)      NOT NULL,
     script                  text            NOT NULL
@@ -33,11 +33,11 @@ CREATE TABLE public_domain_plays (
 CREATE TABLE plays (
     id                      integer         PRIMARY KEY
                                             GENERATED ALWAYS AS IDENTITY,
-    uri                     varchar(32)     NOT NULL
+    uri                     varchar(36)     NOT NULL
                                             UNIQUE,
-    title                   varchar(64)     NOT NULL,
+    title                   varchar(100)    NOT NULL,
     created_date            timestamp(0)    NOT NULL,
-    created_by              integer         REFERENCES users(id) 
+    creator_id              integer         REFERENCES users(id) 
                                             ON DELETE SET NULL,
     owner_id                integer         NOT NULL
                                             REFERENCES users(id),

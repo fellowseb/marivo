@@ -26,11 +26,11 @@ INSERT INTO plays (
     title,
     uri,
     created_date,
-    created_by,
+    creator_id,
     owner_id
 ) VALUES (
     'Crime, comptines et châtiments',
-    'crime-comptines-ef83b2c695d0',
+    'dc3ee1d4-e04e-47ea-9634-f516b5abb6df',
     now(),
     1,
     1
@@ -40,11 +40,11 @@ INSERT INTO plays (
     title,
     uri,
     created_date,
-    created_by,
+    creator_id,
     owner_id
 ) VALUES (
     'The Mousetrap',
-    'mousetrap-ef83b2c695d0',
+    '520b0c24-cdc7-4907-a631-eb4e2965c322',
     now()- interval '1 day',
     1,
     1
@@ -54,11 +54,11 @@ INSERT INTO plays (
     title,
     uri,
     created_date,
-    created_by,
+    creator_id,
     owner_id
 ) VALUES (
     'Huit femmes',
-    'huit-femmes-ef83b2c695d0',
+    '60a5d6b2-8b28-465d-bdb7-57433d8834f5',
     now() + interval '1 day',
     1,
     2
