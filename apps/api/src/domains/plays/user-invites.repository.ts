@@ -1,5 +1,5 @@
-import sql from '../../infra/db.ts';
 import { Record } from '../../shared/record.ts';
+import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
 import type { UserInvite } from './invites.models.ts';
 
 interface GetPendingInvitesRecordValues {
@@ -22,19 +22,13 @@ export class GetPendingInvitesRecord extends Record<GetPendingInvitesRecordValue
   }
 }
 
-interface GetPendingInvites {
-  userId: number;
-}
-
-export class InvitesRepository {
+export class UserInvitesRepository extends UserRepositoryBase {
   /**
    * Retrieves all invites for a given user that are in a `pending` state.
-   *
-   * @param params.userId - The user's DB id.
    */
-  async getPendingInvites(params: GetPendingInvites): Promise<UserInvite[]> {
+  async getPendingInvites(): Promise<UserInvite[]> {
     return (
-      await sql<GetPendingInvitesRecordValues[]>`
+      await this.sql<GetPendingInvitesRecordValues[]>`
         SELECT 
           uri,
           title,
@@ -43,9 +37,29 @@ export class InvitesRepository {
           owner_username
         FROM user_pending_invites_view
         WHERE (
-          invited_user_id = ${params.userId}
+          invited_user_id = ${this.userId()}
         );
     `
     ).map((record) => new GetPendingInvitesRecord(record).toModel());
+  }
+
+  async respondToInvite(params: { inviteUri: string; accept: boolean }) {
+    const userId = this.userId();
+    const res = await this.sql<{ play_id: number }[]>`
+      UPDATE invites
+        SET status = ${params.accept ? 'accepted' : 'rejected'}
+        WHERE uri = ${params.inviteUri} AND invited_user_id = ${userId}
+        RETURNING play_id;
+    `;
+    if (!res) {
+      throw new Error('Unexpected empty query result');
+    }
+    const resRow = res[0];
+    if (!resRow) {
+      throw new Error('Unexpected undefined query result row');
+    }
+    return {
+      playId: resRow.play_id,
+    };
   }
 }

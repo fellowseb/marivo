@@ -5,6 +5,7 @@ import Button from '../../components/button.components';
 import Icon from '../../components/icon.component';
 
 export interface PlaysFiltersProps {
+  filters: PlayFilterSortOptions;
   onFiltersChange: (options: PlayFilterSortOptions) => void;
 }
 
@@ -14,9 +15,9 @@ function PlaysFilters(props: PlaysFiltersProps) {
   const onlyPlaysSelfOwnsRef = useRef<HTMLInputElement>(null);
   const handleFiltersChange = () => {
     props.onFiltersChange({
-      title: titleFilterRef.current?.value?.toLowerCase(),
+      title: titleFilterRef.current?.value?.toLowerCase() ?? '',
       orderBy: orderByRef.current?.value as PlaysOrdering,
-      onlyPlaysSelfOwns: onlyPlaysSelfOwnsRef.current?.checked,
+      onlyPlaysSelfOwns: onlyPlaysSelfOwnsRef.current?.checked ?? false,
     });
   };
   const handleClearClick = () => {
@@ -24,11 +25,10 @@ function PlaysFilters(props: PlaysFiltersProps) {
       titleFilterRef.current.value = '';
     }
     if (orderByRef.current) {
-      orderByRef.current.value =
-        'orderByLastModificationDateAsc' satisfies PlaysOrdering;
+      orderByRef.current.value = props.filters.orderBy;
     }
     if (onlyPlaysSelfOwnsRef.current) {
-      onlyPlaysSelfOwnsRef.current.checked = false;
+      onlyPlaysSelfOwnsRef.current.checked = props.filters.onlyPlaysSelfOwns;
     }
     handleFiltersChange();
   };
@@ -42,11 +42,12 @@ function PlaysFilters(props: PlaysFiltersProps) {
         onChange={handleFiltersChange}
         ref={titleFilterRef}
         size={16}
+        value={props.filters.title}
       />
       <select
         onChange={handleFiltersChange}
         ref={orderByRef}
-        value={orderByRef.current?.value}
+        value={props.filters.orderBy}
       >
         <button>
           <selectedcontent></selectedcontent>
@@ -85,6 +86,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
         type="checkbox"
         onChange={handleFiltersChange}
         ref={onlyPlaysSelfOwnsRef}
+        checked={props.filters.onlyPlaysSelfOwns}
       />
       <Button onClick={handleClearClick} icon="clear">
         Clear

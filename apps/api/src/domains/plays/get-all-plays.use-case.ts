@@ -4,8 +4,8 @@ import {
   AuthenticatedUseCase,
   UserContextService,
 } from '../../shared/use-case.ts';
-import type { PlaysRepository } from './plays.repository.ts';
-import type { InvitesRepository } from './invites.repository.ts';
+import type { UserPlaysRepository } from './user-plays.repository.ts';
+import type { UserInvitesRepository } from './user-invites.repository.ts';
 
 export const GetAllPlaysUseCaseOutputSchema = z.object({
   plays: z.array(
@@ -36,8 +36,8 @@ export class GetAllPlaysUseCase extends AuthenticatedUseCase<{
   success: GetAllPlaysUseCaseOutput;
 }> {
   constructor(
-    repository: PlaysRepository,
-    invitesRepository: InvitesRepository,
+    repository: UserPlaysRepository,
+    invitesRepository: UserInvitesRepository,
     userContext: UserContextService,
   ) {
     super(userContext);
@@ -46,15 +46,14 @@ export class GetAllPlaysUseCase extends AuthenticatedUseCase<{
   }
 
   async execute() {
-    const { userId } = this.getUserContext();
-    const plays = await this.repository.getAllPlays({ userId });
-    const invites = await this.invitesRepository.getPendingInvites({ userId });
+    const plays = await this.repository.getAllPlays();
+    const invites = await this.invitesRepository.getPendingInvites();
     return Result.ok({
       plays,
       invites,
     });
   }
 
-  private repository: PlaysRepository;
-  private invitesRepository: InvitesRepository;
+  private repository: UserPlaysRepository;
+  private invitesRepository: UserInvitesRepository;
 }

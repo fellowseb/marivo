@@ -40,17 +40,13 @@ export abstract class AuthenticatedUseCase<
 }
 
 export interface UseCase<
-  TUseCaseTypeParams extends {
+  T extends {
     params?: unknown;
     success?: unknown;
     failure?: AppError;
   },
 > {
-  execute: (
-    params: TUseCaseTypeParams['params'],
-  ) => Promise<
-    Result<TUseCaseTypeParams['success'], TUseCaseTypeParams['failure']>
-  >;
+  execute(params: T['params']): Promise<Result<T['success'], T['failure']>>;
 }
 
 export type AnyUseCase = UseCase<{
@@ -58,3 +54,30 @@ export type AnyUseCase = UseCase<{
   success: LegitAny;
   failure: AppError;
 }>;
+
+export type ResultOfUseCase<T> =
+  T extends UseCase<{
+    params: unknown;
+    success: infer TSuccess;
+    failure: AppError;
+  }>
+    ? Result<TSuccess, AppError>
+    : unknown;
+
+export type ParamsOfUseCase<T> =
+  T extends UseCase<{
+    params: infer TParams;
+    success: unknown;
+    failure: AppError;
+  }>
+    ? TParams
+    : unknown;
+
+export type SuccessOfUseCase<T> =
+  T extends UseCase<{
+    params: unknown;
+    success: infer TSuccess;
+    failure: AppError;
+  }>
+    ? TSuccess
+    : unknown;

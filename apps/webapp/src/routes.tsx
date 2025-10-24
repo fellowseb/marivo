@@ -6,6 +6,7 @@ import PlaysPage, {
   PlaysPageBreadcrumbs,
 } from './features/play-admin/plays-page.component';
 import PlayPage, {
+  PLAY_ROUTE_BASE,
   PlayPageBreadcrumbs,
 } from './features/play-admin/play-page.component';
 import Signin from './features/auth/signin.component';
@@ -25,14 +26,14 @@ import { MenuBar } from './components/menubar.component';
 import Toolbar from './components/toolbar.component';
 
 function AppRoutes() {
-  const playMatches = useMatch('/play/:id/*');
+  const playMatches = useMatch(`${PLAY_ROUTE_BASE}/*`);
   let Menu = null;
   let Tools = null;
   const breadcrumbs = (
     <Routes>
       <Route path="/plays" element={<PlaysPageBreadcrumbs />} />
       <Route path="/plays/new" element={<NewPlayPageBreadcrumbs />} />
-      <Route path="/play/:id/*" element={<PlayPageBreadcrumbs />} />
+      <Route path={`${PLAY_ROUTE_BASE}/*`} element={<PlayPageBreadcrumbs />} />
       <Route path="/my-account" element={<UserAccountPageBreadcrumbs />} />
     </Routes>
   );
@@ -40,7 +41,7 @@ function AppRoutes() {
     Menu = (
       <Routes>
         <Route
-          path="/play/:id/*"
+          path={`${PLAY_ROUTE_BASE}/*`}
           element={<MenuBar definition={PLAY_MENU_DEFINITION} />}
         />
       </Routes>
@@ -48,15 +49,15 @@ function AppRoutes() {
     Tools = (
       <Routes>
         <Route
-          path="/play/:id/script"
+          path={`${PLAY_ROUTE_BASE}/script`}
           element={<Toolbar definition={SCRIPT_TOOLBAR} />}
         />
         <Route
-          path="/play/:id/blocking"
+          path={`${PLAY_ROUTE_BASE}/blocking`}
           element={<Toolbar definition={BLOCKING_TOOLBAR} />}
         />
         <Route
-          path="/play/:id/memorize"
+          path={`${PLAY_ROUTE_BASE}/memorize`}
           element={<Toolbar definition={MEMORIZE_TOOLBAR} />}
         />
       </Routes>
@@ -77,7 +78,7 @@ function AppRoutes() {
           >
             <Route path="/plays" element={<PlaysPage />} />
             <Route path="/plays/new" element={<NewPlayPage />} />
-            <Route path="/play/:id/*" element={<PlayPage />} />
+            <Route path={`${PLAY_ROUTE_BASE}/*`} element={<PlayPage />} />
             <Route path="/my-account/security?" element={<UserAccountPage />} />
             <Route path="/" element={<Navigate to="/plays" replace />}></Route>
             <Route path="*" element={<PageNotFound />} />

@@ -4,6 +4,7 @@ import ScriptLine from './script-line.component';
 import type { PartName, Script as ScriptModel } from './script.models';
 import styles from './script.module.css';
 import { isPart } from './script.utils';
+import Skeleton from './skeleton.component';
 
 interface ScriptPartProps {
   line: PartName;
@@ -36,27 +37,50 @@ interface ScriptProps {
 
 function Script(props: ScriptProps) {
   let lineCount = 0;
-  const script = playsDetails['la-noce-b86a57e9cef0'].script as ScriptModel;
+  // const script = playsDetails['la-noce-b86a57e9cef0'].script as ScriptModel;
+  let script: ScriptModel | undefined;
   return (
     <div className={styles.scriptContent}>
-      {script.lines.map((line, i) => {
-        return isPart(line) ? (
-          <ScriptPart
-            line={line}
-            key={i}
-            isEditable={props.isEditable}
-            hideLinesOf={props.hideLinesOf}
-          />
-        ) : (
-          <ScriptLine
-            num={++lineCount}
-            line={line}
-            key={i}
-            isEditable={props.isEditable}
-            hideLinesOf={props.hideLinesOf}
-          />
-        );
-      })}
+      {script ? (
+        script.lines.map((line, i) => {
+          return isPart(line) ? (
+            <ScriptPart
+              line={line}
+              key={i}
+              isEditable={props.isEditable}
+              hideLinesOf={props.hideLinesOf}
+            />
+          ) : (
+            <ScriptLine
+              num={++lineCount}
+              line={line}
+              key={i}
+              isEditable={props.isEditable}
+              hideLinesOf={props.hideLinesOf}
+            />
+          );
+        })
+      ) : (
+        <div
+          style={{
+            width: '800px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            flex: '1',
+          }}
+        >
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+          <Skeleton hideImage={true} />
+        </div>
+      )}
     </div>
   );
 }

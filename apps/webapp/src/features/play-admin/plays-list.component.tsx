@@ -1,14 +1,15 @@
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTRPC } from '../../trpc';
 import styles from './plays-list.module.css';
 import Skeleton from '../../components/skeleton.component';
 import PlaysFilters from './plays-filters.component';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { filterSortPlays, type PlayFilterSortOptions } from './plays.lib';
 import { PlayInvites } from './play-invites.component';
 import UnexpectedError from '../../components/unexpected-error.component';
 import DotsLoader from '../../components/dots-loader';
+import classNames from 'classnames';
 
 interface PlayListItemProps {
   id: string;
@@ -18,20 +19,28 @@ interface PlayListItemProps {
   isOwner: boolean;
   creationDate: Date;
   lastModifiedDate?: Date;
+  disabled?: boolean;
+  onOpen: (uri: string) => void;
+  isOpening?: boolean;
 }
 
 function PlayListItem(props: PlayListItemProps) {
   const ownerStr = props.isOwner
     ? 'You'
     : `${props.ownerFullName} (${props.ownerUsername})`;
+  const handleClick = () => {
+    if (!props.disabled) {
+      props.onOpen(props.id);
+    }
+  };
   return (
-    <li className={styles.play}>
-      <NavLink
-        replace
-        to={{
-          pathname: '/play/' + props.id,
-        }}
-      >
+    <li
+      className={classNames({
+        [styles.play]: true,
+        [styles.disabled]: props.disabled,
+      })}
+    >
+      <a onClick={handleClick}>
         <div className={styles.playDetails}>
           <span className={styles.playTitle}>{props.title}</span>
           <span>
@@ -55,9 +64,14 @@ function PlayListItem(props: PlayListItemProps) {
           </span>
         </div>
         <div className={styles.playPoster}>
-          <div className={styles.playPosterOverlay}></div>
+          <div
+            className={classNames({
+              [styles.playPosterOverlay]: true,
+              [styles.opening]: props.isOpening,
+            })}
+          ></div>
         </div>
-      </NavLink>
+      </a>
     </li>
   );
 }
@@ -80,21 +94,57 @@ function NoPlays() {
   );
 }
 
+const defaultFilterOptions: PlayFilterSortOptions = {
+  orderBy: 'orderByLastModificationDateAsc',
+  onlyPlaysSelfOwns: false,
+  title: '',
+};
+
 function PlayList() {
   const trpc = useTRPC();
   const query = useQuery(trpc.plays.list.queryOptions());
-  const [filters, setFilters] = useState<PlayFilterSortOptions>({});
+  const [filters, setFilters] =
+    useState<PlayFilterSortOptions>(defaultFilterOptions);
   const handleFiltersChange = (filters: PlayFilterSortOptions) => {
     setFilters(filters);
   };
   const plays = query.data?.plays ?? [];
   const invites = query.data?.invites ?? [];
   const filteredPlays = filterSortPlays(plays, filters);
+  const handleRespondedToInvite = () => {
+    query.refetch();
+  };
+  const navigate = useNavigate();
+  const [openedUri, setOpenedUri] = useState<string | null>(null);
+  const queryOpts = trpc.plays.playDetails.queryOptions({
+    uri: openedUri ?? '',
+  });
+  queryOpts.enabled = !!openedUri;
+  const {
+    isSuccess: isQuerySuccess,
+    isPending: isQueryPending,
+    isEnabled: isQueryEnabled,
+  } = useQuery(queryOpts);
+  useEffect(() => {
+    if (isQuerySuccess) {
+      navigate({
+        pathname: `/plays/edit/${openedUri}`,
+      });
+    }
+  }, [isQuerySuccess, openedUri]);
+  const handleOpen = (uri: string) => {
+    setOpenedUri(uri);
+  };
   return (
     <>
-      <PlaysFilters onFiltersChange={handleFiltersChange} />
+      <PlaysFilters onFiltersChange={handleFiltersChange} filters={filters} />
       <ul className={styles.plays}>
-        {invites.length ? <PlayInvites invites={invites} /> : null}
+        {invites.length ? (
+          <PlayInvites
+            invites={invites}
+            respondedToInvite={handleRespondedToInvite}
+          />
+        ) : null}
         {query.isError ? (
           <UnexpectedError error={query.error?.message} />
         ) : query.isLoading ? (
@@ -130,6 +180,9 @@ function PlayList() {
                   title={title}
                   lastModifiedDate={lastModifiedDate}
                   creationDate={createdDate}
+                  onOpen={handleOpen}
+                  disabled={!!(openedUri && openedUri !== uri)}
+                  isOpening={isQueryEnabled && isQueryPending}
                 />
               ),
             )

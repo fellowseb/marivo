@@ -9,12 +9,12 @@ export type PlaysOrdering =
   | 'orderByLastModificationDateDesc';
 
 export interface PlayFilterOptions {
-  title?: string;
-  onlyPlaysSelfOwns?: boolean;
+  title: string;
+  onlyPlaysSelfOwns: boolean;
 }
 
 export interface PlaySortOptions {
-  orderBy?: PlaysOrdering;
+  orderBy: PlaysOrdering;
 }
 
 export type PlayFilterSortOptions = PlayFilterOptions & PlaySortOptions;

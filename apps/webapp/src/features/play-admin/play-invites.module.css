@@ -10,7 +10,7 @@
 .invite {
   list-style: none;
   border: 1px solid #e4d6bc;
-  border-left: 10px solid #1f313c22;
+  border-left: 10px solid #60c5ea;
   border-radius: 4px;
   background-color: #60c5ea44;
   padding: 0px;
@@ -21,7 +21,26 @@
   gap: 10px;
   align-items: center;
   width: 600px;
-  min-height: 125px;
+  height: 125px;
+  left: 0;
+  position: relative;
+}
+
+@keyframes removal {
+  90% {
+    left: 110%;
+    height: 125px;
+  }
+  100% {
+    display: none;
+    left: 110%;
+    height: 0;
+  }
+}
+
+.removed {
+  animation: removal 0.5s 1 linear 0s;
+  animation-fill-mode: forwards;
 }
 
 .invite span {

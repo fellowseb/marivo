@@ -1,13 +1,76 @@
 .container {
-  flex: 1;
-  width: 100%;
-  display: flex;
-}
-
-.container > form {
-  flex: 1;
-  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: stretch;
+  gap: 1ch;
+  padding: 1ch;
+  border: 1px solid #1f313c44;
+  border-radius: 4px;
+  overflow-x: hidden;
+}
+
+.section {
+  flex: 1;
+  padding: 2ch;
+  border: 1px solid #1f313c44;
+  border-radius: 4px;
+  background-color: #99999914;
+  position: relative;
+  left: 0;
+  width: 800px;
+}
+
+.section:hover {
+  cursor: pointer;
+}
+
+.desc {
+  font-weight: bold;
+}
+
+.desc:before {
+  display: contents;
+  content: '▶ ';
+}
+
+.subdesc {
+  font-style: italic;
+}
+
+.content {
+  padding-top: 1ch;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes removal {
+  80% {
+    left: 110%;
+    height: 100px;
+    padding: 2ch;
+  }
+  100% {
+    display: none;
+    left: 110%;
+    height: 0;
+    padding: 0;
+  }
+}
+
+.removed {
+  animation: removal 0.2s 1 linear 0s;
+  animation-fill-mode: forwards;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: center;
+}
+
+.actionBack {
+  justify-self: flex-start;
 }

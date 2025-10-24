@@ -6,8 +6,9 @@
   gap: 4px;
   margin: 10px;
   overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
-  border: 1px solid #1f313c22;
+  border: 1px solid #1f313c44;
   padding: 20px 10px 20px 10px;
   border-radius: 4px;
   background-color: #99999914;
@@ -20,6 +21,7 @@
   margin: 0;
   min-width: 600px;
   min-height: 125px;
+  border: 1px solid #1f313c44;
 }
 
 .playSkeleton {
@@ -36,7 +38,7 @@
 
 .play > a {
   border: 1px solid #e4d6bc;
-  border-left: 10px solid #1f313c22;
+  border-left: 10px solid #1f313c;
   border-radius: 4px;
   background-color: #e8e4da;
   color: #1f313c;
@@ -48,6 +50,21 @@
   display: flex;
   flex-direction: row;
   transition: background-color 0.5s ease-out;
+}
+
+.play.disabled > a {
+  border-left: 10px solid #1f313c22;
+}
+
+.play.disabled > a:hover {
+  cursor: default;
+  background-color: #e8e4da;
+  border-left: 10px solid #1f313c22;
+}
+
+.play.disabled .playPoster,
+.play.disabled:hover .playPoster {
+  background-color: #1f313c22;
 }
 
 .play > a:focus {
@@ -84,7 +101,7 @@
 .playPoster {
   width: 100px;
   height: 100px;
-  background-color: #1f313c22;
+  background-color: #1f313c;
   border-radius: 4px;
 }
 
@@ -97,12 +114,30 @@
   background-color: #e8e4da;
 }
 
+.playPosterOverlay.opening {
+  mask: url('/src/assets/dots-horizontal.svg') no-repeat;
+  mask-size: 60px 60px;
+  mask-position: 20px 20px;
+}
+
+.play.disabled:hover .playPosterOverlay {
+  mask: url('/src/assets/book-closed.svg') no-repeat;
+  mask-size: 60px 60px;
+  mask-position: 20px 20px;
+}
+
 .play:hover .playPoster {
   background-color: #1f313c;
 }
 
 .play:hover .playPosterOverlay {
   mask: url('/src/assets/book-open-01.svg') no-repeat;
+  mask-size: 60px 60px;
+  mask-position: 20px 20px;
+}
+
+.play:hover .playPosterOverlay.opening {
+  mask: url('/src/assets/dots-horizontal.svg') no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
 }
