@@ -1,15 +1,22 @@
 import styles from './toolbar.module.css';
 import type { IconValue } from './icon.component';
 import Icon from './icon.component';
+import classNames from 'classnames';
 
 interface ToolbarItemProps {
   label: string;
   icon: IconValue;
+  disabled?: boolean;
 }
 
 function ToolbarItem(props: ToolbarItemProps) {
   return (
-    <button className={styles.item}>
+    <button
+      className={classNames({
+        [styles.item]: true,
+        [styles.disabled]: !!props.disabled,
+      })}
+    >
       <div className={styles.iconContainer}>
         <Icon size="small" mode="primary" value={props.icon} />
       </div>
@@ -32,8 +39,8 @@ export interface ToolbarProps {
 function Toolbar(props: ToolbarProps) {
   return (
     <div className={styles.container}>
-      {props.definition.items.map(({ label, icon }) => (
-        <ToolbarItem label={label} icon={icon} />
+      {props.definition.items.map(({ label, icon }, idx) => (
+        <ToolbarItem key={idx} label={label} icon={icon} />
       ))}
     </div>
   );
