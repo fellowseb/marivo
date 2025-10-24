@@ -29,3 +29,13 @@
 .button:focus-visible .icon {
   background-color: #1f313c;
 }
+
+.button:disabled {
+  background-color: #ccc;
+  color: #1f313c77;
+  border-color: #1f313c77;
+}
+
+.button:disabled .icon {
+  background-color: #1f313c77;
+}
