@@ -43,8 +43,8 @@ export interface MenuBarProps {
 export function MenuBar(props: MenuBarProps) {
   return (
     <nav className={styles.container}>
-      {props.definition.items.map(({ icon, path, label }) => (
-        <MenuBarItem icon={icon} path={path} label={label} />
+      {props.definition.items.map(({ icon, path, label }, idx) => (
+        <MenuBarItem key={idx} icon={icon} path={path} label={label} />
       ))}
     </nav>
   );
