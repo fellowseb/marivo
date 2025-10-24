@@ -85,3 +85,35 @@
 .asc {
   mask-image: url('/src/assets/icons/arrow-narrow-up.svg');
 }
+
+.animatedWaiting {
+  mask-image: url('/src/assets/icons/hourglass-03.svg');
+  transform: rotate();
+  animation: waitingRotation 1s infinite linear 0s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes waitingRotation {
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.web {
+  mask-image: url('/src/assets/icons/globe-02.svg');
+}
+
+.hardDrive {
+  mask-image: url('/src/assets/icons/hard-drive.svg');
+}
+
+.previous {
+  mask-image: url('/src/assets/icons/chevron-left.svg');
+}
+
+.downloadCloud {
+  mask-image: url('/src/assets/icons/download-cloud-01.svg');
+}

@@ -4,6 +4,7 @@ import iconsStyles from './icons.module.css';
 
 const ICON_CLASSES = {
   accept: iconsStyles.accept,
+  animatedWaiting: iconsStyles.animatedWaiting,
   archive: iconsStyles.archive,
   asc: iconsStyles.asc,
   blocking: iconsStyles.blocking,
@@ -11,11 +12,14 @@ const ICON_CLASSES = {
   decline: iconsStyles.decline,
   delete: iconsStyles.delete,
   desc: iconsStyles.desc,
+  downloadCloud: iconsStyles.downloadCloud,
+  hardDrive: iconsStyles.hardDrive,
   help: iconsStyles.help,
   memorize: iconsStyles.memorize,
   new: iconsStyles.new,
   notification: iconsStyles.notification,
   planning: iconsStyles.planning,
+  previous: iconsStyles.previous,
   redo: iconsStyles.redo,
   script: iconsStyles.script,
   search: iconsStyles.search,
@@ -25,6 +29,7 @@ const ICON_CLASSES = {
   undo: iconsStyles.undo,
   user: iconsStyles.user,
   voiceRecording: iconsStyles.voiceRecording,
+  web: iconsStyles.web,
 };
 
 export type IconValue = keyof typeof ICON_CLASSES;
