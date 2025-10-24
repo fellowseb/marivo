@@ -38,7 +38,7 @@ class Failure<TSuccess, TFailure>
   }
 }
 
-export class Result<TSuccess, TFailure> {
+export class Result<TSuccess = undefined, TFailure = undefined> {
   static ok<TSuccess>(data: TSuccess) {
     return new Result(new Success<TSuccess, LegitAny>(data));
   }
