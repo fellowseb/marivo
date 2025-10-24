@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import styles from './skeleton.module.css';
 
-function Skeleton() {
+function Skeleton(props: { hideImage?: boolean }) {
   return (
     <div className={styles.skeleton}>
       <div className={classNames([styles.lines, styles.wrapper])}>
@@ -9,7 +9,7 @@ function Skeleton() {
         <div></div>
         <div></div>
       </div>
-      <div className={styles.image}></div>
+      {props.hideImage ? null : <div className={styles.image}></div>}
     </div>
   );
 }
