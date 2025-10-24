@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useMatch } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import PageNotFound from './components/page-not-found.component';
 import AuthLayout from './layouts/auth-layout';
 import MainLayout from './layouts/main-layout';
@@ -7,14 +7,9 @@ import PlaysPage, {
 } from './features/play-admin/plays-page.component';
 import PlayPage, {
   PLAY_ROUTE_BASE,
-  PlayPageBreadcrumbs,
 } from './features/play-admin/play-page.component';
 import Signin from './features/auth/signin.component';
 import Signup from './features/auth/signup.component';
-import { PLAY_MENU_DEFINITION } from './features/play-admin/play-page-menubar';
-import { SCRIPT_TOOLBAR } from './features/script-edition/script-tab-toolbar';
-import { MEMORIZE_TOOLBAR } from './features/lines-memorization/memorize-tab-toolbar';
-import { BLOCKING_TOOLBAR } from './features/blocking/blocking-tab-toolbar';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import UserAccountPage, {
   UserAccountPageBreadcrumbs,
@@ -22,67 +17,27 @@ import UserAccountPage, {
 import NewPlayPage, {
   NewPlayPageBreadcrumbs,
 } from './features/play-admin/new-play-page.component';
-import { MenuBar } from './components/menubar.component';
-import Toolbar from './components/toolbar.component';
 
 function AppRoutes() {
-  const playMatches = useMatch(`${PLAY_ROUTE_BASE}/*`);
-  let Menu = null;
-  let Tools = null;
   const breadcrumbs = (
     <Routes>
       <Route path="/plays" element={<PlaysPageBreadcrumbs />} />
       <Route path="/plays/new" element={<NewPlayPageBreadcrumbs />} />
-      <Route path={`${PLAY_ROUTE_BASE}/*`} element={<PlayPageBreadcrumbs />} />
       <Route path="/my-account" element={<UserAccountPageBreadcrumbs />} />
     </Routes>
   );
-  if (playMatches) {
-    Menu = (
-      <Routes>
-        <Route
-          path={`${PLAY_ROUTE_BASE}/*`}
-          element={<MenuBar definition={PLAY_MENU_DEFINITION} />}
-        />
-      </Routes>
-    );
-    Tools = (
-      <Routes>
-        <Route
-          path={`${PLAY_ROUTE_BASE}/script`}
-          element={<Toolbar definition={SCRIPT_TOOLBAR} />}
-        />
-        <Route
-          path={`${PLAY_ROUTE_BASE}/blocking`}
-          element={<Toolbar definition={BLOCKING_TOOLBAR} />}
-        />
-        <Route
-          path={`${PLAY_ROUTE_BASE}/memorize`}
-          element={<Toolbar definition={MEMORIZE_TOOLBAR} />}
-        />
-      </Routes>
-    );
-  }
   return (
     <>
       <SignedIn>
         <Routes>
-          <Route
-            element={
-              <MainLayout
-                breadcrumbs={breadcrumbs}
-                Menu={Menu}
-                Toolbar={Tools}
-              />
-            }
-          >
+          <Route element={<MainLayout breadcrumbs={breadcrumbs} />}>
             <Route path="/plays" element={<PlaysPage />} />
             <Route path="/plays/new" element={<NewPlayPage />} />
-            <Route path={`${PLAY_ROUTE_BASE}/*`} element={<PlayPage />} />
             <Route path="/my-account/security?" element={<UserAccountPage />} />
             <Route path="/" element={<Navigate to="/plays" replace />}></Route>
             <Route path="*" element={<PageNotFound />} />
           </Route>
+          <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
         </Routes>
       </SignedIn>
 

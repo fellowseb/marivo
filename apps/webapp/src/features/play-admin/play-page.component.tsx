@@ -9,11 +9,13 @@ import StagingDirectionsTab from '../staging-directions/staging-directions-tab.c
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
 import styles from './play-page.module.css';
 import { PlayContextProvider, usePlayContext } from './play.context';
+import PlayPageLayout from '../../layouts/play-page-layout.component';
+import DotsLoader from '../../components/dots-loader';
 
 function PlayPageTitle() {
   const play = usePlayContext();
   if (!play) {
-    return null;
+    return <DotsLoader />;
   }
   return (
     <div className={styles.playTitle}>
@@ -60,14 +62,16 @@ function PlayPage() {
   return (
     <PlayContextProvider uri={uri}>
       <Routes>
-        <Route path="script" element={<ScriptTab />} />
-        <Route path="staging-directions" element={<StagingDirectionsTab />} />
-        <Route path="blocking" element={<BlockingTab />} />
-        <Route path="memorize" element={<MemorizeTab />} />
-        <Route path="planning" element={<PlanningTab />} />
-        <Route path="settings" element={<PlaySettingsTab />} />
-        <Route index path="/" element={<Navigate to="script" />} />
-        <Route index path="*" element={<PageNotFound />} />
+        <Route element={<PlayPageLayout />}>
+          <Route path="script" element={<ScriptTab />} />
+          <Route path="staging-directions" element={<StagingDirectionsTab />} />
+          <Route path="blocking" element={<BlockingTab />} />
+          <Route path="memorize" element={<MemorizeTab />} />
+          <Route path="planning" element={<PlanningTab />} />
+          <Route path="settings" element={<PlaySettingsTab />} />
+          <Route index path="/" element={<Navigate to="script" />} />
+          <Route index path="*" element={<PageNotFound />} />
+        </Route>
       </Routes>
     </PlayContextProvider>
   );

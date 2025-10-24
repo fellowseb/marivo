@@ -7,7 +7,6 @@ import {
 import { useTRPC } from '../../trpc';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import Icon from '../../components/icon.component';
 import DotsLoader from '../../components/dots-loader';
 
 export const PlayContext = createContext<{
@@ -37,7 +36,7 @@ export function PlayContextProvider(
   }
   return (
     <PlayContext.Provider value={playContextData}>
-      {query.isPending ? <DotsLoader /> : children}
+      {children}
     </PlayContext.Provider>
   );
 }

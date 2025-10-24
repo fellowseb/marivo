@@ -40,7 +40,7 @@ function PlayListItem(props: PlayListItemProps) {
         [styles.disabled]: props.disabled,
       })}
     >
-      <a onClick={handleClick}>
+      <a onClick={handleClick} href="#">
         <div className={styles.playDetails}>
           <span className={styles.playTitle}>{props.title}</span>
           <span>

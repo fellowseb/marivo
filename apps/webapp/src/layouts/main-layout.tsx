@@ -1,15 +1,15 @@
-import type { ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { Outlet } from 'react-router';
 import Header from './header.component';
 import styles from './main-layout.module.css';
 
-interface MainLayoutProps {
+interface MainLayoutBaseProps {
   breadcrumbs: ReactNode;
   Menu?: ReactNode;
   Toolbar?: ReactNode;
 }
 
-function MainLayout(props: MainLayoutProps) {
+export function MainLayoutBase(props: PropsWithChildren<MainLayoutBaseProps>) {
   return (
     <div className={styles.mainContainer}>
       <Header
@@ -23,9 +23,19 @@ function MainLayout(props: MainLayoutProps) {
           marginTop: props.Menu ? '7.4rem' : '4rem',
         }}
       >
-        <Outlet />
+        {props.children}
       </main>
     </div>
+  );
+}
+
+type MainLayoutProps = MainLayoutBaseProps;
+
+function MainLayout(props: MainLayoutProps) {
+  return (
+    <MainLayoutBase {...props}>
+      <Outlet />
+    </MainLayoutBase>
   );
 }
 
