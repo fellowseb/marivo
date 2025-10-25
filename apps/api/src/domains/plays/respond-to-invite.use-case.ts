@@ -31,12 +31,12 @@ export class RespondToInviteUseCase extends AuthenticatedUseCase<{
 
   async execute(params: RespondToInviteUseCaseInput) {
     const { inviteUri } = params;
-    const { playId } = await this.invitesRepository.respondToInvite({
+    const { playId, roleId } = await this.invitesRepository.respondToInvite({
       inviteUri,
       accept: true,
     });
     if (params.accept) {
-      await this.playsRepository.joinPlay({ playId });
+      await this.playsRepository.joinPlay({ playId, roleId });
     }
     return Result.ok(undefined);
   }

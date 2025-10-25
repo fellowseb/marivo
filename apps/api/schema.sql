@@ -41,7 +41,7 @@ CREATE TABLE plays (
                                             ON DELETE SET NULL,
     owner_id                integer         NOT NULL
                                             REFERENCES users(id),
-    last_modified_date      timestamp(0),
+    last_modified_date      timestamp(0)    NOT NULL, -- init with created_date
     public_domain_play_src  integer         REFERENCES public_domain_plays(id)
                                             ON DELETE SET NULL,
     external_synced_src     varchar(2048)
@@ -53,7 +53,8 @@ CREATE TABLE roles (
     name                    varchar(32)     NOT NULL,
     play_id                 integer         NOT NULL
                                             REFERENCES plays(id)
-                                            ON DELETE CASCADE
+                                            ON DELETE CASCADE,
+    permissions             jsonb
 );
 
 CREATE TYPE invite_status_enum AS ENUM ('pending', 'rejected', 'accepted', 'error');
@@ -69,6 +70,8 @@ CREATE TABLE invites (
                                                   ON DELETE CASCADE,
     status                  invite_status_enum    NOT NULL,
     sent_date               timestamp(0)          NOT NULL,
+    role_id                 integer               REFERENCES roles(id)
+                                                  ON DELETE SET NULL,
 
     CONSTRAINT one_invite_per_play_per_email UNIQUE (invited_email, invited_user_id, play_id),
     CONSTRAINT invited_email_or_user_id_not_null CHECK (invited_email is NOT NULL OR invited_user_id is NOT NULL)
@@ -81,7 +84,7 @@ CREATE TABLE users_in_plays (
     play_id                 integer         NOT NULL 
                                             REFERENCES plays(id)
                                             ON DELETE CASCADE,
-    role                    integer         REFERENCES roles(id)
+    role_id                 integer         REFERENCES roles(id)
                                             ON DELETE SET NULL,
     joined_date             timestamp(0)    NOT NULL,
 
@@ -98,7 +101,8 @@ CREATE VIEW user_plays_view AS
         p.owner_id AS user_id,
         o.username AS owner_username,
         o.full_name AS owner_full_name,
-        'owner' AS user_role
+        'owner' AS user_role,
+        NULL AS role_id
     FROM plays p
         JOIN users o ON o.id = p.owner_id)
     UNION
@@ -111,7 +115,8 @@ CREATE VIEW user_plays_view AS
         up.user_id,
         o.username AS owner_username,
         o.full_name AS owner_full_name,
-        'participant' AS user_role
+        'participant' AS user_role,
+        up.role_id AS role_id
     FROM users_in_plays up
         JOIN plays p ON p.id = up.play_id
         JOIN users o ON o.id = p.owner_id

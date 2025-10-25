@@ -5,6 +5,7 @@ import {
   UserContextService,
 } from '../../shared/use-case.ts';
 import {
+  PERMISSIONS_SCHEMA,
   RecordNotFound,
   UserPlaysRepository,
 } from './user-plays.repository.ts';
@@ -22,9 +23,16 @@ export const PlayDetailsUseCaseInputSchema = z.object({
 
 export const PlayDetailsUseCaseOutputSchema = z.object({
   details: z.object({
+    id: z.number(),
     uri: z.string().length(36),
     title: z.string().max(100),
+    createdDate: z.date(),
+    lastModifiedDate: z.date(),
+    isOwner: z.boolean(),
+    ownerFullName: z.string(),
+    ownerUsername: z.string(),
   }),
+  permissions: PERMISSIONS_SCHEMA.strict(),
 });
 
 type PlayDetailsUseCaseInput = z.infer<typeof PlayDetailsUseCaseInputSchema>;
@@ -47,12 +55,10 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
     const { uri } = input;
     const detailsResult = await this.playsRepository.getPlayDetails({ uri });
     return detailsResult.match({
-      success({ title }) {
+      success({ details, permissions }) {
         return Result.ok({
-          details: {
-            title,
-            uri,
-          },
+          details,
+          permissions,
         });
       },
       failure(err) {

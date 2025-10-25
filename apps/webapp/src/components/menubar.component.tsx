@@ -3,6 +3,8 @@ import { NavLink } from 'react-router';
 import styles from './menubar.module.css';
 import type { IconValue } from './icon.component';
 import Icon from './icon.component';
+import type { AppRouterOutput } from '@marivo/api';
+import { usePlayContext } from '../features/play-admin/play.context';
 
 interface MenuBarItemProps {
   label: string;
@@ -33,6 +35,7 @@ export interface MenuBarDefinition {
     label: string;
     icon: IconValue;
     path: string;
+    accessPermission: keyof AppRouterOutput['plays']['playDetails']['permissions'];
   }[];
 }
 
@@ -41,11 +44,18 @@ export interface MenuBarProps {
 }
 
 export function MenuBar(props: MenuBarProps) {
+  const playContext = usePlayContext();
+  if (!playContext) {
+    return null;
+  }
+  const { permissions } = playContext;
   return (
     <nav className={styles.container}>
-      {props.definition.items.map(({ icon, path, label }, idx) => (
-        <MenuBarItem key={idx} icon={icon} path={path} label={label} />
-      ))}
+      {props.definition.items.map(({ icon, path, label, accessPermission }) => {
+        return permissions[accessPermission] ? (
+          <MenuBarItem key={path} icon={icon} path={path} label={label} />
+        ) : null;
+      })}
     </nav>
   );
 }

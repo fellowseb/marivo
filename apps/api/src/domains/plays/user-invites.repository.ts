@@ -45,11 +45,11 @@ export class UserInvitesRepository extends UserRepositoryBase {
 
   async respondToInvite(params: { inviteUri: string; accept: boolean }) {
     const userId = this.userId();
-    const res = await this.sql<{ play_id: number }[]>`
+    const res = await this.sql<{ play_id: number; role_id: number | null }[]>`
       UPDATE invites
         SET status = ${params.accept ? 'accepted' : 'rejected'}
         WHERE uri = ${params.inviteUri} AND invited_user_id = ${userId}
-        RETURNING play_id;
+        RETURNING play_id, role_id;
     `;
     if (!res) {
       throw new Error('Unexpected empty query result');
@@ -60,6 +60,7 @@ export class UserInvitesRepository extends UserRepositoryBase {
     }
     return {
       playId: resRow.play_id,
+      roleId: resRow.role_id,
     };
   }
 }

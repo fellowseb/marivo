@@ -7,12 +7,11 @@ import {
 import { useTRPC } from '../../trpc';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import DotsLoader from '../../components/dots-loader';
+import type { AppRouterOutput } from '@marivo/api';
 
-export const PlayContext = createContext<{
-  title: string;
-  uri: string;
-} | null>(null);
+export const PlayContext = createContext<
+  AppRouterOutput['plays']['playDetails'] | null
+>(null);
 
 export function PlayContextProvider(
   props: PropsWithChildren<{
@@ -22,13 +21,13 @@ export function PlayContextProvider(
   const { uri, children } = props;
   const trpc = useTRPC();
   const query = useQuery(trpc.plays.playDetails.queryOptions({ uri }));
-  const details = query.data?.details;
+  const { data } = query;
   const playContextData = useMemo(() => {
-    if (!uri || !details) {
+    if (!uri || !data) {
       return null;
     }
-    return details;
-  }, [uri, details]);
+    return data;
+  }, [uri, data]);
   const navigate = useNavigate();
   if (query.isError) {
     navigate({ pathname: '/' });

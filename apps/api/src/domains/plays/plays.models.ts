@@ -1,9 +1,9 @@
 export interface UserPlay {
-  id: string;
+  id: number;
   title: string;
   uri: string;
   createdDate: Date;
-  lastModifiedDate?: Date;
+  lastModifiedDate: Date;
   isOwner: boolean;
   ownerFullName: string;
   ownerUsername: string;

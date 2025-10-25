@@ -20,7 +20,7 @@ function PlayPageTitle() {
   return (
     <div className={styles.playTitle}>
       <div className={styles.playIcon}></div>
-      {play.title}
+      {play.details.title}
     </div>
   );
 }

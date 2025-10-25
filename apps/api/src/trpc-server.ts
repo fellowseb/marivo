@@ -6,13 +6,15 @@ import { createContext, router } from './trpc.ts';
 import { deliveryMiddleware } from './infra/delivery.middleware.ts';
 import { userMiddleware } from './domains/auth/user.middleware.ts';
 import playsRoutes from './domains/plays/plays.trpc-routes.ts';
-// import { dbTransactionMiddleware } from './shared/trpc-delivery.ts';
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 
 const appRouter = router({
   plays: playsRoutes,
 });
 
 export type AppRouter = typeof appRouter;
+export type AppRouterInput = inferRouterInputs<AppRouter>;
+export type AppRouterOutput = inferRouterOutputs<AppRouter>;
 
 export default function trpcServer(): express.Application {
   const app = express();
