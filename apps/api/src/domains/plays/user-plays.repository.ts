@@ -1,8 +1,8 @@
+import z from 'zod';
 import { Result } from '@marivo/utils';
 import { Record } from '../../shared/record.ts';
 import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
 import type { UserPlay } from './plays.models.ts';
-import z from 'zod';
 
 interface GetAllPlaysRecordValues {
   id: number;

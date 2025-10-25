@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import Button from '../../components/button.components';
 
 export function PlaysPageBreadcrumbs() {
-  return <HeaderBreadcrumbs key="plays" crumbs={['My plays']} />;
+  return <HeaderBreadcrumbs crumbs={['My plays']} />;
 }
 
 function PlaysPage() {

@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import styles from './header.module.css';
 import { useAuth, useUser } from '@clerk/clerk-react';
@@ -8,26 +8,18 @@ import Icon from '../components/icon.component';
 
 interface HeaderBreadcrumbsProps {
   crumbs: ReactNode[];
-  key: string;
 }
 
 export function HeaderBreadcrumbs(props: HeaderBreadcrumbsProps) {
   return (
     <>
       {props.crumbs.map((node, idx) => {
-        const arrow = (
-          <div
-            className={styles.breadcrumbArrow}
-            key={props.key + idx + '_arrow'}
-          >
-            ▶{' '}
-          </div>
-        );
+        const arrow = <div className={styles.breadcrumbArrow}>▶ </div>;
         return (
-          <>
+          <Fragment key={idx}>
             {arrow}
             {node}
-          </>
+          </Fragment>
         );
       })}
     </>
@@ -52,7 +44,7 @@ function Header(props: HeaderProps) {
     <header className={styles.header}>
       <div className={styles.headerInner}>
         <div className={styles.logoContainer}>
-          <NavLink to="/" className={styles.logo} />
+          <NavLink to="/plays" className={styles.logo} />
         </div>
         <div className={styles.breadcrumbs}>{props.pageBreadcrumbs}</div>
         <NavLink className={styles.user} to="/my-account">

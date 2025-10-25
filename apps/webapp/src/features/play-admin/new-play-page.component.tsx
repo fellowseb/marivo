@@ -98,7 +98,7 @@ function ImportFromExternalSourceTab() {
             alignItems: 'center',
           }}
         >
-          <input type="checkbox" checked={true} />
+          <input type="checkbox" />
           Keep as source of truth
         </label>
         <div
