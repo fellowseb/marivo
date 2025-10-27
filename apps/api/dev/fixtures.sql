@@ -77,7 +77,7 @@ INSERT INTO roles (
 ) VALUES (
     'Comedian',
     1,
-      '{"scriptRead": true,
+      '{"scriptRead": false,
       "scriptWriteSharedDrafts": true,
       "scriptWrite": true,
       "stagingNotesRead": true,
@@ -98,7 +98,7 @@ INSERT INTO roles (
 ) VALUES (
     'Comedian',
     3,
-      '{"scriptRead": true,
+      '{"scriptRead": false,
       "scriptWriteSharedDrafts": true,
       "scriptWrite": true,
       "stagingNotesRead": true,

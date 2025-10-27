@@ -9,9 +9,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import type { AppRouterOutput } from '@marivo/api';
 
-export const PlayContext = createContext<
-  AppRouterOutput['plays']['playDetails'] | null
->(null);
+export type PlayContextData = AppRouterOutput['plays']['playDetails'];
+
+export const PlayContext = createContext<PlayContextData | null>(null);
 
 export function PlayContextProvider(
   props: PropsWithChildren<{

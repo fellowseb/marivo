@@ -10,7 +10,7 @@ export const PLAY_MENU_DEFINITION: MenuBarDefinition = {
     },
     {
       label: 'Staging notes',
-      path: '../staging-directions',
+      path: '../staging-notes',
       icon: 'staging',
       accessPermission: 'stagingNotesRead',
     },

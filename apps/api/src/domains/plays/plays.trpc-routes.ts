@@ -16,9 +16,9 @@ import type { Provider } from '../../shared/provider.ts';
 import { AppError } from '../../shared/error.ts';
 import sql from '../../infra/db.ts';
 
-class Unauthorized extends AppError {
+class Forbidden extends AppError {
   constructor() {
-    super('Unauthorized resource access', 'UNAUTHORIZED_ACCESS', 'client');
+    super('Forbidden resource access', 'FORBIDDEN', 'client');
   }
 }
 
@@ -27,7 +27,7 @@ function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
     const authChecker = provider.instantiate({ req: ctx.req, sql });
     const res = await authChecker.authorize({ ctx, input });
     if (res.isFailure()) {
-      throw new Unauthorized();
+      throw new Forbidden();
     }
     return next();
   };
