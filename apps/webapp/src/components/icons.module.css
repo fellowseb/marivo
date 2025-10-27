@@ -117,3 +117,7 @@
 .downloadCloud {
   mask-image: url('/src/assets/icons/download-cloud-01.svg');
 }
+
+.error {
+  mask-image: url('/src/assets/icons/alert-hexagon.svg');
+}

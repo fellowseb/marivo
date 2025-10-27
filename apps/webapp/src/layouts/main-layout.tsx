@@ -2,6 +2,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import { Outlet } from 'react-router';
 import Header from './header.component';
 import styles from './main-layout.module.css';
+import { NotificationsPanel } from '../components/notifications-panel.component';
 
 interface MainLayoutBaseProps {
   breadcrumbs: ReactNode;
@@ -25,6 +26,7 @@ export function MainLayoutBase(props: PropsWithChildren<MainLayoutBaseProps>) {
       >
         {props.children}
       </main>
+      <NotificationsPanel />
     </div>
   );
 }

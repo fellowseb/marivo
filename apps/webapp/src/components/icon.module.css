@@ -13,6 +13,11 @@
   width: 1.2rem;
 }
 
+.sizeLarge {
+  height: 2rem;
+  width: 2rem;
+}
+
 .primary {
   background-color: #1f313c;
 }

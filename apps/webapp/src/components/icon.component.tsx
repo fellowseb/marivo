@@ -13,6 +13,7 @@ const ICON_CLASSES = {
   delete: iconsStyles.delete,
   desc: iconsStyles.desc,
   downloadCloud: iconsStyles.downloadCloud,
+  error: iconsStyles.error,
   hardDrive: iconsStyles.hardDrive,
   help: iconsStyles.help,
   memorize: iconsStyles.memorize,
@@ -34,7 +35,7 @@ const ICON_CLASSES = {
 
 export type IconValue = keyof typeof ICON_CLASSES;
 
-export type IconSize = 'small' | 'medium';
+export type IconSize = 'small' | 'medium' | 'large';
 
 export type IconColorMode = 'primary' | 'secondary';
 
@@ -52,6 +53,7 @@ function Icon(props: IconProps) {
         [styles.icon]: true,
         [styles.sizeSmall]: props.size === 'small',
         [styles.sizeMedium]: props.size === 'medium',
+        [styles.sizeLarge]: props.size === 'large',
         [styles.primary]: props.mode === 'primary',
         [styles.secondary]: props.mode === 'secondary',
         [ICON_CLASSES[props.value]]: true,

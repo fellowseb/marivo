@@ -9,6 +9,7 @@ import type { AppRouter } from '@marivo/api';
 import Routes from './routes.tsx';
 import './app.css';
 import { TRPCProvider } from './trpc.ts';
+import { NotificationsContextProvider } from './components/notifications.context.tsx';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -79,9 +80,11 @@ function App() {
     <StrictMode>
       <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
         <TrpcApiProvider apiUrl={API_URL}>
-          <BrowserRouter>
-            <Routes />
-          </BrowserRouter>
+          <NotificationsContextProvider>
+            <BrowserRouter>
+              <Routes />
+            </BrowserRouter>
+          </NotificationsContextProvider>
         </TrpcApiProvider>
       </ClerkProvider>
     </StrictMode>
