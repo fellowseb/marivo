@@ -65,6 +65,13 @@ export function NotificationsContextProvider(props: PropsWithChildren) {
       ];
     });
     if (notif.autoHide) {
+      if (notif.id) {
+        const timeoutId = timeoutIds.get(notif.id);
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+          timeoutIds.delete(notif.id);
+        }
+      }
       const timeoutId = window.setTimeout(() => {
         hideNotification(id);
         timeoutIds.delete(id);
