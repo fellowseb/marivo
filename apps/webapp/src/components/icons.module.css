@@ -121,3 +121,11 @@
 .error {
   mask-image: url('/src/assets/icons/alert-hexagon.svg');
 }
+
+.offline {
+  mask-image: url('/src/assets/icons/wifi-off.svg');
+}
+
+.online {
+  mask-image: url('/src/assets/icons/wifi.svg');
+}

@@ -19,6 +19,8 @@ const ICON_CLASSES = {
   memorize: iconsStyles.memorize,
   new: iconsStyles.new,
   notification: iconsStyles.notification,
+  offline: iconsStyles.offline,
+  online: iconsStyles.online,
   planning: iconsStyles.planning,
   previous: iconsStyles.previous,
   redo: iconsStyles.redo,

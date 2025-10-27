@@ -3,6 +3,7 @@ import { Outlet } from 'react-router';
 import Header from './header.component';
 import styles from './main-layout.module.css';
 import { NotificationsPanel } from '../components/notifications-panel.component';
+import { useNetworkStatusNotifier } from '../lib/use-network-status-notifier';
 
 interface MainLayoutBaseProps {
   breadcrumbs: ReactNode;
@@ -11,6 +12,7 @@ interface MainLayoutBaseProps {
 }
 
 export function MainLayoutBase(props: PropsWithChildren<MainLayoutBaseProps>) {
+  useNetworkStatusNotifier();
   return (
     <div className={styles.mainContainer}>
       <Header
