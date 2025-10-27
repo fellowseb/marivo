@@ -20,7 +20,6 @@ function Tab(props: TabProps) {
         [styles.inactive]: !props.isActive,
       })}
       onClick={handleClick}
-      href="#"
     >
       {props.name}
     </a>
