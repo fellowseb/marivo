@@ -1,15 +1,16 @@
-import { NavLink, useNavigate } from 'react-router';
+import { useState } from 'react';
+import { NavLink } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { useTRPC } from '../../trpc';
 import styles from './plays-list.module.css';
 import Skeleton from '../../components/skeleton.component';
 import PlaysFilters from './plays-filters.component';
-import { useEffect, useState } from 'react';
 import { filterSortPlays, type PlayFilterSortOptions } from './plays.lib';
 import { PlayInvites } from './play-invites.component';
 import UnexpectedError from '../../components/unexpected-error.component';
 import DotsLoader from '../../components/dots-loader';
-import classNames from 'classnames';
+import { PLAY_ROUTE_BASE } from './play-page.component';
 
 interface PlayListItemProps {
   id: string;
@@ -19,28 +20,23 @@ interface PlayListItemProps {
   isOwner: boolean;
   creationDate: Date;
   lastModifiedDate?: Date;
-  disabled?: boolean;
-  onOpen: (uri: string) => void;
-  isOpening?: boolean;
 }
 
 function PlayListItem(props: PlayListItemProps) {
   const ownerStr = props.isOwner
     ? 'You'
     : `${props.ownerFullName} (${props.ownerUsername})`;
-  const handleClick = () => {
-    if (!props.disabled) {
-      props.onOpen(props.id);
-    }
-  };
   return (
     <li
       className={classNames({
         [styles.play]: true,
-        [styles.disabled]: props.disabled,
       })}
     >
-      <a onClick={handleClick} href="#">
+      <NavLink
+        to={{
+          pathname: PLAY_ROUTE_BASE.replace(':uri', props.id),
+        }}
+      >
         <div className={styles.playDetails}>
           <span className={styles.playTitle}>{props.title}</span>
           <span>
@@ -67,11 +63,10 @@ function PlayListItem(props: PlayListItemProps) {
           <div
             className={classNames({
               [styles.playPosterOverlay]: true,
-              [styles.opening]: props.isOpening,
             })}
           ></div>
         </div>
-      </a>
+      </NavLink>
     </li>
   );
 }
@@ -113,27 +108,6 @@ function PlayList() {
   const filteredPlays = filterSortPlays(plays, filters);
   const handleRespondedToInvite = () => {
     query.refetch();
-  };
-  const navigate = useNavigate();
-  const [openedUri, setOpenedUri] = useState<string | null>(null);
-  const queryOpts = trpc.plays.playDetails.queryOptions({
-    uri: openedUri ?? '',
-  });
-  queryOpts.enabled = !!openedUri;
-  const {
-    isSuccess: isQuerySuccess,
-    isPending: isQueryPending,
-    isEnabled: isQueryEnabled,
-  } = useQuery(queryOpts);
-  useEffect(() => {
-    if (isQuerySuccess) {
-      navigate({
-        pathname: `/plays/edit/${openedUri}`,
-      });
-    }
-  }, [isQuerySuccess, openedUri]);
-  const handleOpen = (uri: string) => {
-    setOpenedUri(uri);
   };
   return (
     <>
@@ -180,9 +154,6 @@ function PlayList() {
                   title={title}
                   lastModifiedDate={lastModifiedDate}
                   creationDate={createdDate}
-                  onOpen={handleOpen}
-                  disabled={!!(openedUri && openedUri !== uri)}
-                  isOpening={isQueryEnabled && isQueryPending}
                 />
               ),
             )
