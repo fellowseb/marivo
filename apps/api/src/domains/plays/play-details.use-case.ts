@@ -13,7 +13,7 @@ import { AppError } from '../../shared/error.ts';
 
 class UriNotFound extends AppError {
   constructor() {
-    super('Play URI not found', 'PLAY_URI_NOT_FOUND', 'client');
+    super('Play URI not found', 'NOT_FOUND');
   }
 }
 

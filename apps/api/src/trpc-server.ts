@@ -31,7 +31,10 @@ export default function trpcServer(): express.Application {
     trpcExpress.createExpressMiddleware({
       router: appRouter,
       createContext,
-      // middleware: dbTransactionMiddleware(),
+      onError: (opts) => {
+        const { error, type, path } = opts;
+        console.error(error, type, path);
+      },
     }),
   );
   return app;

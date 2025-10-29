@@ -3,6 +3,7 @@ import type { LegitAny } from './types.ts';
 interface ResultInternals<TSuccess, TFailure> {
   type: 'success' | 'failure';
   dataOrThrow: () => TSuccess;
+  dataOr: <T>(fallbackValue: T) => TSuccess | T;
   errorOrThrow: () => TFailure;
 }
 
@@ -15,6 +16,9 @@ class Success<TSuccess, TFailure>
   data: TSuccess;
   type = 'success' as const;
   dataOrThrow(): TSuccess {
+    return this.data;
+  }
+  dataOr<T>(_fallbackValue: T): TSuccess | T {
     return this.data;
   }
   errorOrThrow(): TFailure {
@@ -32,6 +36,9 @@ class Failure<TSuccess, TFailure>
   type = 'failure' as const;
   dataOrThrow(): TSuccess {
     throw new Error('Unexpected Result success');
+  }
+  dataOr<T>(fallbackValue: T): TSuccess | T {
+    return fallbackValue;
   }
   errorOrThrow(): TFailure {
     return this.data;
@@ -71,6 +78,10 @@ export class Result<TSuccess = undefined, TFailure = undefined> {
 
   public dataOrThrow(): TSuccess {
     return this.internals.dataOrThrow();
+  }
+
+  public dataOr<T>(fallbackValue: T): TSuccess | T {
+    return this.internals.dataOr(fallbackValue);
   }
 
   public errorOrThrow(): TFailure {

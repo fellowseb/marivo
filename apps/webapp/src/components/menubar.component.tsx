@@ -45,10 +45,10 @@ export interface MenuBarProps {
 
 export function MenuBar(props: MenuBarProps) {
   const playContext = usePlayContext();
-  if (!playContext) {
+  if (!playContext?.isOk()) {
     return null;
   }
-  const { permissions } = playContext;
+  const { permissions } = playContext.dataOrThrow();
   return (
     <nav className={styles.container}>
       {props.definition.items.map(({ icon, path, label, accessPermission }) => {

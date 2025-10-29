@@ -1,17 +1,15 @@
-export type ErrorFamily = 'client' | 'server';
+export type AppErrorCode =
+  | 'BAD_REQUEST' // 400
+  | 'UNAUTHORIZED' // 401
+  | 'FORBIDDEN' // 403
+  | 'NOT_FOUND' // 404
+  | 'INTERNAL_SERVER_ERROR'; // 500
 
 export abstract class AppError extends Error {
-  constructor(
-    message: string,
-    code: string,
-    family: ErrorFamily,
-    options?: ErrorOptions,
-  ) {
+  constructor(message: string, code: AppErrorCode, options?: ErrorOptions) {
     super(message, options);
     this.code = code;
-    this.family = family;
   }
 
-  public code: string;
-  public family: ErrorFamily;
+  public code: AppErrorCode;
 }

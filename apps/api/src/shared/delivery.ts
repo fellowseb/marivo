@@ -57,25 +57,25 @@ function validateData<TError extends Error>(
 
 class InvalidInputParamsError extends AppError {
   constructor() {
-    super('Invalid input params', 'INVALID_INPUT_PARAMS', 'client');
+    super('Invalid input params', 'BAD_REQUEST');
   }
 }
 
 class InvalidInputPayloadError extends AppError {
   constructor() {
-    super('Invalid input payload', 'INVALID_INPUT_PAYLOAD', 'client');
+    super('Invalid input payload', 'BAD_REQUEST');
   }
 }
 
 class InvalidOutputError extends AppError {
   constructor() {
-    super('Invalid use case output format', 'INVALID_INPUT_PARAMS', 'server');
+    super('Invalid use case output format', 'BAD_REQUEST');
   }
 }
 
 class UnexpectedAppError extends AppError {
   constructor() {
-    super('Unexpected application error', 'UNEXPECTED_APP_ERROR', 'server');
+    super('Unexpected application error', 'INTERNAL_SERVER_ERROR');
   }
 }
 

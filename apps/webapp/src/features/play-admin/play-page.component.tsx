@@ -10,7 +10,7 @@ import styles from './play-page.module.css';
 import {
   PlayContextProvider,
   usePlayContext,
-  type PlayContextData,
+  type PlayContextResult,
 } from './play.context';
 import PlayPageLayout from '../../layouts/play-page-layout.component';
 import DotsLoader from '../../components/dots-loader';
@@ -22,15 +22,22 @@ import { useEffect } from 'react';
 
 function PlayPageTitle() {
   const play = usePlayContext();
-  if (!play) {
+  if (play === null) {
     return <DotsLoader />;
   }
-  return (
-    <div className={styles.playTitle}>
-      <div className={styles.playIcon}></div>
-      {play.details.title}
-    </div>
-  );
+  return play.match({
+    success({ details }) {
+      return (
+        <div className={styles.playTitle}>
+          <div className={styles.playIcon}></div>
+          {details.title}
+        </div>
+      );
+    },
+    failure() {
+      return <>{'?'}</>;
+    },
+  });
 }
 
 export function PlayPageBreadcrumbs() {
@@ -71,14 +78,14 @@ export function isPlaySubpath(subpath: string): subpath is PlaySubPath {
 }
 
 export function useNavigateToDefaultPlaySubpath(
-  playContext: PlayContextData | null,
+  playContext: PlayContextResult,
   opts: { activate: boolean; fromIndex: boolean },
 ) {
   let redirection: PlaySubPath | undefined;
   for (const key in PLAY_SUB_ROUTES_PATHS) {
     const subpath =
       PLAY_SUB_ROUTES_PATHS[key as keyof typeof PLAY_SUB_ROUTES_PATHS];
-    if (checkPermission(playContext?.permissions, subpath)) {
+    if (checkPermission(playContext?.dataOr(undefined)?.permissions, subpath)) {
       redirection = subpath;
       break;
     }

@@ -9,6 +9,7 @@ import { SCRIPT_TOOLBAR } from '../features/script-edition/script-tab-toolbar';
 import { BLOCKING_TOOLBAR } from '../features/blocking/blocking-tab-toolbar';
 import { MEMORIZE_TOOLBAR } from '../features/lines-memorization/memorize-tab-toolbar';
 import DotsLoader from '../components/dots-loader';
+import PageNotFound from '../components/page-not-found.component';
 
 function PlayPageLayout() {
   const playContext = usePlayContext();
@@ -20,7 +21,7 @@ function PlayPageLayout() {
         </Routes>
       }
       Menu={
-        playContext ? (
+        playContext?.isOk() ? (
           <Routes>
             <Route
               path={`*`}
@@ -30,7 +31,7 @@ function PlayPageLayout() {
         ) : null
       }
       Toolbar={
-        playContext ? (
+        playContext?.isOk() ? (
           <Routes>
             <Route
               path={`script`}
@@ -48,7 +49,14 @@ function PlayPageLayout() {
         ) : null
       }
     >
-      {playContext ? <Outlet /> : <DotsLoader />}
+      {playContext?.match({
+        success() {
+          return <Outlet />;
+        },
+        failure() {
+          return <PageNotFound />;
+        },
+      }) ?? <DotsLoader />}
     </MainLayoutBase>
   );
 }

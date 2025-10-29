@@ -3,6 +3,7 @@ import { Result } from '@marivo/utils';
 import { Record } from '../../shared/record.ts';
 import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
 import type { UserPlay } from './plays.models.ts';
+import { AppError } from '../../shared/error.ts';
 
 interface GetAllPlaysRecordValues {
   id: number;
@@ -148,6 +149,16 @@ const DEFAULT_COMEDIAN_PERMISSIONS = {
   settingsWrite: false,
 };
 
+class PlayNotFound extends AppError {
+  constructor(uri: string) {
+    super('Play not found', 'NOT_FOUND', {
+      cause: {
+        uri,
+      },
+    });
+  }
+}
+
 export class UserPlaysRepository extends UserRepositoryBase {
   /**
    * Retrieves all plays for a given user:
@@ -254,7 +265,9 @@ export class UserPlaysRepository extends UserRepositoryBase {
     return Result.ok(new PlayDetailsRecord(firstResult).toModel());
   }
 
-  async checkPlayAccess(params: { uri: string }) {
+  async checkPlayAccess(params: {
+    uri: string;
+  }): Promise<Result<undefined, PlayNotFound>> {
     const res = await this.sql<
       {
         id: number;
@@ -268,7 +281,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
         WHERE user_id = ${this.userId()} AND uri = ${params.uri};
       `;
     if (!res || res.length !== 1) {
-      return Result.failure(undefined);
+      return Result.failure(new PlayNotFound(params.uri));
     }
     return Result.ok(undefined);
   }

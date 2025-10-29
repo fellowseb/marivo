@@ -9,12 +9,19 @@ import { PlayDetailsUseCase } from './play-details.use-case.ts';
 
 import type { Request } from 'express';
 import { Result } from '@marivo/utils';
+import { AppError } from '../../shared/error.ts';
 
 export abstract class ResourceAccessAuth<TInput> {
   abstract authorize(params: {
     ctx: { request: Request };
     input: TInput;
-  }): Promise<Result>;
+  }): Promise<Result<undefined, AppError>>;
+}
+
+class PlayAccessForbidden extends AppError {
+  constructor() {
+    super('Forbidden play access', 'FORBIDDEN');
+  }
 }
 
 class PlayAccessChecker extends ResourceAccessAuth<{
@@ -25,7 +32,9 @@ class PlayAccessChecker extends ResourceAccessAuth<{
     this.playRepository = playRepository;
   }
 
-  async authorize(params: { input: { uri: string } }): Promise<Result> {
+  async authorize(params: {
+    input: { uri: string };
+  }): Promise<Result<undefined, PlayAccessForbidden>> {
     return await this.playRepository.checkPlayAccess({
       uri: params.input.uri,
     });

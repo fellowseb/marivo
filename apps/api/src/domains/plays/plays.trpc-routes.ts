@@ -6,28 +6,25 @@ import {
   CreatePlayUseCaseInputSchema,
   CreatePlayUseCaseOutputSchema,
 } from './create-play.use-case.ts';
-import { handleUseCase } from '../../shared/trpc-delivery.ts';
+import {
+  appErrorToTrpcError,
+  handleUseCase,
+} from '../../shared/trpc-delivery.ts';
 import z from 'zod';
 import {
   PlayDetailsUseCaseInputSchema,
   PlayDetailsUseCaseOutputSchema,
 } from './play-details.use-case.ts';
 import type { Provider } from '../../shared/provider.ts';
-import { AppError } from '../../shared/error.ts';
 import sql from '../../infra/db.ts';
-
-class Forbidden extends AppError {
-  constructor() {
-    super('Forbidden resource access', 'FORBIDDEN', 'client');
-  }
-}
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
   return async ({ ctx, input, next }: any) => {
     const authChecker = provider.instantiate({ req: ctx.req, sql });
     const res = await authChecker.authorize({ ctx, input });
     if (res.isFailure()) {
-      throw new Forbidden();
+      const err = res.errorOrThrow();
+      throw appErrorToTrpcError(err);
     }
     return next();
   };

@@ -1,6 +1,4 @@
 import { type Request } from 'express';
-// import z from 'zod';
-// import { publicProcedure } from '../trpc.ts';
 import type { Provider } from '../shared/provider.ts';
 import type {
   AnyUseCase,
@@ -8,6 +6,8 @@ import type {
   SuccessOfUseCase,
 } from '../shared/use-case.ts';
 import sql from '../infra/db.ts';
+import { AppError } from './error.ts';
+import { TRPCError } from '@trpc/server';
 
 export function dbTransactionMiddleware() {
   return async ({ ctx, next }: any) => {
@@ -20,6 +20,20 @@ export function dbTransactionMiddleware() {
       });
     });
   };
+}
+
+export function appErrorToTrpcError(err: unknown) {
+  if (err instanceof AppError) {
+    return new TRPCError({
+      message: err.toString(),
+      code: err.code,
+      cause: err.cause,
+    });
+  }
+  return new TRPCError({
+    message: `${err}`,
+    code: 'INTERNAL_SERVER_ERROR',
+  });
 }
 
 export function handleUseCase<T extends AnyUseCase>(provider: Provider<T>) {
@@ -36,46 +50,10 @@ export function handleUseCase<T extends AnyUseCase>(provider: Provider<T>) {
       return result.match({
         success: (data) => data,
         failure: (error) => {
-          throw new Error('Use case failed', { cause: error });
+          throw appErrorToTrpcError(error);
         },
       });
     });
     return res as any;
   };
 }
-
-// export function useCaseMutationProcedure<T extends AnyUseCase>(params: {
-//   provider: Provider<T>;
-//   inputPayloadSchema: z.ZodType<ParamsOfUseCase<T>>;
-//   outputSchema: z.ZodType<SuccessOfUseCase<T>>;
-// }) {
-//   return publicProcedure
-//     .input(params.inputPayloadSchema)
-//     .output(params.outputSchema)
-//     .mutation(({ input, ctx }) => {
-//       const inputTyped = input as ParamsOfUseCase<T>;
-//       return handleUseCase(params.provider)({ ctx, input: inputTyped });
-//     });
-// }
-//
-// export function useCaseQueryProcedure<T extends AnyUseCase>(params: {
-//   provider: Provider<T>;
-//   inputParamsSchema?: z.Schema;
-//   outputSchema?: z.Schema;
-// }) {
-//   let inputBuilder = publicProcedure;
-//   let outputBuilder = publicProcedure;
-//   if (params.inputParamsSchema) {
-//     inputBuilder = publicProcedure.input(params.inputParamsSchema) as any;
-//   }
-//   if (params.outputSchema) {
-//     outputBuilder = publicProcedure.output(params.outputSchema);
-//   }
-//   return publicProcedure
-//     .concat(inputBuilder)
-//     .concat(outputBuilder)
-//     .query(({ ctx, input }) => {
-//       const inputTyped = input as ParamsOfUseCase<T>;
-//       return handleUseCase(params.provider)({ ctx, input: inputTyped });
-//     });
-// }

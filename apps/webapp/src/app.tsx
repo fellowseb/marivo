@@ -4,7 +4,7 @@ import { StrictMode, useState } from 'react';
 import { BrowserRouter } from 'react-router';
 import { ClerkProvider, useAuth } from '@clerk/clerk-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import { createTRPCClient, httpBatchLink, TRPCClientError } from '@trpc/client';
 import type { AppRouter } from '@marivo/api';
 import Routes from './routes.tsx';
 import './app.css';
@@ -15,6 +15,15 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
+        retry: (failureCount, error) => {
+          if (
+            error instanceof TRPCClientError &&
+            error.data.code === 'NOT_FOUND'
+          ) {
+            return false;
+          }
+          return failureCount < 4;
+        },
         staleTime: 60 * 1000,
       },
     },

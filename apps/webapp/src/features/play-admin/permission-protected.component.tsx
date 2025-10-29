@@ -35,10 +35,17 @@ export function checkPermission(
 
 function PermissionProtected(props: PropsWithChildren) {
   const playContext = usePlayContext();
-  const relativePath = useLocation().pathname.substring(
-    PLAY_ROUTE_BASE.replace(':uri', playContext?.details.uri ?? '').length + 1,
+  const { pathname } = useLocation();
+  const relativePath = pathname.substring(
+    PLAY_ROUTE_BASE.replace(
+      ':uri',
+      playContext?.dataOr(undefined)?.details.uri ?? '',
+    ).length + 1,
   );
-  const hasPermission = checkPermission(playContext?.permissions, relativePath);
+  const hasPermission = checkPermission(
+    playContext?.dataOr(undefined)?.permissions,
+    relativePath,
+  );
   useNavigateToDefaultPlaySubpath(playContext, {
     activate: !hasPermission,
     fromIndex: false,

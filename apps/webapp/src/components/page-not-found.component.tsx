@@ -1,5 +1,5 @@
 function PageNotFound() {
-  return 'Page not found (Error 404)';
+  return `The page you requested doesn't seem to exist !`;
 }
 
 export default PageNotFound;
