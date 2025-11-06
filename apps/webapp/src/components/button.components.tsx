@@ -8,14 +8,25 @@ export interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   customClassNames?: string[];
+  variant?: 'standout' | 'normal' | 'discrete';
 }
 
 function Button(props: PropsWithChildren<ButtonProps>) {
+  const variant = props.variant ?? 'normal';
   return (
     <button
-      className={classNames(
-        [styles.button].concat(props.customClassNames ?? []),
-      )}
+      className={classNames({
+        [styles.normal]: variant === 'normal',
+        [styles.discrete]: variant === 'discrete',
+        [styles.button]: true,
+        ...(props.customClassNames ?? []).reduce(
+          (acc, cls) => ({
+            ...acc,
+            [cls]: true,
+          }),
+          {},
+        ),
+      })}
       onClick={props.onClick}
       disabled={props.disabled}
     >

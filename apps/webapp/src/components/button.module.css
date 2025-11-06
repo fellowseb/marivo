@@ -1,22 +1,36 @@
+.normal {
+  --border-color: #1f313c;
+  --font-color: #fef8eb;
+  --bg-color: #1f313c;
+  --hover-bg-color: #1f313c99;
+}
+
+.discrete {
+  --border-color: transparent;
+  --font-color: #1f313c;
+  --bg-color: #e4d6bc33;
+  --hover-bg-color: #e4d6bc66;
+}
+
 .button {
   display: flex;
   align-items: center;
   flex-direction: row;
   gap: 4px;
-  border: 2px solid #1f313c;
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   font-family: inherit;
   font-size: 1rem;
-  color: #fef8eb;
+  color: var(--font-color);
   height: 1.8rem;
-  background-color: #1f313c;
+  background-color: var(--bg-color);
   white-space: nowrap;
   outline: none;
 }
 
 .button:hover {
   cursor: pointer;
-  background-color: #1f313c99;
+  background-color: var(--hover-bg-color);
 }
 
 .button:focus-visible {
