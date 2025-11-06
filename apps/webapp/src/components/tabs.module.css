@@ -1,7 +1,6 @@
 .container {
-  background-color: #1f313c;
   border: 1px solid #ccc;
-  background-color: #1f313c33;
+  border: 1px solid #cebc96;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
@@ -18,6 +17,7 @@
 .contentContainer {
   flex: 1;
   background-color: #e8e4da;
+  background-color: #e4d6bc33;
   border-radius: 0 0 4px 4px;
   border-top: 1px solid #e4d6bc;
 }
@@ -26,24 +26,28 @@
   font-family: Arimo;
   color: #1f313c;
   padding: 8px;
-  border-right: 1px solid #e4d6bc;
-  border-top: 1px solid #e4d6bc;
+  border: 1px solid #cebc96;
+  border-bottom: 0;
   background-color: #e8e4da;
+  background-color: #f9f1e2;
   border-radius: 4px 4px 0 0;
   cursor: pointer;
   height: 30px;
+  position: relative;
+  left: -0.5px;
 }
 
 .tab.active {
   font-weight: bold;
-  height: 33px;
-  border-bottom: 1px solid #e8e4da;
-  z-index: 1;
+  height: 31px;
+  border-bottom: 0;
+  z-index: 1000;
+  top: 2px;
 }
 
 .tab.inactive {
-  background-color: #1f313c;
-  background-color: transparent;
+  background-color: #e4d6bc;
+  top: 2px;
 }
 
 .tab:focus-visible {
