@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { NavLink, Route, Routes, useNavigate, useParams } from 'react-router';
 import ScriptTab from '../script-edition/script-tab.component';
 import MemorizeTab from '../lines-memorization/memorize-tab.component';
@@ -13,12 +14,12 @@ import {
   type PlayContextResult,
 } from './play.context';
 import PlayPageLayout from '../../layouts/play-page-layout.component';
-import DotsLoader from '../../components/dots-loader';
+import DotsLoader from '../../components/dots-loader.component';
 import PageNotFound from '../../components/page-not-found.component';
 import PermissionProtected, {
   checkPermission,
 } from './permission-protected.component';
-import { useEffect } from 'react';
+import { ScriptContextProvider } from '../script-edition/script.context.tsx';
 
 function PlayPageTitle() {
   const play = usePlayContext();
@@ -126,60 +127,62 @@ function PlayPage() {
   }
   return (
     <PlayContextProvider uri={uri}>
-      <Routes>
-        <Route element={<PlayPageLayout />}>
-          <Route
-            path={PLAY_SUB_ROUTES_PATHS.script}
-            element={
-              <PermissionProtected>
-                <ScriptTab />
-              </PermissionProtected>
-            }
-          />
-          <Route
-            path={PLAY_SUB_ROUTES_PATHS.stagingNotes}
-            element={
-              <PermissionProtected>
-                <StagingDirectionsTab />
-              </PermissionProtected>
-            }
-          />
-          <Route
-            path={PLAY_SUB_ROUTES_PATHS.blocking}
-            element={
-              <PermissionProtected>
-                <BlockingTab />
-              </PermissionProtected>
-            }
-          />
-          <Route
-            path={PLAY_SUB_ROUTES_PATHS.memorize}
-            element={
-              <PermissionProtected>
-                <MemorizeTab />
-              </PermissionProtected>
-            }
-          />
-          <Route
-            path={PLAY_SUB_ROUTES_PATHS.planning}
-            element={
-              <PermissionProtected>
-                <PlanningTab />
-              </PermissionProtected>
-            }
-          />
-          <Route
-            path={PLAY_SUB_ROUTES_PATHS.settings}
-            element={
-              <PermissionProtected>
-                <PlaySettingsTab />
-              </PermissionProtected>
-            }
-          />
-          <Route index path="/" element={<NavigateToDefaultSubpath />} />
-          <Route path="*" element={<PageNotFound />} />
-        </Route>
-      </Routes>
+      <ScriptContextProvider playUri={uri}>
+        <Routes>
+          <Route path="*" element={<PlayPageLayout />}>
+            <Route
+              path={PLAY_SUB_ROUTES_PATHS.script}
+              element={
+                <PermissionProtected>
+                  <ScriptTab />
+                </PermissionProtected>
+              }
+            />
+            <Route
+              path={PLAY_SUB_ROUTES_PATHS.stagingNotes}
+              element={
+                <PermissionProtected>
+                  <StagingDirectionsTab />
+                </PermissionProtected>
+              }
+            />
+            <Route
+              path={PLAY_SUB_ROUTES_PATHS.blocking}
+              element={
+                <PermissionProtected>
+                  <BlockingTab />
+                </PermissionProtected>
+              }
+            />
+            <Route
+              path={PLAY_SUB_ROUTES_PATHS.memorize}
+              element={
+                <PermissionProtected>
+                  <MemorizeTab />
+                </PermissionProtected>
+              }
+            />
+            <Route
+              path={PLAY_SUB_ROUTES_PATHS.planning}
+              element={
+                <PermissionProtected>
+                  <PlanningTab />
+                </PermissionProtected>
+              }
+            />
+            <Route
+              path={PLAY_SUB_ROUTES_PATHS.settings}
+              element={
+                <PermissionProtected>
+                  <PlaySettingsTab />
+                </PermissionProtected>
+              }
+            />
+            <Route index element={<NavigateToDefaultSubpath />} />
+            <Route path="*" element={<PageNotFound />} />
+          </Route>
+        </Routes>
+      </ScriptContextProvider>
     </PlayContextProvider>
   );
 }

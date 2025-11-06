@@ -1,13 +1,60 @@
 .playFilters {
   display: flex;
-  align-items: center;
-  align-self: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
   color: #1f313c;
-  padding: 10px;
+  border: 1px solid #1f313c22;
+  border: 1px solid #cebc96;
   border-radius: 4px;
 }
 
 .playFilters label {
   text-align: right;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.formGrid {
+  display: grid;
+  align-items: center;
+  align-self: stretch;
+  grid-gap: 4px;
+  grid-template-columns: 150px auto;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  z-index: 10;
+  color: #1f313c;
+}
+
+.header > * {
+  flex: 1;
+  justify-content: space-between;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.arrow {
+  transition: 0.1s linear transform;
+  color: #cebc96;
+  transform: rotate(90deg);
+}
+
+.arrowDown {
+  transform: rotate(270deg);
 }

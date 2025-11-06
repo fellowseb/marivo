@@ -5,11 +5,13 @@ import classNames from 'classnames';
 import { useTRPC } from '../../trpc';
 import styles from './plays-list.module.css';
 import Skeleton from '../../components/skeleton.component';
-import PlaysFilters from './plays-filters.component';
+import PlaysFilters, {
+  DEFAULT_FILTER_OPTIONS,
+} from './plays-filters.component';
 import { filterSortPlays, type PlayFilterSortOptions } from './plays.lib';
 import { PlayInvites } from './play-invites.component';
 import UnexpectedError from '../../components/unexpected-error.component';
-import DotsLoader from '../../components/dots-loader';
+import DotsLoader from '../../components/dots-loader.component';
 import { PLAY_ROUTE_BASE } from './play-page.component';
 
 interface PlayListItemProps {
@@ -37,26 +39,18 @@ function PlayListItem(props: PlayListItemProps) {
           pathname: PLAY_ROUTE_BASE.replace(':uri', props.id),
         }}
       >
+        <span className={styles.playTitle}>{props.title}</span>
         <div className={styles.playDetails}>
-          <span className={styles.playTitle}>{props.title}</span>
-          <span>
-            Owned by{' '}
-            <span className={styles.playDetailsValues}>{ownerStr}</span>
+          Owned by <span className={styles.playDetailsValues}>{ownerStr}</span>
+          Créée le{' '}
+          <span className={styles.playDetailsValues}>
+            {props.creationDate.toLocaleString()}
           </span>
-
-          <span>
-            Créée le{' '}
-            <span className={styles.playDetailsValues}>
-              {props.creationDate.toLocaleString()}
-            </span>
-          </span>
-          <span>
-            Dernière modification le{' '}
-            <span className={styles.playDetailsValues}>
-              {props.lastModifiedDate
-                ? props.lastModifiedDate.toLocaleString()
-                : '—'}
-            </span>
+          Dernière modification le{' '}
+          <span className={styles.playDetailsValues}>
+            {props.lastModifiedDate
+              ? props.lastModifiedDate.toLocaleString()
+              : '—'}
           </span>
         </div>
         <div className={styles.playPoster}>
@@ -83,23 +77,28 @@ function NoPlays() {
   return (
     <div className={styles.noPlaysContainer}>
       <p>You haven't joined any play yet !</p>
-      <p>All invites you could receive should be displayed on this page.</p>
-      <p>You can also create a new play yourself by using the button below.</p>
+      <p>All received invites will be displayed on this page.</p>
+      <p>
+        You can also{' '}
+        <NavLink
+          to={{
+            pathname: 'new',
+          }}
+        >
+          create a new play yourself
+        </NavLink>
+        {'. '}
+      </p>
     </div>
   );
 }
 
-const defaultFilterOptions: PlayFilterSortOptions = {
-  orderBy: 'orderByLastModificationDateAsc',
-  onlyPlaysSelfOwns: false,
-  title: '',
-};
-
 function PlayList() {
   const trpc = useTRPC();
   const query = useQuery(trpc.plays.list.queryOptions());
-  const [filters, setFilters] =
-    useState<PlayFilterSortOptions>(defaultFilterOptions);
+  const [filters, setFilters] = useState<PlayFilterSortOptions>(
+    DEFAULT_FILTER_OPTIONS,
+  );
   const handleFiltersChange = (filters: PlayFilterSortOptions) => {
     setFilters(filters);
   };
@@ -124,13 +123,16 @@ function PlayList() {
         ) : query.isLoading ? (
           <>
             <li className={styles.playSkeleton}>
-              <Skeleton />
+              <Skeleton hideImage={true} />
             </li>
             <li className={styles.playSkeleton}>
-              <Skeleton />
+              <Skeleton hideImage={true} />
             </li>
             <li className={styles.playSkeleton}>
-              <Skeleton />
+              <Skeleton hideImage={true} />
+            </li>
+            <li className={styles.playSkeleton}>
+              <Skeleton hideImage={true} />
             </li>
           </>
         ) : plays.length ? (

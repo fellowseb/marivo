@@ -4,7 +4,8 @@
   justify-content: stretch;
   gap: 1ch;
   padding: 1ch;
-  border: 1px solid #1f313c44;
+  border: 1px solid #cebc96;
+  background-color: #e4d6bc33;
   border-radius: 4px;
   overflow-x: hidden;
 }
@@ -12,12 +13,16 @@
 .section {
   flex: 1;
   padding: 2ch;
-  border: 1px solid #1f313c44;
+  border: 1px solid #cebc96;
+  border: 1px solid #1f313c;
   border-radius: 4px;
   background-color: #99999914;
   position: relative;
   left: 0;
   width: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .section:hover {

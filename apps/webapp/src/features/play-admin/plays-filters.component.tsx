@@ -1,13 +1,20 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import styles from './plays-filters.module.css';
 import type { PlayFilterSortOptions, PlaysOrdering } from './plays.lib';
 import Button from '../../components/button.components';
 import Icon from '../../components/icon.component';
+import classNames from 'classnames';
 
 export interface PlaysFiltersProps {
   filters: PlayFilterSortOptions;
   onFiltersChange: (options: PlayFilterSortOptions) => void;
 }
+
+export const DEFAULT_FILTER_OPTIONS: PlayFilterSortOptions = {
+  orderBy: 'orderByLastModificationDateAsc',
+  onlyPlaysSelfOwns: false,
+  title: '',
+};
 
 function PlaysFilters(props: PlaysFiltersProps) {
   const titleFilterRef = useRef<HTMLInputElement>(null);
@@ -22,75 +29,106 @@ function PlaysFilters(props: PlaysFiltersProps) {
   };
   const handleClearClick = () => {
     if (titleFilterRef.current) {
-      titleFilterRef.current.value = '';
+      titleFilterRef.current.value = DEFAULT_FILTER_OPTIONS.title;
     }
     if (orderByRef.current) {
-      orderByRef.current.value = props.filters.orderBy;
+      orderByRef.current.value = DEFAULT_FILTER_OPTIONS.orderBy;
     }
     if (onlyPlaysSelfOwnsRef.current) {
-      onlyPlaysSelfOwnsRef.current.checked = props.filters.onlyPlaysSelfOwns;
+      onlyPlaysSelfOwnsRef.current.checked =
+        DEFAULT_FILTER_OPTIONS.onlyPlaysSelfOwns;
     }
     handleFiltersChange();
+  };
+  const [showFilters, setShowFilters] = useState(false);
+  const handleShowFilters = () => {
+    setShowFilters((prev) => !prev);
   };
 
   return (
     <div className={styles.playFilters}>
-      <input
-        type="text"
-        id="filter-title"
-        placeholder="Filter by title..."
-        onChange={handleFiltersChange}
-        ref={titleFilterRef}
-        size={16}
-        value={props.filters.title}
-      />
-      <select
-        onChange={handleFiltersChange}
-        ref={orderByRef}
-        value={props.filters.orderBy}
+      <div className={styles.header}>
+        <Button onClick={handleShowFilters} variant="discrete">
+          <span className={styles.headerTitle}>
+            <Icon value="filter" size="small" mode="primary" />
+            Filters
+          </span>
+          <span
+            className={classNames({
+              [styles.arrow]: true,
+              [styles.arrowDown]: showFilters,
+            })}
+          >
+            ▶
+          </span>
+        </Button>
+      </div>
+      <div
+        className={classNames({
+          [styles.content]: true,
+          [styles.hidden]: !showFilters,
+        })}
       >
-        <button>
-          <selectedcontent></selectedcontent>
-        </button>
-        <option
-          value={'orderByLastModificationDateAsc' satisfies PlaysOrdering}
-        >
-          Last modification date
-          <Icon value="asc" size="small" mode="primary" />
-        </option>
-        <option
-          value={'orderByLastModificationDateDesc' satisfies PlaysOrdering}
-        >
-          Last modification date
-          <Icon value="desc" size="small" mode="primary" />
-        </option>
-        <option value={'orderByCreationDateAsc' satisfies PlaysOrdering}>
-          Creation date
-          <Icon value="asc" size="small" mode="primary" />
-        </option>
-        <option value={'orderByCreationDateDesc' satisfies PlaysOrdering}>
-          Creation date
-          <Icon value="desc" size="small" mode="primary" />
-        </option>
-        <option value={'orderByTitleAsc' satisfies PlaysOrdering}>
-          Title
-          <Icon value="asc" size="small" mode="primary" />
-        </option>
-        <option value={'orderByTitleDesc' satisfies PlaysOrdering}>
-          Title
-          <Icon value="desc" size="small" mode="primary" />
-        </option>
-      </select>
-      <label>Plays I own</label>
-      <input
-        type="checkbox"
-        onChange={handleFiltersChange}
-        ref={onlyPlaysSelfOwnsRef}
-        checked={props.filters.onlyPlaysSelfOwns}
-      />
-      <Button onClick={handleClearClick} icon="clear">
-        Clear
-      </Button>
+        <div className={styles.formGrid}>
+          <label>Title:</label>
+          <input
+            type="text"
+            id="filter-title"
+            onChange={handleFiltersChange}
+            ref={titleFilterRef}
+            size={16}
+            value={props.filters.title}
+          />
+          <label>Sort by:</label>
+          <select
+            onChange={handleFiltersChange}
+            ref={orderByRef}
+            value={props.filters.orderBy}
+          >
+            <button>
+              <selectedcontent></selectedcontent>
+            </button>
+            <option
+              value={'orderByLastModificationDateAsc' satisfies PlaysOrdering}
+            >
+              Last modification date
+              <Icon value="asc" size="small" mode="primary" />
+            </option>
+            <option
+              value={'orderByLastModificationDateDesc' satisfies PlaysOrdering}
+            >
+              Last modification date
+              <Icon value="desc" size="small" mode="primary" />
+            </option>
+            <option value={'orderByCreationDateAsc' satisfies PlaysOrdering}>
+              Creation date
+              <Icon value="asc" size="small" mode="primary" />
+            </option>
+            <option value={'orderByCreationDateDesc' satisfies PlaysOrdering}>
+              Creation date
+              <Icon value="desc" size="small" mode="primary" />
+            </option>
+            <option value={'orderByTitleAsc' satisfies PlaysOrdering}>
+              Title
+              <Icon value="asc" size="small" mode="primary" />
+            </option>
+            <option value={'orderByTitleDesc' satisfies PlaysOrdering}>
+              Title
+              <Icon value="desc" size="small" mode="primary" />
+            </option>
+          </select>
+          <label>Plays I own only</label>
+          <input
+            type="checkbox"
+            onChange={handleFiltersChange}
+            ref={onlyPlaysSelfOwnsRef}
+            checked={props.filters.onlyPlaysSelfOwns}
+          />
+        </div>
+        <Button onClick={handleClearClick} icon="clear">
+          Clear
+        </Button>
+      </div>
     </div>
   );
 }

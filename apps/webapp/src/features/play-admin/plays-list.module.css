@@ -4,14 +4,13 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  margin: 10px;
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
-  border: 1px solid #1f313c44;
   padding: 20px 10px 20px 10px;
+  border: 1px solid #cebc96;
   border-radius: 4px;
-  background-color: #99999914;
+  background-color: #e4d6bc33;
   flex: 1;
 }
 
@@ -21,7 +20,6 @@
   margin: 0;
   min-width: 600px;
   min-height: 125px;
-  border: 1px solid #1f313c44;
 }
 
 .playSkeleton {
@@ -37,10 +35,11 @@
 }
 
 .play > a {
-  border: 1px solid #e4d6bc;
+  border: 1px solid #1f313c;
   border-left: 10px solid #1f313c;
   border-radius: 4px;
   background-color: #e8e4da;
+  background-color: #99999914;
   color: #1f313c;
   text-decoration: none;
   margin: 0px;
@@ -48,7 +47,7 @@
   width: 100%;
   padding: 12px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   transition: background-color 0.5s ease-out;
 }
 
@@ -75,7 +74,7 @@
 
 .play > a:hover {
   cursor: pointer;
-  background-color: #fefefe;
+  background-color: #1f313c19;
   border-left: 10px solid #1f313c;
 }
 
@@ -88,17 +87,19 @@
 
 .playDetailsValues {
   font-weight: bold;
+  text-align: left;
 }
 
 .playDetails {
-  display: flex;
-  flex-direction: column;
-  margin-left: 4px;
+  display: grid;
   font-style: italic;
   flex: 1;
+  grid-gap: 0 4px;
+  grid-template-columns: auto 1fr;
 }
 
 .playPoster {
+  display: none;
   width: 100px;
   height: 100px;
   background-color: #1f313c;
@@ -149,6 +150,7 @@
   justify-content: center;
   height: 100%;
   color: #999;
+  flex: 1;
 }
 
 .noPlaysContainer p {

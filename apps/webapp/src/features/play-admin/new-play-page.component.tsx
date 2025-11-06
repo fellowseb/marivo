@@ -340,9 +340,8 @@ export function NewPlayPage() {
         })}
         onClick={makeHandleSectionClick('choice-1')}
       >
-        <div className={styles.desc}>
-          You already have a script and want to use it in Marivo
-        </div>
+        <div className={styles.desc}>Import an existing script</div>
+        <img src="/src/assets/empty-script.svg" width={120} />
         <div
           className={classNames({
             [styles.content]: true,
@@ -363,6 +362,7 @@ export function NewPlayPage() {
         <div className={styles.desc}>
           Pick from a collection of scripts in the Public Domain.
         </div>
+        <img src="/src/assets/empty-script.svg" width={120} />
       </section>
       <section
         className={classNames({
@@ -373,6 +373,7 @@ export function NewPlayPage() {
         onClick={makeHandleSectionClick('choice-3')}
       >
         <div className={styles.desc}>Start with an empty script</div>
+        <img src="/src/assets/empty-script.svg" width={120} />
         <div
           className={classNames({
             [styles.content]: true,
