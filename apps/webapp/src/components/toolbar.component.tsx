@@ -20,7 +20,7 @@ function ToolbarItem(props: ToolbarItemProps) {
       <div className={styles.iconContainer}>
         <Icon size="small" mode="primary" value={props.icon} />
       </div>
-      {props.label}
+      <span className={styles.label}>{props.label}</span>
     </button>
   );
 }
