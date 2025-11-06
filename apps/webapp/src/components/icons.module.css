@@ -129,3 +129,19 @@
 .online {
   mask-image: url('/src/assets/icons/wifi.svg');
 }
+
+.filter {
+  mask-image: url('/src/assets/icons/filter-funnel-02.svg');
+}
+
+.grab {
+  mask-image: url('/src/assets/icons/dots-grid.svg');
+}
+
+.versions {
+  mask-image: url('/src/assets/icons/clock-rewind.svg');
+}
+
+.save {
+  mask-image: url('/src/assets/icons/save-01.svg');
+}
