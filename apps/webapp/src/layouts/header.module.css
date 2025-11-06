@@ -7,7 +7,7 @@
   z-index: 1000;
   top: 0;
   left: 0;
-  border-bottom: 2px solid #cebc96;
+  border-bottom: 1px solid #cebc96;
 }
 
 .headerInner {
@@ -41,19 +41,23 @@
 }
 
 .logoContainer {
-  width: 120px;
-  margin-right: 40px;
+  width: 125px;
 }
 
 .logo {
   margin-top: 3px;
   display: block;
-  background-image: url('/src/assets/marivo-app-logo-full-transparent.webp');
-  background-size: 100%;
+  background-image: url('/src/assets/marivo-app-text-logo.webp');
+  background-size: 90%;
+  background-position: 10px 0;
   background-repeat: no-repeat;
-  width: 160px;
+  width: 100%;
   height: 48px;
   top: 2px;
+}
+
+.logo:focus-visible {
+  transform: rotate(180deg);
 }
 
 .user {

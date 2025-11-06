@@ -8,7 +8,7 @@ import { PlayPageBreadcrumbs } from '../features/play-admin/play-page.component'
 import { SCRIPT_TOOLBAR } from '../features/script-edition/script-tab-toolbar';
 import { BLOCKING_TOOLBAR } from '../features/blocking/blocking-tab-toolbar';
 import { MEMORIZE_TOOLBAR } from '../features/lines-memorization/memorize-tab-toolbar';
-import DotsLoader from '../components/dots-loader';
+import DotsLoader from '../components/dots-loader.component';
 import PageNotFound from '../components/page-not-found.component';
 
 function PlayPageLayout() {
@@ -56,7 +56,18 @@ function PlayPageLayout() {
         failure() {
           return <PageNotFound />;
         },
-      }) ?? <DotsLoader />}
+      }) ?? (
+        <div
+          style={{
+            flex: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <DotsLoader size="xlarge" />
+        </div>
+      )}
     </MainLayoutBase>
   );
 }

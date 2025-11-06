@@ -6,7 +6,37 @@ DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS plays;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS public_domain_plays;
-DROP TYPE invite_status_enum;
+DROP TABLE IF EXISTS lines;
+DROP TABLE IF EXISTS scripts;
+DROP TYPE IF EXISTS invite_status_enum;
+DROP TYPE IF EXISTS line_type;
+
+CREATE TYPE line_type AS ENUM ('heading', 'freetext', 'chartext');
+
+CREATE TABLE scripts (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    checksum                varchar(32)     NOT NULL, --MD5 hash
+    last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
+    lines_order             uuid[]          NOT NULL DEFAULT '{}'
+);
+ 
+CREATE TABLE lines (
+    id                      uuid            NOT NULL,
+    script_id               integer         REFERENCES scripts(id)
+                                            NOT NULL,
+    type                    line_type       NOT NULL,
+    deleted                 boolean         DEFAULT false NOT NULL,
+    characters              varchar(80)[]   ,
+    heading_level           integer         ,
+    text                    text            NOT NULL,
+    last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
+    -- pos_last_modified_date  timestamp(0)    DEFAULT now(),
+    checksum                varchar(32)     NOT NULL, --MD5 hash
+    version                 integer         DEFAULT 1 NOT NULL,
+    previous_versions_ids   uuid[]          ,
+    PRIMARY KEY (id, script_id)
+);
 
 CREATE TABLE users (
     id                      integer         PRIMARY KEY 
@@ -36,15 +66,18 @@ CREATE TABLE plays (
     uri                     varchar(36)     NOT NULL
                                             UNIQUE,
     title                   varchar(100)    NOT NULL,
-    created_date            timestamp(0)    NOT NULL,
+    created_date            timestamp(0)    NOT NULL 
+                                            DEFAULT now(),
     creator_id              integer         REFERENCES users(id) 
                                             ON DELETE SET NULL,
     owner_id                integer         NOT NULL
                                             REFERENCES users(id),
-    last_modified_date      timestamp(0)    NOT NULL, -- init with created_date
+    last_modified_date      timestamp(0)    NOT NULL 
+                                            DEFAULT now(), -- init with created_date
     public_domain_play_src  integer         REFERENCES public_domain_plays(id)
                                             ON DELETE SET NULL,
-    external_synced_src     varchar(2048)
+    external_synced_src     varchar(2048)   ,
+    script_id               integer         REFERENCES scripts(id) NOT NULL
 );
 
 CREATE TABLE roles (
@@ -69,7 +102,8 @@ CREATE TABLE invites (
                                                   REFERENCES plays(id)
                                                   ON DELETE CASCADE,
     status                  invite_status_enum    NOT NULL,
-    sent_date               timestamp(0)          NOT NULL,
+    sent_date               timestamp(0)          NOT NULL
+                                                  DEFAULT now(),
     role_id                 integer               REFERENCES roles(id)
                                                   ON DELETE SET NULL,
 
@@ -86,7 +120,8 @@ CREATE TABLE users_in_plays (
                                             ON DELETE CASCADE,
     role_id                 integer         REFERENCES roles(id)
                                             ON DELETE SET NULL,
-    joined_date             timestamp(0)    NOT NULL,
+    joined_date             timestamp(0)    NOT NULL
+                                            DEFAULT now(),
 
     CONSTRAINT one_user_to_play_assoc UNIQUE (user_id, play_id)
 );
@@ -130,3 +165,4 @@ CREATE VIEW user_pending_invites_view AS (
  WHERE i.status = 'pending' AND i.invited_user_id IS NOT null
  ORDER BY i.sent_date DESC
 );
+

@@ -15,6 +15,10 @@ export const SCRIPT_TOOLBAR: ToolbarDefinition = {
       icon: 'search',
     },
     {
+      label: 'show versions',
+      icon: 'versions',
+    },
+    {
       label: 'voice command',
       icon: 'voiceRecording',
     },

@@ -1,43 +1,20 @@
 .scriptContent {
-  max-width: 1000px;
+  width: 21cm;
+  min-width: 21cm;
+  height: 29.7cm;
   flex: 1;
   background-color: #ffffff;
   white-space: pre-wrap;
-  padding: 20px;
-  padding-left: 40px;
+  padding: 20px 40px;
   border: 2px solid #e4d6bc;
   box-shadow: 6px 15px 2px #e4d6bc;
-  gap: 20px;
+  gap: 0px;
   display: flex;
   flex-direction: column;
+  transform: scale(100%);
 }
 
 .scriptContent * {
   font-family: 'Cutive Mono', monospace;
   font-optical-sizing: auto;
-}
-
-.partName {
-  text-align: center;
-  font-size: 1.2rem;
-}
-
-.partNameDepth0 {
-  margin-top: 4rem;
-  font-size: 3rem;
-}
-
-.partNameDepth1 {
-  margin-top: 4rem;
-  font-size: 2rem;
-}
-
-.partNameDepth2 {
-  margin-top: 3rem;
-  font-size: 1.5rem;
-}
-
-.partNameDepth3 {
-  margin-top: 2rem;
-  font-size: 1.25rem;
 }

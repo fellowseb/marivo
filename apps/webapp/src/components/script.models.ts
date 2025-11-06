@@ -1,22 +1,25 @@
-export interface LineVersion {
+export interface LineCommons {
+  id: string;
   version: number;
+  previousVersionsIds?: string[];
+  lastModifiedDate: Date;
+}
+
+export type FreeTextLine = {
+  type: 'freetext';
   text: string;
-}
+} & LineCommons;
 
-export interface PartName {
-  partName: string;
-  depth: number;
-}
-
-export interface Line {
-  character?: string;
+export type HeadingLine = {
+  type: 'heading';
   text: string;
-  version?: number;
-  previousVersions?: LineVersion[];
-}
+  headingLevel: number;
+} & LineCommons;
 
-export type LineBase = Line | PartName;
+export type CharacterTextLine = {
+  type: 'chartext';
+  characters: string[];
+  text: string;
+} & LineCommons;
 
-export interface Script {
-  lines: LineBase[];
-}
+export type Line = CharacterTextLine | HeadingLine | FreeTextLine;

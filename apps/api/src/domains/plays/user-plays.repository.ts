@@ -206,27 +206,39 @@ export class UserPlaysRepository extends UserRepositoryBase {
    * Current user creates a play project.
    */
   async createPlay(params: { title: string; uri: string }) {
-    const [row] = await this.sql<{ id: number }[]>`
+    const [scriptRow] = await this.sql<{ id: number }[]>`
+      INSERT INTO scripts (
+        checksum
+      ) VALUES (
+        '1b91a822a6a14f389f85590bfe664962'
+      ) RETURNING id;
+`;
+    if (!scriptRow) {
+      throw new Error('undefined new scriptRow');
+    }
+    const [playRow] = await this.sql<{ id: number }[]>`
       INSERT INTO plays (
         uri,
         title,
         created_date,
         creator_id,
         owner_id,
-        last_modified_date
+        last_modified_date,
+        script_id
       ) VALUES (
         ${params.uri},
         ${params.title},
         now(),
         ${this.userId()},
         ${this.userId()},
-        now()
+        now(),
+        ${scriptRow.id}
       ) RETURNING id;
     `;
-    if (row === undefined) {
+    if (playRow === undefined) {
       throw new Error('Unexpected empty row on createPlay');
     }
-    const { id: createdPlayId } = row;
+    const { id: createdPlayId } = playRow;
     await this.sql`
       INSERT INTO roles (
         name,

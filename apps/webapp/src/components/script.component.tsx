@@ -1,34 +1,7 @@
-import classNames from 'classnames';
-import { playsDetails } from '../mock-data';
-import ScriptLine from './script-line.component';
-import type { PartName, Script as ScriptModel } from './script.models';
+import ScriptLine, { ScriptLineToBe } from './script-line.component';
 import styles from './script.module.css';
-import { isPart } from './script.utils';
 import Skeleton from './skeleton.component';
-
-interface ScriptPartProps {
-  line: PartName;
-  isEditable: boolean;
-  hideLinesOf?: string[];
-}
-
-function ScriptPart(props: ScriptPartProps) {
-  return (
-    <div
-      className={classNames({
-        [styles.partName]: true,
-        [styles.partNameDepth0]: props.line.depth === 0,
-        [styles.partNameDepth1]: props.line.depth === 1,
-        [styles.partNameDepth2]: props.line.depth === 2,
-        [styles.partNameDepth3]: props.line.depth === 3,
-        [styles.partNameDepth4]: props.line.depth === 4,
-        [styles.partNameDepth5]: props.line.depth === 5,
-      })}
-    >
-      {props.line.partName}
-    </div>
-  );
-}
+import { useScriptContext } from '../features/script-edition/script.context';
 
 interface ScriptProps {
   isEditable: boolean;
@@ -37,29 +10,38 @@ interface ScriptProps {
 
 function Script(props: ScriptProps) {
   let lineCount = 0;
-  // const script = playsDetails['la-noce-b86a57e9cef0'].script as ScriptModel;
-  let script: ScriptModel | undefined;
+  const scriptContext = useScriptContext();
   return (
     <div className={styles.scriptContent}>
-      {script ? (
-        script.lines.map((line, i) => {
-          return isPart(line) ? (
-            <ScriptPart
-              line={line}
-              key={i}
-              isEditable={props.isEditable}
-              hideLinesOf={props.hideLinesOf}
-            />
-          ) : (
-            <ScriptLine
-              num={++lineCount}
-              line={line}
-              key={i}
-              isEditable={props.isEditable}
-              hideLinesOf={props.hideLinesOf}
-            />
-          );
-        })
+      {scriptContext ? (
+        <>
+          {scriptContext.linesOrder.map((lineId, i) => {
+            const lineData = scriptContext.lines.get(lineId);
+            if (!lineData) {
+              return null;
+            }
+            if (lineData.type === 'chartext') {
+              ++lineCount;
+            }
+            return (
+              <>
+                <ScriptLineToBe context={scriptContext} pos={i} />
+                <ScriptLine
+                  lines={scriptContext.lines}
+                  num={lineCount}
+                  line={lineData}
+                  key={lineData.id}
+                  isEditable={props.isEditable}
+                  hideLinesOf={props.hideLinesOf}
+                />
+              </>
+            );
+          })}
+          <ScriptLineToBe
+            context={scriptContext}
+            pos={scriptContext.linesOrder.length}
+          />
+        </>
       ) : (
         <div
           style={{

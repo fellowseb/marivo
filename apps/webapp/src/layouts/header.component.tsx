@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import { Fragment, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import styles from './header.module.css';

@@ -1,4 +1,4 @@
-import type { LineBase, PartName } from './script.models';
+import type { Line, HeadingLine } from './script.models';
 
 export function highlightDirections(lineText: string) {
   return lineText.replaceAll(/\(.*\)/g, `<em>$&</em>`);
@@ -15,6 +15,6 @@ export function handleDirections(lineText: string): [string, string] {
   ];
 }
 
-export function isPart(line: LineBase): line is PartName {
-  return 'partName' in line && typeof line.partName === 'string';
+export function isHeading(line: Line): line is HeadingLine {
+  return line.type === 'heading';
 }
