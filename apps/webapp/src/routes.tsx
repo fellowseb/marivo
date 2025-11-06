@@ -30,11 +30,13 @@ function AppRoutes() {
     <>
       <SignedIn>
         <Routes>
-          <Route element={<MainLayout breadcrumbs={breadcrumbs} />}>
-            <Route path="/plays" element={<PlaysPage />} />
-            <Route path="/plays/new" element={<NewPlayPage />} />
-            <Route path="/my-account/security?" element={<UserAccountPage />} />
-            <Route path="/" element={<Navigate to="/plays" replace />}></Route>
+          <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
+            <Route path="plays" element={<PlaysPage />} />
+            <Route path="plays/new" element={<NewPlayPage />} />
+            <Route path="my-account/security?" element={<UserAccountPage />} />
+            <Route path="signin" element={<Navigate to="/plays" replace />} />
+            <Route path="signup" element={<Navigate to="/plays" replace />} />
+            <Route index element={<Navigate to="plays" replace />}></Route>
             <Route path="*" element={<PageNotFound />} />
           </Route>
           <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
@@ -43,12 +45,11 @@ function AppRoutes() {
 
       <SignedOut>
         <Routes>
-          <Route element={<AuthLayout />}>
-            <Route path="/signin/*" element={<Signin />} />
-            <Route path="/signup/*" element={<Signup />} />
+          <Route path="*" element={<AuthLayout />}>
+            <Route path="signin/*" element={<Signin />} />
+            <Route path="signup/*" element={<Signup />} />
+            <Route path="*" element={<Navigate to="/signin" replace />}></Route>
           </Route>
-          <Route path="/" element={<Navigate to="/signin" replace />}></Route>
-          <Route path="*" element={<Navigate to="/signin" replace />}></Route>
         </Routes>
       </SignedOut>
     </>
