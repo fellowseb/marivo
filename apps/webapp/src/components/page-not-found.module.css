@@ -1,0 +1,18 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  align-self: stretch;
+  justify-content: center;
+}
+
+.desc {
+  color: #1f313c;
+  text-align: center;
+}
+
+.desc a {
+  text-decoration: underline;
+}
