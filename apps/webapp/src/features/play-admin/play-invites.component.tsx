@@ -2,8 +2,9 @@ import styles from './play-invites.module.css';
 import Button from '../../components/button.components';
 import { useTRPC } from '../../trpc';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import classNames from 'classnames';
+import { useNotifications } from '../../components/notifications.context';
 
 interface PlayInviteItemProps {
   id: string;
@@ -21,12 +22,14 @@ function PlayInviteItem(props: PlayInviteItemProps) {
     isSuccess: isSuccessAccept,
     isError: isErrorAccept,
     isPending: isPendingAccept,
+    reset: resetAccept,
   } = useMutation(trpc.plays.respondToInvite.mutationOptions());
   const {
     mutate: mutateDecline,
     isSuccess: isSuccessDecline,
     isError: isErrorDecline,
     isPending: isPendingDecline,
+    reset: resetDecline,
   } = useMutation(trpc.plays.respondToInvite.mutationOptions());
   const handleAccept = async () => {
     mutateAccept({
@@ -40,19 +43,34 @@ function PlayInviteItem(props: PlayInviteItemProps) {
       accept: false,
     });
   };
+  const { showNotification } = useNotifications();
   const isSuccess = isSuccessAccept || isSuccessDecline;
   const isError = isErrorAccept || isErrorDecline;
   const isPending = isPendingAccept || isPendingDecline;
+  const onRespondedToInvite = useEffectEvent(() => {
+    const timeoutId = setTimeout(() => {
+      props.respondedToInvite({ isSuccess });
+      resetAccept();
+      resetDecline();
+    }, 700);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  });
+  useEffect(() => {
+    if (isErrorAccept || isErrorDecline) {
+      showNotification({
+        type: 'error',
+        message: 'An unexpected error occured. Refresh and retry in a bit.',
+        autoHide: true,
+      });
+    }
+  }, [isErrorAccept, isErrorDecline]);
   useEffect(() => {
     if (isSuccess || isError) {
-      const timeoutId = setTimeout(() => {
-        props.respondedToInvite({ isSuccess });
-      }, 700);
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      return onRespondedToInvite();
     }
-  }, [props.respondedToInvite, isSuccess, isError]);
+  }, [isSuccess, isError]);
   const ownerIdString =
     props.ownerFullName || props.ownerUsername
       ? `${props.ownerFullName} (${props.ownerUsername})`
