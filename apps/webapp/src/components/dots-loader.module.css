@@ -1,14 +1,28 @@
 .container {
   display: flex;
-  min-width: 50px;
   flex-direction: column;
   align-items: center;
+}
+
+.containerSmall {
+  min-width: 50px;
+}
+
+.containerXLarge {
+  min-width: 150px;
+}
+
+.small {
+  width: 10px;
+}
+
+.xlarge {
+  width: 30px;
 }
 
 .loader,
 .loader:before,
 .loader:after {
-  width: 10px;
   aspect-ratio: 0.5;
   display: grid;
   background: radial-gradient(#999 68%, #0000 72%) center/100% 50% no-repeat;
