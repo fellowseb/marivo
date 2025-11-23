@@ -1,36 +1,46 @@
 export interface LineDiff {
   id: string;
+  lineType: 'chartext' | 'freetext' | 'heading';
+  change: {
+    type: 'line_create';
+  };
+  lastModifiedDate: Date;
+}
+
+export interface LineContentDiff {
+  id: string;
+  lineId: string;
+  lastModifiedDate: Date;
+  type: 'saved_version' | 'shared_draft';
+  version: number;
   change:
     | {
-        type: 'create_update';
+        type: 'content_create_update';
         content:
           | {
-              type: 'chartext';
+              lineType: 'chartext';
               text: string;
               characters: string[];
             }
           | {
-              type: 'heading';
+              lineType: 'heading';
               text: string;
               headingLevel: number;
             }
           | {
-              type: 'freetext';
+              lineType: 'freetext';
               text: string;
             };
       }
     | {
-        type: 'delete';
+        type: 'content_delete';
       };
-  lastModifiedDate: Date;
-  // posLastModifiedDate: Date;
-  version: number;
-  previousVersionsIds?: string[];
 }
 
 export interface ScriptDiff {
-  diffs: LineDiff[];
+  diffs: (LineDiff | LineContentDiff)[];
   lastModifiedDate: Date;
   linesOrder: string[];
+  characters: { [id: string]: string };
   checksum: string;
 }

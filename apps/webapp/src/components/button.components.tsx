@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, RefObject } from 'react';
 import Icon, { type IconValue } from './icon.component';
 import styles from './button.module.css';
 import classNames from 'classnames';
@@ -9,12 +9,14 @@ export interface ButtonProps {
   disabled?: boolean;
   customClassNames?: string[];
   variant?: 'standout' | 'normal' | 'discrete';
+  ref?: RefObject<HTMLButtonElement | null>;
 }
 
 function Button(props: PropsWithChildren<ButtonProps>) {
   const variant = props.variant ?? 'normal';
   return (
     <button
+      ref={props.ref}
       className={classNames({
         [styles.normal]: variant === 'normal',
         [styles.discrete]: variant === 'discrete',

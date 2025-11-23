@@ -138,6 +138,9 @@ importers:
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
+      keyboard-css:
+        specifier: ^1.2.4
+        version: 1.2.4
       react:
         specifier: ^19.1.1
         version: 19.2.0
@@ -4751,6 +4754,10 @@ packages:
       object.assign: 4.1.7
       object.values: 1.2.1
     dev: true
+
+  /keyboard-css@1.2.4:
+    resolution: {integrity: sha512-fhwBUfWZWAdaT9DoPVDsi/Rv6GBkIrv+82ahcuqUr0+e8NZABDh54lE3YI6Wxm5V1B0v4u0G09PQHMWei6nivg==}
+    dev: false
 
   /keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}

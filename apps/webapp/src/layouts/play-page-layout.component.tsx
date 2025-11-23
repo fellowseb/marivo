@@ -5,7 +5,7 @@ import { PLAY_MENU_DEFINITION } from '../features/play-admin/play-page-menubar';
 import { MenuBar } from '../components/menubar.component';
 import Toolbar from '../components/toolbar.component';
 import { PlayPageBreadcrumbs } from '../features/play-admin/play-page.component';
-import { SCRIPT_TOOLBAR } from '../features/script-edition/script-tab-toolbar';
+import { ScriptToolbar } from '../features/script-edition/script-tab-toolbar';
 import { BLOCKING_TOOLBAR } from '../features/blocking/blocking-tab-toolbar';
 import { MEMORIZE_TOOLBAR } from '../features/lines-memorization/memorize-tab-toolbar';
 import DotsLoader from '../components/dots-loader.component';
@@ -33,10 +33,7 @@ function PlayPageLayout() {
       Toolbar={
         playContext?.isOk() ? (
           <Routes>
-            <Route
-              path={`script`}
-              element={<Toolbar definition={SCRIPT_TOOLBAR} />}
-            />
+            <Route path={`script`} element={<ScriptToolbar />} />
             <Route
               path={`blocking`}
               element={<Toolbar definition={BLOCKING_TOOLBAR} />}

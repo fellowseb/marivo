@@ -31,6 +31,15 @@
   background-color: #e8ce7d;
 }
 
+.item:disabled {
+  background-color: #cccccc66;
+  color: #999;
+}
+
+.item:disabled .iconContainer {
+  background-color: #7b520022;
+}
+
 .iconContainer {
   background-color: #7b520033;
   width: 20px;

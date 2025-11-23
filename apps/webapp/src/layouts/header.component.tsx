@@ -62,7 +62,7 @@ function Header(props: HeaderProps) {
         <div className={styles.mainMenu}>
           {props.Menu}
           {props.Toolbar ? (
-            <div className={styles.pageMenu}>{props.Toolbar}</div>
+            <div className={styles.toolbar}>{props.Toolbar}</div>
           ) : null}
         </div>
       ) : null}

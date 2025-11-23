@@ -175,3 +175,8 @@ a:focus-visible {
 *::selection {
   background-color: lightblue;
 }
+
+kbd {
+  color: #999 !important;
+  transition: none !important;
+}

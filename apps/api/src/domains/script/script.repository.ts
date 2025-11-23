@@ -9,19 +9,27 @@ interface ScriptRow {
   id: number;
   checksum: string;
   lines_order: string[];
+  characters: { [id: string]: string };
   last_modified_date: number;
 }
 
 interface LineRow {
   id: string;
   type: 'chartext' | 'heading' | 'freetext';
+  last_modified_date: number;
+}
+
+interface LineContentRow {
+  id: string;
+  type: 'saved_version' | 'shared_draft';
+  line_id: string;
+  line_type: 'chartext' | 'heading' | 'freetext';
   deleted: boolean;
   characters: string[] | null;
   heading_level: number | null;
   text: string;
   last_modified_date: number;
   version: number;
-  previous_versions_ids: string[] | null;
 }
 
 export class ScriptOfPlayNotFound extends AppError {
@@ -44,7 +52,8 @@ export class ScriptRepository extends UserRepositoryBase {
         s.id,
         s.checksum, 
         s.lines_order ,
-        s.last_modified_date
+        s.last_modified_date,
+        s.characters
       FROM plays p 
         JOIN scripts s ON s.id = p.script_id 
       WHERE p.uri = ${params.uri}`;
@@ -55,55 +64,76 @@ export class ScriptRepository extends UserRepositoryBase {
       SELECT
         id, 
         type, 
+        last_modified_date
+      FROM lines 
+      WHERE script_id = ${scriptRow.id}
+        AND last_modified_date > ${params.since.getTime()}`;
+    const lineContentRows = await this.sql<LineContentRow[]>`
+      SELECT
+        id, 
+        type,
+        line_id, 
+        line_type,
         deleted, 
         characters, 
         heading_level, 
         text,
         last_modified_date,
-        version,
-        previous_versions_ids
-      FROM lines 
+        version
+      FROM lines_contents
       WHERE script_id = ${scriptRow.id}
         AND last_modified_date > ${params.since.getTime()}`;
     return Result.ok({
       checksum: scriptRow.checksum,
-      diffs: lineRows.map((lineRow) => {
-        const change = lineRow.deleted
-          ? {
-              type: 'delete' as const,
-            }
-          : {
-              type: 'create_update' as const,
-              content:
-                lineRow.type === 'heading'
-                  ? {
-                      type: 'heading' as const,
-                      headingLevel: lineRow.heading_level ?? 0,
-                      text: lineRow.text,
-                    }
-                  : lineRow.type === 'freetext'
+      diffs: [
+        ...lineRows.map((lineRow) => {
+          return {
+            id: lineRow.id,
+            lineType: lineRow.type,
+            lastModifiedDate: new Date(lineRow.last_modified_date),
+            change: {
+              type: 'line_create' as const,
+            },
+          };
+        }),
+        ...lineContentRows.map((lineContentRow) => {
+          const change = lineContentRow.deleted
+            ? {
+                type: 'content_delete' as const,
+              }
+            : {
+                type: 'content_create_update' as const,
+                content:
+                  lineContentRow.line_type === 'heading'
                     ? {
-                        type: 'freetext' as const,
-                        text: lineRow.text,
+                        lineType: 'heading' as const,
+                        headingLevel: lineContentRow.heading_level ?? 0,
+                        text: lineContentRow.text,
                       }
-                    : {
-                        type: 'chartext' as const,
-                        text: lineRow.text,
-                        characters: lineRow.characters ?? [],
-                      },
-            };
-        return {
-          id: lineRow.id,
-          lastModifiedDate: new Date(lineRow.last_modified_date),
-          version: lineRow.version,
-          ...(lineRow.previous_versions_ids
-            ? { previousVersionsIds: lineRow.previous_versions_ids }
-            : {}),
-          change,
-        };
-      }),
+                    : lineContentRow.line_type === 'freetext'
+                      ? {
+                          lineType: 'freetext' as const,
+                          text: lineContentRow.text,
+                        }
+                      : {
+                          lineType: 'chartext' as const,
+                          text: lineContentRow.text,
+                          characters: lineContentRow.characters ?? [],
+                        },
+              };
+          return {
+            id: lineContentRow.id,
+            type: lineContentRow.type,
+            lineId: lineContentRow.line_id,
+            lastModifiedDate: new Date(lineContentRow.last_modified_date),
+            version: lineContentRow.version,
+            change,
+          };
+        }),
+      ],
       lastModifiedDate: new Date(scriptRow.last_modified_date),
       linesOrder: scriptRow.lines_order,
+      characters: scriptRow.characters,
     });
   }
 }

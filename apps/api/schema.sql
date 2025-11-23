@@ -6,36 +6,51 @@ DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS plays;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS public_domain_plays;
+DROP TABLE IF EXISTS lines_contents;
 DROP TABLE IF EXISTS lines;
 DROP TABLE IF EXISTS scripts;
 DROP TYPE IF EXISTS invite_status_enum;
 DROP TYPE IF EXISTS line_type;
+DROP TYPE IF EXISTS line_contents_type;
 
 CREATE TYPE line_type AS ENUM ('heading', 'freetext', 'chartext');
+
+CREATE TYPE line_contents_type AS ENUM ('saved_version', 'shared_draft');
 
 CREATE TABLE scripts (
     id                      integer         PRIMARY KEY
                                             GENERATED ALWAYS AS IDENTITY,
     checksum                varchar(32)     NOT NULL, --MD5 hash
     last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
-    lines_order             uuid[]          NOT NULL DEFAULT '{}'
+    lines_order             uuid[]          NOT NULL DEFAULT '{}',
+    characters              jsonb
 );
- 
+
 CREATE TABLE lines (
     id                      uuid            NOT NULL,
     script_id               integer         REFERENCES scripts(id)
                                             NOT NULL,
     type                    line_type       NOT NULL,
+    last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
+    PRIMARY KEY (id, script_id)
+);
+ 
+CREATE TABLE lines_contents (
+    id                      uuid            NOT NULL,
+    script_id               integer         REFERENCES scripts(id)
+                                            NOT NULL,
+    type                    line_contents_type NOT NULL,
+    line_id                 uuid            NOT NULL,
+    line_type               line_type       NOT NULL,
     deleted                 boolean         DEFAULT false NOT NULL,
-    characters              varchar(80)[]   ,
+    characters              uuid[]          ,
     heading_level           integer         ,
     text                    text            NOT NULL,
     last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
-    -- pos_last_modified_date  timestamp(0)    DEFAULT now(),
     checksum                varchar(32)     NOT NULL, --MD5 hash
-    version                 integer         DEFAULT 1 NOT NULL,
-    previous_versions_ids   uuid[]          ,
-    PRIMARY KEY (id, script_id)
+    version                 integer         ,
+    PRIMARY KEY (id, script_id),
+    FOREIGN KEY (line_id, script_id) REFERENCES lines(id, script_id)
 );
 
 CREATE TABLE users (

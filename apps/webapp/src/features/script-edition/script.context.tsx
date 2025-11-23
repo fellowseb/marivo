@@ -1,4 +1,5 @@
 import { v4 as uuidV4 } from 'uuid';
+import { useQuery } from '@tanstack/react-query';
 import {
   createContext,
   useCallback,
@@ -8,152 +9,325 @@ import {
   useReducer,
   type PropsWithChildren,
 } from 'react';
-import type { HeadingLine, Line } from '../../components/script.models';
-import { assertUnreachable } from '@marivo/utils';
-import type { AppRouterOutput } from '@marivo/api';
+import type { Line, LineContent } from '../../components/script.models';
 import { useTRPC } from '../../trpc';
-import { useQuery } from '@tanstack/react-query';
+import { useScriptUndoRedo } from './script-undo-redo.context';
+import { reducer, type ScriptAction, type ScriptState } from './script-state';
 
 export interface ScriptContext {
   lastModifiedDate: Date;
+  remoteLastModifiedDate: Date;
   lines: Map<string, Line>;
+  lineContents: Map<string, LineContent>;
   linesOrder: string[];
-  insertHeading: (pos: number) => void;
+  characters: { [id: string]: string };
+  insertHeading: (pos: number, level: number) => string;
+  insertCueLine: (pos: number, characterId: string) => string;
+  insertFreetextLine: (pos: number, char: string) => string;
+  editLineText: (id: string, text: string) => void;
+  initDraft: (content: LineContent, text?: string, deleted?: boolean) => void;
+  removeLines: (ids: string[]) => void;
+  discardChanges: (id: string) => void;
+  saveChanges: (id: string) => void;
+  getLineContentInfo: (line: Line) => LineContentInfo;
+  // Exposed for undo/redo
+  dispatch: (action: ScriptAction) => void;
 }
-
-export interface ScriptState {
-  lastModifiedDate: Date;
-  lines: Map<string, Line>;
-  linesOrder: string[];
-  checksums: Map<string, string>;
-  scriptChecksum: string | null;
-}
-
-type ScriptAction =
-  | {
-      type: 'LATEST_CHANGES_DOWNLOADED';
-      payload: AppRouterOutput['script']['latestChanges'];
-    }
-  | {
-      type: 'HEADING_INSERTED';
-      pos: number;
-    };
 
 const ScriptContext = createContext<ScriptContext | null>(null);
-
-function reducer(
-  state: ScriptState | null,
-  action: ScriptAction,
-): ScriptState | null {
-  switch (action.type) {
-    case 'LATEST_CHANGES_DOWNLOADED': {
-      const lines = action.payload.diffs.reduce((acc, curr) => {
-        if (curr.change.type === 'delete') {
-          acc.delete(curr.id);
-        } else if (curr.change.type === 'create_update') {
-          acc.set(curr.id, {
-            id: curr.id,
-            version: curr.version,
-            ...(curr.previousVersionsIds
-              ? { previousVersionsIds: curr.previousVersionsIds }
-              : {}),
-            lastModifiedDate: curr.lastModifiedDate,
-            ...curr.change.content,
-          } satisfies Line);
-        } else {
-          assertUnreachable(curr.change);
-        }
-        return acc;
-      }, state?.lines ?? new Map());
-      const lastModifiedDate =
-        state?.lastModifiedDate.getTime() !==
-        action.payload.lastModifiedDate.getTime()
-          ? action.payload.lastModifiedDate
-          : state.lastModifiedDate;
-      // TODO: compare linesOrder
-      return {
-        lastModifiedDate,
-        lines,
-        linesOrder: action.payload.linesOrder,
-        checksums: state?.checksums ?? new Map(),
-        scriptChecksum: state?.scriptChecksum ?? null,
-      };
-    }
-    case 'HEADING_INSERTED': {
-      if (!state) {
-        return state;
-      }
-      const id = uuidV4();
-      const lines = state.lines;
-      lines.set(id, {
-        type: 'heading',
-        lastModifiedDate: new Date(Date.now()),
-        text: 'Scène',
-        version: 0,
-        headingLevel: 2,
-        id: id,
-      } satisfies HeadingLine);
-      const linesOrder = [
-        ...state.linesOrder.slice(0, action.pos),
-        id,
-        ...state.linesOrder.slice(action.pos),
-      ];
-      return {
-        lastModifiedDate: state.lastModifiedDate,
-        lines,
-        linesOrder,
-        checksums: state.checksums,
-        scriptChecksum: state.scriptChecksum,
-      };
-    }
-    default:
-      assertUnreachable(action);
-  }
-}
 
 export interface ScriptContextProps {
   playUri: string;
 }
 
+export interface LineContentInfo {
+  content: LineContent;
+  hasDraft: boolean;
+  hasSharedDraft: boolean;
+  hasPreviousVersions: boolean;
+  isNewUnsaved: boolean;
+}
+
+const initialState = {
+  lastModifiedDate: new Date(),
+  remoteLastModifiedDate: new Date(),
+  lines: new Map(),
+  lineContents: new Map(),
+  linesOrder: [],
+  characters: {},
+  checksums: new Map(),
+  scriptChecksum: null,
+  lineToContents: new Map(),
+};
+
 export function ScriptContextProvider(
   props: PropsWithChildren<ScriptContextProps>,
 ) {
-  const [state, dispatch] = useReducer<ScriptState | null, [ScriptAction]>(
+  const [state, dispatch] = useReducer<ScriptState, [ScriptAction]>(
     reducer,
-    null,
+    initialState,
   );
+  const { pushUndoRedo } = useScriptUndoRedo();
   const insertHeading = useCallback(
-    (pos: number) => {
-      dispatch({
-        type: 'HEADING_INSERTED',
+    (pos: number, level: number) => {
+      const id = uuidV4();
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'INSERT_HEADING_LINE',
+        id,
+        lastModifiedDate,
         pos,
+        level,
+      } as const satisfies ScriptAction;
+      dispatch(action);
+      const undoAction = {
+        type: 'UNDO_INSERT_HEADING_LINE',
+        id,
+        lastModifiedDate: state.lastModifiedDate,
+      } as const satisfies ScriptAction;
+      pushUndoRedo({
+        dispatch,
+        undoAction,
+        redoAction: action,
+        label: 'Insert heading',
+      });
+      return id;
+    },
+    [state.lastModifiedDate],
+  );
+  const insertCueLine = useCallback(
+    (pos: number, characterId: string) => {
+      const id = uuidV4();
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'INSERT_CUE_LINE',
+        id,
+        lastModifiedDate,
+        pos,
+        characterId,
+      } as const satisfies ScriptAction;
+      dispatch(action);
+      const undoAction = {
+        type: 'UNDO_INSERT_CUE_LINE',
+        id,
+        lastModifiedDate: state.lastModifiedDate,
+      } as const satisfies ScriptAction;
+      pushUndoRedo({
+        dispatch,
+        redoAction: action,
+        undoAction,
+        label: `Insert cue line (${state.characters[characterId]})`,
+      });
+      return id;
+    },
+    [state.characters, state.lastModifiedDate],
+  );
+  const insertFreetextLine = useCallback(
+    (pos: number, init: string) => {
+      const id = uuidV4();
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'INSERT_FREETEXT_LINE',
+        id,
+        lastModifiedDate,
+        pos,
+        init,
+      } as const;
+      dispatch(action);
+      const undoAction = {
+        type: 'UNDO_INSERT_FREETEXT_LINE',
+        id,
+        lastModifiedDate: state.lastModifiedDate,
+      } as const satisfies ScriptAction;
+      pushUndoRedo({
+        redoAction: action,
+        undoAction,
+        dispatch,
+        label: 'Insert free text line',
+      });
+      return id;
+    },
+    [state.lastModifiedDate],
+  );
+  const initDraft = useCallback(
+    (content: LineContent, text?: string, deleted?: boolean) => {
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'INIT_DRAFT',
+        lastModifiedDate,
+        content,
+        text,
+        deleted,
+      } as const satisfies ScriptAction;
+      const line = state.lines.get(content.lineId);
+      if (!line) {
+        throw new Error('Line not found');
+      }
+      const undoAction = {
+        type: 'UNDO_INIT_DRAFT',
+        lineId: line.id,
+        lastModifiedDate: state.lastModifiedDate,
+      } as const satisfies ScriptAction;
+      dispatch(action);
+      const lineType = line.type;
+      pushUndoRedo({
+        redoAction: action,
+        undoAction,
+        dispatch,
+        label:
+          lineType === 'chartext'
+            ? `Edit cue line`
+            : lineType === 'heading'
+              ? 'Edit heading line'
+              : 'Edit free text line',
       });
     },
-    [dispatch],
+    [state.lines, state.lastModifiedDate],
   );
+  const editLineText = useCallback(
+    (id: string, text: string) => {
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'EDIT_LINE',
+        lastModifiedDate,
+        id,
+        text,
+      } as const satisfies ScriptAction;
+      const currLine = state.lineContents.get(id);
+      if (!currLine) {
+        throw new Error('Content not found for edit');
+      }
+      const undoAction = {
+        type: 'UNDO_EDIT_LINE',
+        id,
+        lineLastModifiedDate: currLine.lastModifiedDate,
+        lastModifiedDate: state.lastModifiedDate,
+        text: currLine.text,
+      } as const satisfies ScriptAction;
+      dispatch(action);
+      pushUndoRedo({
+        redoAction: action,
+        undoAction,
+        dispatch,
+        label:
+          currLine.lineType === 'chartext'
+            ? `Edit cue line (${currLine.characters.map((cid) => state.characters[cid]).join(',')})`
+            : currLine.lineType === 'heading'
+              ? 'Edit heading line'
+              : 'Edit free text line',
+      });
+    },
+    [state.lineContents, state.characters, state.lastModifiedDate],
+  );
+  const removeLines = useCallback((ids: string[]) => {
+    dispatch({
+      type: 'REMOVE_LINES',
+      ids,
+    });
+  }, []);
+  const discardChanges = useCallback(
+    (id: string) => {
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'DISCARD_CHANGES',
+        id,
+        lastModifiedDate,
+      } as const satisfies ScriptAction;
+      const content = state.lineContents.get(id)!;
+      const undoAction = {
+        type: 'UNDO_DISCARD_CHANGES',
+        id,
+        content,
+        lastModifiedDate: state.lastModifiedDate,
+      } as const satisfies ScriptAction;
+      dispatch(action);
+      pushUndoRedo({
+        redoAction: action,
+        undoAction,
+        label: 'Discard line changes',
+        dispatch,
+      });
+    },
+    [state.lineContents, state.lastModifiedDate],
+  );
+  const saveChanges = useCallback((id: string) => {
+    const action = {
+      type: 'SAVE_CHANGES',
+      id,
+    } as const as ScriptAction;
+    dispatch(action);
+  }, []);
+  const getLineContentInfo = (line: Line): LineContentInfo => {
+    let content;
+    const { id } = line;
+    // Check for presence of a draft content item
+    const draftContent = state.lineContents.get(id);
+    if (draftContent) {
+      content = draftContent;
+    }
+    const contents = state.lineToContents.get(id);
+    let hasSharedDraft = false;
+    let hasPreviousVersions = false;
+    let isNewUnsaved = false;
+    // Check for prensence of versionned content items
+    if (contents) {
+      const { versions, sharedDrafts } = contents;
+      if (!content && versions.length) {
+        const latestVersionContent = state.lineContents.get(
+          versions.slice().reverse().find(Boolean) ?? '',
+        );
+        if (latestVersionContent) {
+          content = latestVersionContent;
+        }
+      }
+      hasSharedDraft = sharedDrafts.length > 0;
+      hasPreviousVersions = versions.length > 1;
+      isNewUnsaved = versions.length === 0;
+    }
+    if (!content) {
+      throw new Error('No line content found');
+    }
+    return {
+      content,
+      hasDraft: !!draftContent,
+      hasSharedDraft,
+      hasPreviousVersions,
+      isNewUnsaved,
+    };
+  };
   const contextValue = useMemo(
     () =>
-      state?.lastModifiedDate
-        ? ({
-            lines: state.lines,
-            lastModifiedDate: state.lastModifiedDate,
-            linesOrder: state.linesOrder,
-            insertHeading,
-          } satisfies ScriptContext)
-        : null,
-    [state?.linesOrder, state?.lastModifiedDate, state?.lines],
+      ({
+        lines: state.lines,
+        lineContents: state.lineContents,
+        lastModifiedDate: state.lastModifiedDate,
+        remoteLastModifiedDate: state.remoteLastModifiedDate,
+        linesOrder: state.linesOrder,
+        characters: state.characters,
+        insertHeading,
+        insertCueLine,
+        insertFreetextLine,
+        initDraft,
+        editLineText,
+        removeLines,
+        dispatch,
+        getLineContentInfo,
+        discardChanges,
+        saveChanges,
+      }) satisfies ScriptContext,
+    [state],
   );
   const trpc = useTRPC();
   const query = useQuery(
     trpc.script.latestChanges.queryOptions({
-      since: state?.lastModifiedDate ?? new Date(0),
+      since: state.remoteLastModifiedDate,
       playUri: props.playUri,
     }),
   );
   useEffect(() => {
     if (query.isSuccess && query.data) {
       dispatch({
-        type: 'LATEST_CHANGES_DOWNLOADED',
+        type: 'PROCESS_LATEST_CHANGES_PAYLOAD',
         payload: query.data,
       });
     }

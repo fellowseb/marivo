@@ -151,12 +151,11 @@
   background-color: #1f313c;
 }
 
-.pageMenu {
+.toolbar {
   display: flex;
-  flex-direction: row;
-  gap: 8px;
   justify-content: center;
   padding: 4px;
+  background-color: #ece2cc;
 }
 
 .mainMenu {

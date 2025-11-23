@@ -6,7 +6,9 @@ import classNames from 'classnames';
 interface ToolbarItemProps {
   label: string;
   icon: IconValue;
-  disabled?: boolean;
+  disabled: boolean;
+  // tooltip: string; // TODO
+  onAction: () => void;
 }
 
 function ToolbarItem(props: ToolbarItemProps) {
@@ -16,9 +18,15 @@ function ToolbarItem(props: ToolbarItemProps) {
         [styles.item]: true,
         [styles.disabled]: !!props.disabled,
       })}
+      disabled={props.disabled}
+      onClick={props.onAction}
     >
       <div className={styles.iconContainer}>
-        <Icon size="small" mode="primary" value={props.icon} />
+        <Icon
+          size="small"
+          mode={props.disabled ? 'disabled' : 'primary'}
+          value={props.icon}
+        />
       </div>
       <span className={styles.label}>{props.label}</span>
     </button>
@@ -27,8 +35,11 @@ function ToolbarItem(props: ToolbarItemProps) {
 
 export interface ToolbarDefinition {
   items: {
+    id: string;
     label: string;
     icon: IconValue;
+    disabled: boolean;
+    onAction: () => void;
   }[];
 }
 
@@ -39,8 +50,14 @@ export interface ToolbarProps {
 function Toolbar(props: ToolbarProps) {
   return (
     <div className={styles.container}>
-      {props.definition.items.map(({ label, icon }, idx) => (
-        <ToolbarItem key={idx} label={label} icon={icon} />
+      {props.definition.items.map(({ id, label, icon, disabled, onAction }) => (
+        <ToolbarItem
+          key={id}
+          label={label}
+          icon={icon}
+          disabled={disabled}
+          onAction={onAction}
+        />
       ))}
     </div>
   );
