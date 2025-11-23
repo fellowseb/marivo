@@ -8,6 +8,7 @@ const ICON_CLASSES = {
   archive: iconsStyles.archive,
   asc: iconsStyles.asc,
   blocking: iconsStyles.blocking,
+  characterLine: iconsStyles.characterLine,
   clear: iconsStyles.clear,
   decline: iconsStyles.decline,
   delete: iconsStyles.delete,
@@ -15,8 +16,10 @@ const ICON_CLASSES = {
   downloadCloud: iconsStyles.downloadCloud,
   error: iconsStyles.error,
   filter: iconsStyles.filter,
+  freetextLine: iconsStyles.freetextLine,
   grab: iconsStyles.grab,
   hardDrive: iconsStyles.hardDrive,
+  heading: iconsStyles.heading,
   help: iconsStyles.help,
   memorize: iconsStyles.memorize,
   new: iconsStyles.new,
@@ -43,7 +46,7 @@ export type IconValue = keyof typeof ICON_CLASSES;
 
 export type IconSize = 'small' | 'medium' | 'large';
 
-export type IconColorMode = 'primary' | 'secondary';
+export type IconColorMode = 'primary' | 'secondary' | 'disabled';
 
 export interface IconProps {
   value: IconValue;
@@ -62,6 +65,7 @@ function Icon(props: IconProps) {
         [styles.sizeLarge]: props.size === 'large',
         [styles.primary]: props.mode === 'primary',
         [styles.secondary]: props.mode === 'secondary',
+        [styles.disabled]: props.mode === 'disabled',
         [ICON_CLASSES[props.value]]: true,
         ...(props.customClassNames ?? []).reduce(
           (acc, curr) => ({

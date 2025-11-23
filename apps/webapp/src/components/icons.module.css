@@ -145,3 +145,15 @@
 .save {
   mask-image: url('/src/assets/icons/save-01.svg');
 }
+
+.heading {
+  mask-image: url('/src/assets/icons/heading-02.svg');
+}
+
+.characterLine {
+  mask-image: url('/src/assets/icons/message-text-square-01.svg');
+}
+
+.freetextLine {
+  mask-image: url('/src/assets/icons/align-left.svg');
+}
