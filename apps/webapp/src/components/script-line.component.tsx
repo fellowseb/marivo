@@ -12,7 +12,15 @@ import {
   type PropsWithChildren,
 } from 'react';
 import classNames from 'classnames';
-import type { Line, LineContent } from './script.models';
+import {
+  createEditableContent,
+  type CueLineEditableContent,
+  type FreeTextLineEditableContent,
+  type HeadingLineEditableContent,
+  type Line,
+  type LineContent,
+  type LineEditableContent,
+} from './script.models';
 import { handleDirections } from './script.utils';
 import styles from './script-line.module.css';
 import Button from './button.components';
@@ -29,6 +37,7 @@ interface ScriptLineProps {
   onSelect: (id: string, add: boolean) => void;
   onDraftTextEdit: (contentId: string, text: string) => void;
   onDraftInit: (content: LineContent, text?: string, deleted?: boolean) => void;
+  onEdit: (id: string, content: LineEditableContent) => void;
   selected: boolean;
   characters: { [id: string]: string };
 }
@@ -91,11 +100,34 @@ function ScriptLine(props: ScriptLineProps) {
       clearTimeout(timeoutIdRef.current);
     }
     timeoutIdRef.current = window.setTimeout(() => {
-      if (lineContent.type === 'draft') {
-        props.onDraftTextEdit(lineContent.id, current.textContent);
+      // if (lineContent.type === 'draft') {
+      //   props.onDraftTextEdit(lineContent.id, current.textContent);
+      // } else {
+      //   props.onDraftInit(lineContent, current.textContent);
+      // }
+      let editableContent: LineEditableContent;
+      if (lineContent.lineType === 'freetext') {
+        editableContent = {
+          lineType: lineContent.lineType,
+          text: current.textContent,
+          deleted: false,
+        } satisfies FreeTextLineEditableContent;
+      } else if (lineContent.lineType === 'chartext') {
+        editableContent = {
+          lineType: lineContent.lineType,
+          text: current.textContent,
+          deleted: false,
+          characters: lineContent.characters,
+        } satisfies CueLineEditableContent;
       } else {
-        props.onDraftInit(lineContent, current.textContent);
+        editableContent = {
+          lineType: lineContent.lineType,
+          text: current.textContent,
+          deleted: false,
+          headingLevel: lineContent.headingLevel,
+        } satisfies HeadingLineEditableContent;
       }
+      props.onEdit(lineContent.lineId, editableContent);
       timeoutIdRef.current = null;
     }, 3000);
     // }
@@ -113,11 +145,34 @@ function ScriptLine(props: ScriptLineProps) {
     if (current) {
       if (timeoutIdRef.current) {
         clearTimeout(timeoutIdRef.current);
-        if (lineContent.type === 'draft') {
-          props.onDraftTextEdit(lineContent.id, current.textContent);
+        // if (lineContent.type === 'draft') {
+        //   props.onDraftTextEdit(lineContent.id, current.textContent);
+        // } else {
+        //   props.onDraftInit(lineContent, current.textContent);
+        // }
+        let editableContent: LineEditableContent;
+        if (lineContent.lineType === 'freetext') {
+          editableContent = {
+            lineType: lineContent.lineType,
+            text: current.textContent,
+            deleted: false,
+          } satisfies FreeTextLineEditableContent;
+        } else if (lineContent.lineType === 'chartext') {
+          editableContent = {
+            lineType: lineContent.lineType,
+            text: current.textContent,
+            deleted: false,
+            characters: lineContent.characters,
+          } satisfies CueLineEditableContent;
         } else {
-          props.onDraftInit(lineContent, current.textContent);
+          editableContent = {
+            lineType: lineContent.lineType,
+            text: current.textContent,
+            deleted: false,
+            headingLevel: lineContent.headingLevel,
+          } satisfies HeadingLineEditableContent;
         }
+        props.onEdit(lineContent.lineId, editableContent);
         timeoutIdRef.current = null;
       }
     }
@@ -128,12 +183,11 @@ function ScriptLine(props: ScriptLineProps) {
     hasPreviousVersions,
     hasSharedDraft,
     hasDraft,
-    isNewUnsaved,
   } = props.lineContentInfo;
-  const isEdited =
-    lineEditableContentRef.current &&
-    lineContent.text !==
-      (lineEditableContentRef.current?.childNodes ?? [])[0]?.nodeValue;
+  // const isEdited =
+  //   lineEditableContentRef.current &&
+  //   lineContent.text !==
+  //     (lineEditableContentRef.current?.childNodes ?? [])[0]?.nodeValue;
   const [prefixDirection, textWithoutPrefix] =
     isEditing || props.line.type !== 'chartext'
       ? ['', lineContent.text]
@@ -178,13 +232,8 @@ function ScriptLine(props: ScriptLineProps) {
     event.stopPropagation();
     event.preventDefault();
   };
-  const [showMenu, setShowMenu] = useState(false);
   const handleMenuClick = () => {
-    // setShowMenu((prev) => !prev);
     props.onShowMenu(props.line.id);
-  };
-  const handleMenuBlur = () => {
-    setShowMenu(false);
   };
   if (!hasDraft && lineContent.deleted) {
     return null;
@@ -249,63 +298,41 @@ function ScriptLine(props: ScriptLineProps) {
             dangerouslySetInnerHTML={dangerouslySetInnerHTML}
             suppressContentEditableWarning={true}
           ></div>
-          <div
-            className={classNames({
-              [styles.menuHandle]: true,
-            })}
-            onClick={handleMenuClick}
-            style={{
-              anchorName: '--menu-anchor-' + line.id,
-            }}
-          >
-            {hasSharedDraft ? (
-              <div className={styles.sharedDraftsIndicator} />
-            ) : null}
-            {hasDraft ? <div className={styles.unsavedDraftIndicator} /> : null}
-            {hasPreviousVersions ? (
-              <div className={styles.previousVersionsIndicator} />
-            ) : null}
-          </div>
+          {isEditable ? (
+            <div
+              className={classNames({
+                [styles.menuHandle]: true,
+              })}
+              onClick={handleMenuClick}
+              style={{
+                anchorName: '--menu-anchor-' + line.id,
+              }}
+            >
+              <div
+                className={classNames({
+                  [styles.sharedDraftsIndicator]: true,
+                  [styles.indicatorDisabled]: !hasSharedDraft,
+                })}
+              />
+              <div
+                className={classNames({
+                  [styles.unsavedDraftIndicator]: true,
+                  [styles.indicatorDisabled]: !hasDraft,
+                })}
+              />
+              <div
+                className={classNames({
+                  [styles.previousVersionsIndicator]: true,
+                  [styles.indicatorDisabled]: !hasPreviousVersions,
+                })}
+              />
+            </div>
+          ) : null}
           {props.hideLinesOf ? (
             <div className={styles.blurOverlay}></div>
           ) : null}
         </div>
       </div>
-      <dialog
-        className={classNames({
-          [styles.menu]: true,
-          [styles.hidden]: !showMenu,
-        })}
-        style={{
-          positionAnchor: '--menu-anchor-' + line.id,
-        }}
-        open={showMenu}
-        onBlur={handleMenuBlur}
-      >
-        {hasDraft && lineContent.deleted ? null : (
-          <Button icon="delete" onClick={handleDelete}>
-            Remove line
-          </Button>
-        )}
-        {hasDraft ? (
-          isNewUnsaved ? (
-            <Button icon="save">Save</Button>
-          ) : (
-            <>
-              <Button icon="save">Save changes</Button>
-              <Button icon="save">Save as new version</Button>
-              <Button icon="save">Save as shared draft</Button>
-              <Button icon="clear">Discard changes</Button>
-            </>
-          )
-        ) : null}
-        {hasPreviousVersions ? (
-          <Button icon="versions">Show previous versions</Button>
-        ) : null}
-        {hasSharedDraft ? (
-          <Button icon="user">Show shared drafts</Button>
-        ) : null}
-      </dialog>
     </>
   );
 }

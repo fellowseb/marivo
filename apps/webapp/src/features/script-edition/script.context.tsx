@@ -9,7 +9,11 @@ import {
   useReducer,
   type PropsWithChildren,
 } from 'react';
-import type { Line, LineContent } from '../../components/script.models';
+import type {
+  Line,
+  LineContent,
+  LineEditableContent,
+} from '../../components/script.models';
 import { useTRPC } from '../../trpc';
 import { useScriptUndoRedo } from './script-undo-redo.context';
 import { reducer, type ScriptAction, type ScriptState } from './script-state';
@@ -25,10 +29,13 @@ export interface ScriptContext {
   insertCueLine: (pos: number, characterId: string) => string;
   insertFreetextLine: (pos: number, char: string) => string;
   editLineText: (id: string, text: string) => void;
+  editLine: (id: string, content: LineEditableContent) => void;
   initDraft: (content: LineContent, text?: string, deleted?: boolean) => void;
   removeLines: (ids: string[]) => void;
   discardChanges: (id: string) => void;
   saveChanges: (id: string) => void;
+  saveChangesAsNewVersion: (id: string) => void;
+  saveChangesAsSharedDraft: (id: string) => void;
   getLineContentInfo: (line: Line) => LineContentInfo;
   // Exposed for undo/redo
   dispatch: (action: ScriptAction) => void;
@@ -219,6 +226,49 @@ export function ScriptContextProvider(
     },
     [state.lineContents, state.characters, state.lastModifiedDate],
   );
+  const editLine = useCallback(
+    (id: string, content: LineEditableContent) => {
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'EDIT',
+        lastModifiedDate,
+        id,
+        content,
+      } as const satisfies ScriptAction;
+      let currLine = state.lineContents.get(id);
+      if (!currLine) {
+        const currVersionId = (state.lineToContents.get(id)?.versions ?? [])
+          .slice()
+          .reverse()
+          .filter(Boolean)[0];
+        if (currVersionId) {
+          currLine = state.lineContents.get(currVersionId);
+        }
+      }
+      if (!currLine) {
+        throw new Error('Content not found for edit');
+      }
+      const undoAction = {
+        type: 'UNDO_EDIT',
+        id,
+        lastModifiedDate: state.lastModifiedDate,
+        content: currLine,
+      } as const satisfies ScriptAction;
+      dispatch(action);
+      pushUndoRedo({
+        redoAction: action,
+        undoAction,
+        dispatch,
+        label:
+          currLine.lineType === 'chartext'
+            ? `Edit cue line (${currLine.characters.map((cid) => state.characters[cid]).join(',')})`
+            : currLine.lineType === 'heading'
+              ? 'Edit heading line'
+              : 'Edit free text line',
+      });
+    },
+    [state.lineContents, state.characters, state.lastModifiedDate],
+  );
   const removeLines = useCallback((ids: string[]) => {
     dispatch({
       type: 'REMOVE_LINES',
@@ -257,6 +307,24 @@ export function ScriptContextProvider(
     } as const as ScriptAction;
     dispatch(action);
   }, []);
+  const saveChangesAsNewVersion = useCallback((id: string) => {
+    const contentId = uuidV4();
+    const action = {
+      type: 'SAVE_CHANGES_AS_NEW_VERSION',
+      id,
+      contentId,
+    } as const as ScriptAction;
+    dispatch(action);
+  }, []);
+  const saveChangesAsSharedDraft = useCallback((id: string) => {
+    const contentId = uuidV4();
+    const action = {
+      type: 'SAVE_CHANGES_AS_SHARED_DRAFT',
+      id,
+      contentId,
+    } as const as ScriptAction;
+    dispatch(action);
+  }, []);
   const getLineContentInfo = (line: Line): LineContentInfo => {
     let content;
     const { id } = line;
@@ -272,17 +340,18 @@ export function ScriptContextProvider(
     // Check for prensence of versionned content items
     if (contents) {
       const { versions, sharedDrafts } = contents;
-      if (!content && versions.length) {
+      const presentVersions = versions.filter(Boolean).reverse().slice();
+      if (!content && presentVersions.length) {
         const latestVersionContent = state.lineContents.get(
-          versions.slice().reverse().find(Boolean) ?? '',
+          presentVersions[0] ?? '',
         );
         if (latestVersionContent) {
           content = latestVersionContent;
         }
       }
       hasSharedDraft = sharedDrafts.length > 0;
-      hasPreviousVersions = versions.length > 1;
-      isNewUnsaved = versions.length === 0;
+      hasPreviousVersions = presentVersions.length > 1;
+      isNewUnsaved = presentVersions.length === 0;
     }
     if (!content) {
       throw new Error('No line content found');
@@ -309,11 +378,14 @@ export function ScriptContextProvider(
         insertFreetextLine,
         initDraft,
         editLineText,
+        editLine,
         removeLines,
         dispatch,
         getLineContentInfo,
         discardChanges,
         saveChanges,
+        saveChangesAsNewVersion,
+        saveChangesAsSharedDraft,
       }) satisfies ScriptContext,
     [state],
   );

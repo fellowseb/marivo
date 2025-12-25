@@ -1,12 +1,14 @@
+import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
+import Button from './button.components';
 import ScriptLine, { ScriptLineToBe } from './script-line.component';
 import styles from './script.module.css';
 import Skeleton from './skeleton.component';
 import { useScriptContext } from '../features/script-edition/script.context';
-import type { LineContent } from './script.models';
-import classNames from 'classnames';
-import Button from './button.components';
+import type { LineContent, LineEditableContent } from './script.models';
+import { ScriptChangeHeadingDialog } from './script-change-heading-dialog.component';
+import { ScriptChangeCharactersDialog } from './script-change-characters-dialog.component';
 
 interface ScriptProps {
   isEditable: boolean;
@@ -48,6 +50,9 @@ function Script(props: ScriptProps) {
   const handleEditLineText = (id: string, text: string) => {
     scriptContext?.editLineText(id, text);
   };
+  const handleEdit = (id: string, content: LineEditableContent) => {
+    scriptContext?.editLine(id, content);
+  };
   const handleSelectLine = (id: string, add: boolean) => {
     const had = selectedLines.has(id);
     setSelectedLines((prev) => {
@@ -65,6 +70,9 @@ function Script(props: ScriptProps) {
     });
   };
   const [lineIdForMenu, setLineIdForMenu] = useState<string | null>(null);
+  const [showChangeHeadingDialog, setShowChangeHeadingDialog] = useState(false);
+  const [showChangeCharactersDialog, setShowChangeCharactersDialog] =
+    useState(false);
   const info = lineIdForMenu
     ? (scriptContext?.getLineContentInfo(
         scriptContext?.lines.get(lineIdForMenu)!,
@@ -77,6 +85,8 @@ function Script(props: ScriptProps) {
       }
       return prev ? null : id;
     });
+    setShowChangeHeadingDialog(false);
+    setShowChangeCharactersDialog(false);
   };
   const handleDiscardChanges = () => {
     if (lineIdForMenu) {
@@ -88,12 +98,28 @@ function Script(props: ScriptProps) {
       scriptContext?.saveChanges(lineIdForMenu);
     }
   };
+  const handleSaveChangesAsNewVersion = () => {
+    if (lineIdForMenu) {
+      scriptContext?.saveChangesAsNewVersion(lineIdForMenu);
+    }
+  };
+  const handleSaveChangesAsSharedDraft = () => {
+    if (lineIdForMenu) {
+      scriptContext?.saveChangesAsSharedDraft(lineIdForMenu);
+    }
+  };
   const handleDeleteLine = () => {
     if (lineIdForMenu) {
       const line = scriptContext?.lines.get(lineIdForMenu)!;
       const { content } = scriptContext?.getLineContentInfo(line);
       scriptContext?.initDraft(content, undefined, true);
     }
+  };
+  const handleChangeHeadingLevel = () => {
+    setShowChangeHeadingDialog(true);
+  };
+  const handleChangeCharacters = () => {
+    setShowChangeCharactersDialog(true);
   };
   return (
     <div className={styles.scriptContent} onClick={handleClick}>
@@ -127,6 +153,7 @@ function Script(props: ScriptProps) {
                   onSelect={handleSelectLine}
                   onDraftTextEdit={handleEditLineText}
                   onDraftInit={handleInitDraft}
+                  onEdit={handleEdit}
                   newlyInserted={insertedLineId === lineData.id}
                   num={lineCount}
                   line={lineData}
@@ -149,7 +176,13 @@ function Script(props: ScriptProps) {
               pos={scriptContext.linesOrder.length}
             />
           ) : null}
-          {info ? (
+          {info && showChangeHeadingDialog ? (
+            <ScriptChangeHeadingDialog />
+          ) : null}
+          {info && showChangeCharactersDialog ? (
+            <ScriptChangeCharactersDialog />
+          ) : null}
+          {info && !showChangeHeadingDialog && !showChangeCharactersDialog ? (
             <dialog
               className={classNames({
                 [styles.menu]: true,
@@ -159,6 +192,16 @@ function Script(props: ScriptProps) {
               }}
               open={true}
             >
+              {info.content.lineType === 'heading' ? (
+                <Button icon="heading" onClick={handleChangeHeadingLevel}>
+                  Change heading level
+                </Button>
+              ) : null}
+              {info.content.lineType === 'chartext' ? (
+                <Button icon="characterLine" onClick={handleChangeCharacters}>
+                  Change characters
+                </Button>
+              ) : null}
               {
                 <Button icon="delete" onClick={handleDeleteLine}>
                   Remove line
@@ -166,14 +209,23 @@ function Script(props: ScriptProps) {
               }
               {info.hasDraft ? (
                 info.isNewUnsaved ? (
-                  <Button icon="save">Save</Button>
+                  <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
+                    Save
+                  </Button>
                 ) : (
                   <>
                     <Button icon="save" onClick={handleSaveChanges}>
                       Save changes
                     </Button>
-                    <Button icon="save">Save as new version</Button>
-                    <Button icon="save">Save as shared draft</Button>
+                    <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
+                      Save as new version
+                    </Button>
+                    <Button
+                      icon="save"
+                      onClick={handleSaveChangesAsSharedDraft}
+                    >
+                      Save as shared draft
+                    </Button>
                     <Button icon="clear" onClick={handleDiscardChanges}>
                       Discard changes
                     </Button>
