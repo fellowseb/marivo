@@ -33,23 +33,6 @@ export function NewPlayPageBreadcrumbs() {
   );
 }
 
-// <p>
-//   Use Marivo has the main script
-//   editor
-//   Enjoy collaborating in a minimalistic editing environment with all the
-//   features needed:
-//   <ul>
-//     <li>
-//       controlled format for title / sections / line authors /
-//       didascalies
-//     </li>
-//     <li>full undo/redo history</li>
-//     <li>version control of lines</li>
-//     <li>capability to attach comments/staging directions</li>
-//     <li>share draft versions to let the Staging Director validate</li>
-//   </ul>
-// </p>
-
 type SectionChoice = 'choice-1' | 'choice-2' | 'choice-3';
 
 function ImportFromDiskTab() {
