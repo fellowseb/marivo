@@ -13,7 +13,6 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import {
-  createEditableContent,
   type CueLineEditableContent,
   type FreeTextLineEditableContent,
   type HeadingLineEditableContent,
@@ -21,9 +20,8 @@ import {
   type LineContent,
   type LineEditableContent,
 } from './script.models';
-import { handleDirections } from './script.utils';
+import { handleDirections, printCharacterName } from './script.utils';
 import styles from './script-line.module.css';
-import Button from './button.components';
 import type { LineContentInfo } from '../features/script-edition/script.context';
 
 interface ScriptLineProps {
@@ -265,7 +263,9 @@ function ScriptLine(props: ScriptLineProps) {
               [styles.repliqueDeleted]: lineContent.deleted,
             })}
           >
-            {lineContent.characters.map((i) => characters[i]).join(', ')}
+            {lineContent.characters
+              .map(printCharacterName(characters))
+              .join(', ')}
             {prefixDirection ? ` ${prefixDirection}` : null}
           </div>
         ) : null}

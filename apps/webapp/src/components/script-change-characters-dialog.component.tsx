@@ -1,12 +1,47 @@
-import { useState } from 'react';
+import { createRef, useRef, useState, type RefObject } from 'react';
 import Button from './button.components';
 import styles from './script-change-characters-dialog.module.css';
 import { ToggleButton } from './toggle-button.component';
+import type {
+  LineContentInfo,
+  ScriptContext,
+} from '../features/script-edition/script.context';
+import type { CueLineContent } from './script.models';
 
-export function ScriptChangeCharactersDialog() {
-  const [allowMultiple, setAllowMultiple] = useState(false);
+interface ScriptChangeCharactersDialogProps {
+  onOK: () => void;
+  onCharactersChange: (characters: string[]) => void;
+  lineContentInfo: LineContentInfo;
+  characters: ScriptContext['characters'];
+}
+
+export function ScriptChangeCharactersDialog(
+  props: ScriptChangeCharactersDialogProps,
+) {
+  const choicesRefs = useRef<RefObject<HTMLInputElement | null>[]>([]);
+  choicesRefs.current = Object.keys(props.characters).map(
+    (_, i) => choicesRefs.current[i] ?? createRef(),
+  );
+  const allRef = useRef<HTMLInputElement>(null);
+  const content = props.lineContentInfo.content as CueLineContent;
+  const [allowMultiple, setAllowMultiple] = useState(
+    content.characters.length > 1,
+  );
   const handleSelectMultipleToggle = (value: boolean) => {
     setAllowMultiple(value);
+    handleChange();
+  };
+  const handleOkClick = () => {
+    props.onOK();
+  };
+  const handleChange = () => {
+    const characters = choicesRefs.current
+      .concat(allRef)
+      .map((elem) => elem.current)
+      .filter((elem) => !!elem)
+      .filter((elem) => elem.checked)
+      .map((elem) => elem.id.substring('choice-'.length));
+    props.onCharactersChange(characters);
   };
   return (
     <dialog className={styles.dialog} open={true}>
@@ -14,36 +49,43 @@ export function ScriptChangeCharactersDialog() {
       <ToggleButton
         label="Select multiple"
         onToggle={handleSelectMultipleToggle}
+        value={allowMultiple}
       />
       <ul className={styles.choices}>
-        <li>
-          <input
-            type={allowMultiple ? 'checkbox' : 'radio'}
-            id="choice-0"
-            name="choices"
-          />
-          <label htmlFor="choice-0">LA MÈRE</label>
-        </li>
-        <li>
-          <input
-            type={allowMultiple ? 'checkbox' : 'radio'}
-            id="choice-1"
-            name="choices"
-          />
-          <label htmlFor="choice-1">LE PÈRE</label>
-        </li>
+        {Object.keys(props.characters).map((charId, i) => {
+          return (
+            <li key={charId}>
+              <input
+                type={allowMultiple ? 'checkbox' : 'radio'}
+                id={'choice-' + charId}
+                name="choices"
+                checked={content.characters.includes(charId)}
+                onChange={handleChange}
+                ref={choicesRefs.current[i]}
+              />
+              <label htmlFor={'choice-' + charId}>
+                {props.characters[charId]}
+              </label>
+            </li>
+          );
+        })}
         {!allowMultiple ? (
           <li>
             <input
               type={allowMultiple ? 'checkbox' : 'radio'}
-              id="choice-2"
+              id="choice-ALL"
               name="choices"
+              checked={content.characters.includes('ALL')}
+              ref={allRef}
+              onChange={handleChange}
             />
-            <label htmlFor="choice-2">ALL</label>
+            <label htmlFor="choice-ALL">ALL</label>
           </li>
         ) : null}
       </ul>
-      <Button icon="accept">OK</Button>
+      <Button icon="accept" onClick={handleOkClick}>
+        OK
+      </Button>
     </dialog>
   );
 }

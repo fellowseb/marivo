@@ -6,7 +6,12 @@ import ScriptLine, { ScriptLineToBe } from './script-line.component';
 import styles from './script.module.css';
 import Skeleton from './skeleton.component';
 import { useScriptContext } from '../features/script-edition/script.context';
-import type { LineContent, LineEditableContent } from './script.models';
+import type {
+  CueLineEditableContent,
+  HeadingLineEditableContent,
+  LineContent,
+  LineEditableContent,
+} from './script.models';
 import { ScriptChangeHeadingDialog } from './script-change-heading-dialog.component';
 import { ScriptChangeCharactersDialog } from './script-change-characters-dialog.component';
 
@@ -121,148 +126,192 @@ function Script(props: ScriptProps) {
   const handleChangeCharacters = () => {
     setShowChangeCharactersDialog(true);
   };
+  const handleDialogOK = () => {
+    setShowChangeHeadingDialog(false);
+    setShowChangeCharactersDialog(false);
+  };
+  const handleHeadingLevelChanged = (headingLevel: number) => {
+    if (lineIdForMenu) {
+      scriptContext?.editLine(lineIdForMenu, {
+        deleted: info?.content?.deleted,
+        text: info?.content?.text ?? '',
+        lineType: 'heading',
+        headingLevel,
+      } satisfies HeadingLineEditableContent);
+    }
+  };
+  const handleCharactersChanged = (characters: string[]) => {
+    if (lineIdForMenu) {
+      scriptContext?.editLine(lineIdForMenu, {
+        characters,
+        deleted: info?.content?.deleted,
+        text: info?.content?.text ?? '',
+        lineType: 'chartext',
+      } satisfies CueLineEditableContent);
+    }
+  };
+  const showModalDialog =
+    info && (showChangeHeadingDialog || showChangeCharactersDialog);
   return (
-    <div className={styles.scriptContent} onClick={handleClick}>
-      {scriptContext ? (
-        <>
-          {scriptContext.linesOrder.map((lineId, i) => {
-            const lineData = scriptContext.lines.get(lineId);
-            if (!lineData) {
-              return null;
-            }
-            const lineContentInfo = scriptContext.getLineContentInfo(lineData);
-            if (lineData.type === 'chartext') {
-              ++lineCount;
-            }
-            const selected = selectedLines.has(lineData.id);
-            return (
-              <Fragment key={lineData.id}>
-                {props.isEditable ? (
-                  <ScriptLineToBe
-                    onLineInserted={handleLineInserted}
-                    insertCueLine={scriptContext.insertCueLine}
-                    insertFreetextLine={scriptContext.insertFreetextLine}
-                    insertHeading={scriptContext.insertHeading}
+    <>
+      <div className={styles.scriptContent} onClick={handleClick}>
+        {scriptContext ? (
+          <>
+            {scriptContext.linesOrder.map((lineId, i) => {
+              const lineData = scriptContext.lines.get(lineId);
+              if (!lineData) {
+                return null;
+              }
+              const lineContentInfo =
+                scriptContext.getLineContentInfo(lineData);
+              if (lineData.type === 'chartext') {
+                ++lineCount;
+              }
+              const selected = selectedLines.has(lineData.id);
+              return (
+                <Fragment key={lineData.id}>
+                  {props.isEditable ? (
+                    <ScriptLineToBe
+                      onLineInserted={handleLineInserted}
+                      insertCueLine={scriptContext.insertCueLine}
+                      insertFreetextLine={scriptContext.insertFreetextLine}
+                      insertHeading={scriptContext.insertHeading}
+                      characters={scriptContext.characters}
+                      pos={i}
+                    />
+                  ) : null}
+                  <ScriptLine
+                    selected={selected}
+                    onShowMenu={handleShowLineMenu}
+                    onSelect={handleSelectLine}
+                    onDraftTextEdit={handleEditLineText}
+                    onDraftInit={handleInitDraft}
+                    onEdit={handleEdit}
+                    newlyInserted={insertedLineId === lineData.id}
+                    num={lineCount}
+                    line={lineData}
                     characters={scriptContext.characters}
-                    pos={i}
+                    key={lineData.id}
+                    isEditable={props.isEditable}
+                    hideLinesOf={props.hideLinesOf}
+                    lineContentInfo={lineContentInfo}
                   />
+                </Fragment>
+              );
+            })}
+            {props.isEditable ? (
+              <ScriptLineToBe
+                onLineInserted={handleLineInserted}
+                insertCueLine={scriptContext.insertCueLine}
+                insertFreetextLine={scriptContext.insertFreetextLine}
+                insertHeading={scriptContext.insertHeading}
+                characters={scriptContext.characters}
+                pos={scriptContext.linesOrder.length}
+              />
+            ) : null}
+            {info && !showChangeHeadingDialog && !showChangeCharactersDialog ? (
+              <dialog
+                className={classNames({
+                  [styles.menu]: true,
+                })}
+                style={{
+                  positionAnchor: '--menu-anchor-' + lineIdForMenu,
+                }}
+                open={true}
+              >
+                {info.content.lineType === 'heading' ? (
+                  <Button icon="heading" onClick={handleChangeHeadingLevel}>
+                    Change heading level
+                  </Button>
                 ) : null}
-                <ScriptLine
-                  selected={selected}
-                  onShowMenu={handleShowLineMenu}
-                  onSelect={handleSelectLine}
-                  onDraftTextEdit={handleEditLineText}
-                  onDraftInit={handleInitDraft}
-                  onEdit={handleEdit}
-                  newlyInserted={insertedLineId === lineData.id}
-                  num={lineCount}
-                  line={lineData}
-                  characters={scriptContext.characters}
-                  key={lineData.id}
-                  isEditable={props.isEditable}
-                  hideLinesOf={props.hideLinesOf}
-                  lineContentInfo={lineContentInfo}
-                />
-              </Fragment>
-            );
-          })}
-          {props.isEditable ? (
-            <ScriptLineToBe
-              onLineInserted={handleLineInserted}
-              insertCueLine={scriptContext.insertCueLine}
-              insertFreetextLine={scriptContext.insertFreetextLine}
-              insertHeading={scriptContext.insertHeading}
-              characters={scriptContext.characters}
-              pos={scriptContext.linesOrder.length}
+                {info.content.lineType === 'chartext' ? (
+                  <Button icon="characterLine" onClick={handleChangeCharacters}>
+                    Change characters
+                  </Button>
+                ) : null}
+                {
+                  <Button icon="delete" onClick={handleDeleteLine}>
+                    Remove line
+                  </Button>
+                }
+                {info.hasDraft ? (
+                  info.isNewUnsaved ? (
+                    <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
+                      Save
+                    </Button>
+                  ) : (
+                    <>
+                      <Button icon="save" onClick={handleSaveChanges}>
+                        Save changes
+                      </Button>
+                      <Button
+                        icon="save"
+                        onClick={handleSaveChangesAsNewVersion}
+                      >
+                        Save as new version
+                      </Button>
+                      <Button
+                        icon="save"
+                        onClick={handleSaveChangesAsSharedDraft}
+                      >
+                        Save as shared draft
+                      </Button>
+                      <Button icon="clear" onClick={handleDiscardChanges}>
+                        Discard changes
+                      </Button>
+                    </>
+                  )
+                ) : null}
+                {info.hasPreviousVersions ? (
+                  <Button icon="versions">Show previous versions</Button>
+                ) : null}
+                {info.hasSharedDraft ? (
+                  <Button icon="user">Show shared drafts</Button>
+                ) : null}
+              </dialog>
+            ) : null}
+          </>
+        ) : (
+          <div
+            style={{
+              width: '800px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              flex: '1',
+            }}
+          >
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+            <Skeleton hideImage={true} />
+          </div>
+        )}
+      </div>
+      {showModalDialog ? (
+        <div className={styles.modalContainer}>
+          {showChangeHeadingDialog ? (
+            <ScriptChangeHeadingDialog
+              onOK={handleDialogOK}
+              lineContentInfo={info}
+              onHeadingLevelChange={handleHeadingLevelChanged}
+            />
+          ) : showChangeCharactersDialog ? (
+            <ScriptChangeCharactersDialog
+              onOK={handleDialogOK}
+              lineContentInfo={info}
+              characters={scriptContext?.characters ?? {}}
+              onCharactersChange={handleCharactersChanged}
             />
           ) : null}
-          {info && showChangeHeadingDialog ? (
-            <ScriptChangeHeadingDialog />
-          ) : null}
-          {info && showChangeCharactersDialog ? (
-            <ScriptChangeCharactersDialog />
-          ) : null}
-          {info && !showChangeHeadingDialog && !showChangeCharactersDialog ? (
-            <dialog
-              className={classNames({
-                [styles.menu]: true,
-              })}
-              style={{
-                positionAnchor: '--menu-anchor-' + lineIdForMenu,
-              }}
-              open={true}
-            >
-              {info.content.lineType === 'heading' ? (
-                <Button icon="heading" onClick={handleChangeHeadingLevel}>
-                  Change heading level
-                </Button>
-              ) : null}
-              {info.content.lineType === 'chartext' ? (
-                <Button icon="characterLine" onClick={handleChangeCharacters}>
-                  Change characters
-                </Button>
-              ) : null}
-              {
-                <Button icon="delete" onClick={handleDeleteLine}>
-                  Remove line
-                </Button>
-              }
-              {info.hasDraft ? (
-                info.isNewUnsaved ? (
-                  <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
-                    Save
-                  </Button>
-                ) : (
-                  <>
-                    <Button icon="save" onClick={handleSaveChanges}>
-                      Save changes
-                    </Button>
-                    <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
-                      Save as new version
-                    </Button>
-                    <Button
-                      icon="save"
-                      onClick={handleSaveChangesAsSharedDraft}
-                    >
-                      Save as shared draft
-                    </Button>
-                    <Button icon="clear" onClick={handleDiscardChanges}>
-                      Discard changes
-                    </Button>
-                  </>
-                )
-              ) : null}
-              {info.hasPreviousVersions ? (
-                <Button icon="versions">Show previous versions</Button>
-              ) : null}
-              {info.hasSharedDraft ? (
-                <Button icon="user">Show shared drafts</Button>
-              ) : null}
-            </dialog>
-          ) : null}
-        </>
-      ) : (
-        <div
-          style={{
-            width: '800px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            flex: '1',
-          }}
-        >
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
-          <Skeleton hideImage={true} />
         </div>
-      )}
-    </div>
+      ) : null}
+    </>
   );
 }
 

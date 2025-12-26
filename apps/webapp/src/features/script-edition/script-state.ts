@@ -1,4 +1,5 @@
 import type { AppRouterOutput } from '@marivo/api';
+import { assertUnreachable } from '@marivo/utils';
 import type {
   CueLineContent,
   FreeTextLineContent,
@@ -7,7 +8,7 @@ import type {
   LineContent,
   LineEditableContent,
 } from '../../components/script.models';
-import { assertUnreachable } from '@marivo/utils';
+import { isLineEditableContentSameAsPrevious } from '../../components/script.utils';
 
 export interface LineContents {
   sharedDrafts: string[];
@@ -369,8 +370,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
           : undefined;
       if (
         latestVersionContent &&
-        latestVersionContent.text === content.text &&
-        latestVersionContent.deleted === content.deleted
+        isLineEditableContentSameAsPrevious(content, latestVersionContent)
       ) {
         // Case 1: text === latestVersion.text, discard changes
         const lineContents = new Map(state.lineContents);
@@ -399,7 +399,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       }
     }
     case 'INIT_DRAFT': {
-      const { content, lastModifiedDate } = action;
+      const { content, lastModifiedDate, text, deleted } = action;
       const lineContents = new Map(state.lineContents);
       const draftId = content.lineId;
       lineContents.set(draftId, {
@@ -407,8 +407,8 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         type: 'draft',
         lineId: content.lineId,
         id: draftId,
-        ...(action.text ? { text: action.text } : {}),
-        ...(action.deleted ? { deleted: action.deleted } : { deleted: false }),
+        ...(text ? { text } : {}),
+        ...(deleted ? { deleted } : { deleted: false }),
         lastModifiedDate,
       } satisfies LineContent);
       return {

@@ -269,6 +269,7 @@ export function ScriptContextProvider(
     },
     [state.lineContents, state.characters, state.lastModifiedDate],
   );
+
   const removeLines = useCallback((ids: string[]) => {
     dispatch({
       type: 'REMOVE_LINES',

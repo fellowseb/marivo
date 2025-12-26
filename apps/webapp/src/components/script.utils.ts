@@ -1,4 +1,9 @@
-import type { Line, HeadingLine } from './script.models';
+import type {
+  Line,
+  HeadingLine,
+  LineEditableContent,
+  LineContent,
+} from './script.models';
 
 export function highlightDirections(lineText: string) {
   return lineText.replaceAll(/\(.*\)/g, `<em>$&</em>`);
@@ -17,4 +22,36 @@ export function handleDirections(lineText: string): [string, string] {
 
 export function isHeading(line: Line): line is HeadingLine {
   return line.type === 'heading';
+}
+
+export function printCharacterName(characters: { [charId: string]: string }) {
+  return (charId: string) => {
+    // Special case
+    if (charId === 'ALL') {
+      return 'ALL';
+    }
+    return characters[charId];
+  };
+}
+
+function areArraysEqual<T>(lhs: T[], rhs: T[]) {
+  return lhs.length === rhs.length && lhs.every((v) => rhs.includes(v));
+}
+
+export function isLineEditableContentSameAsPrevious(
+  editableContent: LineEditableContent,
+  previous: LineContent,
+) {
+  const commonsEqual =
+    previous.text === editableContent.text &&
+    previous.deleted === editableContent.deleted;
+  return (
+    (commonsEqual &&
+      editableContent.lineType === 'chartext' &&
+      previous.lineType === 'chartext' &&
+      areArraysEqual(editableContent.characters, previous.characters)) ||
+    (editableContent.lineType === 'heading' &&
+      previous.lineType === 'heading' &&
+      editableContent.headingLevel === previous.headingLevel)
+  );
 }
