@@ -128,6 +128,7 @@ function Script(props: ScriptProps) {
   const handleDialogOK = () => {
     setShowChangeHeadingDialog(false);
     setShowChangeCharactersDialog(false);
+    setLineIdForMenu(null);
   };
   const handleHeadingLevelChanged = (headingLevel: number) => {
     if (lineIdForMenu) {
