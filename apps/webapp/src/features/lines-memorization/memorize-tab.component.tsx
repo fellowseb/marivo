@@ -5,11 +5,10 @@ import styles from './memorize-tab.module.css';
 function MemorizeTab() {
   return (
     <div className={styles.container}>
-      <MemorizeCommands />
-      <Script
-        isEditable={false}
-        hideLinesOf={['LA MÈRE', 'LE PÈRE', 'LA MARIÉE']}
-      />
+      <Script isEditable={false} />
+      <div className={styles.modalContainer}>
+        <MemorizeCommands />
+      </div>
     </div>
   );
 }
