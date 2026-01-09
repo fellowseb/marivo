@@ -7,6 +7,7 @@ import type {
   ScriptContext,
 } from '../features/script-edition/script.context';
 import type { CueLineContent } from './script.models';
+import { Dialog } from './dialog.component';
 
 interface ScriptChangeCharactersDialogProps {
   onOK: () => void;
@@ -44,8 +45,14 @@ export function ScriptChangeCharactersDialog(
     props.onCharactersChange(characters);
   };
   return (
-    <dialog className={styles.dialog} open={true}>
-      <h2 className={styles.title}>Select cue line characters</h2>
+    <Dialog
+      title="Select cue line characters"
+      actions={
+        <Button icon="accept" onClick={handleOkClick}>
+          OK
+        </Button>
+      }
+    >
       <ToggleButton
         label="Select multiple"
         onToggle={handleSelectMultipleToggle}
@@ -83,9 +90,6 @@ export function ScriptChangeCharactersDialog(
           </li>
         ) : null}
       </ul>
-      <Button icon="accept" onClick={handleOkClick}>
-        OK
-      </Button>
-    </dialog>
+    </Dialog>
   );
 }

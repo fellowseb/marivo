@@ -1,10 +1,11 @@
 import classNames from 'classnames';
+import { createRef, useRef, type RefObject } from 'react';
 import Button from './button.components';
 import styles from './script-change-heading-dialog.module.css';
 import lineStyles from './script-line.module.css';
 import type { LineContentInfo } from '../features/script-edition/script.context';
 import type { HeadingLineContent } from './script.models';
-import { createRef, useRef, type RefObject } from 'react';
+import { Dialog } from './dialog.component';
 
 interface ScriptChangeHeadingDialogProps {
   onOK: () => void;
@@ -55,8 +56,14 @@ export function ScriptChangeHeadingDialog(
   };
   const content = props.lineContentInfo.content as HeadingLineContent;
   return (
-    <dialog className={styles.dialog} open={true}>
-      <h2 className={styles.title}>Select heading level</h2>
+    <Dialog
+      title="Select heading level"
+      actions={
+        <Button icon="accept" onClick={handleOkClick}>
+          OK
+        </Button>
+      }
+    >
       <ul className={styles.choices}>
         {CHOICES.map(({ style, sampleText }, idx) => (
           <li key={idx}>
@@ -81,9 +88,6 @@ export function ScriptChangeHeadingDialog(
           </li>
         ))}
       </ul>
-      <Button icon="accept" onClick={handleOkClick}>
-        OK
-      </Button>
-    </dialog>
+    </Dialog>
   );
 }

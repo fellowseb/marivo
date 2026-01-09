@@ -1,9 +1,13 @@
+import Button from '../../components/button.components';
+import { Dialog } from '../../components/dialog.component';
 import styles from './memorize-commands.module.css';
 
 function MemorizeCommands() {
   return (
-    <div className={styles.playbackContainer}>
-      <p className={styles.optionsTitle}>Start Session</p>
+    <Dialog
+      title="Start Session"
+      actions={<Button icon="accept">Start</Button>}
+    >
       <div className={styles.playOptions}>
         <div className={styles.playOptionsLine}>
           <label>Character</label>
@@ -32,10 +36,7 @@ function MemorizeCommands() {
           <input type="checkbox" />
         </div>
       </div>
-      <div className={styles.playContainer}>
-        <button className={styles.play} id="startBtn"></button>
-      </div>
-    </div>
+    </Dialog>
   );
 }
 
