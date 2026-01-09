@@ -29,7 +29,6 @@ interface ScriptLineProps {
   line: Line;
   num: number;
   isEditable: boolean;
-  hideLinesOf?: string[];
   newlyInserted: boolean;
   onShowMenu: (id: string) => void;
   onSelect: (id: string, add: boolean) => void;
@@ -327,9 +326,6 @@ function ScriptLine(props: ScriptLineProps) {
                 })}
               />
             </div>
-          ) : null}
-          {props.hideLinesOf ? (
-            <div className={styles.blurOverlay}></div>
           ) : null}
         </div>
       </div>

@@ -17,7 +17,6 @@ import { ScriptChangeCharactersDialog } from './script-change-characters-dialog.
 
 interface ScriptProps {
   isEditable: boolean;
-  hideLinesOf?: string[];
 }
 
 function Script(props: ScriptProps) {
@@ -193,7 +192,6 @@ function Script(props: ScriptProps) {
                     characters={scriptContext.characters}
                     key={lineData.id}
                     isEditable={props.isEditable}
-                    hideLinesOf={props.hideLinesOf}
                     lineContentInfo={lineContentInfo}
                   />
                 </Fragment>
