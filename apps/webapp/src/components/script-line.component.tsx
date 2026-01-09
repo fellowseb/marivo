@@ -454,6 +454,10 @@ export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
           [styles.hidden]: !showCharactersMenu,
         })}
       >
+        <div>
+          <kbd className="kbc-button no-container">0</kbd>
+          <div>New character</div>
+        </div>
         {sortedChars.map(([id, name], idx) => {
           return (
             <div key={id}>
