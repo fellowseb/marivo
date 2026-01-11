@@ -46,12 +46,12 @@ export function isLineEditableContentSameAsPrevious(
     previous.text === editableContent.text &&
     previous.deleted === editableContent.deleted;
   return (
-    (commonsEqual &&
-      editableContent.lineType === 'chartext' &&
+    commonsEqual &&
+    ((editableContent.lineType === 'chartext' &&
       previous.lineType === 'chartext' &&
       areArraysEqual(editableContent.characters, previous.characters)) ||
-    (editableContent.lineType === 'heading' &&
-      previous.lineType === 'heading' &&
-      editableContent.headingLevel === previous.headingLevel)
+      (editableContent.lineType === 'heading' &&
+        previous.lineType === 'heading' &&
+        editableContent.headingLevel === previous.headingLevel))
   );
 }
