@@ -1,6 +1,7 @@
 import superjson from 'superjson';
 import { v7 as uuidv7 } from 'uuid';
 import { StrictMode, useState } from 'react';
+import 'keyboard-css/dist/css/main.min.css';
 import { BrowserRouter } from 'react-router';
 import { ClerkProvider, useAuth } from '@clerk/clerk-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

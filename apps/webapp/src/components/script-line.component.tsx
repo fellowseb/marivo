@@ -1,4 +1,3 @@
-import 'keyboard-css/dist/css/main.min.css';
 import {
   useEffect,
   useEffectEvent,
