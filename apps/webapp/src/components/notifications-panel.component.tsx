@@ -1,5 +1,5 @@
 import Icon from './icon.component';
-import Button from './button.components';
+import Button from './button.component';
 import { useNotificationsDisplay } from './notifications.context.tsx';
 import styles from './notifications-panel.module.css';
 import classNames from 'classnames';

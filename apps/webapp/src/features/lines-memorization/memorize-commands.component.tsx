@@ -1,4 +1,4 @@
-import Button from '../../components/button.components';
+import Button from '../../components/button.component';
 import { Dialog } from '../../components/dialog.component';
 import styles from './memorize-commands.module.css';
 

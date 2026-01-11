@@ -1,5 +1,5 @@
 import styles from './play-invites.module.css';
-import Button from '../../components/button.components';
+import Button from '../../components/button.component';
 import { useTRPC } from '../../trpc';
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useEffectEvent } from 'react';

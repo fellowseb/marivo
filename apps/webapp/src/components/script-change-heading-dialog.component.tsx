@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { createRef, useRef, type RefObject } from 'react';
-import Button from './button.components';
+import Button from './button.component';
 import styles from './script-change-heading-dialog.module.css';
 import lineStyles from './script-line.module.css';
 import type { LineContentInfo } from '../features/script-edition/script.context';

@@ -1,5 +1,5 @@
 import { createRef, useRef, useState, type RefObject } from 'react';
-import Button from './button.components';
+import Button from './button.component';
 import styles from './script-change-characters-dialog.module.css';
 import { ToggleButton } from './toggle-button.component';
 import type {

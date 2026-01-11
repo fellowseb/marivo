@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
-import Button from './button.components';
+import Button from './button.component';
 import ScriptLine, { ScriptLineToBe } from './script-line.component';
 import styles from './script.module.css';
 import Skeleton from './skeleton.component';

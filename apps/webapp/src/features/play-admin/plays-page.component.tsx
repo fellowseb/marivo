@@ -2,7 +2,7 @@ import styles from './plays-page.module.css';
 import PlayList from './plays-list.component';
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
 import { useNavigate } from 'react-router';
-import Button from '../../components/button.components';
+import Button from '../../components/button.component';
 
 export function PlaysPageBreadcrumbs() {
   return <HeaderBreadcrumbs crumbs={['My plays']} />;

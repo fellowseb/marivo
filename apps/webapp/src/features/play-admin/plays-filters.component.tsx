@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import styles from './plays-filters.module.css';
 import type { PlayFilterSortOptions, PlaysOrdering } from './plays.lib';
-import Button from '../../components/button.components';
+import Button from '../../components/button.component';
 import Icon from '../../components/icon.component';
 import classNames from 'classnames';
 

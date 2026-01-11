@@ -8,14 +8,17 @@ export interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   customClassNames?: string[];
+  iconCustomClassNames?: string[];
   variant?: 'standout' | 'normal' | 'discrete';
   ref?: RefObject<HTMLButtonElement | null>;
+  autoFocus?: boolean;
 }
 
 function Button(props: PropsWithChildren<ButtonProps>) {
   const variant = props.variant ?? 'normal';
   return (
     <button
+      autoFocus={props.autoFocus}
       ref={props.ref}
       className={classNames({
         [styles.normal]: variant === 'normal',
@@ -37,7 +40,9 @@ function Button(props: PropsWithChildren<ButtonProps>) {
           value={props.icon}
           size="medium"
           mode="secondary"
-          customClassNames={[styles.icon]}
+          customClassNames={[styles.icon].concat(
+            props.iconCustomClassNames ?? [],
+          )}
         />
       ) : null}
       {props.children}

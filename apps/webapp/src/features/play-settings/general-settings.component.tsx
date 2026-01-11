@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import styles from './general-settings.module.css';
-import Button from '../../components/button.components';
+import Button from '../../components/button.component';
 
 function GeneralSettings() {
   return (

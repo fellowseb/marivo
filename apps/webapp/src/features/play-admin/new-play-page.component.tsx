@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router';
 import styles from './new-play-page.module.css';
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import Button from '../../components/button.components';
+import Button from '../../components/button.component';
 import Tabs from '../../components/tabs.component';
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
