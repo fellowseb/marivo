@@ -1,6 +1,8 @@
 .repliqueCharacter {
   font-size: 1.2rem;
   font-weight: bold;
+  font-family: 'Cutive Mono', monospace;
+  font-optical-sizing: auto;
 }
 
 .repliqueTextContainer {
@@ -14,6 +16,8 @@
   display: flex;
   flex-direction: column;
   font-size: 1.2rem;
+  font-family: 'Cutive Mono', monospace;
+  font-optical-sizing: auto;
 }
 
 .repliqueDeleted {

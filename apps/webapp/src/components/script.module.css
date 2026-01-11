@@ -42,3 +42,19 @@
   left: 0;
   padding: 100px;
 }
+
+.sharedDraftsButton {
+  color: orange;
+}
+
+.previousVersionsButton {
+  color: skyblue;
+}
+
+.sharedDraftsButtonIcon {
+  background-color: orange;
+}
+
+.previousVersionsButtonIcon {
+  background-color: skyblue;
+}

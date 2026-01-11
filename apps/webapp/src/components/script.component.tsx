@@ -14,6 +14,7 @@ import type {
 } from './script.models';
 import { ScriptChangeHeadingDialog } from './script-change-heading-dialog.component';
 import { ScriptChangeCharactersDialog } from './script-change-characters-dialog.component';
+import { ScriptLineVersionsDialog } from './script-line-versions-dialog.component';
 
 interface ScriptProps {
   isEditable: boolean;
@@ -77,11 +78,18 @@ function Script(props: ScriptProps) {
   const [showChangeHeadingDialog, setShowChangeHeadingDialog] = useState(false);
   const [showChangeCharactersDialog, setShowChangeCharactersDialog] =
     useState(false);
-  const info = lineIdForMenu
-    ? (scriptContext?.getLineContentInfo(
-        scriptContext?.lines.get(lineIdForMenu)!,
-      ) ?? null)
-    : null;
+  const [showPreviousVersionsDialog, setShowPreviousVersionsDialog] =
+    useState(false);
+  const [showSharedDraftsDialog, setShowSharedDraftsDialog] = useState(false);
+  const menuLine = lineIdForMenu
+    ? scriptContext?.lines.get(lineIdForMenu)
+    : undefined;
+  const [menuLineContent, menuLineInfo] = menuLine
+    ? (scriptContext?.getLineContentForDisplayWithInfo(menuLine) ?? [
+        null,
+        null,
+      ])
+    : [null, null];
   const handleShowLineMenu = (id: string) => {
     setLineIdForMenu((prev) => {
       if (prev !== id) {
@@ -91,6 +99,8 @@ function Script(props: ScriptProps) {
     });
     setShowChangeHeadingDialog(false);
     setShowChangeCharactersDialog(false);
+    setShowSharedDraftsDialog(false);
+    setShowPreviousVersionsDialog(false);
   };
   const handleDiscardChanges = () => {
     if (lineIdForMenu) {
@@ -115,8 +125,11 @@ function Script(props: ScriptProps) {
   const handleDeleteLine = () => {
     if (lineIdForMenu) {
       const line = scriptContext?.lines.get(lineIdForMenu)!;
-      const { content } = scriptContext?.getLineContentInfo(line);
-      scriptContext?.initDraft(content, undefined, true);
+      const contentWithInfo =
+        scriptContext?.getLineContentForDisplayWithInfo(line);
+      if (contentWithInfo) {
+        scriptContext?.initDraft(contentWithInfo[0], undefined, true);
+      }
     }
   };
   const handleChangeHeadingLevel = () => {
@@ -125,51 +138,69 @@ function Script(props: ScriptProps) {
   const handleChangeCharacters = () => {
     setShowChangeCharactersDialog(true);
   };
+  const handleShowSharedDrafts = () => {
+    setShowSharedDraftsDialog(true);
+  };
+  const handleShowPreviousVersions = () => {
+    setShowPreviousVersionsDialog(true);
+  };
   const handleDialogOK = () => {
+    closeDialogs();
+  };
+  const closeDialogs = () => {
     setShowChangeHeadingDialog(false);
     setShowChangeCharactersDialog(false);
+    setShowSharedDraftsDialog(false);
+    setShowPreviousVersionsDialog(false);
     setLineIdForMenu(null);
   };
   const handleHeadingLevelChanged = (headingLevel: number) => {
-    if (lineIdForMenu) {
-      scriptContext?.editLine(lineIdForMenu, {
-        deleted: info?.content?.deleted,
-        text: info?.content?.text ?? '',
+    if (menuLineContent) {
+      scriptContext?.editLine(menuLineContent.lineId, {
+        deleted: menuLineContent.deleted,
+        text: menuLineContent.text ?? '',
         lineType: 'heading',
         headingLevel,
       } satisfies HeadingLineEditableContent);
     }
   };
   const handleCharactersChanged = (characters: string[]) => {
-    if (lineIdForMenu) {
-      scriptContext?.editLine(lineIdForMenu, {
+    if (menuLineContent) {
+      scriptContext?.editLine(menuLineContent.lineId, {
         characters,
-        deleted: info?.content?.deleted,
-        text: info?.content?.text ?? '',
+        deleted: menuLineContent.deleted,
+        text: menuLineContent.text ?? '',
         lineType: 'chartext',
       } satisfies CueLineEditableContent);
     }
   };
+  const handleDialogOutsideClick = () => {
+    closeDialogs();
+  };
   const showModalDialog =
-    info && (showChangeHeadingDialog || showChangeCharactersDialog);
+    menuLine &&
+    (showChangeHeadingDialog ||
+      showChangeCharactersDialog ||
+      showSharedDraftsDialog ||
+      showPreviousVersionsDialog);
   return (
     <>
       <div className={styles.scriptContent} onClick={handleClick}>
         {scriptContext ? (
           <>
             {scriptContext.linesOrder.map((lineId, i) => {
-              const lineData = scriptContext.lines.get(lineId);
-              if (!lineData) {
+              const line = scriptContext.lines.get(lineId);
+              if (!line) {
                 return null;
               }
-              const lineContentInfo =
-                scriptContext.getLineContentInfo(lineData);
-              if (lineData.type === 'chartext') {
+              const [content, lineInfo] =
+                scriptContext.getLineContentForDisplayWithInfo(line);
+              if (line.type === 'chartext') {
                 ++lineCount;
               }
-              const selected = selectedLines.has(lineData.id);
+              const selected = selectedLines.has(line.id);
               return (
-                <Fragment key={lineData.id}>
+                <Fragment key={line.id}>
                   {props.isEditable ? (
                     <ScriptLineToBe
                       onLineInserted={handleLineInserted}
@@ -187,13 +218,14 @@ function Script(props: ScriptProps) {
                     onDraftTextEdit={handleEditLineText}
                     onDraftInit={handleInitDraft}
                     onEdit={handleEdit}
-                    newlyInserted={insertedLineId === lineData.id}
+                    newlyInserted={insertedLineId === line.id}
                     num={lineCount}
-                    line={lineData}
+                    line={line}
                     characters={scriptContext.characters}
-                    key={lineData.id}
+                    key={line.id}
                     isEditable={props.isEditable}
-                    lineContentInfo={lineContentInfo}
+                    content={content}
+                    lineInfo={lineInfo}
                   />
                 </Fragment>
               );
@@ -208,7 +240,7 @@ function Script(props: ScriptProps) {
                 pos={scriptContext.linesOrder.length}
               />
             ) : null}
-            {info && !showChangeHeadingDialog && !showChangeCharactersDialog ? (
+            {menuLineContent && !showModalDialog ? (
               <dialog
                 className={classNames({
                   [styles.menu]: true,
@@ -218,12 +250,12 @@ function Script(props: ScriptProps) {
                 }}
                 open={true}
               >
-                {info.content.lineType === 'heading' ? (
+                {menuLineContent.lineType === 'heading' ? (
                   <Button icon="heading" onClick={handleChangeHeadingLevel}>
                     Change heading level
                   </Button>
                 ) : null}
-                {info.content.lineType === 'chartext' ? (
+                {menuLineContent.lineType === 'chartext' ? (
                   <Button icon="characterLine" onClick={handleChangeCharacters}>
                     Change characters
                   </Button>
@@ -233,8 +265,8 @@ function Script(props: ScriptProps) {
                     Remove line
                   </Button>
                 }
-                {info.hasDraft ? (
-                  info.isNewUnsaved ? (
+                {menuLineInfo.hasDraft ? (
+                  menuLineInfo.isNewUnsaved ? (
                     <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
                       Save
                     </Button>
@@ -261,11 +293,25 @@ function Script(props: ScriptProps) {
                     </>
                   )
                 ) : null}
-                {info.hasPreviousVersions ? (
-                  <Button icon="versions">Show previous versions</Button>
+                {menuLineInfo.hasPreviousVersions ? (
+                  <Button
+                    icon="versions"
+                    onClick={handleShowPreviousVersions}
+                    customClassNames={[styles.previousVersionsButton]}
+                    iconCustomClassNames={[styles.previousVersionsButtonIcon]}
+                  >
+                    Show previous versions
+                  </Button>
                 ) : null}
-                {info.hasSharedDraft ? (
-                  <Button icon="user">Show shared drafts</Button>
+                {menuLineInfo.hasSharedDraft ? (
+                  <Button
+                    icon="user"
+                    onClick={handleShowSharedDrafts}
+                    customClassNames={[styles.sharedDraftsButton]}
+                    iconCustomClassNames={[styles.sharedDraftsButtonIcon]}
+                  >
+                    Show shared drafts
+                  </Button>
                 ) : null}
               </dialog>
             ) : null}
@@ -292,20 +338,38 @@ function Script(props: ScriptProps) {
           </div>
         )}
       </div>
-      {showModalDialog ? (
-        <div className={styles.modalContainer}>
+      {showModalDialog && menuLineContent ? (
+        <div
+          className={styles.modalContainer}
+          onClick={handleDialogOutsideClick}
+        >
           {showChangeHeadingDialog ? (
             <ScriptChangeHeadingDialog
               onOK={handleDialogOK}
-              lineContentInfo={info}
+              lineContent={menuLineContent}
               onHeadingLevelChange={handleHeadingLevelChanged}
             />
           ) : showChangeCharactersDialog ? (
             <ScriptChangeCharactersDialog
               onOK={handleDialogOK}
-              lineContentInfo={info}
+              lineContent={menuLineContent}
               characters={scriptContext?.characters ?? {}}
               onCharactersChange={handleCharactersChanged}
+            />
+          ) : showPreviousVersionsDialog || showSharedDraftsDialog ? (
+            <ScriptLineVersionsDialog
+              lineNum={lineCount}
+              currentContent={menuLineContent}
+              line={menuLine}
+              lineInfo={menuLineInfo}
+              characters={scriptContext?.characters ?? {}}
+              sharedDraftContents={
+                scriptContext?.getLineSharedDrafts(menuLine) ?? []
+              }
+              previousVersionsContents={
+                scriptContext?.getLinePreviousVersions(menuLine) ?? []
+              }
+              onOK={handleDialogOK}
             />
           ) : null}
         </div>

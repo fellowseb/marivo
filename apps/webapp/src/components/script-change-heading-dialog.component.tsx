@@ -1,16 +1,15 @@
 import classNames from 'classnames';
-import { createRef, useRef, type RefObject } from 'react';
+import { createRef, useRef, type KeyboardEvent, type RefObject } from 'react';
 import Button from './button.component';
 import styles from './script-change-heading-dialog.module.css';
 import lineStyles from './script-line.module.css';
-import type { LineContentInfo } from '../features/script-edition/script.context';
-import type { HeadingLineContent } from './script.models';
+import type { HeadingLineContent, LineContent } from './script.models';
 import { Dialog } from './dialog.component';
 
 interface ScriptChangeHeadingDialogProps {
   onOK: () => void;
   onHeadingLevelChange: (headingLevel: number) => void;
-  lineContentInfo: LineContentInfo;
+  lineContent: LineContent;
 }
 
 const CHOICES = [
@@ -46,6 +45,11 @@ export function ScriptChangeHeadingDialog(
   const handleOkClick = () => {
     props.onOK();
   };
+  const handleKeyUp = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      props.onOK();
+    }
+  };
   const handleChange = () => {
     const headings = choicesRefs.current
       .map((elem) => elem.current)
@@ -54,15 +58,16 @@ export function ScriptChangeHeadingDialog(
       .map((elem) => parseInt(elem.id.substring('choice-'.length), 10));
     props.onHeadingLevelChange(headings.length ? headings[0] : 0);
   };
-  const content = props.lineContentInfo.content as HeadingLineContent;
+  const content = props.lineContent as HeadingLineContent;
   return (
     <Dialog
       title="Select heading level"
       actions={
-        <Button icon="accept" onClick={handleOkClick}>
+        <Button icon="accept" onClick={handleOkClick} autoFocus={true}>
           OK
         </Button>
       }
+      onKeyUp={handleKeyUp}
     >
       <ul className={styles.choices}>
         {CHOICES.map(({ style, sampleText }, idx) => (

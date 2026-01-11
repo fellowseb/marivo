@@ -18,29 +18,34 @@ import {
   type Line,
   type LineContent,
   type LineEditableContent,
+  type LineInfo,
 } from './script.models';
 import { handleDirections, printCharacterName } from './script.utils';
 import styles from './script-line.module.css';
-import type { LineContentInfo } from '../features/script-edition/script.context';
 
 interface ScriptLineProps {
-  lineContentInfo: LineContentInfo;
   line: Line;
+  lineInfo: LineInfo;
+  content: LineContent;
   num: number;
   isEditable: boolean;
-  newlyInserted: boolean;
-  onShowMenu: (id: string) => void;
-  onSelect: (id: string, add: boolean) => void;
-  onDraftTextEdit: (contentId: string, text: string) => void;
-  onDraftInit: (content: LineContent, text?: string, deleted?: boolean) => void;
-  onEdit: (id: string, content: LineEditableContent) => void;
-  selected: boolean;
+  newlyInserted?: boolean;
+  onShowMenu?: (id: string) => void;
+  onSelect?: (id: string, add: boolean) => void;
+  onDraftTextEdit?: (contentId: string, text: string) => void;
+  onDraftInit?: (
+    content: LineContent,
+    text?: string,
+    deleted?: boolean,
+  ) => void;
+  onEdit?: (id: string, content: LineEditableContent) => void;
+  selected?: boolean;
   characters: { [id: string]: string };
 }
 
 function ScriptLine(props: ScriptLineProps) {
   const timeoutIdRef = useRef<number>(null);
-  const { characters, isEditable, line } = props;
+  const { characters, content: lineContent, isEditable, line } = props;
   const newlyInserted = useRef(props.newlyInserted);
   const lineEditableContentRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -123,7 +128,7 @@ function ScriptLine(props: ScriptLineProps) {
           headingLevel: lineContent.headingLevel,
         } satisfies HeadingLineEditableContent;
       }
-      props.onEdit(lineContent.lineId, editableContent);
+      props.onEdit?.(lineContent.lineId, editableContent);
       timeoutIdRef.current = null;
     }, 3000);
     // }
@@ -133,7 +138,7 @@ function ScriptLine(props: ScriptLineProps) {
     if (lineContent.type === 'draft') {
       // props.onDraftTextEdit(lineContent.id, undefined, true);
     } else {
-      props.onDraftInit(lineContent, undefined, true);
+      props.onDraftInit?.(lineContent, undefined, true);
     }
   };
   const handleLineBlur = () => {
@@ -168,18 +173,13 @@ function ScriptLine(props: ScriptLineProps) {
             headingLevel: lineContent.headingLevel,
           } satisfies HeadingLineEditableContent;
         }
-        props.onEdit(lineContent.lineId, editableContent);
+        props.onEdit?.(lineContent.lineId, editableContent);
         timeoutIdRef.current = null;
       }
     }
     setIsEditing(false);
   };
-  const {
-    content: lineContent,
-    hasPreviousVersions,
-    hasSharedDraft,
-    hasDraft,
-  } = props.lineContentInfo;
+  const { hasPreviousVersions, hasSharedDraft, hasDraft } = props.lineInfo;
   // const isEdited =
   //   lineEditableContentRef.current &&
   //   lineContent.text !==
@@ -224,12 +224,12 @@ function ScriptLine(props: ScriptLineProps) {
   //   lineEditableContentRef.current?.focus();
   // };
   const handleHandleClick: MouseEventHandler = (event) => {
-    props.onSelect(props.line.id, event.ctrlKey);
+    props.onSelect?.(props.line.id, event.ctrlKey);
     event.stopPropagation();
     event.preventDefault();
   };
   const handleMenuClick = () => {
-    props.onShowMenu(props.line.id);
+    props.onShowMenu?.(props.line.id);
   };
   if (!hasDraft && lineContent.deleted) {
     return null;
@@ -239,7 +239,7 @@ function ScriptLine(props: ScriptLineProps) {
       <div
         className={classNames({
           [styles.replique]: true,
-          [styles.selected]: props.selected,
+          [styles.selected]: Boolean(props.selected),
         })}
         //onClick={handleClick}
       >
@@ -455,7 +455,7 @@ export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
       >
         <div>
           <kbd className="kbc-button no-container">0</kbd>
-          <div>New character</div>
+          <div>[New character]</div>
         </div>
         {sortedChars.map(([id, name], idx) => {
           return (

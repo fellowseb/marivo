@@ -13,6 +13,7 @@ import type {
   Line,
   LineContent,
   LineEditableContent,
+  LineInfo,
 } from '../../components/script.models';
 import { useTRPC } from '../../trpc';
 import { useScriptUndoRedo } from './script-undo-redo.context';
@@ -36,7 +37,9 @@ export interface ScriptContext {
   saveChanges: (id: string) => void;
   saveChangesAsNewVersion: (id: string) => void;
   saveChangesAsSharedDraft: (id: string) => void;
-  getLineContentInfo: (line: Line) => LineContentInfo;
+  getLineContentForDisplayWithInfo: (line: Line) => [LineContent, LineInfo];
+  getLineSharedDrafts: (line: Line) => LineContent[];
+  getLinePreviousVersions: (line: Line) => LineContent[];
   // Exposed for undo/redo
   dispatch: (action: ScriptAction) => void;
 }
@@ -45,14 +48,6 @@ const ScriptContext = createContext<ScriptContext | null>(null);
 
 export interface ScriptContextProps {
   playUri: string;
-}
-
-export interface LineContentInfo {
-  content: LineContent;
-  hasDraft: boolean;
-  hasSharedDraft: boolean;
-  hasPreviousVersions: boolean;
-  isNewUnsaved: boolean;
 }
 
 const initialState = {
@@ -326,7 +321,31 @@ export function ScriptContextProvider(
     } as const as ScriptAction;
     dispatch(action);
   }, []);
-  const getLineContentInfo = (line: Line): LineContentInfo => {
+  const getLinePreviousVersions = (line: Line): LineContent[] => {
+    const { id } = line;
+    const contents = state.lineToContents.get(id);
+    const previousVersions = contents?.versions
+      .filter(Boolean)
+      .reverse()
+      .slice(1);
+    return contents
+      ? (previousVersions?.map((contentId) => {
+          return state.lineContents.get(contentId)!;
+        }) ?? [])
+      : [];
+  };
+  const getLineSharedDrafts = (line: Line): LineContent[] => {
+    const { id } = line;
+    const contents = state.lineToContents.get(id);
+    return contents
+      ? contents.sharedDrafts.map((contentId) => {
+          return state.lineContents.get(contentId)!;
+        })
+      : [];
+  };
+  const getLineContentForDisplayWithInfo = (
+    line: Line,
+  ): [LineContent, LineInfo] => {
     let content;
     const { id } = line;
     // Check for presence of a draft content item
@@ -357,13 +376,15 @@ export function ScriptContextProvider(
     if (!content) {
       throw new Error('No line content found');
     }
-    return {
+    return [
       content,
-      hasDraft: !!draftContent,
-      hasSharedDraft,
-      hasPreviousVersions,
-      isNewUnsaved,
-    };
+      {
+        hasDraft: !!draftContent,
+        hasSharedDraft,
+        hasPreviousVersions,
+        isNewUnsaved,
+      },
+    ];
   };
   const contextValue = useMemo(
     () =>
@@ -382,7 +403,9 @@ export function ScriptContextProvider(
         editLine,
         removeLines,
         dispatch,
-        getLineContentInfo,
+        getLineContentForDisplayWithInfo,
+        getLineSharedDrafts,
+        getLinePreviousVersions,
         discardChanges,
         saveChanges,
         saveChangesAsNewVersion,

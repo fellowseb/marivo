@@ -50,6 +50,7 @@ export interface LineContentCommons {
   type: LineContentType;
   version: number | null;
   lastModifiedDate: Date;
+  authorUsername: string;
 }
 
 export type FreeTextLineContent = FreeTextLineEditableContent &
@@ -69,4 +70,11 @@ export interface Line {
   id: string;
   type: LineType;
   lastModifiedDate: Date;
+}
+
+export interface LineInfo {
+  hasDraft: boolean;
+  hasSharedDraft: boolean;
+  hasPreviousVersions: boolean;
+  isNewUnsaved: boolean;
 }

@@ -1,18 +1,21 @@
-import { createRef, useRef, useState, type RefObject } from 'react';
+import {
+  createRef,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type RefObject,
+} from 'react';
 import Button from './button.component';
 import styles from './script-change-characters-dialog.module.css';
 import { ToggleButton } from './toggle-button.component';
-import type {
-  LineContentInfo,
-  ScriptContext,
-} from '../features/script-edition/script.context';
-import type { CueLineContent } from './script.models';
+import type { ScriptContext } from '../features/script-edition/script.context';
+import type { CueLineContent, LineContent } from './script.models';
 import { Dialog } from './dialog.component';
 
 interface ScriptChangeCharactersDialogProps {
   onOK: () => void;
   onCharactersChange: (characters: string[]) => void;
-  lineContentInfo: LineContentInfo;
+  lineContent: LineContent;
   characters: ScriptContext['characters'];
 }
 
@@ -24,7 +27,7 @@ export function ScriptChangeCharactersDialog(
     (_, i) => choicesRefs.current[i] ?? createRef(),
   );
   const allRef = useRef<HTMLInputElement>(null);
-  const content = props.lineContentInfo.content as CueLineContent;
+  const content = props.lineContent as CueLineContent;
   const [allowMultiple, setAllowMultiple] = useState(
     content.characters.length > 1,
   );
@@ -34,6 +37,11 @@ export function ScriptChangeCharactersDialog(
   };
   const handleOkClick = () => {
     props.onOK();
+  };
+  const handleKeyUp = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      props.onOK();
+    }
   };
   const handleChange = () => {
     const characters = choicesRefs.current
@@ -48,10 +56,11 @@ export function ScriptChangeCharactersDialog(
     <Dialog
       title="Select cue line characters"
       actions={
-        <Button icon="accept" onClick={handleOkClick}>
+        <Button icon="accept" onClick={handleOkClick} autoFocus={true}>
           OK
         </Button>
       }
+      onKeyUp={handleKeyUp}
     >
       <ToggleButton
         label="Select multiple"

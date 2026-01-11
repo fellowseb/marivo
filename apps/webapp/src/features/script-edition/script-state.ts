@@ -169,6 +169,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 lastModifiedDate: curr.lastModifiedDate,
                 type: curr.type,
                 deleted: true,
+                authorUsername: curr.authorUsername,
               } satisfies LineContent);
             } else if (curr.change.type === 'content_create_update') {
               accLineContents.set(curr.id, {
@@ -177,6 +178,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 type: curr.type,
                 version: curr.version,
                 lastModifiedDate: curr.lastModifiedDate,
+                authorUsername: curr.authorUsername,
                 ...curr.change.content,
               } satisfies LineContent);
             } else {

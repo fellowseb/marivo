@@ -1,0 +1,47 @@
+.dialog {
+  width: 21cm;
+}
+
+.currentContentContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  width: 100%;
+}
+
+.sectionTitle {
+  margin: 0 0 1ch 0;
+  font-size: 1rem;
+  color: #1f313c;
+  background-color: #e9dec9;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.lineVersionHeader {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.lineVersionHeaderArrowCollapsed {
+  transition: transform 100ms ease-in-out;
+}
+
+.lineVersionHeaderArrowExpanded {
+  transform: rotate(90deg);
+  transition: transform 100ms ease-in-out;
+}
+
+.lineVersionContent {
+  margin-left: 10px;
+  padding-left: 4px;
+  border-left: 2px solid #1f313c;
+}
+
+.lineVersionActions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: flex-end;
+}

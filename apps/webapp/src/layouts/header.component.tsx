@@ -1,7 +1,7 @@
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { Fragment, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import styles from './header.module.css';
-import { useAuth, useUser } from '@clerk/clerk-react';
 import Button from '../components/button.component';
 import Icon from '../components/icon.component';
 
