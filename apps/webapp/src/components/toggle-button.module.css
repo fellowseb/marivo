@@ -69,3 +69,8 @@
     )
   );
 }
+
+.switch:focus-visible > .slider {
+  background-color: #e8ce7d !important;
+  outline: 1px solid #fef8eb;
+}
