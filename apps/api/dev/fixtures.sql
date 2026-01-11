@@ -245,7 +245,7 @@ INSERT INTO roles (
       "memorizeRead": true,
       "planningRead": true,
       "planningWrite": false,
-      "settingsRead": false,
+      "settingsRead": true,
       "settingsWrite": false}'::jsonb
 );
 
