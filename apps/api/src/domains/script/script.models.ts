@@ -13,6 +13,7 @@ export interface LineContentDiff {
   lastModifiedDate: Date;
   type: 'saved_version' | 'shared_draft';
   version: number;
+  authorUsername: string;
   change:
     | {
         type: 'content_create_update';

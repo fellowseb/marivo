@@ -32,6 +32,12 @@ export const PlayDetailsUseCaseOutputSchema = z.object({
     ownerFullName: z.string(),
     ownerUsername: z.string(),
   }),
+  participants: z.record(
+    z.string(),
+    z.object({
+      fullName: z.string(),
+    }),
+  ),
   permissions: PERMISSIONS_SCHEMA.strict(),
 });
 
@@ -55,10 +61,14 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
     const { uri } = input;
     const detailsResult = await this.playsRepository.getPlayDetails({ uri });
     return detailsResult.match({
-      success({ details, permissions }) {
+      success({ details, permissions, participants }) {
         return Result.ok({
           details,
           permissions,
+          participants: {
+            [details.ownerUsername]: { fullName: details.ownerFullName },
+            ...participants,
+          },
         });
       },
       failure(err) {

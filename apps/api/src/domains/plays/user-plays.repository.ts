@@ -43,6 +43,11 @@ interface PlayDetailsRecordValues {
   permissions: string | null;
 }
 
+interface PlayParticipantsRecordValues {
+  username: string;
+  full_name: string;
+}
+
 /**
  * !!! CAUTION !!!
  * Do not add any non-optional entries.
@@ -62,6 +67,7 @@ export const PERMISSIONS_SCHEMA = z.looseObject({
   settingsWrite: z.boolean(),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PERMISSIONS_SCHEMA_STRICT = PERMISSIONS_SCHEMA.strict();
 
 type UserPermissions = z.infer<typeof PERMISSIONS_SCHEMA_STRICT>;
@@ -84,6 +90,10 @@ const PERMISSIONS_DEFAULTS = {
 interface PlayDetails {
   details: UserPlay;
   permissions: UserPermissions;
+}
+
+interface PlayParticipants {
+  participants: { [username: string]: { fullName: string } };
 }
 
 export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
@@ -131,6 +141,26 @@ export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
       },
     };
   }
+}
+
+export class PlayParticipantsRecord {
+  constructor(records: PlayParticipantsRecordValues[]) {
+    this.records = records;
+  }
+  toModel(): PlayParticipants {
+    return this.records.reduce(
+      (acc, { username, full_name }) => {
+        return {
+          participants: {
+            ...acc.participants,
+            [username]: { fullName: full_name },
+          },
+        };
+      },
+      { participants: {} } as PlayParticipants,
+    );
+  }
+  private records: PlayParticipantsRecordValues[];
 }
 
 const DEFAULT_COMEDIAN_ROLE_NAME = 'Comedian';
@@ -254,7 +284,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
 
   async getPlayDetails(params: {
     uri: string;
-  }): Promise<Result<PlayDetails, RecordNotFound>> {
+  }): Promise<Result<PlayDetails & PlayParticipants, RecordNotFound>> {
     const results = await this.sql<PlayDetailsRecordValues[]>`
       SELECT
         up.id, 
@@ -274,7 +304,18 @@ export class UserPlaysRepository extends UserRepositoryBase {
     if (!firstResult) {
       return Result.failure(new RecordNotFound());
     }
-    return Result.ok(new PlayDetailsRecord(firstResult).toModel());
+    const participantsResults = await this.sql<PlayParticipantsRecordValues[]>`
+      SELECT
+        u.username,
+        u.full_name
+      FROM users_in_plays uip
+        JOIN users u ON u.id = uip.user_id
+      WHERE uip.play_id = ${firstResult.id};
+    `;
+    return Result.ok({
+      ...new PlayDetailsRecord(firstResult).toModel(),
+      ...new PlayParticipantsRecord(participantsResults).toModel(),
+    });
   }
 
   async checkPlayAccess(params: {

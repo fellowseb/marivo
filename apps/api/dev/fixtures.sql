@@ -49,7 +49,8 @@ INSERT INTO lines_contents (
     heading_level,
     text,
     checksum,
-    version
+    version,
+    author_id
 ) VALUES (
     '12ab60c1-5b0b-475d-96c0-c68baa4769a2',
     1,
@@ -59,6 +60,7 @@ INSERT INTO lines_contents (
     0,
     'Crime, Comptines et Châtiment',
     '8504cfdd2da34ffb8c25f448d09d3a59',
+    1,
     1
 );
 
@@ -81,7 +83,8 @@ INSERT INTO lines_contents (
     characters,
     text,
     checksum,
-    version
+    version,
+    author_id
 ) VALUES (
     '0d89a4ee-99e4-44d4-a056-66df1be7638f',
     1,
@@ -92,29 +95,7 @@ INSERT INTO lines_contents (
     '(sert)
 C est le cabillaud',
     '089f55cba4654dd68991ba90cd0be513',
-    3
-);
-
-INSERT INTO lines_contents (
-    id,
-    script_id,
-    type,
-    line_id,
-    line_type,
-    characters,
-    text,
-    checksum,
-    version
-) VALUES (
-    '411638cf-418b-4c6b-834f-08a05941d0cc',
-    1,
-    'saved_version',
-    '0838fecc-28b0-4d3c-86ac-7cb88afeb0d6',
-    'chartext',
-    '{47fb7b92-8f82-470e-8ce8-bce37fed1661}',
-    '(sert à manger)
-C est le cabillaud',
-    'db74fc5ad446472296c01b1b30cb7c7e',
+    3,
     2
 );
 
@@ -127,7 +108,33 @@ INSERT INTO lines_contents (
     characters,
     text,
     checksum,
-    version
+    version,
+    author_id
+) VALUES (
+    '411638cf-418b-4c6b-834f-08a05941d0cc',
+    1,
+    'saved_version',
+    '0838fecc-28b0-4d3c-86ac-7cb88afeb0d6',
+    'chartext',
+    '{47fb7b92-8f82-470e-8ce8-bce37fed1661}',
+    '(sert à manger)
+C est le cabillaud',
+    'db74fc5ad446472296c01b1b30cb7c7e',
+    2,
+    1
+);
+
+INSERT INTO lines_contents (
+    id,
+    script_id,
+    type,
+    line_id,
+    line_type,
+    characters,
+    text,
+    checksum,
+    version,
+    author_id
 ) VALUES (
     'a67b990b-ce44-4efe-a721-93d0604fe19c',
     1,
@@ -138,6 +145,7 @@ INSERT INTO lines_contents (
     '(sert à manger)
 C est le cabillaud !!! Humm !!!',
     '1c949136597e4d2abda48d2189581f6d',
+    1,
     1
 );
 
@@ -160,7 +168,8 @@ INSERT INTO lines_contents (
     characters,
     text,
     checksum,
-    version
+    version,
+    author_id
 ) VALUES (
     'e4927214-1ddd-4f0f-add6-d8cf93eec626',
     1,
@@ -170,7 +179,8 @@ INSERT INTO lines_contents (
     '{ad69fb0d-dd9e-4ac9-882d-ec3167956484}',
     'Miam !',
     '089f55cba4654dd68991ba90cd0be513',
-    1
+    1,
+    2
 );
 
 INSERT INTO lines_contents (
@@ -181,7 +191,8 @@ INSERT INTO lines_contents (
     line_type,
     characters,
     text,
-    checksum
+    checksum,
+    author_id
 ) VALUES (
     '9e213279-d561-4ff2-9df1-714f3cc703a6',
     1,
@@ -190,7 +201,8 @@ INSERT INTO lines_contents (
     'chartext',
     '{ad69fb0d-dd9e-4ac9-882d-ec3167956484}',
     'Manngerrrrr !',
-    '9e213279d5614ff29df1714f3cc703a6'
+    '9e213279d5614ff29df1714f3cc703a6',
+    1
 );
 
 UPDATE scripts

@@ -4,14 +4,25 @@ DROP TABLE IF EXISTS users_in_plays;
 DROP TABLE IF EXISTS invites;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS plays;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS public_domain_plays;
 DROP TABLE IF EXISTS lines_contents;
 DROP TABLE IF EXISTS lines;
 DROP TABLE IF EXISTS scripts;
 DROP TYPE IF EXISTS invite_status_enum;
 DROP TYPE IF EXISTS line_type;
 DROP TYPE IF EXISTS line_contents_type;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS public_domain_plays;
+
+CREATE TABLE users (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    clerk_id                varchar(32)     UNIQUE
+                                            NOT NULL,
+    username                varchar(80)     NOT NULL,
+    full_name               varchar(80)     NOT NULL,
+    primary_email           varchar(100)    NOT NULL,
+    profile_picture         varchar(1024)
+);
 
 CREATE TYPE line_type AS ENUM ('heading', 'freetext', 'chartext');
 
@@ -49,19 +60,10 @@ CREATE TABLE lines_contents (
     last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
     checksum                varchar(32)     NOT NULL, --MD5 hash
     version                 integer         ,
+    author_id               integer         REFERENCES users(id)
+                                            ON DELETE SET NULL,
     PRIMARY KEY (id, script_id),
     FOREIGN KEY (line_id, script_id) REFERENCES lines(id, script_id)
-);
-
-CREATE TABLE users (
-    id                      integer         PRIMARY KEY 
-                                            GENERATED ALWAYS AS IDENTITY,
-    clerk_id                varchar(32)     UNIQUE 
-                                            NOT NULL,
-    username                varchar(80)     NOT NULL,
-    full_name               varchar(80)     NOT NULL,
-    primary_email           varchar(100)    NOT NULL,
-    profile_picture         varchar(1024)
 );
 
 CREATE TABLE public_domain_plays (

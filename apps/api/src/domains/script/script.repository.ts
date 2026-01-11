@@ -30,6 +30,7 @@ interface LineContentRow {
   text: string;
   last_modified_date: number;
   version: number;
+  author_username: string;
 }
 
 export class ScriptOfPlayNotFound extends AppError {
@@ -70,17 +71,19 @@ export class ScriptRepository extends UserRepositoryBase {
         AND last_modified_date > ${params.since.getTime()}`;
     const lineContentRows = await this.sql<LineContentRow[]>`
       SELECT
-        id, 
-        type,
-        line_id, 
-        line_type,
-        deleted, 
-        characters, 
-        heading_level, 
-        text,
-        last_modified_date,
-        version
-      FROM lines_contents
+        l.id,
+        l.type,
+        l.line_id,
+        l.line_type,
+        l.deleted,
+        l.characters,
+        l.heading_level,
+        l.text,
+        l.last_modified_date,
+        l.version,
+        u.username AS author_username
+      FROM lines_contents l
+        JOIN users u ON u.id = l.author_id
       WHERE script_id = ${scriptRow.id}
         AND last_modified_date > ${params.since.getTime()}`;
     return Result.ok({
@@ -128,6 +131,7 @@ export class ScriptRepository extends UserRepositoryBase {
             lastModifiedDate: new Date(lineContentRow.last_modified_date),
             version: lineContentRow.version,
             change,
+            authorUsername: lineContentRow.author_username,
           };
         }),
       ],

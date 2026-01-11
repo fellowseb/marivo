@@ -18,6 +18,7 @@ export const LatestScriptChangesUseCaseOutputSchema = z.object({
         lastModifiedDate: z.date(),
         type: z.union([z.literal('saved_version'), z.literal('shared_draft')]),
         version: z.number().min(1).nullable(),
+        authorUsername: z.string(),
         change: z.union([
           z.object({
             type: z.literal('content_delete'),
