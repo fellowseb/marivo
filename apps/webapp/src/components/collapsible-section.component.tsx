@@ -6,10 +6,11 @@ import Button from './button.component';
 interface CollapsibleSectionProps {
   Header: ReactNode;
   HeaderExpanded?: ReactNode;
+  collapsed?: boolean;
 }
 
 function CollapsibleSection(props: PropsWithChildren<CollapsibleSectionProps>) {
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(props.collapsed ?? true);
   const handleClickHeader = () => {
     setCollapsed((prev) => !prev);
   };
