@@ -72,12 +72,12 @@
   top: 8px;
 }
 
-.replique:hover .repliqueHandle {
+.editableReplique:hover .repliqueHandle {
   background-color: #e4d6bc;
   color: black;
 }
 
-.replique:hover {
+.editableReplique:hover {
   cursor: text;
 }
 
@@ -97,7 +97,7 @@
   align-items: center;
 }
 
-.replique:hover .repliqueHandle::after {
+.editableReplique:hover .repliqueHandle::after {
   content: '⣿';
   color: white;
 }

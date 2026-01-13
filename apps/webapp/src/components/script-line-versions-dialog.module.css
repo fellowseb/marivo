@@ -1,21 +1,32 @@
 .dialog {
   width: 21cm;
+  max-height: calc(100% - 2ch);
+  display: flex;
+  flex-direction: column;
 }
 
-.currentContentContainer {
+.contentContainer {
   display: flex;
   flex-direction: column;
   justify-content: stretch;
   width: 100%;
+  gap: 4px;
+  overflow-y: auto;
+  flex: 0;
+}
+
+.currentContentContainer {
+  flex: auto;
 }
 
 .sectionTitle {
-  margin: 0 0 1ch 0;
+  margin: 0;
   font-size: 1rem;
   color: #1f313c;
   background-color: #e9dec9;
   border-radius: 4px;
   padding: 2px;
+  align-self: stretch;
 }
 
 .lineVersionHeader {
@@ -35,8 +46,10 @@
 
 .lineVersionContent {
   margin-left: 10px;
-  padding-left: 4px;
-  border-left: 2px solid #1f313c;
+  border: 2px solid #1f313c77;
+  border-radius: 4px;
+  background-color: #fefefe88;
+  padding: 4px;
 }
 
 .lineVersionActions {

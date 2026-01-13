@@ -37,6 +37,13 @@ export interface ScriptContext {
   saveChanges: (id: string) => void;
   saveChangesAsNewVersion: (id: string) => void;
   saveChangesAsSharedDraft: (id: string) => void;
+  deleteSharedDraft: (id: string, contentId: string) => void;
+  deletePreviousVersion: (id: string, contentId: string) => void;
+  applySharedDraftAsNewVersion: (id: string, sharedDraft: LineContent) => void;
+  applyPreviousVersionAsNewVersion: (
+    id: string,
+    previousVersion: LineContent,
+  ) => void;
   getLineContentForDisplayWithInfo: (line: Line) => [LineContent, LineInfo];
   getLineSharedDrafts: (line: Line) => LineContent[];
   getLinePreviousVersions: (line: Line) => LineContent[];
@@ -321,6 +328,52 @@ export function ScriptContextProvider(
     } as const as ScriptAction;
     dispatch(action);
   }, []);
+  const deleteSharedDraft = useCallback((id: string, contentId: string) => {
+    const action = {
+      type: 'DELETE_SHARED_DRAFT',
+      id,
+      contentId,
+    } as const as ScriptAction;
+    dispatch(action);
+  }, []);
+  const deletePreviousVersion = useCallback((id: string, contentId: string) => {
+    const action = {
+      type: 'DELETE_PREVIOUS_VERSION',
+      id,
+      contentId,
+    } as const as ScriptAction;
+    dispatch(action);
+  }, []);
+  const applySharedDraftAsNewVersion = useCallback(
+    (id: string, sharedDraft: LineContent) => {
+      const contentId = uuidV4();
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'APPLY_SHARED_DRAFT_AS_NEW_VERSION',
+        id,
+        contentId,
+        sharedDraft,
+        lastModifiedDate,
+      } as const as ScriptAction;
+      dispatch(action);
+    },
+    [],
+  );
+  const applyPreviousVersionAsNewVersion = useCallback(
+    (id: string, previousVersion: LineContent) => {
+      const contentId = uuidV4();
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: 'APPLY_PREVIOUS_VERSION_AS_NEW_VERSION',
+        id,
+        contentId,
+        previousVersion,
+        lastModifiedDate,
+      } as const as ScriptAction;
+      dispatch(action);
+    },
+    [],
+  );
   const getLinePreviousVersions = (line: Line): LineContent[] => {
     const { id } = line;
     const contents = state.lineToContents.get(id);
@@ -410,6 +463,10 @@ export function ScriptContextProvider(
         saveChanges,
         saveChangesAsNewVersion,
         saveChangesAsSharedDraft,
+        deleteSharedDraft,
+        deletePreviousVersion,
+        applySharedDraftAsNewVersion,
+        applyPreviousVersionAsNewVersion,
       }) satisfies ScriptContext,
     [state],
   );

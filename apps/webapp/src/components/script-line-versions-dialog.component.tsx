@@ -14,6 +14,7 @@ interface LineVersionHeaderProps {
   authorUsername: string;
   participants: { [username: string]: { fullName: string } };
   lastModifiedDate: Date;
+  version: number | null;
 }
 
 const Header = ({
@@ -21,6 +22,7 @@ const Header = ({
   participants,
   lastModifiedDate,
   collapsed,
+  version,
 }: LineVersionHeaderProps) => {
   return (
     <div className={styles.lineVersionHeader}>
@@ -33,7 +35,7 @@ const Header = ({
         ▶
       </div>
       <span>
-        By{' '}
+        {version != null ? `v${version} by ` : `by `}
         <strong>
           {authorUsername
             ? `${participants[authorUsername].fullName ?? ''} (@${authorUsername})`
@@ -46,18 +48,28 @@ const Header = ({
 };
 
 interface LineVersionProps {
+  onApplyAsNewVersion?: () => void;
+  onDelete?: () => void;
   participants: { [username: string]: { fullName: string } };
   content: LineContent;
   line: Line;
   lineInfo: LineInfo;
   characters: { [id: string]: string };
+  hideActions?: boolean;
+  collapsed?: boolean;
 }
 
 function LineVersion(props: LineVersionProps) {
   const {
     participants,
-    content: { authorUsername, lastModifiedDate },
+    content: { authorUsername, lastModifiedDate, version },
   } = props;
+  const handleApplyAsNewVersionClick = () => {
+    props.onApplyAsNewVersion?.();
+  };
+  const handleDeleteClick = () => {
+    props.onDelete?.();
+  };
   return (
     <CollapsibleSection
       Header={
@@ -66,6 +78,7 @@ function LineVersion(props: LineVersionProps) {
           authorUsername={authorUsername}
           lastModifiedDate={lastModifiedDate}
           collapsed={true}
+          version={version}
         />
       }
       HeaderExpanded={
@@ -74,24 +87,29 @@ function LineVersion(props: LineVersionProps) {
           authorUsername={authorUsername}
           lastModifiedDate={lastModifiedDate}
           collapsed={false}
+          version={version}
         />
       }
+      collapsed={props.collapsed}
     >
-      <div>
-        <div className={styles.lineVersionContent}>
-          <ScriptLine
-            line={props.line}
-            num={0}
-            content={props.content}
-            lineInfo={props.lineInfo}
-            isEditable={false}
-            characters={props.characters}
-          />
-        </div>
-        <div className={styles.lineVersionActions}>
-          <Button icon="accept">Apply as new version</Button>
-          <Button icon="delete">Delete</Button>
-        </div>
+      <div className={styles.lineVersionContent}>
+        <ScriptLine
+          line={props.line}
+          content={props.content}
+          lineInfo={props.lineInfo}
+          isEditable={false}
+          characters={props.characters}
+        />
+        {!props.hideActions ? (
+          <div className={styles.lineVersionActions}>
+            <Button icon="accept" onClick={handleApplyAsNewVersionClick}>
+              Apply as new version
+            </Button>
+            <Button icon="delete" onClick={handleDeleteClick}>
+              Delete
+            </Button>
+          </div>
+        ) : null}
       </div>
     </CollapsibleSection>
   );
@@ -99,8 +117,10 @@ function LineVersion(props: LineVersionProps) {
 
 interface ScriptLineVersionsDialogProps {
   onOK: () => void;
-  onApplyDraft?: () => void;
-  onApplyDraftAsNewVersion?: () => void;
+  onApplyPreviousVersionAsNewVersion?: (previousVersion: LineContent) => void;
+  onDeletePreviousVersion?: (contentId: string) => void;
+  onApplySharedDraftAsNewVersion?: (sharedDraft: LineContent) => void;
+  onDeleteSharedDraft?: (contentId: string) => void;
   line: Line;
   lineInfo: LineInfo;
   currentContent: LineContent;
@@ -120,9 +140,27 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
       props.onOK();
     }
   };
+  const handleApplyPreviousVersionAsNewVersion =
+    (previousVersion: LineContent) => () => {
+      props.onApplyPreviousVersionAsNewVersion?.(previousVersion);
+    };
+  const handleDeletePreviousVersion = (contentId: string) => () => {
+    props.onDeletePreviousVersion?.(contentId);
+  };
+  const handleApplySharedDraftAsNewVersion =
+    (sharedDraft: LineContent) => () => {
+      props.onApplySharedDraftAsNewVersion?.(sharedDraft);
+    };
+  const handleDeleteSharedDraft = (contentId: string) => () => {
+    props.onDeleteSharedDraft?.(contentId);
+  };
   if (!playResult) {
     return null;
   }
+  const sortedSharedDrafts = props.sharedDraftContents.sort(
+    (lhs, rhs) =>
+      rhs.lastModifiedDate.getTime() - lhs.lastModifiedDate.getTime(),
+  );
   return (
     <Dialog
       title={`${props.line.type === 'heading' ? 'Heading' : props.line.type === 'chartext' ? 'Cue' : 'Freetext'} line versions`}
@@ -134,27 +172,39 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
       onKeyUp={handleKeyUp}
       customClassNames={[styles.dialog]}
     >
-      <div className={styles.currentContentContainer}>
-        <h2 className={styles.sectionTitle}>Current version</h2>
+      <h2 className={styles.sectionTitle}>Current version</h2>
+      <div
+        className={classNames([
+          styles.contentContainer,
+          styles.currentContentContainer,
+        ])}
+      >
         <LineVersion
           participants={playResult.dataOrThrow().participants}
           content={props.currentContent}
           characters={props.characters}
           lineInfo={props.lineInfo}
           line={props.line}
+          hideActions={true}
+          collapsed={false}
         />
       </div>
-      <div className={styles.currentContentContainer}>
-        <h2 className={styles.sectionTitle}>Previous versions</h2>
+      <h2 className={styles.sectionTitle}>Previous versions</h2>
+      <div className={styles.contentContainer}>
         {(props.previousVersionsContents?.length ?? 0 > 0) ? (
           props.previousVersionsContents.map((sharedContent) => {
             return (
               <LineVersion
+                key={sharedContent.id}
                 participants={playResult.dataOrThrow().participants}
                 content={sharedContent}
                 characters={props.characters}
                 lineInfo={props.lineInfo}
                 line={props.line}
+                onApplyAsNewVersion={handleApplyPreviousVersionAsNewVersion(
+                  sharedContent,
+                )}
+                onDelete={handleDeletePreviousVersion(sharedContent.id)}
               />
             );
           })
@@ -162,17 +212,22 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
           <span>No previous versions</span>
         )}
       </div>
-      <div className={styles.currentContentContainer}>
-        <h2 className={styles.sectionTitle}>Shared drafts</h2>
-        {(props.sharedDraftContents?.length ?? 0 > 0) ? (
-          props.sharedDraftContents.map((sharedContent) => {
+      <h2 className={styles.sectionTitle}>Shared drafts</h2>
+      <div className={styles.contentContainer}>
+        {(sortedSharedDrafts?.length ?? 0 > 0) ? (
+          sortedSharedDrafts.map((sharedContent) => {
             return (
               <LineVersion
+                key={sharedContent.id}
                 participants={playResult.dataOrThrow().participants}
                 content={sharedContent}
                 characters={props.characters}
                 lineInfo={props.lineInfo}
                 line={props.line}
+                onApplyAsNewVersion={handleApplySharedDraftAsNewVersion(
+                  sharedContent,
+                )}
+                onDelete={handleDeleteSharedDraft(sharedContent.id)}
               />
             );
           })

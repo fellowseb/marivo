@@ -1,5 +1,12 @@
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FocusEventHandler,
+  type UIEventHandler,
+} from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import Button from './button.component';
 import ScriptLine, { ScriptLineToBe } from './script-line.component';
@@ -105,30 +112,45 @@ function Script(props: ScriptProps) {
   const handleDiscardChanges = () => {
     if (lineIdForMenu) {
       scriptContext?.discardChanges(lineIdForMenu);
+      menuDialogRef.current?.focus();
     }
   };
   const handleSaveChanges = () => {
     if (lineIdForMenu) {
       scriptContext?.saveChanges(lineIdForMenu);
+      if (menuLineContent?.deleted) {
+        setLineIdForMenu(null);
+      } else {
+        menuDialogRef.current?.focus();
+      }
     }
   };
   const handleSaveChangesAsNewVersion = () => {
     if (lineIdForMenu) {
       scriptContext?.saveChangesAsNewVersion(lineIdForMenu);
+      if (menuLineContent?.deleted) {
+        setLineIdForMenu(null);
+      } else {
+        menuDialogRef.current?.focus();
+      }
     }
   };
   const handleSaveChangesAsSharedDraft = () => {
     if (lineIdForMenu) {
       scriptContext?.saveChangesAsSharedDraft(lineIdForMenu);
+      menuDialogRef.current?.focus();
     }
   };
   const handleDeleteLine = () => {
     if (lineIdForMenu) {
-      const line = scriptContext?.lines.get(lineIdForMenu)!;
-      const contentWithInfo =
-        scriptContext?.getLineContentForDisplayWithInfo(line);
-      if (contentWithInfo) {
-        scriptContext?.initDraft(contentWithInfo[0], undefined, true);
+      const line = scriptContext?.lines.get(lineIdForMenu);
+      if (line) {
+        const contentWithInfo =
+          scriptContext?.getLineContentForDisplayWithInfo(line);
+        if (contentWithInfo) {
+          scriptContext?.initDraft(contentWithInfo[0], undefined, true);
+          menuDialogRef.current?.focus();
+        }
       }
     }
   };
@@ -177,6 +199,50 @@ function Script(props: ScriptProps) {
   const handleDialogOutsideClick = () => {
     closeDialogs();
   };
+  const menuDialogRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (lineIdForMenu) {
+      menuDialogRef.current?.focus();
+    }
+  }, [lineIdForMenu]);
+  const handleMenuOutsideClick: FocusEventHandler = (event) => {
+    if (
+      !menuDialogRef.current ||
+      !menuDialogRef.current.contains(event.relatedTarget)
+    ) {
+      setLineIdForMenu(null);
+    }
+  };
+  const handleDeleteSharedDraft = (contentId: string) => {
+    if (menuLineContent) {
+      scriptContext?.deleteSharedDraft(menuLineContent.lineId, contentId);
+    }
+  };
+  const handleDeletePreviousVersion = (contentId: string) => {
+    if (menuLineContent) {
+      scriptContext?.deletePreviousVersion(menuLineContent.lineId, contentId);
+    }
+  };
+  const handleApplySharedDraftAsNewVersion = (
+    sharedDraftContent: LineContent,
+  ) => {
+    if (menuLineContent) {
+      scriptContext?.applySharedDraftAsNewVersion(
+        menuLineContent.lineId,
+        sharedDraftContent,
+      );
+    }
+  };
+  const handleApplyPreviousVersionAsNewVersion = (
+    previousVersion: LineContent,
+  ) => {
+    if (menuLineContent) {
+      scriptContext?.applyPreviousVersionAsNewVersion(
+        menuLineContent.lineId,
+        previousVersion,
+      );
+    }
+  };
   const showModalDialog =
     menuLine &&
     (showChangeHeadingDialog ||
@@ -195,11 +261,13 @@ function Script(props: ScriptProps) {
               }
               const [content, lineInfo] =
                 scriptContext.getLineContentForDisplayWithInfo(line);
-              if (line.type === 'chartext') {
+              const isDeletedSavedLine =
+                content.deleted && content.type === 'saved_version';
+              if (line.type === 'chartext' && !isDeletedSavedLine) {
                 ++lineCount;
               }
               const selected = selectedLines.has(line.id);
-              return (
+              return false ? null : (
                 <Fragment key={line.id}>
                   {props.isEditable ? (
                     <ScriptLineToBe
@@ -242,6 +310,7 @@ function Script(props: ScriptProps) {
             ) : null}
             {menuLineContent && !showModalDialog ? (
               <dialog
+                ref={menuDialogRef}
                 className={classNames({
                   [styles.menu]: true,
                 })}
@@ -249,6 +318,7 @@ function Script(props: ScriptProps) {
                   positionAnchor: '--menu-anchor-' + lineIdForMenu,
                 }}
                 open={true}
+                onBlur={handleMenuOutsideClick}
               >
                 {menuLineContent.lineType === 'heading' ? (
                   <Button icon="heading" onClick={handleChangeHeadingLevel}>
@@ -260,11 +330,11 @@ function Script(props: ScriptProps) {
                     Change characters
                   </Button>
                 ) : null}
-                {
+                {!menuLineContent.deleted ? (
                   <Button icon="delete" onClick={handleDeleteLine}>
                     Remove line
                   </Button>
-                }
+                ) : null}
                 {menuLineInfo.hasDraft ? (
                   menuLineInfo.isNewUnsaved ? (
                     <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
@@ -370,6 +440,14 @@ function Script(props: ScriptProps) {
                 scriptContext?.getLinePreviousVersions(menuLine) ?? []
               }
               onOK={handleDialogOK}
+              onDeleteSharedDraft={handleDeleteSharedDraft}
+              onDeletePreviousVersion={handleDeletePreviousVersion}
+              onApplySharedDraftAsNewVersion={
+                handleApplySharedDraftAsNewVersion
+              }
+              onApplyPreviousVersionAsNewVersion={
+                handleApplyPreviousVersionAsNewVersion
+              }
             />
           ) : null}
         </div>

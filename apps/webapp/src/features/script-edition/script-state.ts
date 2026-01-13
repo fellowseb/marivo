@@ -120,6 +120,25 @@ export type ScriptAction =
       type: 'SAVE_CHANGES_AS_SHARED_DRAFT';
       id: string;
       contentId: string;
+    }
+  | {
+      type: 'DELETE_SHARED_DRAFT' | 'DELETE_PREVIOUS_VERSION';
+      id: string;
+      contentId: string;
+    }
+  | {
+      type: 'APPLY_SHARED_DRAFT_AS_NEW_VERSION';
+      id: string;
+      contentId: string;
+      sharedDraft: LineContent;
+      lastModifiedDate: Date;
+    }
+  | {
+      type: 'APPLY_PREVIOUS_VERSION_AS_NEW_VERSION';
+      id: string;
+      contentId: string;
+      previousVersion: LineContent;
+      lastModifiedDate: Date;
     };
 
 export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
@@ -604,6 +623,113 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       lineContents.delete(id);
       return {
         ...state,
+        lineContents,
+      };
+    }
+    case 'DELETE_PREVIOUS_VERSION': {
+      const { id, contentId: contentIdToDelete } = action;
+      const lineContents = new Map(state.lineContents);
+      const lineToContents = new Map(state.lineToContents);
+      lineContents.delete(contentIdToDelete);
+      const lineToContentsEntry = lineToContents.get(id);
+      const newVersions =
+        lineToContentsEntry?.versions.filter(
+          (contentId) => contentId !== contentIdToDelete,
+        ) ?? [];
+      lineToContents.set(id, {
+        versions: newVersions,
+        sharedDrafts: [...(lineToContentsEntry?.sharedDrafts ?? [])],
+      });
+      return {
+        ...state,
+        lineToContents,
+        lineContents,
+      };
+    }
+    case 'DELETE_SHARED_DRAFT': {
+      const { id, contentId: contentIdToDelete } = action;
+      const lineContents = new Map(state.lineContents);
+      const lineToContents = new Map(state.lineToContents);
+      lineContents.delete(contentIdToDelete);
+      const lineToContentsEntry = lineToContents.get(id);
+      const newSharedDrafts =
+        lineToContentsEntry?.sharedDrafts.filter(
+          (contentId) => contentId !== contentIdToDelete,
+        ) ?? [];
+      lineToContents.set(id, {
+        sharedDrafts: newSharedDrafts,
+        versions: [...(lineToContentsEntry?.versions ?? [])],
+      });
+      return {
+        ...state,
+        lineToContents,
+        lineContents,
+      };
+    }
+    case 'APPLY_PREVIOUS_VERSION_AS_NEW_VERSION': {
+      const { id, contentId, previousVersion, lastModifiedDate } = action;
+      const contents = state.lineToContents.get(id);
+      const lineContents = new Map(state.lineContents);
+      const lineToContents = new Map(state.lineToContents);
+      const newVersionNumber =
+        contents && contents.versions.length
+          ? (state.lineContents.get(
+              contents.versions.slice().reverse().find(Boolean) ?? '',
+            )?.version ?? 0) + 1
+          : 1;
+      lineContents.set(contentId, {
+        ...previousVersion,
+        id: contentId,
+        lastModifiedDate,
+        type: 'saved_version',
+        version: newVersionNumber,
+        lineId: id,
+      } satisfies LineContent);
+      const lineToContentsEntry = lineToContents.get(id);
+      const newVersions = [...(lineToContentsEntry?.versions ?? []), contentId];
+      lineToContents.set(id, {
+        sharedDrafts: [...(lineToContentsEntry?.sharedDrafts ?? [])],
+        versions: newVersions,
+      });
+      return {
+        ...state,
+        lineToContents,
+        lineContents,
+      };
+    }
+    case 'APPLY_SHARED_DRAFT_AS_NEW_VERSION': {
+      const { id, contentId, sharedDraft, lastModifiedDate } = action;
+      const contents = state.lineToContents.get(id);
+      const lineContents = new Map(state.lineContents);
+      const lineToContents = new Map(state.lineToContents);
+      const newVersionNumber =
+        contents && contents.versions.length
+          ? (state.lineContents.get(
+              contents.versions.slice().reverse().find(Boolean) ?? '',
+            )?.version ?? 0) + 1
+          : 1;
+      lineContents.set(contentId, {
+        ...sharedDraft,
+        id: contentId,
+        lastModifiedDate,
+        type: 'saved_version',
+        version: newVersionNumber,
+        lineId: id,
+      } satisfies LineContent);
+      lineContents.delete(sharedDraft.id);
+      const lineToContentsEntry = lineToContents.get(id);
+      const newSharedDrafts =
+        lineToContentsEntry?.sharedDrafts.filter(
+          (contentId) => contentId !== sharedDraft.id,
+        ) ?? [];
+      const newVersions = [...(lineToContentsEntry?.versions ?? []), contentId];
+      lineToContents.set(id, {
+        sharedDrafts: newSharedDrafts,
+        versions: newVersions,
+      });
+      return {
+        ...state,
+        lineToContents,
         lineContents,
       };
     }

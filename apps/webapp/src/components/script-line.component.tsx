@@ -20,14 +20,18 @@ import {
   type LineEditableContent,
   type LineInfo,
 } from './script.models';
-import { handleDirections, printCharacterName } from './script.utils';
+import {
+  handleDirections,
+  replaceBreaklines,
+  printCharacterName,
+} from './script.utils';
 import styles from './script-line.module.css';
 
 interface ScriptLineProps {
   line: Line;
   lineInfo: LineInfo;
   content: LineContent;
-  num: number;
+  num?: number;
   isEditable: boolean;
   newlyInserted?: boolean;
   onShowMenu?: (id: string) => void;
@@ -188,9 +192,12 @@ function ScriptLine(props: ScriptLineProps) {
     isEditing || props.line.type !== 'chartext'
       ? ['', lineContent.text]
       : handleDirections(lineContent.text);
+  const textWithBRs = isEditable
+    ? textWithoutPrefix
+    : replaceBreaklines(textWithoutPrefix);
   const dangerouslySetInnerHTML = useMemo(
-    () => ({ __html: textWithoutPrefix }),
-    [textWithoutPrefix],
+    () => ({ __html: textWithBRs }),
+    [textWithBRs],
   );
   const isHeading = lineContent.lineType === 'heading';
   const focusOnNewMount = useEffectEvent(() => {
@@ -220,28 +227,27 @@ function ScriptLine(props: ScriptLineProps) {
   //     }
   //   }
   // }, [isEditing]);
-  // const handleClick = () => {
-  //   lineEditableContentRef.current?.focus();
-  // };
+  const handleClick = () => {
+    lineEditableContentRef.current?.focus();
+  };
   const handleHandleClick: MouseEventHandler = (event) => {
-    props.onSelect?.(props.line.id, event.ctrlKey);
-    event.stopPropagation();
-    event.preventDefault();
+    if (isEditable) {
+      props.onSelect?.(props.line.id, event.ctrlKey);
+      event.stopPropagation();
+      event.preventDefault();
+    }
   };
   const handleMenuClick = () => {
     props.onShowMenu?.(props.line.id);
   };
-  if (!hasDraft && lineContent.deleted) {
-    return null;
-  }
   return (
     <>
       <div
         className={classNames({
           [styles.replique]: true,
+          [styles.editableReplique]: isEditable,
           [styles.selected]: Boolean(props.selected),
         })}
-        //onClick={handleClick}
       >
         <div
           className={classNames({
@@ -249,7 +255,7 @@ function ScriptLine(props: ScriptLineProps) {
           })}
           onClick={handleHandleClick}
         >
-          {line.type === 'chartext' ? (
+          {line.type === 'chartext' && props.num !== undefined ? (
             <div className={styles.repliqueNum}>{props.num}</div>
           ) : null}
         </div>
@@ -260,6 +266,7 @@ function ScriptLine(props: ScriptLineProps) {
               [styles.repliqueCharacter]: true,
               [styles.repliqueDeleted]: lineContent.deleted,
             })}
+            onClick={handleClick}
           >
             {lineContent.characters
               .map(printCharacterName(characters))

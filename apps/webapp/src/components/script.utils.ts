@@ -55,3 +55,7 @@ export function isLineEditableContentSameAsPrevious(
         editableContent.headingLevel === previous.headingLevel))
   );
 }
+
+export function replaceBreaklines(lineText: string) {
+  return lineText.replaceAll('\n', '<br/>');
+}
