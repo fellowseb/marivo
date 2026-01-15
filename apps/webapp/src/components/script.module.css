@@ -65,3 +65,15 @@
 .previousVersionsButtonIcon {
   background-color: skyblue;
 }
+
+.panelsContainer {
+  position: fixed;
+  width: 300px;
+  height: calc(100% - 80px);
+  padding: 1ch;
+  right: 0;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}

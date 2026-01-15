@@ -1,7 +1,9 @@
 import Toolbar from '../../components/toolbar.component';
+import { useScriptTabToolbarContext } from './script-tab-toolbar.context';
 import { useScriptUndoRedo } from './script-undo-redo.context';
 
 export function ScriptToolbar() {
+  const { setShowSearchPanel } = useScriptTabToolbarContext();
   const { undo, getUndoItems, redo, getRedoItems } = useScriptUndoRedo();
   const handleUndo = () => undo(1);
   const undoDisabled = getUndoItems().length === 0;
@@ -29,8 +31,10 @@ export function ScriptToolbar() {
             id: 'search',
             label: 'search',
             icon: 'search',
-            disabled: true,
-            onAction: () => {},
+            disabled: false,
+            onAction: () => {
+              setShowSearchPanel((prev) => !prev);
+            },
           },
         ],
       }}

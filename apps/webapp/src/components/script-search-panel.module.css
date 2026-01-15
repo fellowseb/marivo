@@ -1,0 +1,44 @@
+.panel {
+  border: 2px solid #e4d6bc;
+  padding: 4px;
+  background-color: #ece2cc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header {
+  padding: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  height: 2.5ch;
+  background-color: #e4d6bc;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  gap: 4px;
+}
+
+.searchRow {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.searchControls {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-self: center;
+}
+
+.options {
+  margin-left: 20px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}

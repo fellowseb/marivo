@@ -1,12 +1,5 @@
 import classNames from 'classnames';
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type FocusEventHandler,
-  type UIEventHandler,
-} from 'react';
+import { useEffect, useRef, useState, type FocusEventHandler } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import Button from './button.component';
 import ScriptLine, { ScriptLineToBe } from './script-line.component';
@@ -22,6 +15,8 @@ import type {
 import { ScriptChangeHeadingDialog } from './script-change-heading-dialog.component';
 import { ScriptChangeCharactersDialog } from './script-change-characters-dialog.component';
 import { ScriptLineVersionsDialog } from './script-line-versions-dialog.component';
+import ScriptSearchPanel from './script-search-panel.component';
+import { useScriptTabToolbarContext } from '../features/script-edition/script-tab-toolbar.context';
 
 interface ScriptProps {
   isEditable: boolean;
@@ -88,6 +83,7 @@ function Script(props: ScriptProps) {
   const [showPreviousVersionsDialog, setShowPreviousVersionsDialog] =
     useState(false);
   const [showSharedDraftsDialog, setShowSharedDraftsDialog] = useState(false);
+  const { showSearchPanel } = useScriptTabToolbarContext();
   const menuLine = lineIdForMenu
     ? scriptContext?.lines.get(lineIdForMenu)
     : undefined;
@@ -249,6 +245,7 @@ function Script(props: ScriptProps) {
       showChangeCharactersDialog ||
       showSharedDraftsDialog ||
       showPreviousVersionsDialog);
+  const showPanels = showSearchPanel;
   return (
     <>
       <div className={styles.scriptContent} onClick={handleClick}>
@@ -267,7 +264,7 @@ function Script(props: ScriptProps) {
                 ++lineCount;
               }
               const selected = selectedLines.has(line.id);
-              return false ? null : (
+              return isDeletedSavedLine ? null : (
                 <Fragment key={line.id}>
                   {props.isEditable ? (
                     <ScriptLineToBe
@@ -408,6 +405,11 @@ function Script(props: ScriptProps) {
           </div>
         )}
       </div>
+      {showPanels ? (
+        <div className={styles.panelsContainer}>
+          {showSearchPanel ? <ScriptSearchPanel /> : null}
+        </div>
+      ) : null}
       {showModalDialog && menuLineContent ? (
         <div
           className={styles.modalContainer}
