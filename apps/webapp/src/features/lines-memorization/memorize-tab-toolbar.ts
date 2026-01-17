@@ -5,6 +5,9 @@ export const MEMORIZE_TOOLBAR: ToolbarDefinition = {
     {
       label: 'search',
       icon: 'search',
+      id: 'memorize-search',
+      disabled: false,
+      onAction: () => {},
     },
   ],
 };

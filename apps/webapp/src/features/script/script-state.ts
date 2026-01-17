@@ -7,8 +7,8 @@ import type {
   Line,
   LineContent,
   LineEditableContent,
-} from '../../components/script.models';
-import { isLineEditableContentSameAsPrevious } from '../../components/script.utils';
+} from './script.models';
+import { isLineEditableContentSameAsPrevious } from './script.utils';
 
 export interface LineContents {
   sharedDrafts: string[];

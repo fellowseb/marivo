@@ -1,13 +1,13 @@
-import { type KeyboardEvent } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import Button from './button.component';
-import { Dialog } from './dialog.component';
-import ScriptLine from './script-line.component';
-import type { Line, LineContent, LineInfo } from './script.models';
-import styles from './script-line-versions-dialog.module.css';
-import { usePlayContext } from '../features/play-admin/play.context';
-import CollapsibleSection from './collapsible-section.component';
 import classNames from 'classnames';
+import { formatDistanceToNow } from 'date-fns';
+import { type KeyboardEvent } from 'react';
+import Button from '../../components/button.component';
+import { Dialog } from '../../components/dialog.component';
+import CollapsibleSection from '../../components/collapsible-section.component';
+import { usePlayContext } from '../play-admin/play.context';
+import ScriptLine from '../script/script-line.component';
+import type { Line, LineContent, LineInfo } from '../script/script.models';
+import styles from './script-line-versions-dialog.module.css';
 
 interface LineVersionHeaderProps {
   collapsed: boolean;
@@ -126,7 +126,6 @@ interface ScriptLineVersionsDialogProps {
   currentContent: LineContent;
   sharedDraftContents: LineContent[];
   previousVersionsContents: LineContent[];
-  lineNum: number;
   characters: { [id: string]: string };
 }
 

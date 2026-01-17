@@ -5,18 +5,23 @@ export const BLOCKING_TOOLBAR: ToolbarDefinition = {
     {
       label: 'undo',
       icon: 'undo',
+      id: 'blocking-undo',
+      disabled: false,
+      onAction: () => {},
     },
     {
       label: 'redo',
       icon: 'redo',
+      id: 'blocking-redo',
+      disabled: false,
+      onAction: () => {},
     },
     {
       label: 'search',
       icon: 'search',
-    },
-    {
-      label: 'voice command',
-      icon: 'voiceRecording',
+      id: 'blocking-search',
+      disabled: false,
+      onAction: () => {},
     },
   ],
 };

@@ -1,34 +1,22 @@
 import { v4 as uuidV4 } from 'uuid';
-import { useQuery } from '@tanstack/react-query';
 import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useReducer,
+  useState,
   type PropsWithChildren,
 } from 'react';
-import type {
-  Line,
-  LineContent,
-  LineEditableContent,
-  LineInfo,
-} from '../../components/script.models';
-import { useTRPC } from '../../trpc';
+import type { LineContent, LineEditableContent } from './script.models';
 import { useScriptUndoRedo } from './script-undo-redo.context';
-import { reducer, type ScriptAction, type ScriptState } from './script-state';
+import { type ScriptAction } from './script-state';
+import { useScriptContext } from './script.context';
 
-export interface ScriptContext {
-  lastModifiedDate: Date;
-  remoteLastModifiedDate: Date;
-  lines: Map<string, Line>;
-  lineContents: Map<string, LineContent>;
-  linesOrder: string[];
-  characters: { [id: string]: string };
-  insertHeading: (pos: number, level: number) => string;
-  insertCueLine: (pos: number, characterId: string) => string;
-  insertFreetextLine: (pos: number, char: string) => string;
+export interface ScriptEditionContext {
+  insertedLineId: string | null;
+  insertHeading: (pos: number, level: number) => void;
+  insertCueLine: (pos: number, characterId: string) => void;
+  insertFreetextLine: (pos: number, char: string) => void;
   editLineText: (id: string, text: string) => void;
   editLine: (id: string, content: LineEditableContent) => void;
   initDraft: (content: LineContent, text?: string, deleted?: boolean) => void;
@@ -44,41 +32,21 @@ export interface ScriptContext {
     id: string,
     previousVersion: LineContent,
   ) => void;
-  getLineContentForDisplayWithInfo: (line: Line) => [LineContent, LineInfo];
-  getLineSharedDrafts: (line: Line) => LineContent[];
-  getLinePreviousVersions: (line: Line) => LineContent[];
-  // Exposed for undo/redo
-  dispatch: (action: ScriptAction) => void;
 }
 
-const ScriptContext = createContext<ScriptContext | null>(null);
+const ScriptEditionContext = createContext<ScriptEditionContext | null>(null);
 
-export interface ScriptContextProps {
-  playUri: string;
-}
-
-const initialState = {
-  lastModifiedDate: new Date(),
-  remoteLastModifiedDate: new Date(),
-  lines: new Map(),
-  lineContents: new Map(),
-  linesOrder: [],
-  characters: {},
-  checksums: new Map(),
-  scriptChecksum: null,
-  lineToContents: new Map(),
-};
-
-export function ScriptContextProvider(
-  props: PropsWithChildren<ScriptContextProps>,
-) {
-  const [state, dispatch] = useReducer<ScriptState, [ScriptAction]>(
-    reducer,
-    initialState,
-  );
+export function ScriptEditionContextProvider(props: PropsWithChildren) {
+  const context = useScriptContext();
   const { pushUndoRedo } = useScriptUndoRedo();
+  const [insertedLineId, setInsertedLineId] = useState<string | null>(null);
   const insertHeading = useCallback(
     (pos: number, level: number) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const id = uuidV4();
       const lastModifiedDate = new Date(Date.now());
       const action = {
@@ -88,24 +56,29 @@ export function ScriptContextProvider(
         pos,
         level,
       } as const satisfies ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
       const undoAction = {
         type: 'UNDO_INSERT_HEADING_LINE',
         id,
-        lastModifiedDate: state.lastModifiedDate,
+        lastModifiedDate: context.lastModifiedDate,
       } as const satisfies ScriptAction;
       pushUndoRedo({
-        dispatch,
+        dispatch: context.dispatch,
         undoAction,
         redoAction: action,
         label: 'Insert heading',
       });
-      return id;
+      setInsertedLineId(id);
     },
-    [state.lastModifiedDate],
+    [context?.lastModifiedDate],
   );
   const insertCueLine = useCallback(
     (pos: number, characterId: string) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const id = uuidV4();
       const lastModifiedDate = new Date(Date.now());
       const action = {
@@ -115,24 +88,29 @@ export function ScriptContextProvider(
         pos,
         characterId,
       } as const satisfies ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
       const undoAction = {
         type: 'UNDO_INSERT_CUE_LINE',
         id,
-        lastModifiedDate: state.lastModifiedDate,
+        lastModifiedDate: context.lastModifiedDate,
       } as const satisfies ScriptAction;
       pushUndoRedo({
-        dispatch,
+        dispatch: context.dispatch,
         redoAction: action,
         undoAction,
-        label: `Insert cue line (${state.characters[characterId]})`,
+        label: `Insert cue line (${context.characters[characterId]})`,
       });
-      return id;
+      setInsertedLineId(id);
     },
-    [state.characters, state.lastModifiedDate],
+    [context?.characters, context?.lastModifiedDate],
   );
   const insertFreetextLine = useCallback(
     (pos: number, init: string) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const id = uuidV4();
       const lastModifiedDate = new Date(Date.now());
       const action = {
@@ -142,24 +120,29 @@ export function ScriptContextProvider(
         pos,
         init,
       } as const;
-      dispatch(action);
+      context.dispatch(action);
       const undoAction = {
         type: 'UNDO_INSERT_FREETEXT_LINE',
         id,
-        lastModifiedDate: state.lastModifiedDate,
+        lastModifiedDate: context.lastModifiedDate,
       } as const satisfies ScriptAction;
       pushUndoRedo({
         redoAction: action,
         undoAction,
-        dispatch,
+        dispatch: context.dispatch,
         label: 'Insert free text line',
       });
-      return id;
+      setInsertedLineId(id);
     },
-    [state.lastModifiedDate],
+    [context?.lastModifiedDate],
   );
   const initDraft = useCallback(
     (content: LineContent, text?: string, deleted?: boolean) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const lastModifiedDate = new Date(Date.now());
       const action = {
         type: 'INIT_DRAFT',
@@ -168,21 +151,21 @@ export function ScriptContextProvider(
         text,
         deleted,
       } as const satisfies ScriptAction;
-      const line = state.lines.get(content.lineId);
+      const line = context.lines.get(content.lineId);
       if (!line) {
         throw new Error('Line not found');
       }
       const undoAction = {
         type: 'UNDO_INIT_DRAFT',
         lineId: line.id,
-        lastModifiedDate: state.lastModifiedDate,
+        lastModifiedDate: context.lastModifiedDate,
       } as const satisfies ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
       const lineType = line.type;
       pushUndoRedo({
         redoAction: action,
         undoAction,
-        dispatch,
+        dispatch: context.dispatch,
         label:
           lineType === 'chartext'
             ? `Edit cue line`
@@ -191,10 +174,15 @@ export function ScriptContextProvider(
               : 'Edit free text line',
       });
     },
-    [state.lines, state.lastModifiedDate],
+    [context?.lines, context?.lastModifiedDate],
   );
   const editLineText = useCallback(
     (id: string, text: string) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const lastModifiedDate = new Date(Date.now());
       const action = {
         type: 'EDIT_LINE',
@@ -202,7 +190,7 @@ export function ScriptContextProvider(
         id,
         text,
       } as const satisfies ScriptAction;
-      const currLine = state.lineContents.get(id);
+      const currLine = context.lineContents.get(id);
       if (!currLine) {
         throw new Error('Content not found for edit');
       }
@@ -210,26 +198,31 @@ export function ScriptContextProvider(
         type: 'UNDO_EDIT_LINE',
         id,
         lineLastModifiedDate: currLine.lastModifiedDate,
-        lastModifiedDate: state.lastModifiedDate,
+        lastModifiedDate: context.lastModifiedDate,
         text: currLine.text,
       } as const satisfies ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
       pushUndoRedo({
         redoAction: action,
         undoAction,
-        dispatch,
+        dispatch: context.dispatch,
         label:
           currLine.lineType === 'chartext'
-            ? `Edit cue line (${currLine.characters.map((cid) => state.characters[cid]).join(',')})`
+            ? `Edit cue line (${currLine.characters.map((cid) => context.characters[cid]).join(',')})`
             : currLine.lineType === 'heading'
               ? 'Edit heading line'
               : 'Edit free text line',
       });
     },
-    [state.lineContents, state.characters, state.lastModifiedDate],
+    [context?.lineContents, context?.characters, context?.lastModifiedDate],
   );
   const editLine = useCallback(
     (id: string, content: LineEditableContent) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const lastModifiedDate = new Date(Date.now());
       const action = {
         type: 'EDIT',
@@ -237,14 +230,14 @@ export function ScriptContextProvider(
         id,
         content,
       } as const satisfies ScriptAction;
-      let currLine = state.lineContents.get(id);
+      let currLine = context.lineContents.get(id);
       if (!currLine) {
-        const currVersionId = (state.lineToContents.get(id)?.versions ?? [])
+        const currVersionId = (context.lineToContents.get(id)?.versions ?? [])
           .slice()
           .reverse()
           .filter(Boolean)[0];
         if (currVersionId) {
-          currLine = state.lineContents.get(currVersionId);
+          currLine = context.lineContents.get(currVersionId);
         }
       }
       if (!currLine) {
@@ -253,99 +246,138 @@ export function ScriptContextProvider(
       const undoAction = {
         type: 'UNDO_EDIT',
         id,
-        lastModifiedDate: state.lastModifiedDate,
+        lastModifiedDate: context.lastModifiedDate,
         content: currLine,
       } as const satisfies ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
       pushUndoRedo({
         redoAction: action,
         undoAction,
-        dispatch,
+        dispatch: context.dispatch,
         label:
           currLine.lineType === 'chartext'
-            ? `Edit cue line (${currLine.characters.map((cid) => state.characters[cid]).join(',')})`
+            ? `Edit cue line (${currLine.characters.map((cid) => context.characters[cid]).join(',')})`
             : currLine.lineType === 'heading'
               ? 'Edit heading line'
               : 'Edit free text line',
       });
     },
-    [state.lineContents, state.characters, state.lastModifiedDate],
+    [context?.lineContents, context?.characters, context?.lastModifiedDate],
   );
 
   const removeLines = useCallback((ids: string[]) => {
-    dispatch({
+    if (!context) {
+      const error = new Error('Unexpected undefined script context');
+      console.warn(error);
+      throw error;
+    }
+    context.dispatch({
       type: 'REMOVE_LINES',
       ids,
     });
   }, []);
   const discardChanges = useCallback(
     (id: string) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const lastModifiedDate = new Date(Date.now());
       const action = {
         type: 'DISCARD_CHANGES',
         id,
         lastModifiedDate,
       } as const satisfies ScriptAction;
-      const content = state.lineContents.get(id)!;
+      const content = context.lineContents.get(id)!;
       const undoAction = {
         type: 'UNDO_DISCARD_CHANGES',
         id,
         content,
-        lastModifiedDate: state.lastModifiedDate,
+        lastModifiedDate: context.lastModifiedDate,
       } as const satisfies ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
       pushUndoRedo({
         redoAction: action,
         undoAction,
         label: 'Discard line changes',
-        dispatch,
+        dispatch: context.dispatch,
       });
     },
-    [state.lineContents, state.lastModifiedDate],
+    [context?.lineContents, context?.lastModifiedDate],
   );
   const saveChanges = useCallback((id: string) => {
+    if (!context) {
+      const error = new Error('Unexpected undefined script context');
+      console.warn(error);
+      throw error;
+    }
     const action = {
       type: 'SAVE_CHANGES',
       id,
     } as const as ScriptAction;
-    dispatch(action);
+    context.dispatch(action);
   }, []);
   const saveChangesAsNewVersion = useCallback((id: string) => {
+    if (!context) {
+      const error = new Error('Unexpected undefined script context');
+      console.warn(error);
+      throw error;
+    }
     const contentId = uuidV4();
     const action = {
       type: 'SAVE_CHANGES_AS_NEW_VERSION',
       id,
       contentId,
     } as const as ScriptAction;
-    dispatch(action);
+    context.dispatch(action);
   }, []);
   const saveChangesAsSharedDraft = useCallback((id: string) => {
+    if (!context) {
+      const error = new Error('Unexpected undefined script context');
+      console.warn(error);
+      throw error;
+    }
     const contentId = uuidV4();
     const action = {
       type: 'SAVE_CHANGES_AS_SHARED_DRAFT',
       id,
       contentId,
     } as const as ScriptAction;
-    dispatch(action);
+    context.dispatch(action);
   }, []);
   const deleteSharedDraft = useCallback((id: string, contentId: string) => {
+    if (!context) {
+      const error = new Error('Unexpected undefined script context');
+      console.warn(error);
+      throw error;
+    }
     const action = {
       type: 'DELETE_SHARED_DRAFT',
       id,
       contentId,
     } as const as ScriptAction;
-    dispatch(action);
+    context.dispatch(action);
   }, []);
   const deletePreviousVersion = useCallback((id: string, contentId: string) => {
+    if (!context) {
+      console.warn('Unexpected undefined script context');
+      return;
+    }
     const action = {
       type: 'DELETE_PREVIOUS_VERSION',
       id,
       contentId,
     } as const as ScriptAction;
-    dispatch(action);
+    context.dispatch(action);
   }, []);
   const applySharedDraftAsNewVersion = useCallback(
     (id: string, sharedDraft: LineContent) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const contentId = uuidV4();
       const lastModifiedDate = new Date(Date.now());
       const action = {
@@ -355,12 +387,17 @@ export function ScriptContextProvider(
         sharedDraft,
         lastModifiedDate,
       } as const as ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
     },
     [],
   );
   const applyPreviousVersionAsNewVersion = useCallback(
     (id: string, previousVersion: LineContent) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
       const contentId = uuidV4();
       const lastModifiedDate = new Date(Date.now());
       const action = {
@@ -370,95 +407,21 @@ export function ScriptContextProvider(
         previousVersion,
         lastModifiedDate,
       } as const as ScriptAction;
-      dispatch(action);
+      context.dispatch(action);
     },
     [],
   );
-  const getLinePreviousVersions = (line: Line): LineContent[] => {
-    const { id } = line;
-    const contents = state.lineToContents.get(id);
-    const previousVersions = contents?.versions
-      .filter(Boolean)
-      .reverse()
-      .slice(1);
-    return contents
-      ? (previousVersions?.map((contentId) => {
-          return state.lineContents.get(contentId)!;
-        }) ?? [])
-      : [];
-  };
-  const getLineSharedDrafts = (line: Line): LineContent[] => {
-    const { id } = line;
-    const contents = state.lineToContents.get(id);
-    return contents
-      ? contents.sharedDrafts.map((contentId) => {
-          return state.lineContents.get(contentId)!;
-        })
-      : [];
-  };
-  const getLineContentForDisplayWithInfo = (
-    line: Line,
-  ): [LineContent, LineInfo] => {
-    let content;
-    const { id } = line;
-    // Check for presence of a draft content item
-    const draftContent = state.lineContents.get(id);
-    if (draftContent) {
-      content = draftContent;
-    }
-    const contents = state.lineToContents.get(id);
-    let hasSharedDraft = false;
-    let hasPreviousVersions = false;
-    let isNewUnsaved = false;
-    // Check for prensence of versionned content items
-    if (contents) {
-      const { versions, sharedDrafts } = contents;
-      const presentVersions = versions.filter(Boolean).reverse().slice();
-      if (!content && presentVersions.length) {
-        const latestVersionContent = state.lineContents.get(
-          presentVersions[0] ?? '',
-        );
-        if (latestVersionContent) {
-          content = latestVersionContent;
-        }
-      }
-      hasSharedDraft = sharedDrafts.length > 0;
-      hasPreviousVersions = presentVersions.length > 1;
-      isNewUnsaved = presentVersions.length === 0;
-    }
-    if (!content) {
-      throw new Error('No line content found');
-    }
-    return [
-      content,
-      {
-        hasDraft: !!draftContent,
-        hasSharedDraft,
-        hasPreviousVersions,
-        isNewUnsaved,
-      },
-    ];
-  };
   const contextValue = useMemo(
     () =>
       ({
-        lines: state.lines,
-        lineContents: state.lineContents,
-        lastModifiedDate: state.lastModifiedDate,
-        remoteLastModifiedDate: state.remoteLastModifiedDate,
-        linesOrder: state.linesOrder,
-        characters: state.characters,
         insertHeading,
         insertCueLine,
         insertFreetextLine,
+        insertedLineId,
         initDraft,
         editLineText,
         editLine,
         removeLines,
-        dispatch,
-        getLineContentForDisplayWithInfo,
-        getLineSharedDrafts,
-        getLinePreviousVersions,
         discardChanges,
         saveChanges,
         saveChangesAsNewVersion,
@@ -467,31 +430,33 @@ export function ScriptContextProvider(
         deletePreviousVersion,
         applySharedDraftAsNewVersion,
         applyPreviousVersionAsNewVersion,
-      }) satisfies ScriptContext,
-    [state],
+      }) satisfies ScriptEditionContext,
+    [
+      insertedLineId,
+      insertHeading,
+      insertCueLine,
+      insertFreetextLine,
+      initDraft,
+      editLineText,
+      editLine,
+      removeLines,
+      discardChanges,
+      saveChanges,
+      saveChangesAsNewVersion,
+      saveChangesAsSharedDraft,
+      deleteSharedDraft,
+      deletePreviousVersion,
+      applySharedDraftAsNewVersion,
+      applyPreviousVersionAsNewVersion,
+    ],
   );
-  const trpc = useTRPC();
-  const query = useQuery(
-    trpc.script.latestChanges.queryOptions({
-      since: state.remoteLastModifiedDate,
-      playUri: props.playUri,
-    }),
-  );
-  useEffect(() => {
-    if (query.isSuccess && query.data) {
-      dispatch({
-        type: 'PROCESS_LATEST_CHANGES_PAYLOAD',
-        payload: query.data,
-      });
-    }
-  }, [query.isSuccess, query.data]); // Lint for missing deps FFS
   return (
-    <ScriptContext.Provider value={contextValue}>
+    <ScriptEditionContext.Provider value={contextValue}>
       {props.children}
-    </ScriptContext.Provider>
+    </ScriptEditionContext.Provider>
   );
 }
 
-export function useScriptContext() {
-  return useContext(ScriptContext);
+export function useScriptEditionContext() {
+  return useContext(ScriptEditionContext);
 }

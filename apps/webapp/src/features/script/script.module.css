@@ -1,0 +1,28 @@
+.scriptContent {
+  width: 21cm;
+  min-width: 21cm;
+  height: 29.7cm;
+  flex: 1;
+  background-color: #ffffff;
+  white-space: pre-wrap;
+  padding: 20px 40px;
+  border: 2px solid #e4d6bc;
+  box-shadow: 6px 15px 2px #e4d6bc;
+  gap: 0px;
+  display: flex;
+  flex-direction: column;
+  transform: scale(100%);
+}
+
+.scriptContent * {
+  font-family: 'Cutive Mono', monospace;
+  font-optical-sizing: auto;
+}
+
+.skeletonContainer {
+  width: '800px';
+  display: 'flex';
+  flex-direction: 'column';
+  gap: '10px';
+  flex: '1';
+}

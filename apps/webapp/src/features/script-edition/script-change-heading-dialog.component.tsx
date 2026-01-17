@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { createRef, useRef, type KeyboardEvent, type RefObject } from 'react';
-import Button from './button.component';
+import Button from '../../components/button.component';
+import { Dialog } from '../../components/dialog.component';
+import type { HeadingLineContent, LineContent } from '../script/script.models';
 import styles from './script-change-heading-dialog.module.css';
-import lineStyles from './script-line.module.css';
-import type { HeadingLineContent, LineContent } from './script.models';
-import { Dialog } from './dialog.component';
+import lineStyles from '../script/script-line.module.css';
 
 interface ScriptChangeHeadingDialogProps {
   onOK: () => void;

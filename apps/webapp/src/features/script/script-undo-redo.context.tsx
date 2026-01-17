@@ -1,6 +1,6 @@
 import { createContext, useContext, type PropsWithChildren } from 'react';
 import { useUndoRedo, type UndoRedoContext } from '../undo-redo/use-undo-redo';
-import type { ScriptAction } from './script.context';
+import type { ScriptAction } from './script-state';
 
 export const ScriptUndoRedoContext =
   createContext<UndoRedoContext<ScriptAction> | null>(null);

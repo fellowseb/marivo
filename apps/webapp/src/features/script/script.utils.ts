@@ -1,9 +1,4 @@
-import type {
-  Line,
-  HeadingLine,
-  LineEditableContent,
-  LineContent,
-} from './script.models';
+import type { LineEditableContent, LineContent } from './script.models';
 
 export function highlightDirections(lineText: string) {
   return lineText.replaceAll(/\(.*\)/g, `<em>$&</em>`);
@@ -18,10 +13,6 @@ export function handleDirections(lineText: string): [string, string] {
     res[0].trim(),
     highlightDirections(lineText.substring(res.index + res[0].length)),
   ];
-}
-
-export function isHeading(line: Line): line is HeadingLine {
-  return line.type === 'heading';
 }
 
 export function printCharacterName(characters: { [charId: string]: string }) {

@@ -1,27 +1,28 @@
 import { useEffect } from 'react';
 import { NavLink, Route, Routes, useNavigate, useParams } from 'react-router';
+import { HeaderBreadcrumbs } from '../../layouts/header.component';
+import PlayPageLayout from '../../layouts/play-page-layout.component';
+import DotsLoader from '../../components/dots-loader.component';
+import PageNotFound from '../../components/page-not-found.component';
 import ScriptTab from '../script-edition/script-tab.component';
 import MemorizeTab from '../lines-memorization/memorize-tab.component';
 import PlaySettingsTab from '../play-settings/play-settings-tab.component';
 import PlanningTab from '../planning/planning-tab.component';
 import BlockingTab from '../blocking/blocking-tab.component';
 import StagingDirectionsTab from '../staging-directions/staging-directions-tab.component';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import styles from './play-page.module.css';
+import { ScriptContextProvider } from '../script/script.context.tsx';
+import { ScriptEditionContextProvider } from '../script/script-edition.context.tsx';
+import { ScriptUndoRedoContextProvider } from '../script/script-undo-redo.context.tsx';
+import { ScriptTabToolbarContextProvider } from '../script-edition/script-tab-toolbar.context.tsx';
+import PermissionProtected, {
+  checkPermission,
+} from './permission-protected.component';
 import {
   PlayContextProvider,
   usePlayContext,
   type PlayContextResult,
 } from './play.context';
-import PlayPageLayout from '../../layouts/play-page-layout.component';
-import DotsLoader from '../../components/dots-loader.component';
-import PageNotFound from '../../components/page-not-found.component';
-import PermissionProtected, {
-  checkPermission,
-} from './permission-protected.component';
-import { ScriptContextProvider } from '../script-edition/script.context.tsx';
-import { ScriptUndoRedoContextProvider } from '../script-edition/script-undo-redo.context.tsx';
-import { ScriptTabToolbarContextProvider } from '../script-edition/script-tab-toolbar.context.tsx';
+import styles from './play-page.module.css';
 
 function PlayPageTitle() {
   const play = usePlayContext();
@@ -138,7 +139,9 @@ function PlayPage() {
                   path={PLAY_SUB_ROUTES_PATHS.script}
                   element={
                     <PermissionProtected>
-                      <ScriptTab />
+                      <ScriptEditionContextProvider>
+                        <ScriptTab />
+                      </ScriptEditionContextProvider>
                     </PermissionProtected>
                   }
                 />

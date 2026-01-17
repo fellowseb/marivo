@@ -5,12 +5,12 @@ import {
   type KeyboardEvent,
   type RefObject,
 } from 'react';
-import Button from './button.component';
+import Button from '../../components/button.component';
+import { ToggleButton } from '../../components/toggle-button.component';
+import { Dialog } from '../../components/dialog.component';
 import styles from './script-change-characters-dialog.module.css';
-import { ToggleButton } from './toggle-button.component';
-import type { ScriptContext } from '../features/script-edition/script.context';
-import type { CueLineContent, LineContent } from './script.models';
-import { Dialog } from './dialog.component';
+import type { CueLineContent, LineContent } from '../script/script.models';
+import type { ScriptContext } from '../script/script.context';
 
 interface ScriptChangeCharactersDialogProps {
   onOK: () => void;

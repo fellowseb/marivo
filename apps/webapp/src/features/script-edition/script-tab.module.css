@@ -2,3 +2,48 @@
   display: flex;
   justify-content: center;
 }
+
+.modalContainer {
+  position: fixed;
+  top: 80px;
+  backdrop-filter: blur(4px);
+  width: 100%;
+  height: calc(100% - 80px);
+  padding: 1ch;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modalContainer > * {
+  box-shadow: 4px 4px 2px #666;
+}
+
+.sharedDraftsButton {
+  color: orange;
+}
+
+.previousVersionsButton {
+  color: skyblue;
+}
+
+.sharedDraftsButtonIcon {
+  background-color: orange;
+}
+
+.previousVersionsButtonIcon {
+  background-color: skyblue;
+}
+
+.panelsContainer {
+  position: fixed;
+  width: 300px;
+  height: calc(100% - 80px);
+  padding: 1ch;
+  right: 0;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}

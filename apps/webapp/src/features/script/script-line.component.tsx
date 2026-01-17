@@ -341,11 +341,10 @@ function ScriptLine(props: ScriptLineProps) {
 
 interface ScriptLineToBeProps {
   characters: { [id: string]: string };
-  insertHeading: (pos: number, level: number) => string;
-  insertFreetextLine: (pos: number, c: string) => string;
-  insertCueLine: (pos: number, charId: string) => string;
   pos: number;
-  onLineInserted: (id: string) => void;
+  insertHeading?: (pos: number, level: number) => void;
+  insertFreetextLine?: (pos: number, c: string) => void;
+  insertCueLine?: (pos: number, charId: string) => void;
 }
 
 function sortByCharacterName(lhs: [string, string], rhs: [string, string]) {
@@ -361,16 +360,9 @@ export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
     if (key.length == 1 && /[0-9]/.test(key)) {
       const digit = parseInt(key, 10);
       if (Number.isInteger(digit) && showHeadingMenu) {
-        const lineId = props.insertHeading(props.pos, digit);
-        props.onLineInserted(lineId);
-        return true;
+        props.insertHeading?.(props.pos, digit);
       } else if (Number.isInteger(digit) && showCharactersMenu) {
-        const lineId = props.insertCueLine(
-          props.pos,
-          sortedChars[digit - 1][0],
-        );
-        props.onLineInserted(lineId);
-        return true;
+        props.insertCueLine?.(props.pos, sortedChars[digit - 1][0]);
       }
     } else if (key === '#') {
       setShowHeadingMenu((prev) => !prev);
@@ -384,9 +376,7 @@ export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
       key.length == 1 ||
       (key.length > 1 && /[^a-zA-Z0-9]/.test(key))
     ) {
-      const lineId = props.insertFreetextLine(props.pos, key);
-      props.onLineInserted(lineId);
-      return true;
+      props.insertFreetextLine?.(props.pos, key);
     } else if (key === 'Escape') {
       if (showHeadingMenu) {
         setShowHeadingMenu(false);

@@ -1,6 +1,6 @@
-import Button from './button.component';
-import CollapsibleSection from './collapsible-section.component';
-import Icon from './icon.component';
+import Button from '../../components/button.component';
+import CollapsibleSection from '../../components/collapsible-section.component';
+import Icon from '../../components/icon.component';
 import styles from './script-search-panel.module.css';
 
 function ScriptSearchPanel() {
