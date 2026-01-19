@@ -1,4 +1,4 @@
-import type { LineContents, ScriptState } from './script-state';
+import type { LineContents } from './script-state';
 import type {
   LineEditableContent,
   LineContent,
@@ -7,17 +7,25 @@ import type {
   HeadingLineContent,
 } from './script.models';
 
+function displayDirection(direction: string) {
+  return direction.substring(1, direction.length - 1);
+}
+
 export function highlightDirections(lineText: string) {
-  return lineText.replaceAll(/\(.*\)/g, `<em>$&</em>`);
+  return lineText.replaceAll(
+    /\(\(.*\)\)/g,
+    (direction) => `<em>${displayDirection(direction)}</em>`,
+  );
 }
 
 export function handleDirections(lineText: string): [string, string] {
-  const res = /^\s*(.*)\s*\n/.exec(lineText);
+  const res = /^\s*\(\((.*)\)\)\s*\n/.exec(lineText);
   if (!res || res.length === 0) {
     return ['', highlightDirections(lineText)];
   }
+  const direction = res[0].trim();
   return [
-    res[0].trim(),
+    displayDirection(direction),
     highlightDirections(lineText.substring(res.index + res[0].length)),
   ];
 }
