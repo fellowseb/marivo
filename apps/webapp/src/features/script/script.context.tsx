@@ -8,7 +8,7 @@ import {
   type PropsWithChildren,
 } from 'react';
 import { useTRPC } from '../../trpc';
-import type { Line, LineContent, LineInfo } from './script.models';
+import type { Line, LineContent } from './script.models';
 import {
   reducer,
   type LineContents,
@@ -17,16 +17,14 @@ import {
 } from './script-state';
 
 export interface ScriptContext {
-  lastModifiedDate: Date;
-  remoteLastModifiedDate: Date;
-  lines: Map<string, Line>;
-  lineContents: Map<string, LineContent>;
-  lineToContents: Map<string, LineContents>;
-  linesOrder: string[];
-  characters: { [id: string]: string };
-  getLineContentForDisplayWithInfo: (line: Line) => [LineContent, LineInfo];
-  getLineSharedDrafts: (line: Line) => LineContent[];
-  getLinePreviousVersions: (line: Line) => LineContent[];
+  readonly lastModifiedDate: Date;
+  readonly remoteLastModifiedDate: Date;
+  readonly lines: Map<string, Line>;
+  readonly lineContents: Map<string, LineContent>;
+  readonly lineToContents: Map<string, LineContents>;
+  readonly linesOrder: string[];
+  readonly characters: { [id: string]: string };
+  readonly outline: { heading: string; headingLevel: number }[];
   // Exposed for undo/redo
   dispatch: (action: ScriptAction) => void;
 }
@@ -46,7 +44,8 @@ const initialState = {
   checksums: new Map(),
   scriptChecksum: null,
   lineToContents: new Map(),
-};
+  outline: [],
+} satisfies ScriptState;
 
 export function ScriptContextProvider(
   props: PropsWithChildren<ScriptContextProps>,
@@ -55,71 +54,6 @@ export function ScriptContextProvider(
     reducer,
     initialState,
   );
-  const getLinePreviousVersions = (line: Line): LineContent[] => {
-    const { id } = line;
-    const contents = state.lineToContents.get(id);
-    const previousVersions = contents?.versions
-      .filter(Boolean)
-      .reverse()
-      .slice(1);
-    return contents
-      ? (previousVersions?.map((contentId) => {
-          return state.lineContents.get(contentId)!;
-        }) ?? [])
-      : [];
-  };
-  const getLineSharedDrafts = (line: Line): LineContent[] => {
-    const { id } = line;
-    const contents = state.lineToContents.get(id);
-    return contents
-      ? contents.sharedDrafts.map((contentId) => {
-          return state.lineContents.get(contentId)!;
-        })
-      : [];
-  };
-  const getLineContentForDisplayWithInfo = (
-    line: Line,
-  ): [LineContent, LineInfo] => {
-    let content;
-    const { id } = line;
-    // Check for presence of a draft content item
-    const draftContent = state.lineContents.get(id);
-    if (draftContent) {
-      content = draftContent;
-    }
-    const contents = state.lineToContents.get(id);
-    let hasSharedDraft = false;
-    let hasPreviousVersions = false;
-    let isNewUnsaved = false;
-    // Check for prensence of versionned content items
-    if (contents) {
-      const { versions, sharedDrafts } = contents;
-      const presentVersions = versions.filter(Boolean).reverse().slice();
-      if (!content && presentVersions.length) {
-        const latestVersionContent = state.lineContents.get(
-          presentVersions[0] ?? '',
-        );
-        if (latestVersionContent) {
-          content = latestVersionContent;
-        }
-      }
-      hasSharedDraft = sharedDrafts.length > 0;
-      hasPreviousVersions = presentVersions.length > 1;
-      isNewUnsaved = presentVersions.length === 0;
-    }
-    if (!content) {
-      throw new Error('No line content found');
-    }
-    return [
-      content,
-      {
-        hasDraft: !!draftContent,
-        hasSharedDraft,
-        hasPreviousVersions,
-        isNewUnsaved,
-      },
-    ];
-  };
   const contextValue = useMemo(
     () =>
       ({
@@ -130,10 +64,8 @@ export function ScriptContextProvider(
         remoteLastModifiedDate: state.remoteLastModifiedDate,
         linesOrder: state.linesOrder,
         characters: state.characters,
+        outline: state.outline,
         dispatch,
-        getLineContentForDisplayWithInfo,
-        getLineSharedDrafts,
-        getLinePreviousVersions,
       }) satisfies ScriptContext,
     [
       state.lines,
@@ -143,10 +75,8 @@ export function ScriptContextProvider(
       state.remoteLastModifiedDate,
       state.linesOrder,
       state.characters,
+      state.outline,
       dispatch,
-      getLineContentForDisplayWithInfo,
-      getLineSharedDrafts,
-      getLinePreviousVersions,
     ],
   );
   const trpc = useTRPC();

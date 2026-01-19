@@ -1,0 +1,36 @@
+.panel {
+  border: 2px solid #e4d6bc;
+  padding: 4px;
+  background-color: #ece2cc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #e4d6bc;
+  justify-content: space-between;
+}
+
+.headerTitleIcon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  height: 2.5ch;
+  padding-left: 4px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  gap: 4px;
+}
+
+.closeButton {
+  background-color: #1f313c77;
+}

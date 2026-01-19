@@ -3,8 +3,10 @@ import { Fragment } from 'react/jsx-runtime';
 import Skeleton from '../../components/skeleton.component';
 import ScriptLine, { ScriptLineToBe } from './script-line.component';
 import styles from './script.module.css';
-import type { ScriptContext, ScriptEditionContext } from './script.context';
+import type { ScriptContext } from './script.context';
 import type { LineContent, LineEditableContent } from './script.models';
+import type { ScriptEditionContext } from './script-edition.context';
+import { getLineContentForDisplayWithInfo } from './script.utils';
 
 interface ScriptProps {
   scriptContext: ScriptContext | null;
@@ -66,8 +68,11 @@ function Script(props: ScriptProps) {
             if (!line) {
               return null;
             }
-            const [content, lineInfo] =
-              scriptContext.getLineContentForDisplayWithInfo(line);
+            const [content, lineInfo] = getLineContentForDisplayWithInfo(
+              line,
+              scriptContext.lineContents,
+              scriptContext.lineToContents,
+            );
             const isDeletedSavedLine =
               content.deleted && content.type === 'saved_version';
             if (line.type === 'chartext' && !isDeletedSavedLine) {

@@ -16,6 +16,12 @@ import { ScriptLineVersionsDialog } from './script-line-versions-dialog.componen
 import ScriptSearchPanel from './script-search-panel.component';
 import { useScriptTabToolbarContext } from './script-tab-toolbar.context';
 import styles from './script-tab.module.css';
+import ScriptNavigatePanel from './script-navigate-panel.component';
+import {
+  getLineContentForDisplayWithInfo,
+  getLinePreviousVersions,
+  getLineSharedDrafts,
+} from '../script/script.utils';
 
 function ScriptTab() {
   const scriptContext = useScriptContext();
@@ -40,16 +46,23 @@ function ScriptTab() {
   const [showPreviousVersionsDialog, setShowPreviousVersionsDialog] =
     useState(false);
   const [showSharedDraftsDialog, setShowSharedDraftsDialog] = useState(false);
-  const { showSearchPanel } = useScriptTabToolbarContext();
+  const {
+    showSearchPanel,
+    showNavigatePanel,
+    setShowSearchPanel,
+    setShowNavigatePanel,
+  } = useScriptTabToolbarContext();
   const menuLine = lineIdForMenu
     ? scriptContext?.lines.get(lineIdForMenu)
     : undefined;
-  const [menuLineContent, menuLineInfo] = menuLine
-    ? (scriptContext?.getLineContentForDisplayWithInfo(menuLine) ?? [
-        null,
-        null,
-      ])
-    : [null, null];
+  const [menuLineContent, menuLineInfo] =
+    menuLine && scriptContext
+      ? (getLineContentForDisplayWithInfo(
+          menuLine,
+          scriptContext.lineContents,
+          scriptContext.lineToContents,
+        ) ?? [null, null])
+      : [null, null];
   const handleShowLineMenu = (id: string) => {
     setLineIdForMenu((prev) => {
       if (prev !== id) {
@@ -65,7 +78,7 @@ function ScriptTab() {
   const handleDiscardChanges = () => {
     if (lineIdForMenu) {
       scriptEditionContext?.discardChanges(lineIdForMenu);
-      menuDialogRef.current?.focus();
+      closeDialogs();
     }
   };
   const handleSaveChanges = () => {
@@ -74,7 +87,7 @@ function ScriptTab() {
       if (menuLineContent?.deleted) {
         setLineIdForMenu(null);
       } else {
-        menuDialogRef.current?.focus();
+        closeDialogs();
       }
     }
   };
@@ -84,25 +97,28 @@ function ScriptTab() {
       if (menuLineContent?.deleted) {
         setLineIdForMenu(null);
       } else {
-        menuDialogRef.current?.focus();
+        closeDialogs();
       }
     }
   };
   const handleSaveChangesAsSharedDraft = () => {
     if (lineIdForMenu) {
       scriptEditionContext?.saveChangesAsSharedDraft(lineIdForMenu);
-      menuDialogRef.current?.focus();
+      closeDialogs();
     }
   };
   const handleDeleteLine = () => {
-    if (lineIdForMenu) {
-      const line = scriptContext?.lines.get(lineIdForMenu);
+    if (lineIdForMenu && scriptContext) {
+      const line = scriptContext.lines.get(lineIdForMenu);
       if (line) {
-        const contentWithInfo =
-          scriptContext?.getLineContentForDisplayWithInfo(line);
+        const contentWithInfo = getLineContentForDisplayWithInfo(
+          line,
+          scriptContext.lineContents,
+          scriptContext.lineToContents,
+        );
         if (contentWithInfo) {
           scriptEditionContext?.initDraft(contentWithInfo[0], undefined, true);
-          menuDialogRef.current?.focus();
+          closeDialogs();
         }
       }
     }
@@ -197,13 +213,39 @@ function ScriptTab() {
   const handleMenuBlur = () => {
     setLineIdForMenu(null);
   };
+  const handleCloseSearchPanel = () => {
+    setShowSearchPanel(false);
+  };
+  const handleCloseNavigatePanel = () => {
+    setShowNavigatePanel(false);
+  };
   const showModalDialog =
     menuLine &&
     (showChangeHeadingDialog ||
       showChangeCharactersDialog ||
       showSharedDraftsDialog ||
       showPreviousVersionsDialog);
-  const showPanels = showSearchPanel;
+  const showPanels = showSearchPanel || showNavigatePanel;
+  const sharedDraftContents =
+    (showSharedDraftsDialog &&
+      menuLine &&
+      scriptContext &&
+      getLineSharedDrafts(
+        menuLine,
+        scriptContext.lineContents,
+        scriptContext.lineToContents,
+      )) ||
+    [];
+  const previousVersionsContents =
+    (showPreviousVersionsDialog &&
+      menuLine &&
+      scriptContext &&
+      getLinePreviousVersions(
+        menuLine,
+        scriptContext.lineContents,
+        scriptContext.lineToContents,
+      )) ||
+    [];
   return (
     <div className={styles.container}>
       <Script
@@ -282,7 +324,15 @@ function ScriptTab() {
       ) : null}
       {showPanels ? (
         <div className={styles.panelsContainer}>
-          {showSearchPanel ? <ScriptSearchPanel /> : null}
+          {showSearchPanel ? (
+            <ScriptSearchPanel onClose={handleCloseSearchPanel} />
+          ) : null}
+          {showNavigatePanel ? (
+            <ScriptNavigatePanel
+              onClose={handleCloseNavigatePanel}
+              outline={scriptContext?.outline ?? []}
+            />
+          ) : null}
         </div>
       ) : null}
       {showModalDialog && menuLineContent ? (
@@ -309,12 +359,8 @@ function ScriptTab() {
               line={menuLine}
               lineInfo={menuLineInfo}
               characters={scriptContext?.characters ?? {}}
-              sharedDraftContents={
-                scriptContext?.getLineSharedDrafts(menuLine) ?? []
-              }
-              previousVersionsContents={
-                scriptContext?.getLinePreviousVersions(menuLine) ?? []
-              }
+              sharedDraftContents={sharedDraftContents}
+              previousVersionsContents={previousVersionsContents}
               onOK={handleDialogOK}
               onDeleteSharedDraft={handleDeleteSharedDraft}
               onDeletePreviousVersion={handleDeletePreviousVersion}

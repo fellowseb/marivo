@@ -8,7 +8,10 @@ import type {
   LineContent,
   LineEditableContent,
 } from './script.models';
-import { isLineEditableContentSameAsPrevious } from './script.utils';
+import {
+  buildScriptOutline,
+  isLineEditableContentSameAsPrevious,
+} from './script.utils';
 
 export interface LineContents {
   sharedDrafts: string[];
@@ -16,15 +19,16 @@ export interface LineContents {
 }
 
 export interface ScriptState {
-  lastModifiedDate: Date;
-  remoteLastModifiedDate: Date;
-  lines: Map<string, Line>;
-  lineContents: Map<string, LineContent>;
-  linesOrder: string[];
-  characters: { [id: string]: string };
-  checksums: Map<string, string>;
-  scriptChecksum: string | null;
-  lineToContents: Map<string, LineContents>;
+  readonly lastModifiedDate: Date;
+  readonly remoteLastModifiedDate: Date;
+  readonly lines: Map<string, Line>;
+  readonly lineContents: Map<string, LineContent>;
+  readonly linesOrder: string[];
+  readonly characters: { [id: string]: string };
+  readonly checksums: Map<string, string>;
+  readonly scriptChecksum: string | null;
+  readonly lineToContents: Map<string, LineContents>;
+  readonly outline: { heading: string; headingLevel: number }[];
 }
 
 export type ScriptAction =
@@ -216,16 +220,23 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       // TODO: compare linesOrder
       // TODO: compare characters
       // TODO: recompute checksum
+      const linesOrder = action.payload.linesOrder;
       return {
         lineToContents,
         remoteLastModifiedDate,
         lastModifiedDate: state.lastModifiedDate,
         lines,
         lineContents,
-        linesOrder: action.payload.linesOrder,
+        linesOrder,
         characters: action.payload.characters ?? {},
         checksums: state?.checksums ?? new Map(),
         scriptChecksum: state?.scriptChecksum ?? null,
+        outline: buildScriptOutline(
+          linesOrder,
+          lines,
+          lineContents,
+          lineToContents,
+        ),
       };
     }
     case 'INSERT_HEADING_LINE': {
@@ -273,6 +284,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         lineContents,
         lineToContents,
         linesOrder,
+        outline: buildScriptOutline(
+          linesOrder,
+          lines,
+          lineContents,
+          lineToContents,
+        ),
       };
     }
     case 'INSERT_CUE_LINE': {
@@ -373,6 +390,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         linesOrder,
         lineContents,
         lineToContents,
+        outline: buildScriptOutline(
+          linesOrder,
+          lines,
+          lineContents,
+          lineToContents,
+        ),
       };
     }
     case 'EDIT':
@@ -399,6 +422,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         return {
           ...state,
           lineContents,
+          outline: buildScriptOutline(
+            state.linesOrder,
+            state.lines,
+            lineContents,
+            state.lineToContents,
+          ),
         };
       } else {
         // Case 2: text !== latestVersion.text, set draft content
@@ -416,6 +445,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
           ...state,
           lastModifiedDate,
           lineContents,
+          outline: buildScriptOutline(
+            state.linesOrder,
+            state.lines,
+            lineContents,
+            state.lineToContents,
+          ),
         };
       }
     }
@@ -436,6 +471,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lastModifiedDate,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          state.lineToContents,
+        ),
       };
     }
     case 'UNDO_INIT_DRAFT': {
@@ -445,6 +486,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineContents,
         lastModifiedDate: action.lastModifiedDate,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          state.lineToContents,
+        ),
       };
     }
     case 'EDIT_LINE': {
@@ -467,6 +514,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lastModifiedDate,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          state.lineToContents,
+        ),
       };
     }
     case 'UNDO_EDIT_LINE': {
@@ -489,6 +542,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lastModifiedDate,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          state.lineToContents,
+        ),
       };
     }
     case 'REMOVE_LINES': {
@@ -521,6 +580,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lastModifiedDate,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          state.lineToContents,
+        ),
       };
     }
     case 'UNDO_DISCARD_CHANGES': {
@@ -531,6 +596,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lastModifiedDate,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          state.lineToContents,
+        ),
       };
     }
     case 'SAVE_CHANGES_AS_SHARED_DRAFT': {
@@ -559,6 +630,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineContents,
         lineToContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          lineToContents,
+        ),
       };
     }
     case 'SAVE_CHANGES_AS_NEW_VERSION': {
@@ -596,6 +673,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineContents,
         lineToContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          lineToContents,
+        ),
       };
     }
     case 'SAVE_CHANGES': {
@@ -624,6 +707,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       return {
         ...state,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          state.lineToContents,
+        ),
       };
     }
     case 'DELETE_PREVIOUS_VERSION': {
@@ -695,6 +784,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineToContents,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          lineToContents,
+        ),
       };
     }
     case 'APPLY_SHARED_DRAFT_AS_NEW_VERSION': {
@@ -731,6 +826,12 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineToContents,
         lineContents,
+        outline: buildScriptOutline(
+          state.linesOrder,
+          state.lines,
+          lineContents,
+          lineToContents,
+        ),
       };
     }
     default:

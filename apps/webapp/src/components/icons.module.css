@@ -157,3 +157,11 @@
 .freetextLine {
   mask-image: url('/src/assets/icons/align-left.svg');
 }
+
+.close {
+  mask-image: url('/src/assets/icons/x-close.svg');
+}
+
+.navigate {
+  mask-image: url('/src/assets/icons/map-01.svg');
+}
