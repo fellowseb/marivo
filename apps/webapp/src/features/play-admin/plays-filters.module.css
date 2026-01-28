@@ -6,6 +6,7 @@
   border: 1px solid #1f313c22;
   border: 1px solid #cebc96;
   border-radius: 4px;
+  flex: 0 1 0;
 }
 
 .playFilters label {

@@ -1,3 +1,9 @@
+html {
+  scrollbar-gutter: stable;
+  background-color: #e4d6bc;
+  scrollbar-color: #1f313c #e4d6bc00;
+}
+
 body {
   background-color: #fef8eb;
   margin: 0;

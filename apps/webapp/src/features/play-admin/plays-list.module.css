@@ -7,11 +7,12 @@
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
-  padding: 20px 10px 20px 10px;
+  padding: 20px 1px 20px 10px;
   border: 1px solid #cebc96;
   border-radius: 4px;
   background-color: #e4d6bc33;
-  flex: 1;
+  flex: 1 1 0;
+  scrollbar-gutter: stable;
 }
 
 .play {
