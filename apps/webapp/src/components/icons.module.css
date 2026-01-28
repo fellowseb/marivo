@@ -114,6 +114,10 @@
   mask-image: url('/src/assets/icons/chevron-left.svg');
 }
 
+.next {
+  mask-image: url('/src/assets/icons/chevron-right.svg');
+}
+
 .downloadCloud {
   mask-image: url('/src/assets/icons/download-cloud-01.svg');
 }
@@ -164,4 +168,12 @@
 
 .navigate {
   mask-image: url('/src/assets/icons/map-01.svg');
+}
+
+.info {
+  mask-image: url('/src/assets/icons/info-circle.svg');
+}
+
+.downloadFile {
+  mask-image: url('/src/assets/icons/download-file-03.svg');
 }
