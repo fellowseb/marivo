@@ -32,6 +32,10 @@ input:disabled {
   color: #1f313ccc;
 }
 
+input[type='text']::placeholder {
+  color: #bbb;
+}
+
 select,
 ::picker(select) {
   appearance: base-select;
