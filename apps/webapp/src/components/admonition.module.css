@@ -1,0 +1,21 @@
+.info {
+  --border-color: lightblue;
+  --bg-color: lightblue;
+}
+
+.admonition {
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-color);
+  padding: 4px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 550px;
+  align-self: center;
+}
+
+.icon {
+  flex: 1 1 0;
+  min-width: 25px;
+}
