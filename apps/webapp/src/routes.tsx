@@ -17,12 +17,27 @@ import UserAccountPage, {
 import NewPlayPage, {
   NewPlayPageBreadcrumbs,
 } from './features/play-admin/new-play-page.component';
+import NewEmptyScript, {
+  NewEmptyScriptBreadcrumbs,
+} from './features/play-admin/new-empty-script.component';
+import ImportScript, {
+  ImportScriptBreadcrumbs,
+} from './features/play-admin/import-script.component';
+import FromCollection, {
+  FromCollectionBreadcrumbs,
+} from './features/play-admin/from-collection.component';
 
 function AppRoutes() {
   const breadcrumbs = (
     <Routes>
       <Route path="/plays" element={<PlaysPageBreadcrumbs />} />
       <Route path="/plays/new" element={<NewPlayPageBreadcrumbs />} />
+      <Route path="/plays/new/import" element={<ImportScriptBreadcrumbs />} />
+      <Route path="/plays/new/empty" element={<NewEmptyScriptBreadcrumbs />} />
+      <Route
+        path="/plays/new/from-collection"
+        element={<FromCollectionBreadcrumbs />}
+      />
       <Route path="/my-account" element={<UserAccountPageBreadcrumbs />} />
     </Routes>
   );
@@ -33,6 +48,12 @@ function AppRoutes() {
           <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
             <Route path="plays" element={<PlaysPage />} />
             <Route path="plays/new" element={<NewPlayPage />} />
+            <Route path="plays/new/empty" element={<NewEmptyScript />} />
+            <Route path="plays/new/import" element={<ImportScript />} />
+            <Route
+              path="plays/new/from-collection"
+              element={<FromCollection />}
+            />
             <Route path="my-account/security?" element={<UserAccountPage />} />
             <Route path="signin" element={<Navigate to="/plays" replace />} />
             <Route path="signup" element={<Navigate to="/plays" replace />} />
