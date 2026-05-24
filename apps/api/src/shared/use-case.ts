@@ -1,3 +1,4 @@
+import type { IncomingHttpHeaders } from 'node:http';
 import { type LegitAny, Result } from '@marivo/utils';
 import type { Request } from 'express';
 import type { AppError } from './error.ts';
@@ -30,6 +31,7 @@ export abstract class AuthenticatedUseCase<
 
   abstract execute(
     params: T['params'],
+    headers: IncomingHttpHeaders,
   ): Promise<Result<T['success'], T['failure']>>;
 
   protected getUserContext(): AuthenticatedUserContext {
@@ -46,7 +48,10 @@ export interface UseCase<
     failure?: AppError;
   },
 > {
-  execute(params: T['params']): Promise<Result<T['success'], T['failure']>>;
+  execute(
+    params: T['params'],
+    headers: IncomingHttpHeaders,
+  ): Promise<Result<T['success'], T['failure']>>;
 }
 
 export type AnyUseCase = UseCase<{

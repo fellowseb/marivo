@@ -1,9 +1,9 @@
 import type { Request } from 'express';
 import superjson from 'superjson';
+import type { Sql } from 'postgres';
 import { initTRPC } from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
-import type { Sql } from 'postgres';
-import sql from './infra/db.ts';
+import { getDatabase } from './infra/db.ts';
 
 export interface TrpcContext {
   req: Request;
@@ -16,7 +16,7 @@ export const createContext = ({
 }: trpcExpress.CreateExpressContextOptions): TrpcContext => {
   return {
     req,
-    sql: sql,
+    sql: getDatabase(),
   };
 };
 

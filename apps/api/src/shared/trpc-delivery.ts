@@ -1,26 +1,13 @@
 import { type Request } from 'express';
+import { TRPCError } from '@trpc/server';
 import type { Provider } from '../shared/provider.ts';
 import type {
   AnyUseCase,
   ParamsOfUseCase,
   SuccessOfUseCase,
 } from '../shared/use-case.ts';
-import sql from '../infra/db.ts';
+import { getDatabase } from '../infra/db.ts';
 import { AppError } from './error.ts';
-import { TRPCError } from '@trpc/server';
-
-export function dbTransactionMiddleware() {
-  return async ({ ctx, next }: any) => {
-    return await sql.begin(async (sql) => {
-      return next({
-        ctx: {
-          ...ctx,
-          sql,
-        },
-      });
-    });
-  };
-}
 
 export function appErrorToTrpcError(err: unknown) {
   if (err instanceof AppError) {
@@ -44,9 +31,9 @@ export function handleUseCase<T extends AnyUseCase>(provider: Provider<T>) {
     ctx: { req: Request };
     input: ParamsOfUseCase<T>;
   }): Promise<SuccessOfUseCase<T>> => {
-    const res = await sql.begin<SuccessOfUseCase<T>>(async (sql) => {
+    const res = await getDatabase().begin<SuccessOfUseCase<T>>(async (sql) => {
       const uc = provider.instantiate({ req: ctx.req, sql });
-      const result = await uc.execute(input);
+      const result = await uc.execute(input, ctx.req.headers);
       return result.match({
         success: (data) => data,
         failure: (error) => {

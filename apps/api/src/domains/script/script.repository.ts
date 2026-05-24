@@ -1,7 +1,12 @@
-import { type Sql } from 'postgres';
+import { pipeline } from 'node:stream/promises';
+import { Transform } from 'node:stream';
+import { parse } from 'csv-parse';
+import { stringify } from 'csv-stringify';
+import { v4 as uuidv4 } from 'uuid';
+import { type TransactionSql } from 'postgres';
+import { Result } from '@marivo/utils';
 import { UserContextService } from '../../shared/use-case.ts';
 import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
-import { Result } from '@marivo/utils';
 import { AppError } from '../../shared/error.ts';
 import { type ScriptDiff } from './script.models.ts';
 
@@ -33,33 +38,32 @@ interface LineContentRow {
   author_username: string;
 }
 
-export class ScriptOfPlayNotFound extends AppError {
+export class ScriptNotFound extends AppError {
   constructor() {
-    super('Unable to find script for given play uri', 'NOT_FOUND');
+    super('Unable to find script', 'NOT_FOUND');
   }
 }
 
 export class ScriptRepository extends UserRepositoryBase {
-  constructor(sql: Sql, userService: UserContextService) {
+  constructor(sql: TransactionSql, userService: UserContextService) {
     super(sql, userService);
   }
 
   async getLatestScriptChanges(params: {
-    uri: string;
+    id: number;
     since: Date;
-  }): Promise<Result<ScriptDiff, ScriptOfPlayNotFound>> {
+  }): Promise<Result<ScriptDiff, ScriptNotFound>> {
     const [scriptRow] = await this.sql<ScriptRow[]>`
       SELECT 
-        s.id,
-        s.checksum, 
-        s.lines_order ,
-        s.last_modified_date,
-        s.characters
-      FROM plays p 
-        JOIN scripts s ON s.id = p.script_id 
-      WHERE p.uri = ${params.uri}`;
+        id,
+        checksum, 
+        lines_order ,
+        last_modified_date,
+        characters
+      FROM scripts 
+      WHERE id = ${params.id}`;
     if (!scriptRow) {
-      return Result.failure(new ScriptOfPlayNotFound());
+      return Result.failure(new ScriptNotFound());
     }
     const lineRows = await this.sql<LineRow[]>`
       SELECT
@@ -83,7 +87,7 @@ export class ScriptRepository extends UserRepositoryBase {
         l.version,
         u.username AS author_username
       FROM lines_contents l
-        JOIN users u ON u.id = l.author_id
+        LEFT JOIN users u ON u.id = l.author_id
       WHERE script_id = ${scriptRow.id}
         AND last_modified_date > ${params.since.getTime()}`;
     return Result.ok({
@@ -139,5 +143,139 @@ export class ScriptRepository extends UserRepositoryBase {
       linesOrder: scriptRow.lines_order,
       characters: scriptRow.characters,
     });
+  }
+
+  async createScriptFromStream(params: {
+    characters: { [id: string]: string };
+    linesStream: NodeJS.ReadableStream;
+    linesContentsStream: NodeJS.ReadableStream;
+  }) {
+    // Insert script
+    const [scriptRow] = await this.sql<{ id: number }[]>`
+      INSERT INTO scripts (
+        checksum,
+        characters
+      ) VALUES (
+        '1b91a822a6a14f389f85590bfe664962',
+        ${this.sql.json(params.characters)}
+      ) RETURNING id;
+    `;
+    if (!scriptRow) {
+      throw new Error('Failed to create script');
+    }
+    const parser = parse({ columns: false, delimiter: ';' }); // Parse as arrays (not objects)
+    const stringifier = stringify({
+      delimiter: '\t',
+      header: false,
+      record_delimiter: '\n',
+    });
+    const scriptId = scriptRow.id;
+
+    // CSV line:
+    // line_type,characters,heading_level,text
+    const linesOrder: string[] = [];
+    // const userId = this.userId();
+    const addLineColumnsTransform = new Transform({
+      objectMode: true,
+      transform(row: string[], _encoding, callback) {
+        const lineId = uuidv4();
+        linesOrder.push(lineId);
+        callback(null, [
+          scriptId, // script_id
+          lineId,   // id
+          row[0],   // type
+        ]);
+      },
+    });
+
+    let count = 0;
+    const addLineColumnsTransform2 = new Transform({
+      objectMode: true,
+      transform(row: string[], _encoding, callback) {
+        const lineType = row[0];
+        const characters = lineType === 'chartext' ? row[1] : "{}";
+        const headingLevel = lineType === 'heading' ? parseInt(row[2] as string, 10) : 5;
+        callback(null, [
+          scriptId,           // script_id
+          linesOrder[count],  // line_id
+          lineType,             // line_type
+          characters,             // characters
+          headingLevel,             // heading_level
+          row[3],             // text
+          linesOrder[count],  // id
+          'saved_version',    // type
+          'cd39946332fa4324929603d8659de563', // checksum
+          1,                  // version
+        ]);
+        count++;
+      },
+    });
+
+    // Insert lines
+    const copyLinesQuery = await this
+      .sql`COPY lines (script_id, id, type) FROM stdin`.writable();
+    await pipeline(
+      params.linesStream,
+      parser,
+      addLineColumnsTransform,
+      stringifier,
+      copyLinesQuery,
+      {
+        end: true,
+      }
+    );
+
+    // Insert lines contexts
+    const copyLinesContentsQuery = await this.sql`COPY lines_contents (
+        script_id,
+        line_id,
+        line_type,
+        characters,
+        heading_level,
+        text,
+        id,
+        type,
+        checksum,
+        version
+      ) FROM stdin`.writable();
+    const parser2 = parse({ columns: false, delimiter: ';' }); // Parse as arrays (not objects)
+    const stringifier2 = stringify({
+      delimiter: '\t',
+      header: false,
+      record_delimiter: '\n',
+    });
+
+    await pipeline(
+      params.linesContentsStream,
+      parser2,
+      addLineColumnsTransform2,
+      stringifier2,
+      copyLinesContentsQuery,
+      {
+        end: true,
+      }
+    );
+    // Update lines_order column in script
+    await this.sql`
+      UPDATE scripts
+        SET lines_order = ${this.sql.array(linesOrder)}::uuid[]
+        WHERE id = ${scriptId};
+    `;
+    return scriptId;
+  }
+
+  async createScript() {
+    // Insert script
+    const [scriptRow] = await this.sql<{ id: number }[]>`
+      INSERT INTO scripts (
+        checksum
+      ) VALUES (
+        '1b91a822a6a14f389f85590bfe664962'
+      ) RETURNING id;
+    `;
+    if (!scriptRow) {
+      throw new Error('Failed to create script');
+    }
+    return scriptRow.id;
   }
 }

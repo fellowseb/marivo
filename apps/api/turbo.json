@@ -2,7 +2,19 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["PORT", "TRPC_PORT"],
+      "env": [
+        "PORT",
+        "TRPC_PORT",
+        "GARAGE_ENDPOINT",
+        "REDIS_HOST",
+        "REDIS_PORT",
+        "POSTGRES_HOST",
+        "POSTGRES_PORT",
+        "POSTGRES_USERNAME",
+        "POSTGRES_PASSWORD",
+        "CLERK_PUBLISHABLE_KEY",
+        "CLERK_SECRET_KEY"
+      ],
       "outputs": ["dist/**"]
     }
   }

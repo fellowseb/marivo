@@ -6,12 +6,17 @@ import { createContext, router } from './trpc.ts';
 import { deliveryMiddleware } from './infra/delivery.middleware.ts';
 import { userMiddleware } from './domains/auth/user.middleware.ts';
 import playsRoutes from './domains/plays/plays.trpc-routes.ts';
+import playsWorkerRoutes from './domains/plays/plays-worker.trpc-routes.ts';
 import scriptRoutes from './domains/script/script.trpc-routes.ts';
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 
 const appRouter = router({
   plays: playsRoutes,
   script: scriptRoutes,
+});
+
+const workerRouter = router({
+  plays: playsWorkerRoutes,
 });
 
 export type AppRouter = typeof appRouter;
@@ -21,10 +26,28 @@ export type AppRouterOutput = inferRouterOutputs<AppRouter>;
 export default function trpcServer(): express.Application {
   const app = express();
   app.use(
+    '/worker',
     // Read requestId from request header
     deliveryMiddleware(),
     // Enable CORS for all routes
-    cors(),
+    cors({ credentials: true }),
+    // Application TRPC routes
+    trpcExpress.createExpressMiddleware({
+      router: workerRouter,
+      createContext,
+      onError: (opts) => {
+        const { error, type, path } = opts;
+        console.error(error, type, path);
+      },
+    }),
+  );
+  app.use(
+    // Read requestId from request header
+    deliveryMiddleware(),
+    // Enable CORS for all routes
+    cors({
+      credentials: true,
+    }),
     // Handle Clerk auth
     clerkMiddleware(),
     // Attach user-related properties to the request

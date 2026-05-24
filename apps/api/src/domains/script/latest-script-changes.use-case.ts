@@ -1,11 +1,20 @@
 import z from 'zod';
-import { Result } from '@marivo/utils';
+import { assertUnreachable, Result } from '@marivo/utils';
 import { type UseCase } from '../../shared/use-case.ts';
 import { type ScriptDiff } from './script.models.ts';
-import { ScriptOfPlayNotFound, ScriptRepository } from './script.repository.ts';
+import { ScriptNotFound, ScriptRepository } from './script.repository.ts';
+import type {
+  PlayNotFound,
+  UserPlaysRepository,
+} from '../plays/user-plays.repository.ts';
+import type {
+  ScriptImportNotFound,
+  ScriptImportsRepository,
+} from '../plays/script-imports.repository.ts';
 
 export const LatestScriptChangesUseCaseInputSchema = z.object({
-  playUri: z.uuidv4(),
+  uri: z.uuid(),
+  from: z.enum(['play', 'import']),
   since: z.date(),
 });
 
@@ -17,8 +26,8 @@ export const LatestScriptChangesUseCaseOutputSchema = z.object({
         lineId: z.uuidv4(),
         lastModifiedDate: z.date(),
         type: z.union([z.literal('saved_version'), z.literal('shared_draft')]),
-        version: z.number().min(1).nullable(),
-        authorUsername: z.string(),
+        version: z.number().min(0).nullable(),
+        authorUsername: z.string().nullable(),
         change: z.union([
           z.object({
             type: z.literal('content_delete'),
@@ -78,19 +87,49 @@ export class LatestScriptChangesUseCase
       success: LatestScriptChangesUseCaseOutput;
     }>
 {
-  constructor(scriptRepository: ScriptRepository) {
+  constructor(
+    scriptRepository: ScriptRepository,
+    userPlaysRepository: UserPlaysRepository,
+    scriptImportsRepository: ScriptImportsRepository,
+  ) {
     this.scriptRepository = scriptRepository;
+    this.userPlaysRepository = userPlaysRepository;
+    this.scriptImportsRepository = scriptImportsRepository;
   }
 
   async execute(params: {
-    playUri: string;
+    uri: string;
+    from: 'play' | 'import';
     since: Date;
-  }): Promise<Result<ScriptDiff, ScriptOfPlayNotFound>> {
-    return await this.scriptRepository.getLatestScriptChanges({
-      uri: params.playUri,
-      since: params.since,
+  }): Promise<
+    Result<ScriptDiff, ScriptNotFound | PlayNotFound | ScriptImportNotFound>
+  > {
+    let scriptIdResult;
+    if (params.from === 'play') {
+      scriptIdResult = await this.userPlaysRepository.getScriptId({
+        uri: params.uri,
+      });
+    } else if (params.from === 'import') {
+      scriptIdResult = await this.scriptImportsRepository.getResultScriptId({
+        id: params.uri,
+      });
+    } else {
+      assertUnreachable(params.from);
+    }
+    return scriptIdResult.match({
+      success: async (scriptId) => {
+        return await this.scriptRepository.getLatestScriptChanges({
+          id: scriptId,
+          since: params.since,
+        });
+      },
+      failure: async (data) => {
+        return Result.failure(data);
+      },
     });
   }
 
   private scriptRepository: ScriptRepository;
+  private userPlaysRepository: UserPlaysRepository;
+  private scriptImportsRepository: ScriptImportsRepository;
 }

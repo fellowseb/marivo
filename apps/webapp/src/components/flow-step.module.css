@@ -8,7 +8,6 @@
 
 .container {
   min-width: 800px;
-  min-height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: stretch;

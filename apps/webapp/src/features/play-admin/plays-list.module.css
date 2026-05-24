@@ -80,6 +80,10 @@
 }
 
 .playTitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
   font-family: 'Lobster Two', sans-serif;
   font-size: 1.2rem;
   font-weight: bold;

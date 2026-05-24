@@ -5,6 +5,7 @@ import classNames from 'classnames';
 
 export interface ButtonProps {
   icon?: IconValue;
+  rightIcon?: IconValue;
   onClick?: (event: MouseEvent) => void;
   disabled?: boolean;
   customClassNames?: string[];
@@ -12,12 +13,10 @@ export interface ButtonProps {
   variant?: 'standout' | 'normal' | 'discrete';
   ref?: RefObject<HTMLButtonElement | null>;
   autoFocus?: boolean;
-  iconSide?: 'left' | 'right';
 }
 
 function Button(props: PropsWithChildren<ButtonProps>) {
   const variant = props.variant ?? 'normal';
-  const iconSide = props.iconSide ?? 'left';
   return (
     <button
       autoFocus={props.autoFocus}
@@ -37,7 +36,7 @@ function Button(props: PropsWithChildren<ButtonProps>) {
       onClick={props.onClick}
       disabled={props.disabled}
     >
-      {props.icon && iconSide === 'left' ? (
+      {props.icon ? (
         <Icon
           value={props.icon}
           size="medium"
@@ -48,9 +47,9 @@ function Button(props: PropsWithChildren<ButtonProps>) {
         />
       ) : null}
       {props.children}
-      {props.icon && iconSide === 'right' ? (
+      {props.rightIcon ? (
         <Icon
-          value={props.icon}
+          value={props.rightIcon}
           size="medium"
           mode="secondary"
           customClassNames={[styles.icon].concat(

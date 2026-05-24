@@ -5,7 +5,10 @@ node_modules
 dist
 dist-ssr
 *.local
-.env
+.env*
 .cache
+__pycache__
+dev/
 server/dist
 public/dist
+apps/api/dev/garage

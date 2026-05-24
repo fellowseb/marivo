@@ -1,0 +1,99 @@
+services:
+  api:
+    networks:
+      - network
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - 3001:3001
+    depends_on:
+      - postgres
+      - garage
+      - redis
+    volumes:
+      - ./node_modules:/app/node_modules
+      - ./apps/api:/app/apps/api
+      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
+      - ./package.json:/app/package.json
+    env_file: './apps/api/.env.development.docker'
+  worker:
+    networks:
+      - network
+    build:
+      context: ./apps/worker
+    ports:
+      - 8081:8081
+    depends_on:
+      - redis
+    env_file: './apps/worker/.env.development.docker'
+    volumes:
+      - ./apps/worker:/app
+  postgres:
+    networks:
+      - network
+    image: postgres:18
+    ports:
+      - 5432:5432
+    env_file: './.env.development.docker'
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./apps/api/schema.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./apps/api/dev/fixtures.sql:/docker-entrypoint-initdb.d/fixtures.sql
+  pgadmin:
+    image: dpage/pgadmin4:9.15
+    ports:
+      - 5050:80
+    env_file: './.env.development.docker'
+    networks:
+      - network
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    networks:
+      - network
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports:
+      - 5540:5540
+    volumes:
+      - redisinsight_data:/data
+    networks:
+      - network
+  garage:
+    image: dxflrs/garage:v2.3.0
+    ports:
+      - '3900:3900'
+      - '3901:3901'
+      - '3902:3902'
+      - '3903:3903'
+    restart: unless-stopped
+    env_file: './.env.development.docker'
+    command: /garage server --single-node --default-bucket
+    volumes:
+      - ./apps/api/dev/garage.toml:/etc/garage.toml
+      - ./apps/api/dev/garage/meta:/var/lib/garage/meta
+      - ./apps/api/dev/garage/data:/var/lib/garage/data
+    networks:
+      - network
+  garage-webui:
+    image: khairul169/garage-webui:latest
+    container_name: garage-webui
+    restart: unless-stopped
+    volumes:
+      - ./apps/api/dev/garage.toml:/etc/garage.toml:ro
+    ports:
+      - 3909:3909
+    env_file: './.env.development.docker'
+    networks:
+      - network
+volumes:
+  postgres_data:
+  redis_data:
+  redisinsight_data:
+networks:
+  network:

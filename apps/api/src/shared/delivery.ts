@@ -107,8 +107,8 @@ export function useCase<TUseCase extends AnyUseCase>(config: {
           return sendFailureResponse(req, res, result.errorOrThrow());
         }
       }
-      const useCase = config.provider.instantiate(req);
-      const outputResult = await useCase.execute(req.params);
+      const useCase = config.provider.instantiate({ req });
+      const outputResult = await useCase.execute(req.params, req.headers);
       // Validate result
       outputResult.match({
         success: (outputData) => {

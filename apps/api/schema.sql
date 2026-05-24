@@ -1,5 +1,7 @@
 DROP VIEW IF EXISTS user_plays_view;
 DROP VIEW IF EXISTS user_pending_invites_view;
+DROP TABLE IF EXISTS script_imports;
+DROP TYPE IF EXISTS script_import_status_enum;
 DROP TABLE IF EXISTS users_in_plays;
 DROP TABLE IF EXISTS invites;
 DROP TABLE IF EXISTS roles;
@@ -141,6 +143,27 @@ CREATE TABLE users_in_plays (
                                             DEFAULT now(),
 
     CONSTRAINT one_user_to_play_assoc UNIQUE (user_id, play_id)
+);
+
+CREATE TYPE script_import_status_enum AS ENUM (
+                                        'uploading_files',
+                                        'processing_files',
+                                        'reviewing',
+                                        'done',
+                                        'error'
+);
+
+CREATE TABLE script_imports (
+    id                      varchar(36)          NOT NULL
+                                                 UNIQUE,
+    status                  script_import_status_enum   NOT NULL,
+    files                   jsonb                NOT NULL,
+    error                   varchar              ,
+    result_script_id        integer              REFERENCES scripts(id)
+                                                 ON DELETE SET NULL,
+    user_id                 integer              NOT NULL
+                                                 REFERENCES users(id)
+                                                 ON DELETE CASCADE
 );
 
 CREATE VIEW user_plays_view AS

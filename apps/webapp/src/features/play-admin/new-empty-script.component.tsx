@@ -70,7 +70,7 @@ function NewEmptyScript() {
   }, [isQuerySuccess, createdUri]);
   return (
     <FlowStep
-      title="Start with an empty script"
+      title="Create ▶  Name your play"
       Actions={
         <>
           <Button
@@ -78,7 +78,7 @@ function NewEmptyScript() {
             icon={
               isPending || (isQueryPending && isQueryEnabled)
                 ? 'animatedWaiting'
-                : 'new'
+                : 'newPlay'
             }
             onClick={handleCreate}
           >
@@ -88,22 +88,6 @@ function NewEmptyScript() {
       }
     >
       Give a name to your project.
-      <div>
-        <label
-          style={{
-            width: '100px',
-          }}
-        >
-          Project name
-        </label>
-        <input
-          placeholder="Othello - Shakespeare (Troupe Name / 2026)"
-          ref={titleInputRef}
-          type="text"
-          size={60}
-          onChange={handleTitleChange}
-        />
-      </div>
       <Admonition type="info">
         This name doesn't need to correspond to the title of the play. For
         instance you might also want to indicate the name of the troupe or
@@ -111,6 +95,24 @@ function NewEmptyScript() {
         <br />
         You'll be able to change it later on !
       </Admonition>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '4px',
+          alignItems: 'center',
+        }}
+      >
+        <label>Project name</label>
+        <input
+          placeholder="Othello - Shakespeare (Troupe Name / 2026)"
+          ref={titleInputRef}
+          type="text"
+          size={60}
+          maxLength={100}
+          onChange={handleTitleChange}
+        />
+      </div>
     </FlowStep>
   );
 }

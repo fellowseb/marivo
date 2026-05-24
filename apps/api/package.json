@@ -4,7 +4,7 @@
   "description": "Marivo API Server",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "node --inspect src/index.ts",
+    "dev": "node --inspect --watch-path=./src --watch-path=./types src/index.ts",
     "check-types": "tsc --noEmit",
     "lint": "eslint src/ --max-warnings=0",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,26 +18,31 @@
     ".": "./dist/api.d.ts"
   },
   "dependencies": {
-    "@clerk/backend": "^2.18.3",
-    "@clerk/express": "^1.7.36",
+    "@aws-sdk/client-s3": "^3.1045.0",
+    "@aws-sdk/lib-storage": "^3.1045.0",
+    "@clerk/backend": "3.4.7",
+    "@clerk/express": "2.1.15",
     "@marivo/utils": "workspace:*",
-    "@trpc/server": "^11.6.0",
+    "@trpc/server": "^11.17.0",
     "@types/cors": "^2.8.19",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "postgres": "^3.4.7",
-    "superjson": "^2.2.2",
-    "uuid": "^13.0.0",
-    "zod": "^4.1.12"
+    "bullmq": "^5.76.8",
+    "cors": "^2.8.6",
+    "csv-parse": "^6.2.1",
+    "csv-stringify": "^6.7.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "postgres": "^3.4.9",
+    "superjson": "^2.2.6",
+    "uuid": "^13.0.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@clerk/types": "^4.91.0",
     "@marivo/eslint-config": "workspace:*",
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.7.2",
-    "eslint": "^9.37.0",
-    "globals": "^16.4.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.12.4",
+    "eslint": "^9.39.4",
+    "globals": "^16.5.0",
+    "types": "link:@clerk/shared/types",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.1"
   }

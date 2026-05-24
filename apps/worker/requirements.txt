@@ -1,0 +1,6 @@
+bullmq==2.20.0
+python-dotenv==1.2.2
+boto3==1.43.14
+mistralai==2.4.5
+requests==2.33.1
+py-hot-reload==1.0.6

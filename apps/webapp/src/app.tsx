@@ -3,9 +3,15 @@ import { v7 as uuidv7 } from 'uuid';
 import { StrictMode, useState } from 'react';
 import 'keyboard-css/dist/css/main.min.css';
 import { BrowserRouter } from 'react-router';
-import { ClerkProvider, useAuth } from '@clerk/clerk-react';
+import { ClerkProvider, useAuth } from "@clerk/react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createTRPCClient, httpLink, TRPCClientError } from '@trpc/client';
+import {
+  createTRPCClient,
+  httpLink,
+  isNonJsonSerializable,
+  splitLink,
+  TRPCClientError,
+} from '@trpc/client';
 import type { AppRouter } from '@marivo/api';
 import Routes from './routes.tsx';
 import './app.css';
@@ -52,16 +58,42 @@ function TrpcApiProvider(props: React.PropsWithChildren<TrpcApiProviderProps>) {
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
-        httpLink({
-          url: props.apiUrl,
-          transformer: superjson,
-          headers: async () => {
-            const token = await getToken();
-            return {
-              Authorization: `Bearer ${token}`,
-              'x-marivo-request-id': uuidv7(),
-            };
-          },
+        splitLink({
+          condition: (op) => isNonJsonSerializable(op.input),
+          true: httpLink({
+            url: props.apiUrl,
+            transformer: {
+              // Avoid JSON-serializing file-like output data
+              serialize: (data) => data,
+              deserialize: superjson.deserialize,
+            },
+            headers: async (h) => {
+              const token = await getToken();
+              const { importId } = h.op.context;
+              const importFileId = (h.op.input as any).id;
+              return {
+                Authorization: `Bearer ${token}`,
+                'x-marivo-request-id': uuidv7(),
+                ...(importId && typeof importId === 'string'
+                  ? { 'x-marivo-import-id': importId }
+                  : {}),
+                ...(importFileId && typeof importFileId === 'string'
+                  ? { 'x-marivo-import-file-id': importFileId }
+                  : {}),
+              };
+            },
+          }),
+          false: httpLink({
+            url: props.apiUrl,
+            transformer: superjson,
+            headers: async () => {
+              const token = await getToken();
+              return {
+                Authorization: `Bearer ${token}`,
+                'x-marivo-request-id': uuidv7(),
+              };
+            },
+          }),
         }),
       ],
     }),

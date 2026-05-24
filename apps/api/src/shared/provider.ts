@@ -1,9 +1,9 @@
 import type { Request } from 'express';
-import type { Sql } from 'postgres';
+import type { TransactionSql } from 'postgres';
 
 interface ProviderContext {
   req: Request;
-  sql: Sql;
+  sql: TransactionSql;
 }
 
 export interface Provider<T> {

@@ -13,6 +13,7 @@ import { PlayInvites } from './play-invites.component';
 import UnexpectedError from '../../components/unexpected-error.component';
 import DotsLoader from '../../components/dots-loader.component';
 import { PLAY_ROUTE_BASE } from './play-page.component';
+import Icon from '../../components/icon.component';
 
 interface PlayListItemProps {
   id: string;

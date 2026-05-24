@@ -179,7 +179,7 @@ const DEFAULT_COMEDIAN_PERMISSIONS = {
   settingsWrite: false,
 };
 
-class PlayNotFound extends AppError {
+export class PlayNotFound extends AppError {
   constructor(uri: string) {
     super('Play not found', 'NOT_FOUND', {
       cause: {
@@ -235,17 +235,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
   /**
    * Current user creates a play project.
    */
-  async createPlay(params: { title: string; uri: string }) {
-    const [scriptRow] = await this.sql<{ id: number }[]>`
-      INSERT INTO scripts (
-        checksum
-      ) VALUES (
-        '1b91a822a6a14f389f85590bfe664962'
-      ) RETURNING id;
-`;
-    if (!scriptRow) {
-      throw new Error('undefined new scriptRow');
-    }
+  async createPlay(params: { title: string; uri: string; scriptId: number }) {
     const [playRow] = await this.sql<{ id: number }[]>`
       INSERT INTO plays (
         uri,
@@ -262,7 +252,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
         ${this.userId()},
         ${this.userId()},
         now(),
-        ${scriptRow.id}
+        ${params.scriptId}
       ) RETURNING id;
     `;
     if (playRow === undefined) {
@@ -337,6 +327,19 @@ export class UserPlaysRepository extends UserRepositoryBase {
       return Result.failure(new PlayNotFound(params.uri));
     }
     return Result.ok(undefined);
+  }
+
+  async getScriptId(params: {
+    uri: string;
+  }): Promise<Result<number, PlayNotFound>> {
+    const [playRow] = await this.sql<{ script_id: number }[]>`
+        SELECT script_id
+        FROM plays
+        WHERE uri = ${params.uri}`;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.uri));
+    }
+    return Result.ok(playRow.script_id);
   }
 }
 

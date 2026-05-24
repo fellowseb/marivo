@@ -1,4 +1,4 @@
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth, useUser } from "@clerk/react";
 import { Fragment, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import styles from './header.module.css';

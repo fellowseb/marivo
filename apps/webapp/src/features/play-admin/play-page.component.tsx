@@ -132,7 +132,7 @@ function PlayPage() {
     <PlayContextProvider uri={uri}>
       <ScriptTabToolbarContextProvider>
         <ScriptUndoRedoContextProvider>
-          <ScriptContextProvider playUri={uri}>
+          <ScriptContextProvider uri={uri} from="play">
             <Routes>
               <Route path="*" element={<PlayPageLayout />}>
                 <Route

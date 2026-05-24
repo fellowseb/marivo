@@ -26,6 +26,10 @@
   mask-image: url('/src/assets/icons/plus.svg');
 }
 
+.newPlay {
+  mask-image: url('/src/assets/icons/book-open-01.svg');
+}
+
 .signout {
   mask-image: url('/src/assets/log-out-02.svg');
 }
@@ -176,4 +180,16 @@
 
 .downloadFile {
   mask-image: url('/src/assets/icons/download-file-03.svg');
+}
+
+.dragNdrop {
+  mask-image: url('/src/assets/icons/hand.svg');
+}
+
+.browseFiles {
+  mask-image: url('/src/assets/icons/folder-search.svg');
+}
+
+.import {
+  mask-image: url('/src/assets/icons/stars-02.svg');
 }

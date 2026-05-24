@@ -10,7 +10,7 @@ import PlayPage, {
 } from './features/play-admin/play-page.component';
 import Signin from './features/auth/signin.component';
 import Signup from './features/auth/signup.component';
-import { SignedIn, SignedOut } from '@clerk/clerk-react';
+import { Show } from "@clerk/react";
 import UserAccountPage, {
   UserAccountPageBreadcrumbs,
 } from './features/user-account/user-account-page.component';
@@ -43,7 +43,7 @@ function AppRoutes() {
   );
   return (
     <>
-      <SignedIn>
+      <Show when="signed-in">
         <Routes>
           <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
             <Route path="plays" element={<PlaysPage />} />
@@ -62,9 +62,8 @@ function AppRoutes() {
           </Route>
           <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
         </Routes>
-      </SignedIn>
-
-      <SignedOut>
+      </Show>
+      <Show when="signed-out">
         <Routes>
           <Route path="*" element={<AuthLayout />}>
             <Route path="signin/*" element={<Signin />} />
@@ -72,7 +71,7 @@ function AppRoutes() {
             <Route path="*" element={<Navigate to="/signin" replace />}></Route>
           </Route>
         </Routes>
-      </SignedOut>
+      </Show>
     </>
   );
 }
