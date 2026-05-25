@@ -5,6 +5,8 @@
   flex-direction: column;
   gap: 2px;
   align-self: stretch;
+  overflow-y: scroll;
+  max-height: 400px;
 }
 
 .choices li {

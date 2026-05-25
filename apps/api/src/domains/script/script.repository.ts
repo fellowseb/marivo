@@ -163,7 +163,7 @@ export class ScriptRepository extends UserRepositoryBase {
     if (!scriptRow) {
       throw new Error('Failed to create script');
     }
-    const parser = parse({ columns: false, delimiter: ';' }); // Parse as arrays (not objects)
+    const parser = parse({ columns: false, delimiter: '|' }); // Parse as arrays (not objects)
     const stringifier = stringify({
       delimiter: '\t',
       header: false,
@@ -195,6 +195,7 @@ export class ScriptRepository extends UserRepositoryBase {
         const lineType = row[0];
         const characters = lineType === 'chartext' ? row[1] : "{}";
         const headingLevel = lineType === 'heading' ? parseInt(row[2] as string, 10) : 5;
+        const id = uuidv4();
         callback(null, [
           scriptId,           // script_id
           linesOrder[count],  // line_id
@@ -202,7 +203,7 @@ export class ScriptRepository extends UserRepositoryBase {
           characters,             // characters
           headingLevel,             // heading_level
           row[3],             // text
-          linesOrder[count],  // id
+          id,  // id
           'saved_version',    // type
           'cd39946332fa4324929603d8659de563', // checksum
           1,                  // version
@@ -238,7 +239,7 @@ export class ScriptRepository extends UserRepositoryBase {
         checksum,
         version
       ) FROM stdin`.writable();
-    const parser2 = parse({ columns: false, delimiter: ';' }); // Parse as arrays (not objects)
+    const parser2 = parse({ columns: false, delimiter: '|' }); // Parse as arrays (not objects)
     const stringifier2 = stringify({
       delimiter: '\t',
       header: false,

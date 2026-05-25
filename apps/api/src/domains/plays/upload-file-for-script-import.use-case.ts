@@ -45,19 +45,16 @@ export class UploadFileForScriptImportUseCase extends AuthenticatedUseCase<{}> {
       importId,
       fileId,
     });
-    console.log('UploadFileForScriptImportUseCase', readyToProcess);
     if (readyToProcess) {
       const filesResult =
         await this.scriptImportsRepository.getScriptImportFilesForProcessing(
           importId,
         );
       const { files } = filesResult.dataOrThrow();
-      console.log('UploadFileForScriptImportUseCase', files);
       await this.broker.publish('process-script-text-files', {
         importId,
         files: Object.keys(files),
       });
-      console.log('UploadFileForScriptImportUseCase job added');
     }
     return Result.ok(undefined);
   }

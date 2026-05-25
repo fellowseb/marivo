@@ -15,7 +15,10 @@ export class MessageBroker {
   }
 
   async publish(queueName: MarivoJob, message: unknown) {
-    await this.jobsQueue.add(queueName, message);
+    await this.jobsQueue.add(queueName, message, {
+      attempts: 1,
+      removeOnFail: true,
+    });
   }
 
   private jobsQueue: Queue;

@@ -63,18 +63,17 @@ export class SetScriptImportResultUseCase extends AuthenticatedUseCase<{
     input: SetScriptImportResultUseCaseInput,
   ): Promise<Result<undefined, ScriptImportNotFound>> {
     const { importId, result } = input;
-    console.log('SetScriptImportResultUseCase', JSON.stringify(result));
     const res =
       await this.scriptImportsRepository.getScriptImportStatus(importId);
     if (res.isFailure()) {
       return Result.failure(res.errorOrThrow());
     }
     if (result.success) {
-      console.log('metadata', result.metadata);
       const tempFilePath = join(tmpdir(), 'marivo-imports', importId, 'result-lines.csv');
       const dirPath = path.dirname(tempFilePath);
       await fs.mkdir(dirPath, { recursive: true });
       const tempWriteStream = createWriteStream(tempFilePath);
+      console.log('Downloading ', `${importId}/result-lines.csv`);
       const downloadStream = await this.storageService.download(
         'marivo-imports',
         `${importId}/result-lines.csv`,
