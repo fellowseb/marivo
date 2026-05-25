@@ -8,30 +8,46 @@ interface ScriptNavigatePanelProps {
 }
 
 function ScriptNavigatePanel(props: ScriptNavigatePanelProps) {
+  const handleHeadingClick = (lineId: string) => () => {
+    const elem = document.getElementById(`script-line-${lineId}`);
+    if (!elem) {
+      return;
+    }
+    window.scrollBy({
+      top: elem.offsetTop - window.pageYOffset,
+      left: 0,
+      behavior: 'instant',
+    });
+  };
   return (
     <Panel title="Navigate" icon="navigate" onClose={props.onClose}>
       <div className={styles.content}>
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Outline</div>
           <ul className={styles.outlineContainer}>
-            {props.outline.map(({ heading, headingLevel }, idx, arr) => {
-              let treeStruct =
-                headingLevel === 0 ? '' : idx === arr.length - 1 ? '└' : '├';
-              if (headingLevel !== 0) {
-                treeStruct = treeStruct.concat(
-                  ...new Array(headingLevel).fill('─'),
+            {props.outline.map(
+              ({ heading, headingLevel, lineId }, idx, arr) => {
+                let treeStruct =
+                  headingLevel === 0 ? '' : idx === arr.length - 1 ? '└' : '├';
+                if (headingLevel !== 0) {
+                  treeStruct = treeStruct.concat(
+                    ...new Array(headingLevel).fill('─'),
+                  );
+                  treeStruct += ' ';
+                }
+                return (
+                  <li>
+                    <Button
+                      variant="discrete"
+                      onClick={handleHeadingClick(lineId)}
+                    >
+                      {treeStruct}
+                      {heading}
+                    </Button>
+                  </li>
                 );
-                treeStruct += ' ';
-              }
-              return (
-                <li>
-                  <Button variant="discrete">
-                    {treeStruct}
-                    {heading}
-                  </Button>
-                </li>
-              );
-            })}
+              },
+            )}
           </ul>
         </div>
         <div className={styles.section}>

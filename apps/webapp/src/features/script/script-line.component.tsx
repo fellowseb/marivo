@@ -243,6 +243,7 @@ function ScriptLine(props: ScriptLineProps) {
   return (
     <>
       <div
+        id={`script-line-${props.line.id}`}
         className={classNames({
           [styles.replique]: true,
           [styles.editableReplique]: isEditable,

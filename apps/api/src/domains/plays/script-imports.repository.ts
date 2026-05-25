@@ -276,4 +276,14 @@ export class ScriptImportsRepository extends UserRepositoryBase {
         WHERE id = ${params.importId};
       `;
   }
+
+  async setScriptImportDone(params: {
+    importId: string;
+  }): Promise<void> {
+    await this.sql`
+      UPDATE script_imports
+        SET status = 'done'::script_import_status_enum
+        WHERE id = ${params.importId};
+      `;
+  }
 }

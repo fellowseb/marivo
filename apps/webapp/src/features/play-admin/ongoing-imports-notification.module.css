@@ -1,0 +1,11 @@
+.notificationContent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.viewButton {
+  flex-shrink: 0;
+}

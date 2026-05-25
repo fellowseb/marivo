@@ -18,6 +18,7 @@ import { getMessageBroker } from '../../infra/message-broker.ts';
 import { ScriptRepository } from '../script/script.repository.ts';
 import { SetScriptImportResultUseCase } from './set-script-import-result.use-case.ts';
 import CreatePlayFromImportUseCase from './create-play-from-import.use-case.ts';
+import { GetAllScriptImportsUseCase } from './get-all-script-imports.use-case.ts';
 
 export abstract class ResourceAccessAuth<TInput> {
   abstract authorize(params: {
@@ -180,4 +181,17 @@ export const providers = {
       );
     },
   } as Provider<CreatePlayFromImportUseCase>,
+  GetAllScriptImportsUseCase: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const scriptImportsRepository = new ScriptImportsRepository(
+        sql,
+        userContextService,
+      );
+      return new GetAllScriptImportsUseCase(
+        userContextService,
+        scriptImportsRepository,
+      );
+    },
+  } as Provider<GetAllScriptImportsUseCase>,
 };

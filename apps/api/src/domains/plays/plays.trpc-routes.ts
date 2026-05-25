@@ -27,6 +27,7 @@ import {
   CreatePlayFromImportUseCaseInputSchema,
   CreatePlayFromImportUseCaseOutputSchema,
 } from './create-play-from-import.use-case.ts';
+import { GetAllScriptImportsUseCaseOutputSchema } from './get-all-script-imports.use-case.ts';
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
   return async ({ ctx, input, next }: any) => {
@@ -74,4 +75,8 @@ export default router({
     .input(ImportScriptStatusUseCaseInputSchema)
     .output(ImportScriptStatusUseCaseOutputSchema)
     .query(handleUseCase(providers.ImportScriptStatusUseCase)),
+  allScriptImports: publicProcedure
+    .input(z.undefined())
+    .output(GetAllScriptImportsUseCaseOutputSchema)
+    .query(handleUseCase(providers.GetAllScriptImportsUseCase)),
 });

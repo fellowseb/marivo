@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router';
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
 import FlowStep from '../../components/flow-step.component';
+import OngoingImportsNotification from './ongoing-imports-notification.component';
 import styles from './new-play-page.module.css';
 
 export function NewPlayPageBreadcrumbs() {
@@ -23,6 +24,7 @@ export function NewPlayPageBreadcrumbs() {
 export function NewPlayPage() {
   return (
     <FlowStep title="Create a new play project">
+      <OngoingImportsNotification />
       How do you want to initialize the script ?
       <NavLink
         className={styles.section}

@@ -44,6 +44,7 @@ class CreatePlayFromImportUseCase extends AuthenticatedUseCase<{
     }
     const scriptId = scriptIdResult.dataOrThrow();
     await this.playsRepository.createPlay({ title, uri, scriptId });
+    await this.importsRepository.setScriptImportDone({ importId });
     return Result.ok({ uri });
   }
 

@@ -28,7 +28,7 @@ export interface ScriptState {
   readonly checksums: Map<string, string>;
   readonly scriptChecksum: string | null;
   readonly lineToContents: Map<string, LineContents>;
-  readonly outline: { heading: string; headingLevel: number }[];
+  readonly outline: { lineId: string; heading: string; headingLevel: number }[];
 }
 
 export type ScriptAction =

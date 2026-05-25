@@ -26,6 +26,9 @@ import ImportScript, {
 import FromCollection, {
   FromCollectionBreadcrumbs,
 } from './features/play-admin/from-collection.component';
+import ScriptImportsPage, {
+  ScriptImportsPageBreadcrumbs,
+} from './features/play-admin/script-imports-page.component';
 
 function AppRoutes() {
   const breadcrumbs = (
@@ -38,6 +41,7 @@ function AppRoutes() {
         path="/plays/new/from-collection"
         element={<FromCollectionBreadcrumbs />}
       />
+      <Route path="/plays/imports" element={<ScriptImportsPageBreadcrumbs />} />
       <Route path="/my-account" element={<UserAccountPageBreadcrumbs />} />
     </Routes>
   );
@@ -54,6 +58,7 @@ function AppRoutes() {
               path="plays/new/from-collection"
               element={<FromCollection />}
             />
+            <Route path="plays/imports" element={<ScriptImportsPage />} />
             <Route path="my-account/security?" element={<UserAccountPage />} />
             <Route path="signin" element={<Navigate to="/plays" replace />} />
             <Route path="signup" element={<Navigate to="/plays" replace />} />

@@ -164,10 +164,11 @@ export function buildScriptOutline(
       }
       const headingContent = lineContent as HeadingLineContent;
       return acc.concat({
+        lineId: line.id,
         heading: headingContent.text,
         headingLevel: headingContent.headingLevel,
       });
     },
-    [] as { heading: string; headingLevel: number }[],
+    [] as { lineId: string; heading: string; headingLevel: number }[],
   );
 }

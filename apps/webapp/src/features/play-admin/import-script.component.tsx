@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
 import { useEffect, useRef, useState, type DragEvent } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useNavigate, useSearchParams } from 'react-router';
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query';
 import { useTRPC } from '../../trpc';
 import Button from '../../components/button.component';
@@ -563,7 +563,14 @@ type Step =
   | { name: 'name'; importId: string };
 
 function ImportScript() {
-  const [step, setStep] = useState<Step>({ name: 'import' });
+  const [searchParams] = useSearchParams();
+  const resumeImportId = searchParams.get('resume');
+  const [step, setStep] = useState<Step>(() => {
+    if (resumeImportId) {
+      return { name: 'preview', importId: resumeImportId };
+    }
+    return { name: 'import' };
+  });
   const handleImportDone = (importId: string) => {
     setStep((prev) => {
       if (prev.name !== 'import') {
