@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import {
   createContext,
   useContext,
@@ -81,21 +81,23 @@ export function ScriptContextProvider(
     ],
   );
   const trpc = useTRPC();
-  const query = useQuery(
+  const query = useSuspenseQuery(
     trpc.script.latestChanges.queryOptions({
       since: new Date(0),
       uri: props.uri,
       from: props.from,
     }),
   );
+  // Reset state when uri or from changes (navigation between plays)
   useEffect(() => {
-    if (query.isSuccess && query.data) {
-      dispatch({
-        type: 'PROCESS_LATEST_CHANGES_PAYLOAD',
-        payload: query.data,
-      });
-    }
-  }, [query.isSuccess, query.data]); // Lint for missing deps FFS
+    dispatch({ type: 'RESET', payload: initialState });
+  }, [props.uri, props.from]);
+  useEffect(() => {
+    dispatch({
+      type: 'PROCESS_LATEST_CHANGES_PAYLOAD',
+      payload: query.data,
+    });
+  }, [query.data]);
   return (
     <ScriptContext.Provider value={contextValue}>
       {props.children}

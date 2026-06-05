@@ -33,6 +33,10 @@ export interface ScriptState {
 
 export type ScriptAction =
   | {
+      type: 'RESET';
+      payload: ScriptState;
+    }
+  | {
       type: 'PROCESS_LATEST_CHANGES_PAYLOAD';
       payload: AppRouterOutput['script']['latestChanges'];
     }
@@ -834,6 +838,8 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
+    case 'RESET':
+      return action.payload;
     default:
       assertUnreachable(action);
   }
