@@ -11,5 +11,18 @@
 
 .title {
   margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-bottom: 1ch;
+  white-space: nowrap;
 }

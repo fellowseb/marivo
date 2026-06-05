@@ -6,12 +6,15 @@ import {
 } from 'react';
 import styles from './dialog.module.css';
 import classNames from 'classnames';
+import type { IconValue } from './icon.component';
+import Icon from './icon.component';
 
 interface DialogProps {
   title?: string;
   actions: ReactNode;
   onKeyUp?: KeyboardEventHandler;
   customClassNames?: string[];
+  icon?: IconValue;
 }
 
 export function Dialog(props: PropsWithChildren<DialogProps>) {
@@ -27,9 +30,14 @@ export function Dialog(props: PropsWithChildren<DialogProps>) {
       onKeyUp={props.onKeyUp}
       onClick={handleBackgroundClick}
     >
-      {props.title ? <h2 className={styles.title}>{props.title}</h2> : null}
+      <div className={styles.header}>
+        {props.icon ? (
+          <Icon mode="primary" size="large" value={props.icon} />
+        ) : null}
+        {props.title ? <h2 className={styles.title}>{props.title}</h2> : null}
+      </div>
       {props.children}
-      {props.actions}
+      <div className={styles.actions}>{props.actions}</div>
     </dialog>
   );
 }
