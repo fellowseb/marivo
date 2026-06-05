@@ -141,7 +141,7 @@ export class ScriptRepository extends UserRepositoryBase {
       ],
       lastModifiedDate: new Date(scriptRow.last_modified_date),
       linesOrder: scriptRow.lines_order,
-      characters: scriptRow.characters,
+      characters: scriptRow.characters ?? {},
     });
   }
 
@@ -182,8 +182,8 @@ export class ScriptRepository extends UserRepositoryBase {
         linesOrder.push(lineId);
         callback(null, [
           scriptId, // script_id
-          lineId,   // id
-          row[0],   // type
+          lineId, // id
+          row[0], // type
         ]);
       },
     });
@@ -193,20 +193,21 @@ export class ScriptRepository extends UserRepositoryBase {
       objectMode: true,
       transform(row: string[], _encoding, callback) {
         const lineType = row[0];
-        const characters = lineType === 'chartext' ? row[1] : "{}";
-        const headingLevel = lineType === 'heading' ? parseInt(row[2] as string, 10) : 5;
+        const characters = lineType === 'chartext' ? row[1] : '{}';
+        const headingLevel =
+          lineType === 'heading' ? parseInt(row[2] as string, 10) : 5;
         const id = uuidv4();
         callback(null, [
-          scriptId,           // script_id
-          linesOrder[count],  // line_id
-          lineType,             // line_type
-          characters,             // characters
-          headingLevel,             // heading_level
-          row[3],             // text
-          id,  // id
-          'saved_version',    // type
+          scriptId, // script_id
+          linesOrder[count], // line_id
+          lineType, // line_type
+          characters, // characters
+          headingLevel, // heading_level
+          row[3], // text
+          id, // id
+          'saved_version', // type
           'cd39946332fa4324929603d8659de563', // checksum
-          1,                  // version
+          1, // version
         ]);
         count++;
       },
@@ -223,7 +224,7 @@ export class ScriptRepository extends UserRepositoryBase {
       copyLinesQuery,
       {
         end: true,
-      }
+      },
     );
 
     // Insert lines contexts
@@ -254,7 +255,7 @@ export class ScriptRepository extends UserRepositoryBase {
       copyLinesContentsQuery,
       {
         end: true,
-      }
+      },
     );
     // Update lines_order column in script
     await this.sql`
