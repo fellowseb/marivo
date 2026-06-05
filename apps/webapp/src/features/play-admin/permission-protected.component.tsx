@@ -63,7 +63,7 @@ function PermissionProtected(props: PropsWithChildren) {
       });
     }
   }, [hasPermission]);
-  return hasPermission ? props.children : null;
+  return hasPermission ? props.children : 'no perm';
 }
 
 export default PermissionProtected;
