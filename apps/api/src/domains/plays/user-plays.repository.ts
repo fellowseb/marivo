@@ -341,6 +341,44 @@ export class UserPlaysRepository extends UserRepositoryBase {
     }
     return Result.ok(playRow.script_id);
   }
+
+  async deletePlay(params: { uri: string }): Promise<Result<undefined, PlayNotFound>> {
+    const result = await this.checkPlayAccess({ uri: params.uri });
+    if (result.isFailure()) {
+      return result as Result<undefined, PlayNotFound>;
+    }
+    const [playRow] = await this.sql<{ user_role: 'owner' | 'participant' }[]>`
+        SELECT user_role
+        FROM user_plays_view
+        WHERE user_id = ${this.userId()} AND uri = ${params.uri};
+    `;
+    if (!playRow || playRow.user_role !== 'owner') {
+      return Result.failure(new PlayNotFound(params.uri));
+    }
+    const [playIdRow] = await this.sql<{ id: number; script_id: number }[]>`
+        SELECT id, script_id
+        FROM plays
+        WHERE uri = ${params.uri};
+    `;
+    if (!playIdRow) {
+      return Result.failure(new PlayNotFound(params.uri));
+    }
+    const playId = playIdRow.id;
+    const scriptId = playIdRow.script_id;
+    await this.sql`
+      DELETE FROM users_in_plays WHERE play_id = ${playId};
+    `;
+    await this.sql`
+      DELETE FROM roles WHERE play_id = ${playId};
+    `;
+    await this.sql`
+      DELETE FROM plays WHERE id = ${playId};
+    `;
+    await this.sql`
+      DELETE FROM scripts WHERE id = ${scriptId};
+    `;
+    return Result.ok(undefined);
+  }
 }
 
 export class RecordNotFound extends Error {

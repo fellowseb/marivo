@@ -14,6 +14,7 @@ import {
   CreatePlayUseCaseInputSchema,
   CreatePlayUseCaseOutputSchema,
 } from './create-play.use-case.ts';
+import { DeletePlayUseCaseInputSchema } from './delete-play.use-case.ts';
 import {
   PlayDetailsUseCaseInputSchema,
   PlayDetailsUseCaseOutputSchema,
@@ -56,6 +57,10 @@ export default router({
     .input(CreatePlayUseCaseInputSchema)
     .output(CreatePlayUseCaseOutputSchema)
     .mutation(handleUseCase(providers.CreatePlayUseCase)),
+  delete: publicProcedure
+    .input(DeletePlayUseCaseInputSchema)
+    .output(z.undefined())
+    .mutation(handleUseCase(providers.DeletePlayUseCase)),
   createFromImport: publicProcedure
     .input(CreatePlayFromImportUseCaseInputSchema)
     .output(CreatePlayFromImportUseCaseOutputSchema)

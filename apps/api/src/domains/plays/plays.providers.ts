@@ -4,6 +4,7 @@ import { AppError } from '../../shared/error.ts';
 import type { Provider } from '../../shared/provider.ts';
 import { UserContextService } from '../../shared/use-case.ts';
 import CreatePlayUseCase from './create-play.use-case.ts';
+import { DeletePlayUseCase } from './delete-play.use-case.ts';
 import { GetAllPlaysUseCase } from './get-all-plays.use-case.ts';
 import { RespondToInviteUseCase } from './respond-to-invite.use-case.ts';
 import { UserInvitesRepository } from './user-invites.repository.ts';
@@ -95,6 +96,16 @@ export const providers = {
       );
     },
   } as Provider<CreatePlayUseCase>,
+  DeletePlayUseCase: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      return new DeletePlayUseCase(
+        userContextService,
+        playsRepository,
+      );
+    },
+  } as Provider<DeletePlayUseCase>,
   PlayDetailsUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
