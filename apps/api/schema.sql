@@ -42,7 +42,8 @@ CREATE TABLE scripts (
 CREATE TABLE lines (
     id                      uuid            NOT NULL,
     script_id               integer         REFERENCES scripts(id)
-                                            NOT NULL,
+                                            NOT NULL
+                                            ON DELETE CASCADE,
     type                    line_type       NOT NULL,
     last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
     PRIMARY KEY (id, script_id)
@@ -51,7 +52,8 @@ CREATE TABLE lines (
 CREATE TABLE lines_contents (
     id                      uuid            NOT NULL,
     script_id               integer         REFERENCES scripts(id)
-                                            NOT NULL,
+                                            NOT NULL
+                                            ON DELETE CASCADE,
     type                    line_contents_type NOT NULL,
     line_id                 uuid            NOT NULL,
     line_type               line_type       NOT NULL,
