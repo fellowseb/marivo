@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
-import { useEffect, useRef, useState, type DragEvent } from 'react';
+import { Suspense, useEffect, useRef, useState, type DragEvent } from 'react';
 import { NavLink, useNavigate, useSearchParams } from 'react-router';
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query';
 import { useTRPC } from '../../trpc';
@@ -9,6 +9,9 @@ import Icon from '../../components/icon.component';
 import FlowStep from '../../components/flow-step.component';
 import Admonition from '../../components/admonition.component';
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
+import DotsLoader from '../../components/dots-loader.component';
+import PageNotFound from '../../components/page-not-found.component';
+import ErrorBoundary from '../../components/error-boundary.component';
 import styles from './import-script.module.css';
 import { assertUnreachable } from '@marivo/utils';
 import Script from '../script/script.component';
@@ -619,12 +622,29 @@ function ImportScript() {
       return <ImportStep onImportDone={handleImportDone} />;
     case 'preview':
       return (
-        <ScriptContextProvider uri={step.importId} from="import">
-          <PreviewStep
-            onBack={handleReviewBack}
-            onReviewDone={handleReviewDone}
-          />
-        </ScriptContextProvider>
+        <ErrorBoundary fallback={<PageNotFound />}>
+          <Suspense
+            fallback={
+              <div
+                style={{
+                  flex: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <DotsLoader size="xlarge" />
+              </div>
+            }
+          >
+            <ScriptContextProvider uri={step.importId} from="import">
+              <PreviewStep
+                onBack={handleReviewBack}
+                onReviewDone={handleReviewDone}
+              />
+            </ScriptContextProvider>
+          </Suspense>
+        </ErrorBoundary>
       );
     case 'name':
       return <NameStep onBack={handleNameBack} importId={step.importId} />;
