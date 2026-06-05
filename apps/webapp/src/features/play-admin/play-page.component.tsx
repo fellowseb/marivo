@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { NavLink, Route, Routes, useNavigate, useParams } from 'react-router';
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
 import PlayPageLayout from '../../layouts/play-page-layout.component';
 import DotsLoader from '../../components/dots-loader.component';
 import PageNotFound from '../../components/page-not-found.component';
+import ErrorBoundary from '../../components/error-boundary.component';
 import ScriptTab from '../script-edition/script-tab.component';
 import MemorizeTab from '../lines-memorization/memorize-tab.component';
 import PlaySettingsTab from '../play-settings/play-settings-tab.component';
@@ -27,6 +28,7 @@ import styles from './play-page.module.css';
 function PlayPageTitle() {
   const play = usePlayContext();
   if (play === null) {
+    // This shouldn't happen with suspense queries, but keep as fallback
     return <DotsLoader />;
   }
   return play.match({
@@ -94,10 +96,12 @@ export function useNavigateToDefaultPlaySubpath(
       break;
     }
   }
+  console.log(playContext, redirection, opts.activate, opts.fromIndex);
   const navigate = useNavigate();
   useEffect(() => {
     if (opts.activate && playContext) {
       if (redirection) {
+        console.log('redir 1');
         navigate(
           {
             pathname: `${opts.fromIndex ? '.' : '..'}/${redirection}`,
@@ -105,12 +109,13 @@ export function useNavigateToDefaultPlaySubpath(
           { relative: 'path' },
         );
       } else {
+        console.log('redir 2');
         navigate({
           pathname: '/',
         });
       }
     }
-  }, [playContext, redirection, opts.activate]);
+  }, [playContext, redirection, opts.activate, opts.fromIndex]);
 }
 
 function NavigateToDefaultSubpath() {
@@ -119,7 +124,18 @@ function NavigateToDefaultSubpath() {
     activate: true,
     fromIndex: true,
   });
-  return null;
+  return (
+    <div
+      style={{
+        flex: '1',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <DotsLoader size="xlarge" />
+    </div>
+  );
 }
 
 function PlayPage() {
@@ -129,70 +145,89 @@ function PlayPage() {
     return null;
   }
   return (
-    <PlayContextProvider uri={uri}>
-      <ScriptTabToolbarContextProvider>
-        <ScriptUndoRedoContextProvider>
-          <ScriptContextProvider uri={uri} from="play">
-            <Routes>
-              <Route path="*" element={<PlayPageLayout />}>
-                <Route
-                  path={PLAY_SUB_ROUTES_PATHS.script}
-                  element={
-                    <PermissionProtected>
-                      <ScriptEditionContextProvider>
-                        <ScriptTab />
-                      </ScriptEditionContextProvider>
-                    </PermissionProtected>
-                  }
-                />
-                <Route
-                  path={PLAY_SUB_ROUTES_PATHS.stagingNotes}
-                  element={
-                    <PermissionProtected>
-                      <StagingDirectionsTab />
-                    </PermissionProtected>
-                  }
-                />
-                <Route
-                  path={PLAY_SUB_ROUTES_PATHS.blocking}
-                  element={
-                    <PermissionProtected>
-                      <BlockingTab />
-                    </PermissionProtected>
-                  }
-                />
-                <Route
-                  path={PLAY_SUB_ROUTES_PATHS.memorize}
-                  element={
-                    <PermissionProtected>
-                      <MemorizeTab />
-                    </PermissionProtected>
-                  }
-                />
-                <Route
-                  path={PLAY_SUB_ROUTES_PATHS.planning}
-                  element={
-                    <PermissionProtected>
-                      <PlanningTab />
-                    </PermissionProtected>
-                  }
-                />
-                <Route
-                  path={PLAY_SUB_ROUTES_PATHS.settings}
-                  element={
-                    <PermissionProtected>
-                      <PlaySettingsTab />
-                    </PermissionProtected>
-                  }
-                />
-                <Route index element={<NavigateToDefaultSubpath />} />
-                <Route path="*" element={<PageNotFound />} />
-              </Route>
-            </Routes>
-          </ScriptContextProvider>
-        </ScriptUndoRedoContextProvider>
-      </ScriptTabToolbarContextProvider>
-    </PlayContextProvider>
+    <>
+      <ErrorBoundary fallback={<PageNotFound />}>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                flex: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <DotsLoader size="xlarge" />
+            </div>
+          }
+        >
+          <PlayContextProvider uri={uri}>
+            <ScriptTabToolbarContextProvider>
+              <ScriptUndoRedoContextProvider>
+                <ScriptContextProvider uri={uri} from="play">
+                  <Routes>
+                    <Route path="*" element={<PlayPageLayout />}>
+                      <Route
+                        path={PLAY_SUB_ROUTES_PATHS.script}
+                        element={
+                          <PermissionProtected>
+                            <ScriptEditionContextProvider>
+                              <ScriptTab />
+                            </ScriptEditionContextProvider>
+                          </PermissionProtected>
+                        }
+                      />
+                      <Route
+                        path={PLAY_SUB_ROUTES_PATHS.stagingNotes}
+                        element={
+                          <PermissionProtected>
+                            <StagingDirectionsTab />
+                          </PermissionProtected>
+                        }
+                      />
+                      <Route
+                        path={PLAY_SUB_ROUTES_PATHS.blocking}
+                        element={
+                          <PermissionProtected>
+                            <BlockingTab />
+                          </PermissionProtected>
+                        }
+                      />
+                      <Route
+                        path={PLAY_SUB_ROUTES_PATHS.memorize}
+                        element={
+                          <PermissionProtected>
+                            <MemorizeTab />
+                          </PermissionProtected>
+                        }
+                      />
+                      <Route
+                        path={PLAY_SUB_ROUTES_PATHS.planning}
+                        element={
+                          <PermissionProtected>
+                            <PlanningTab />
+                          </PermissionProtected>
+                        }
+                      />
+                      <Route
+                        path={PLAY_SUB_ROUTES_PATHS.settings}
+                        element={
+                          <PermissionProtected>
+                            <PlaySettingsTab />
+                          </PermissionProtected>
+                        }
+                      />
+                      <Route index element={<NavigateToDefaultSubpath />} />
+                      <Route path="*" element={<PageNotFound />} />
+                    </Route>
+                  </Routes>
+                </ScriptContextProvider>
+              </ScriptUndoRedoContextProvider>
+            </ScriptTabToolbarContextProvider>
+          </PlayContextProvider>
+        </Suspense>
+      </ErrorBoundary>
+    </>
   );
 }
 

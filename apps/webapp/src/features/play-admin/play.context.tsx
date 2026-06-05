@@ -5,11 +5,9 @@ import {
   useMemo,
   type PropsWithChildren,
 } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { AppRouterOutput } from '@marivo/api';
 import { useTRPC } from '../../trpc';
-import { useNotifications } from '../../components/notifications.context.tsx';
 import { Result } from '@marivo/utils';
 
 export type PlayContextData = AppRouterOutput['plays']['playDetails'];
@@ -30,32 +28,11 @@ export function PlayContextProvider(
   }>,
 ) {
   const { uri, children } = props;
-  const { showNotification } = useNotifications();
   const trpc = useTRPC();
-  const query = useQuery(trpc.plays.playDetails.queryOptions({ uri }));
-  const { data, error } = query;
+  const query = useSuspenseQuery(trpc.plays.playDetails.queryOptions({ uri }));
   const playContextData = useMemo(() => {
-    if (!uri || (error && error.data?.code === 'NOT_FOUND')) {
-      return Result.failure(new PlayNotFound());
-    }
-    if (!data) {
-      return null;
-    }
-    return Result.ok(data);
-  }, [uri, data, error]);
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (query.isError) {
-      if (query.error.data?.code !== 'NOT_FOUND') {
-        showNotification({
-          autoHide: true,
-          message: 'Something unexpected happened',
-          type: 'error',
-        });
-        navigate({ pathname: '/' });
-      }
-    }
-  }, [query.isError]);
+    return Result.ok(query.data);
+  }, [query.data]);
   return (
     <PlayContext.Provider value={playContextData}>
       {children}
