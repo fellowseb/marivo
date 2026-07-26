@@ -10,7 +10,7 @@ import PlayPage, {
 } from './features/play-admin/play-page.component';
 import Signin from './features/auth/signin.component';
 import Signup from './features/auth/signup.component';
-import { Show } from "@clerk/react";
+import { Show } from '@clerk/react';
 import UserAccountPage, {
   UserAccountPageBreadcrumbs,
 } from './features/user-account/user-account-page.component';
@@ -29,6 +29,7 @@ import FromCollection, {
 import ScriptImportsPage, {
   ScriptImportsPageBreadcrumbs,
 } from './features/play-admin/script-imports-page.component';
+import { CollectionMetadataContextProvider } from './features/play-admin/collection-metadata.context';
 
 function AppRoutes() {
   const breadcrumbs = (
@@ -48,25 +49,30 @@ function AppRoutes() {
   return (
     <>
       <Show when="signed-in">
-        <Routes>
-          <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
-            <Route path="plays" element={<PlaysPage />} />
-            <Route path="plays/new" element={<NewPlayPage />} />
-            <Route path="plays/new/empty" element={<NewEmptyScript />} />
-            <Route path="plays/new/import" element={<ImportScript />} />
-            <Route
-              path="plays/new/from-collection"
-              element={<FromCollection />}
-            />
-            <Route path="plays/imports" element={<ScriptImportsPage />} />
-            <Route path="my-account/security?" element={<UserAccountPage />} />
-            <Route path="signin" element={<Navigate to="/plays" replace />} />
-            <Route path="signup" element={<Navigate to="/plays" replace />} />
-            <Route index element={<Navigate to="plays" replace />}></Route>
-            <Route path="*" element={<PageNotFound />} />
-          </Route>
-          <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
-        </Routes>
+        <CollectionMetadataContextProvider>
+          <Routes>
+            <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
+              <Route path="plays" element={<PlaysPage />} />
+              <Route path="plays/new" element={<NewPlayPage />} />
+              <Route path="plays/new/empty" element={<NewEmptyScript />} />
+              <Route path="plays/new/import" element={<ImportScript />} />
+              <Route
+                path="plays/new/from-collection"
+                element={<FromCollection />}
+              />
+              <Route path="plays/imports" element={<ScriptImportsPage />} />
+              <Route
+                path="my-account/security?"
+                element={<UserAccountPage />}
+              />
+              <Route path="signin" element={<Navigate to="/plays" replace />} />
+              <Route path="signup" element={<Navigate to="/plays" replace />} />
+              <Route index element={<Navigate to="plays" replace />}></Route>
+              <Route path="*" element={<PageNotFound />} />
+            </Route>
+            <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
+          </Routes>
+        </CollectionMetadataContextProvider>
       </Show>
       <Show when="signed-out">
         <Routes>
