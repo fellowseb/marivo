@@ -19,3 +19,8 @@
   flex: 1 1 0;
   min-width: 25px;
 }
+
+.title {
+  font-weight: bold;
+  margin-bottom: 20px;
+}

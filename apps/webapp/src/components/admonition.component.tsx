@@ -5,6 +5,7 @@ import Icon from './icon.component';
 
 interface AdmonitionProps {
   type: 'info';
+  title?: string;
 }
 
 function Admonition(props: PropsWithChildren<AdmonitionProps>) {
@@ -21,7 +22,10 @@ function Admonition(props: PropsWithChildren<AdmonitionProps>) {
         value="info"
         customClassNames={[styles.icon]}
       />
-      {props.children}
+      <div>
+        {props.title ? <div className={styles.title}>{props.title}</div> : null}
+        {props.children}
+      </div>
     </p>
   );
 }

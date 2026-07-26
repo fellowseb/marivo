@@ -2,7 +2,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import styles from './flow-step.module.css';
 
 interface FlowStepProps {
-  title: string;
+  title: string | ReactNode;
   Actions?: ReactNode;
   growVertically?: boolean;
 }
