@@ -1,3 +1,27 @@
+INSERT INTO theatrical_genres (
+    key
+) VALUES ('comedy'), ('drama'), ('tragedy'), ('tragicomedy'), ('vaudeville');
+
+INSERT INTO theatrical_periods (
+    key
+) VALUES ('ancient_greek'),
+('ancient_roman'),
+('medieval'),
+('renaissance'),
+('elizabethan'),
+('neoclassical'),
+('xviiith'),
+('romanticism'),
+('realism'),
+('naturalism'),
+('symbolism'),
+('modernism'),
+('expressionism'),
+('theatre_of_the_absurd'),
+('epic_theatre'),
+('postmodern'),
+('contemporary');
+
 INSERT INTO users (
     clerk_id,
     username,

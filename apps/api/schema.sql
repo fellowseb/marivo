@@ -14,6 +14,8 @@ DROP TYPE IF EXISTS line_type;
 DROP TYPE IF EXISTS line_contents_type;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS public_domain_plays;
+DROP TABLE IF EXISTS theatrical_genres;
+DROP TABLE IF EXISTS theatrical_periods;
 
 CREATE TABLE users (
     id                      integer         PRIMARY KEY
@@ -31,8 +33,7 @@ CREATE TYPE line_type AS ENUM ('heading', 'freetext', 'chartext');
 CREATE TYPE line_contents_type AS ENUM ('saved_version', 'shared_draft');
 
 CREATE TABLE scripts (
-    id                      integer         PRIMARY KEY
-                                            GENERATED ALWAYS AS IDENTITY,
+    id                      integer         PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     checksum                varchar(32)     NOT NULL, --MD5 hash
     last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
     lines_order             uuid[]          NOT NULL DEFAULT '{}',
@@ -41,9 +42,7 @@ CREATE TABLE scripts (
 
 CREATE TABLE lines (
     id                      uuid            NOT NULL,
-    script_id               integer         REFERENCES scripts(id)
-                                            NOT NULL
-                                            ON DELETE CASCADE,
+    script_id integer REFERENCES scripts(id) ON DELETE CASCADE NOT NULL,
     type                    line_type       NOT NULL,
     last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
     PRIMARY KEY (id, script_id)
@@ -51,9 +50,7 @@ CREATE TABLE lines (
  
 CREATE TABLE lines_contents (
     id                      uuid            NOT NULL,
-    script_id               integer         REFERENCES scripts(id)
-                                            NOT NULL
-                                            ON DELETE CASCADE,
+    script_id               integer         REFERENCES scripts ON DELETE CASCADE NOT NULL,
     type                    line_contents_type NOT NULL,
     line_id                 uuid            NOT NULL,
     line_type               line_type       NOT NULL,
@@ -64,10 +61,21 @@ CREATE TABLE lines_contents (
     last_modified_date      timestamp(0)    DEFAULT now() NOT NULL,
     checksum                varchar(32)     NOT NULL, --MD5 hash
     version                 integer         ,
-    author_id               integer         REFERENCES users(id)
-                                            ON DELETE SET NULL,
+    author_id               integer         REFERENCES users(id) ON DELETE SET NULL,
     PRIMARY KEY (id, script_id),
     FOREIGN KEY (line_id, script_id) REFERENCES lines(id, script_id)
+);
+
+CREATE TABLE theatrical_genres (
+    key                      varchar(50)    PRIMARY KEY
+                                            NOT NULL
+                                            UNIQUE
+);
+
+CREATE TABLE theatrical_periods (
+    key                      varchar(50)    PRIMARY KEY
+                                            NOT NULL
+                                            UNIQUE
 );
 
 CREATE TABLE public_domain_plays (
@@ -78,7 +86,12 @@ CREATE TABLE public_domain_plays (
     title                   varchar(100)    NOT NULL,
     author                  varchar(64)     NOT NULL,
     lang                    varchar(2)      NOT NULL,
-    script                  text            NOT NULL
+    number_of_roles         integer         ,
+    number_of_male_roles    integer         ,
+    number_of_female_roles  integer         ,
+    genre                   varchar(50)     REFERENCES theatrical_genres(key),
+    period                  varchar(50)     REFERENCES theatrical_periods(key),
+    script_id               integer         REFERENCES scripts(id) NOT NULL
 );
 
 CREATE TABLE plays (
@@ -89,8 +102,7 @@ CREATE TABLE plays (
     title                   varchar(100)    NOT NULL,
     created_date            timestamp(0)    NOT NULL 
                                             DEFAULT now(),
-    creator_id              integer         REFERENCES users(id) 
-                                            ON DELETE SET NULL,
+    creator_id              integer         REFERENCES users(id) ON DELETE SET NULL,
     owner_id                integer         NOT NULL
                                             REFERENCES users(id),
     last_modified_date      timestamp(0)    NOT NULL 
@@ -133,16 +145,10 @@ CREATE TABLE invites (
 );
 
 CREATE TABLE users_in_plays (
-    user_id                 integer         NOT NULL
-                                            REFERENCES users(id)
-                                            ON DELETE CASCADE,
-    play_id                 integer         NOT NULL 
-                                            REFERENCES plays(id)
-                                            ON DELETE CASCADE,
-    role_id                 integer         REFERENCES roles(id)
-                                            ON DELETE SET NULL,
-    joined_date             timestamp(0)    NOT NULL
-                                            DEFAULT now(),
+    user_id                 integer         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    play_id                 integer         NOT NULL REFERENCES plays(id) ON DELETE CASCADE,
+    role_id                 integer         REFERENCES roles(id) ON DELETE SET NULL,
+    joined_date             timestamp(0)    NOT NULL DEFAULT now(),
 
     CONSTRAINT one_user_to_play_assoc UNIQUE (user_id, play_id)
 );
@@ -156,16 +162,22 @@ CREATE TYPE script_import_status_enum AS ENUM (
 );
 
 CREATE TABLE script_imports (
-    id                      varchar(36)          NOT NULL
-                                                 UNIQUE,
+    id                      varchar(36)          NOT NULL UNIQUE,
     status                  script_import_status_enum   NOT NULL,
     files                   jsonb                NOT NULL,
     error                   varchar              ,
-    result_script_id        integer              REFERENCES scripts(id)
-                                                 ON DELETE SET NULL,
-    user_id                 integer              NOT NULL
-                                                 REFERENCES users(id)
-                                                 ON DELETE CASCADE
+    result_script_id        integer              REFERENCES scripts(id) ON DELETE SET NULL,
+    result_metadata_title   text              ,
+    result_metadata_author  text              ,
+    result_metadata_language varchar(2)          ,
+    result_metadata_characters jsonb             ,
+    result_metadata_number_of_roles         integer       ,
+    result_metadata_number_of_male_roles    integer       ,
+    result_metadata_number_of_female_roles  integer       ,
+    result_metadata_genre   varchar(50)  REFERENCES theatrical_genres(key),
+    result_metadata_period  varchar(50)  REFERENCES theatrical_periods(key),
+    result_metadata_suggestions  jsonb       ,
+    user_id                 integer              NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE VIEW user_plays_view AS
