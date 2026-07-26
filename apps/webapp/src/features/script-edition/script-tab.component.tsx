@@ -17,6 +17,7 @@ import ScriptSearchPanel from './script-search-panel.component';
 import { useScriptTabToolbarContext } from './script-tab-toolbar.context';
 import styles from './script-tab.module.css';
 import ScriptNavigatePanel from './script-navigate-panel.component';
+import ScriptCharactersPanel from './script-characters-panel.component.tsx';
 import {
   getLineContentForDisplayWithInfo,
   getLinePreviousVersions,
@@ -49,8 +50,10 @@ function ScriptTab() {
   const {
     showSearchPanel,
     showNavigatePanel,
+    showCharactersPanel,
     setShowSearchPanel,
     setShowNavigatePanel,
+    setShowCharactersPanel,
   } = useScriptTabToolbarContext();
   const menuLine = lineIdForMenu
     ? scriptContext?.lines.get(lineIdForMenu)
@@ -219,13 +222,17 @@ function ScriptTab() {
   const handleCloseNavigatePanel = () => {
     setShowNavigatePanel(false);
   };
+  const handleCloseCharactersPanel = () => {
+    setShowCharactersPanel(false);
+  };
   const showModalDialog =
     menuLine &&
     (showChangeHeadingDialog ||
       showChangeCharactersDialog ||
       showSharedDraftsDialog ||
       showPreviousVersionsDialog);
-  const showPanels = showSearchPanel || showNavigatePanel;
+  const showPanels =
+    showSearchPanel || showNavigatePanel || showCharactersPanel;
   const sharedDraftContents =
     (showSharedDraftsDialog &&
       menuLine &&
@@ -331,6 +338,12 @@ function ScriptTab() {
             <ScriptNavigatePanel
               onClose={handleCloseNavigatePanel}
               outline={scriptContext?.outline ?? []}
+            />
+          ) : null}
+          {showCharactersPanel ? (
+            <ScriptCharactersPanel
+              onClose={handleCloseCharactersPanel}
+              characters={scriptContext?.characters ?? {}}
             />
           ) : null}
         </div>

@@ -3,7 +3,7 @@ import { useScriptTabToolbarContext } from './script-tab-toolbar.context';
 import { useScriptUndoRedo } from '../script/script-undo-redo.context';
 
 export function ScriptToolbar() {
-  const { setShowNavigatePanel, setShowSearchPanel } =
+  const { setShowNavigatePanel, setShowSearchPanel, setShowCharactersPanel } =
     useScriptTabToolbarContext();
   const { undo, getUndoItems, redo, getRedoItems } = useScriptUndoRedo();
   const handleUndo = () => undo(1);
@@ -44,6 +44,15 @@ export function ScriptToolbar() {
             disabled: false,
             onAction: () => {
               setShowNavigatePanel((prev) => !prev);
+            },
+          },
+          {
+            id: 'script-characters',
+            label: 'characters',
+            icon: 'characterLine',
+            disabled: false,
+            onAction: () => {
+              setShowCharactersPanel((prev) => !prev);
             },
           },
         ],

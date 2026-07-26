@@ -12,6 +12,8 @@ interface ScriptTabToolbarContext {
   setShowSearchPanel: Dispatch<SetStateAction<boolean>>;
   showNavigatePanel: boolean;
   setShowNavigatePanel: Dispatch<SetStateAction<boolean>>;
+  showCharactersPanel: boolean;
+  setShowCharactersPanel: Dispatch<SetStateAction<boolean>>;
 }
 
 const ScriptTabToolbarContext = createContext<ScriptTabToolbarContext>({
@@ -19,11 +21,14 @@ const ScriptTabToolbarContext = createContext<ScriptTabToolbarContext>({
   setShowSearchPanel: () => {},
   showNavigatePanel: false,
   setShowNavigatePanel: () => {},
+  showCharactersPanel: false,
+  setShowCharactersPanel: () => {},
 });
 
 export function ScriptTabToolbarContextProvider(props: PropsWithChildren) {
   const [showSearchPanel, setShowSearchPanel] = useState(false);
   const [showNavigatePanel, setShowNavigatePanel] = useState(false);
+  const [showCharactersPanel, setShowCharactersPanel] = useState(false);
   return (
     <ScriptTabToolbarContext.Provider
       value={{
@@ -31,6 +36,8 @@ export function ScriptTabToolbarContextProvider(props: PropsWithChildren) {
         setShowSearchPanel,
         showNavigatePanel,
         setShowNavigatePanel,
+        showCharactersPanel,
+        setShowCharactersPanel,
       }}
     >
       {props.children}
