@@ -3,6 +3,7 @@ import { HeaderBreadcrumbs } from '../../layouts/header.component';
 import FlowStep from '../../components/flow-step.component';
 import OngoingImportsNotification from './ongoing-imports-notification.component';
 import styles from './new-play-page.module.css';
+import { useCollectionMetadataContext } from './collection-metadata.context';
 
 export function NewPlayPageBreadcrumbs() {
   return (
@@ -22,6 +23,7 @@ export function NewPlayPageBreadcrumbs() {
 }
 
 export function NewPlayPage() {
+  const { count } = useCollectionMetadataContext();
   return (
     <FlowStep title="Create a new play project">
       <OngoingImportsNotification />
@@ -42,8 +44,8 @@ export function NewPlayPage() {
         }}
       >
         <div className={styles.desc}>
-          Pick from a collection of <strong>1542 scripts</strong> in the Public
-          Domain.
+          Pick from a collection of <strong>{count} scripts</strong> in the
+          Public Domain.
         </div>
         <div className={styles.subdesc}>
           A large selection of the most famous playwrights for FREE !

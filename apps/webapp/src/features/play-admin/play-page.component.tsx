@@ -96,12 +96,10 @@ export function useNavigateToDefaultPlaySubpath(
       break;
     }
   }
-  console.log(playContext, redirection, opts.activate, opts.fromIndex);
   const navigate = useNavigate();
   useEffect(() => {
     if (opts.activate && playContext) {
       if (redirection) {
-        console.log('redir 1');
         navigate(
           {
             pathname: `${opts.fromIndex ? '.' : '..'}/${redirection}`,
@@ -109,7 +107,6 @@ export function useNavigateToDefaultPlaySubpath(
           { relative: 'path' },
         );
       } else {
-        console.log('redir 2');
         navigate({
           pathname: '/',
         });

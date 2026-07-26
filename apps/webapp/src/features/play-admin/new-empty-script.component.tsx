@@ -68,11 +68,15 @@ function NewEmptyScript() {
       });
     }
   }, [isQuerySuccess, createdUri]);
+  const handlePrevious = () => {
+    navigate('/plays/new');
+  };
   return (
     <FlowStep
       title="Create ▶  Name your play"
       Actions={
         <>
+          <Button icon="previous" onClick={handlePrevious} />
           <Button
             disabled={!createReady}
             icon={
