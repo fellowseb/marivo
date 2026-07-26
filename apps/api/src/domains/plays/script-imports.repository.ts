@@ -1,9 +1,10 @@
 import { Result } from '@marivo/utils';
-import { Record } from '../../shared/record.ts';
+import { Record as DbRecord } from '../../shared/record.ts';
 import { AppError } from '../../shared/error.ts';
 import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
 import type {
   Files,
+  Language,
   ScriptImport,
   ScriptImportForProcessing,
   ScriptImportStatus,
@@ -18,14 +19,46 @@ export class ScriptImportNotFound extends AppError {
 interface GetScriptImportsRecordValues {
   id: string;
   status: string;
+  result_metadata_title: string;
+  result_metadata_author: string;
+  result_metadata_language: string;
+  result_metadata_characters: any[];
+  result_metadata_number_of_roles: number;
+  result_metadata_number_of_male_roles: number;
+  result_metadata_number_of_female_roles: number;
+  result_metadata_genre?: string | undefined;
+  result_metadata_period?: string | undefined;
+  result_metadata_suggestions?: Record<string, string> | undefined;
 }
 
-export class GetScriptImportsRecord extends Record<GetScriptImportsRecordValues> {
+export class GetScriptImportsRecord extends DbRecord<GetScriptImportsRecordValues> {
   toModel(): ScriptImport {
-    return {
-      id: this.get('id'),
-      status: this.get('status') as ScriptImportStatus,
-    };
+    const status = this.get('status') as ScriptImportStatus;
+    return status === 'reviewing'
+      ? {
+          id: this.get('id'),
+          status,
+          metadata: {
+            title: this.get('result_metadata_title'),
+            author: this.get('result_metadata_author'),
+            language: this.get('result_metadata_language'),
+            characters: this.get('result_metadata_characters'),
+            number_of_roles: this.get('result_metadata_number_of_roles'),
+            number_of_male_roles: this.get(
+              'result_metadata_number_of_male_roles',
+            ),
+            number_of_female_roles: this.get(
+              'result_metadata_number_of_female_roles',
+            ),
+            genre: this.get('result_metadata_genre') ?? undefined,
+            period: this.get('result_metadata_period') ?? undefined,
+            suggestions: this.get('result_metadata_suggestions') ?? undefined,
+          },
+        }
+      : {
+          id: this.get('id'),
+          status,
+        };
   }
 }
 
@@ -33,7 +66,7 @@ interface GetScriptImportFilesForProcessingRecordValues {
   files: any;
 }
 
-export class GetScriptImportFilesForProcessingRecord extends Record<GetScriptImportFilesForProcessingRecordValues> {
+export class GetScriptImportFilesForProcessingRecord extends DbRecord<GetScriptImportFilesForProcessingRecordValues> {
   toModel(): ScriptImportForProcessing {
     return {
       files: this.get('files'),
@@ -192,7 +225,17 @@ export class ScriptImportsRepository extends UserRepositoryBase {
       await this.sql<GetScriptImportsRecordValues[]>`
         SELECT
           id,
-          status
+          status,
+          result_metadata_title,
+          result_metadata_author,
+          result_metadata_language,
+          result_metadata_characters,
+          result_metadata_number_of_roles,
+          result_metadata_number_of_male_roles,
+          result_metadata_number_of_female_roles,
+          result_metadata_genre,
+          result_metadata_period,
+          result_metadata_suggestions
         FROM script_imports
         WHERE (
           user_id = ${this.userId()}
@@ -231,7 +274,17 @@ export class ScriptImportsRepository extends UserRepositoryBase {
     const [record] = await this.sql<GetScriptImportsRecordValues[]>`
         SELECT
           id,
-          status
+          status,
+          result_metadata_title,
+          result_metadata_author,
+          result_metadata_language,
+          result_metadata_characters,
+          result_metadata_number_of_roles,
+          result_metadata_number_of_male_roles,
+          result_metadata_number_of_female_roles,
+          result_metadata_genre,
+          result_metadata_period,
+          result_metadata_suggestions
         FROM script_imports
         WHERE
           id = ${id};
@@ -258,10 +311,33 @@ export class ScriptImportsRepository extends UserRepositoryBase {
   async setScriptImportSuccess(params: {
     importId: string;
     scriptId: number;
+    metadata: {
+      title: string;
+      author: string;
+      genre?: string | undefined;
+      period?: string | undefined;
+      language: Language | undefined;
+      numberOfRoles: number;
+      numberOfMaleRoles: number;
+      numberOfFemaleRoles: number;
+      suggestions?: Record<string, string>;
+      characters: any[];
+    };
   }): Promise<void> {
     await this.sql`
       UPDATE script_imports
-        SET status = 'reviewing'::script_import_status_enum, result_script_id = ${params.scriptId}
+        SET status = 'reviewing'::script_import_status_enum,
+          result_script_id = ${params.scriptId},
+          result_metadata_title = ${params.metadata.title},
+          result_metadata_author = ${params.metadata.author},
+          result_metadata_language = ${params.metadata.language ?? null},
+          result_metadata_characters = ${params.metadata.characters ? this.sql.json(params.metadata.characters) : null},
+          result_metadata_number_of_roles = ${params.metadata.numberOfRoles},
+          result_metadata_number_of_male_roles = ${params.metadata.numberOfMaleRoles},
+          result_metadata_number_of_female_roles = ${params.metadata.numberOfFemaleRoles},
+          result_metadata_genre = ${params.metadata.genre ?? null},
+          result_metadata_period = ${params.metadata.period ?? null},
+          result_metadata_suggestions = ${params.metadata.suggestions ? this.sql.json(params.metadata.suggestions) : null}
         WHERE id = ${params.importId};
     `;
   }
@@ -277,9 +353,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
       `;
   }
 
-  async setScriptImportDone(params: {
-    importId: string;
-  }): Promise<void> {
+  async setScriptImportDone(params: { importId: string }): Promise<void> {
     await this.sql`
       UPDATE script_imports
         SET status = 'done'::script_import_status_enum

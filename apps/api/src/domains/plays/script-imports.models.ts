@@ -5,10 +5,27 @@ export type ScriptImportStatus =
   | 'done'
   | 'error';
 
-export interface ScriptImport {
-  id: string;
-  status: ScriptImportStatus;
-}
+export type ScriptImport =
+  | {
+      id: string;
+      status: Exclude<ScriptImportStatus, 'reviewing'>;
+    }
+  | {
+      id: string;
+      status: ScriptImportStatus & 'reviewing';
+      metadata: {
+        title: string;
+        author: string;
+        language: string;
+        characters: any[];
+        number_of_roles: number;
+        number_of_male_roles: number;
+        number_of_female_roles: number;
+        genre?: string | undefined;
+        period?: string | undefined;
+        suggestions?: Record<string, string> | undefined;
+      };
+    };
 
 export interface ScriptImportForProcessing {
   files: Files;
@@ -29,3 +46,7 @@ export interface Files {
         status: 'waiting' | 'in-progress' | 'ready';
       };
 }
+
+export type Language = 'fr' | 'en';
+
+export const Languages: Language[] = ['fr', 'en'];
