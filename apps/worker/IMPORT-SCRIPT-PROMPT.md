@@ -42,11 +42,13 @@ Analyse le morceau de script de théâtre suivant et retourne un texte avec deux
 Le contenu du JSON est à mettre entre les triples backticks.
 Les champs du JSON sont les suivants:
 
-- "title": str, le tire de la pièce
-- "author": str, le nom de l'auteur de la pièce
-- "genre": str, le genre de la pièce
-- "language": str, le code ISO en 2 lettres de la langue en minuscule.
-- "characters": [{{"id": str, "name": str, "description": str, "genre": str}}], avec "genre" valant "male" ou "female", et avec "id" étant l'ID généré pour le personne dans les répliques.
+- "title": str, le tire de la pièce. Exemple: "Roméo et Juliette".
+- "author": str, le nom de l'auteur de la pièce. Exemple: "William Shakespeare".
+- "genre": str, le genre de la pièce. Les valeurs connues sont: {theatrical_genres}. Proposer une autre valeur seulement si aucune ne correspond.
+- "period": str, la période historique de la pièce. Les valeurs connues sont: {theatrical_periods}. Proposer une autre valeur seulement si aucune ne correspond.
+- "language": str, le code ISO en 2 lettres de la langue en minuscule. Les valeurs connues sont: "fr", "en". Proposer une autre valeur seulement si aucune ne correspond.
+- "characters": la liste des personnages ayant AU MOINS UNE RÉPLIQUE dans la texte parsé. Format: [{{"id": str, "name": str, "description": str, "genre": str}}], avec "genre" valant "male" ou "female", et avec "id" étant l'ID généré pour le personnage dans les répliques.
+
   Pour construire ces données, partir des metadata parsées jusque là passées en INPUT, et les enrichir à partir du contenu de ce chunk.
   Si un personnage de ce chunk a déjà une entrée dans le champs "characters": réutiliser son "id" au lieu d'en générer un nouveau.
 
@@ -88,6 +90,8 @@ ATTENTION, bien vérifier que les identiants des personnages soient renseignés 
 ATTENTION, chaque ligne du CSV doit contenir EXACTEMENT le même nombre de champs, donc le même nombre de séparateur.
 ATTENTION, termine CHAQUE LIGNE du CSV avec un retour à la ligne, même la dernière.
 ATTENTION à ne jamais créer, enlever ou modifier du texte. Ici on fait de la retranscription d'un modèle à un autre, on ne crée rien.
+ATTENTION, chaque entrée personnage dans le tableau de `characters` doit avoir une réplique dans le texte donné. Il est possible que le script contienne une liste de personnages dans le prélude, avant la première scène, mais que le script soit incomplet. Dans ce cas il ne faut PAS inclure les personnages qui n'ont pas de réplique.
+ATTENTION à ne pas rajouter dans le tableau de `characters` des noms qui sont seulement évoqués dans les répliques.
 
 # VERIFICATION POST-TRAITEMENT
 

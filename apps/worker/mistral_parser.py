@@ -41,7 +41,7 @@ class MistralParser:
             model_id="mistral-large-latest")
         print(model_info.max_context_length)  # → te dit la limite en to
 
-    def parse_script(self, script_text):
+    def parse_script(self, script_text, theatrical_genres, theatrical_periods):
         try:
             prompt = ""
             with open('IMPORT-SCRIPT-PROMPT.md', 'r', encoding='utf-8') as f:
@@ -62,6 +62,8 @@ class MistralParser:
                             chunk_num=chunk_count,
                             chunk_num_total=len(chunks),
                             metadata=all_metadata,
+                            theatrical_genres=theatrical_genres,
+                            theatrical_periods=theatrical_periods,
                         ),
                     }],
                     stream=False,

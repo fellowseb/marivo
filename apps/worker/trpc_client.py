@@ -34,7 +34,7 @@ class TRPCMethod(str, Enum):
 
 
 class TRPCClient:
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str, use_superjson: bool = False):
         """
         Initialize the tRPC client.
 
@@ -44,6 +44,7 @@ class TRPCClient:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
+        self.use_superjson = use_superjson
 
     def _request(
         self,
@@ -74,7 +75,10 @@ class TRPCClient:
 
         url = f"{self.base_url}/{procedure}"
         try:
-            response = self.session.post(url, json=payload)
+            if method is TRPCMethod.QUERY:
+                response = self.session.get(url)
+            else:
+                response = self.session.post(url, json=payload)
             response.raise_for_status()  # Raise HTTP errors
 
             data = response.json()
@@ -82,6 +86,7 @@ class TRPCClient:
                 error = data["error"]
                 raise TRPCError(error.get("message", "Unknown error"),
                                 error.get("code", -1))
+            return data
         except Exception as err:
             print("TRPC call failed: {}".format(err))
             raise err
@@ -98,7 +103,7 @@ class TRPCClient:
             Result data from the procedure.
         """
         response = self._request(procedure, TRPCMethod.QUERY, input_data)
-        return response["result"]["data"]
+        return response["result"]["data"]["json"] if self.use_superjson else response["result"]["data"]
 
     def mutate(self, procedure: str, input_data: Optional[dict] = None) -> Any:
         """
@@ -112,4 +117,7 @@ class TRPCClient:
             Result data from the procedure.
         """
         response = self._request(procedure, TRPCMethod.MUTATION, input_data)
-        return response["result"]["data"] if response is not None else None
+        if response is not None:
+            return response["result"]["data"]["json"] if self.use_superjson else response["result"]["data"]
+        else:
+            return None

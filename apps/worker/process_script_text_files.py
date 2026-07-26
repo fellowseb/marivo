@@ -15,7 +15,7 @@ parser = MistralParser()
 
 
 def process_script_text_files(job: Job):
-    client = TRPCClient(os.getenv("API_URL"))
+    client = TRPCClient(os.getenv("API_URL"), use_superjson=True)
     temp_dir = tempfile.TemporaryDirectory()
     try:
         print("Starting process_script_text_files job")
@@ -37,7 +37,19 @@ def process_script_text_files(job: Job):
             with open(local_path, 'r', encoding='utf-8') as f:
                 script_text = script_text + f.read()
 
-        metadata, csv_data = parser.parse_script(script_text)
+        # Fetch collection metadata possible values from API
+        theatrical_genres_response = client.query(
+            "worker/playsCollection.listAllGenres",
+        )
+        theatrical_genres = ', '.join(theatrical_genres_response["genres"])
+        theatrical_periods_response = client.query(
+            "worker/playsCollection.listAllPeriods",
+        )
+        print(theatrical_periods_response)
+        theatrical_periods = ', '.join(theatrical_periods_response["periods"])
+
+        metadata, csv_data = parser.parse_script(
+            script_text, theatrical_genres, theatrical_periods)
         result_lines_csv_local = os.path.join(
             temp_dir.name,
             'result-lines.csv'
