@@ -39,8 +39,8 @@ services:
     env_file: './.env.development.docker'
     volumes:
       - postgres_data:/var/lib/postgresql
-      - ./apps/api/schema.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./apps/api/dev/fixtures.sql:/docker-entrypoint-initdb.d/fixtures.sql
+      - ./apps/api/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./apps/api/dev/fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
   pgadmin:
     image: dpage/pgadmin4:9.15
     ports:
