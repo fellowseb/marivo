@@ -1,0 +1,31 @@
+.select {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.option {
+  min-width: 60px;
+  height: 60px;
+  padding: 4px;
+  border-radius: 4px;
+  background: #33333311;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  border-color: #33333311;
+}
+
+.optionNotSelected {
+  background: #33333311;
+  color: black;
+  border-color: #33333311;
+}
+
+.optionSelected {
+  background: #e4d6bc;
+  color: black;
+  border-color: #33333311;
+}

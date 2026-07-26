@@ -1,0 +1,27 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 320px;
+}
+
+.results {
+  display: flex;
+  flex-grow: 2;
+  flex-direction: row;
+  gap: 4px;
+  padding: 4px;
+}
+
+.separator {
+  width: 1px;
+  background: #cebc96;
+  margin-left: 4px;
+  margin-right: 4px;
+}
