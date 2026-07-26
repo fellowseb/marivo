@@ -5,3 +5,17 @@
 .or {
   font-size: 0.7rem;
 }
+
+.row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+  max-width: 840px;
+}
+
+.row label {
+  width: 200px;
+  min-width: 200px;
+  text-align: right;
+}
