@@ -31,7 +31,7 @@
     "cors": "^2.8.6",
     "csv-parse": "^7.0.0",
     "csv-stringify": "^6.7.0",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.0",
     "express": "^5.2.1",
     "postgres": "^3.4.9",
     "superjson": "^2.2.6",
