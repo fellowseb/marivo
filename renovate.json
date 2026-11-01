@@ -2,8 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":semanticCommits",
-    ":preserveSemverRanges"
+    ":semanticCommits"
   ],
   "minimumReleaseAge": "3 days",
   "schedule": ["before 9am on monday"],
@@ -17,27 +16,17 @@
   "automergeStrategy": "squash",
   "packageRules": [
     {
-      "description": "Security updates: high priority, security label, no automerge",
-      "matchDatasources": ["npm"],
-      "matchUpdateTypes": ["patch", "minor", "major"],
-      "matchPackageNames": ["*"],
-      "vulnerabilityAlerts": {
-        "labels": ["security", "priority:critical"],
-        "automerge": false,
-        "minimumReleaseAge": null
-      }
-    },
-    {
-      "description": "Major updates: separate PR, no automerge, high priority",
+      "description": "Major updates: separate PR, no automerge, longer window",
       "matchUpdateTypes": ["major"],
       "labels": ["build", "priority:medium"],
       "automerge": false,
       "minimumReleaseAge": "7 days"
     },
     {
-      "description": "Group minor/patch updates for the same group",
+      "description": "Group minor/patch npm updates",
+      "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "all non-major dependencies",
+      "groupName": "all non-major npm dependencies",
       "groupSlug": "all-minor-patch",
       "automerge": true
     },
@@ -52,23 +41,17 @@
       "allowedVersions": "^9"
     },
     {
-      "description": "Python dependencies in worker",
+      "description": "Python dependencies",
       "matchManagers": ["pip_requirements"],
       "labels": ["build", "priority:low"],
       "automerge": true
     }
   ],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^apps\\/worker\\/requirements\\.txt$/"],
-      "matchStrings": [
-        "^(?<depName>[a-zA-Z0-9_-]+)==(?<currentValue>[0-9.]+)"
-      ],
-      "datasourceTemplate": "pypi",
-      "versioningTemplate": "pep440"
-    }
-  ],
-  "prBodyNotes": ["{{#if isVulnerability}}⚠️ **Security update** — this fixes a known vulnerability.{{/if}}"],
-  "prTitle": "{{{commitMessage}}} ({{{datasource}}})"
+  "vulnerabilityAlerts": {
+    "labels": ["security", "priority:critical"],
+    "automerge": false,
+    "minimumReleaseAge": null,
+    "schedule": ["at any time"]
+  },
+  "prBodyNotes": ["{{#if isVulnerability}}Security update - fixes a known vulnerability.{{/if}}"]
 }
