@@ -59,7 +59,7 @@ function AppRoutes() {
           </Routes>
         </CollectionMetadataContextProvider>
       </AuthGuard>
-      <AuthGuard requireAuth={false} redirectTo="/plays">
+      <AuthGuard requireAuth={false} redirectTo="/plays" onlyOn={["/signin", "/signup"]}>
         <Routes>
           <Route path="*" element={<AuthLayout />}>
             <Route path="signin/*" element={<Signin />} />

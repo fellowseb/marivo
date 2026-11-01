@@ -8,6 +8,8 @@ interface AuthGuardProps {
   requireAuth: boolean;
   /** Where to redirect when the requirement is not met. */
   redirectTo: string;
+  /** Only enforce the guard when current path starts with one of these prefixes. */
+  onlyOn?: string[];
 }
 
 /**
@@ -24,7 +26,8 @@ export default function AuthGuard(props: PropsWithChildren<AuthGuardProps>) {
   }
 
   const ok = props.requireAuth ? isSignedIn : !isSignedIn;
-  if (!ok && location.pathname !== props.redirectTo) {
+  const applies = !props.onlyOn || props.onlyOn.some((p) => location.pathname.startsWith(p));
+  if (!ok && applies && location.pathname !== props.redirectTo) {
     return (
       <Navigate
         to={props.redirectTo}
@@ -34,8 +37,11 @@ export default function AuthGuard(props: PropsWithChildren<AuthGuardProps>) {
     );
   }
 
-  // If requirement not met but already on redirect target, render nothing
-  // to avoid loops (the sibling guard handles that route).
+  // If guard does not apply to this path, or requirement not met but already
+  // on redirect target, render children (or nothing to avoid loops).
+  if (!applies) {
+    return <>{props.children}</>;
+  }
   if (!ok) {
     return null;
   }
