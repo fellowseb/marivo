@@ -1,0 +1,74 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":preserveSemverRanges"
+  ],
+  "minimumReleaseAge": "3 days",
+  "schedule": ["before 9am on monday"],
+  "timezone": "Europe/Paris",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10,
+  "branchConcurrentLimit": 10,
+  "labels": ["build", "priority:low"],
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "packageRules": [
+    {
+      "description": "Security updates: high priority, security label, no automerge",
+      "matchDatasources": ["npm"],
+      "matchUpdateTypes": ["patch", "minor", "major"],
+      "matchPackageNames": ["*"],
+      "vulnerabilityAlerts": {
+        "labels": ["security", "priority:critical"],
+        "automerge": false,
+        "minimumReleaseAge": null
+      }
+    },
+    {
+      "description": "Major updates: separate PR, no automerge, high priority",
+      "matchUpdateTypes": ["major"],
+      "labels": ["build", "priority:medium"],
+      "automerge": false,
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Group minor/patch updates for the same group",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "automerge": true
+    },
+    {
+      "description": "Pin TypeScript (v7 breaks peer deps)",
+      "matchPackageNames": ["typescript"],
+      "enabled": false
+    },
+    {
+      "description": "Pin eslint to v9 (v10 breaks react plugin peer deps)",
+      "matchPackageNames": ["eslint", "@eslint/js"],
+      "allowedVersions": "^9"
+    },
+    {
+      "description": "Python dependencies in worker",
+      "matchManagers": ["pip_requirements"],
+      "labels": ["build", "priority:low"],
+      "automerge": true
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^apps\\/worker\\/requirements\\.txt$/"],
+      "matchStrings": [
+        "^(?<depName>[a-zA-Z0-9_-]+)==(?<currentValue>[0-9.]+)"
+      ],
+      "datasourceTemplate": "pypi",
+      "versioningTemplate": "pep440"
+    }
+  ],
+  "prBodyNotes": ["{{#if isVulnerability}}⚠️ **Security update** — this fixes a known vulnerability.{{/if}}"],
+  "prTitle": "{{{commitMessage}}} ({{{datasource}}})"
+}
