@@ -22,4 +22,6 @@ permissions:
     skills: true
   msgpackr-extract:
     build: true
+  pnpm:
+    build: true
 autoInstallPeers: true
