@@ -1,21 +1,21 @@
-import { describe, it, expect, jest, beforeEach } from "@jest/globals";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Result } from "@marivo/utils";
 import { DeleteLineUseCase } from "./delete-line.use-case.ts";
 import { ScriptNotFound, type ScriptRepository } from "./script.repository.ts";
 import { PlayNotFound, type UserPlaysRepository } from "../plays/user-plays.repository.ts";
 
 describe("DeleteLineUseCase", () => {
-  let scriptRepository: jest.Mocked<ScriptRepository>;
-  let userPlaysRepository: jest.Mocked<UserPlaysRepository>;
+  let scriptRepository: vi.Mocked<ScriptRepository>;
+  let userPlaysRepository: vi.Mocked<UserPlaysRepository>;
   let useCase: DeleteLineUseCase;
 
   beforeEach(() => {
     scriptRepository = {
-      deleteLine: jest.fn(),
-    } as unknown as jest.Mocked<ScriptRepository>;
+      deleteLine: vi.fn(),
+    } as unknown as vi.Mocked<ScriptRepository>;
     userPlaysRepository = {
-      getScriptId: jest.fn(),
-    } as unknown as jest.Mocked<UserPlaysRepository>;
+      getScriptId: vi.fn(),
+    } as unknown as vi.Mocked<UserPlaysRepository>;
     useCase = new DeleteLineUseCase(scriptRepository, userPlaysRepository);
   });
 

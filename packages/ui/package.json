@@ -35,17 +35,16 @@
     "dev": "bunchee --watch",
     "check-types": "tsc --noEmit",
     "lint": "oxlint src/ --deny-warnings",
-    "test": "jest --passWithNoTests"
+    "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
-    "@jest/globals": "^30.5.2",
     "@marivo/jest-presets": "workspace:*",
     "@marivo/typescript-config": "workspace:*",
     "@types/node": "^26.6.6",
     "bunchee": "^7.0.2",
     "eslint": "^9.39.4",
-    "jest": "^30.5.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^5.0.0"
   },
   "peerDependencies": {
     "@types/react": ">=18",
