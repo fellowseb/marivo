@@ -27,7 +27,7 @@
     "@marivo/utils": "workspace:*",
     "@trpc/server": "^11.17.0",
     "@types/cors": "^2.8.19",
-    "bullmq": "^5.76.8",
+    "bullmq": "^6.0.0",
     "cors": "^2.8.6",
     "csv-parse": "^7.0.0",
     "csv-stringify": "^6.7.0",
