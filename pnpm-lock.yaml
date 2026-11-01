@@ -72,8 +72,8 @@ importers:
         specifier: ^2.2.6
         version: 2.2.6
       uuid:
-        specifier: ^13.0.2
-        version: 13.0.2
+        specifier: ^14.0.0
+        version: 14.0.3
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -2942,7 +2942,7 @@ packages:
       '@vitest/spy': 5.0.5
       estree-walker: 3.0.3
       magic-string: 1.4.5
-      vite: 8.3.5(@types/node@24.12.4)
+      vite: 8.3.5(@types/node@26.6.6)
     dev: true
 
   /@vitest/spy@5.0.5:
@@ -4758,11 +4758,6 @@ packages:
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
-    dev: false
-
-  /uuid@13.0.2:
-    resolution: {integrity: sha512-vzi9uRZ926x4XV73S/4qQaTwPXM2JBj6/6lI/byHH1jOpCzb0zDbfytgA9LcN/hzb2l7WQSQnxITOVx5un/wGw==}
-    hasBin: true
     dev: false
 
   /uuid@14.0.3:
