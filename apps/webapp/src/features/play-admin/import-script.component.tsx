@@ -191,6 +191,7 @@ function ImportStep() {
     if (initStatus === 'success') {
       files.forEach((entry) => {
         if (entry.type === 'file') {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
           (entry.file as any).id = entry.id;
           mutateUpload(entry.file);
         }

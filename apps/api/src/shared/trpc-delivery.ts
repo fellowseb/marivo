@@ -41,6 +41,7 @@ export function handleUseCase<T extends AnyUseCase>(provider: Provider<T>) {
         },
       });
     });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     return res as any;
   };
 }

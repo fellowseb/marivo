@@ -31,6 +31,7 @@ import {
 import { GetAllScriptImportsUseCaseOutputSchema } from './get-all-script-imports.use-case.ts';
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   return async ({ ctx, input, next }: any) => {
     await getDatabase().begin(async (sql) => {
       const authChecker = provider.instantiate({ req: ctx.req, sql });

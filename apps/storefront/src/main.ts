@@ -117,8 +117,8 @@ class LogoSpotlightsEffect {
   //   homeBottomContentElem.setAttribute('class', `home-bottom-content hidden`);
   // }
 
-  private intervalId?: number;
-  private initialTimeoutId?: number;
+  private intervalId?: ReturnType<typeof setInterval>;
+  private initialTimeoutId?: ReturnType<typeof setTimeout>;
 }
 
 const SPOTLIGHTS_MOVEMENT_DELAY_MS = 5_000;

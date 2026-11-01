@@ -22,6 +22,7 @@ interface GetScriptImportsRecordValues {
   result_metadata_title: string;
   result_metadata_author: string;
   result_metadata_language: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result_metadata_characters: any[];
   result_metadata_number_of_roles: number;
   result_metadata_number_of_male_roles: number;
@@ -63,6 +64,7 @@ export class GetScriptImportsRecord extends DbRecord<GetScriptImportsRecordValue
 }
 
 interface GetScriptImportFilesForProcessingRecordValues {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   files: any;
 }
 
@@ -213,7 +215,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
   }
 
   async clearImport(params: { id: string }) {
-    await this.sql<{}[]>`
+    await this.sql<Record<string, never>[]>`
         DELETE
         FROM script_imports
         WHERE id = ${params.id} AND user_id = ${this.userId()};
@@ -321,6 +323,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
       numberOfMaleRoles: number;
       numberOfFemaleRoles: number;
       suggestions?: Record<string, string>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       characters: any[];
     };
   }): Promise<void> {

@@ -18,7 +18,7 @@ class Success<TSuccess, TFailure>
   dataOrThrow(): TSuccess {
     return this.data;
   }
-  dataOr<T>(_fallbackValue: T): TSuccess | T {
+  dataOr<T>(_: T): TSuccess | T {
     return this.data;
   }
   errorOrThrow(): TFailure {

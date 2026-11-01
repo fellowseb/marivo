@@ -70,6 +70,7 @@ function TrpcApiProvider(props: React.PropsWithChildren<TrpcApiProviderProps>) {
             headers: async (h) => {
               const token = await getToken();
               const { importId } = h.op.context;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
               const importFileId = (h.op.input as any).id;
               return {
                 Authorization: `Bearer ${token}`,

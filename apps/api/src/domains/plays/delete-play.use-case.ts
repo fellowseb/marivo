@@ -13,11 +13,6 @@ export const DeletePlayUseCaseInputSchema = z.object({
 
 type DeletePlayUseCaseInput = z.infer<typeof DeletePlayUseCaseInputSchema>;
 
-class NotOwnerError extends Error {
-  constructor() {
-    super('Only owner can delete the play');
-  }
-}
 
 export class DeletePlayUseCase extends AuthenticatedUseCase<{
   params: DeletePlayUseCaseInput;
