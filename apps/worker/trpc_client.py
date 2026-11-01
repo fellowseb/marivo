@@ -34,7 +34,7 @@ class TRPCMethod(str, Enum):
 
 
 class TRPCClient:
-    def __init__(self, base_url: str, use_superjson: bool = False):
+    def __init__(self, base_url: str, use_superjson: bool = False, api_key: str | None = None):
         """
         Initialize the tRPC client.
 
@@ -44,6 +44,8 @@ class TRPCClient:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
+        if api_key:
+            self.session.headers.update({"x-marivo-worker-api-key": api_key})
         self.use_superjson = use_superjson
 
     def _request(

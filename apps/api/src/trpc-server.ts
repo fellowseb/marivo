@@ -4,6 +4,7 @@ import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import { createContext, router } from "./trpc.ts";
 import { deliveryMiddleware } from "./infra/delivery.middleware.ts";
+import { workerAuthMiddleware } from "./infra/worker-auth.middleware.ts";
 import { userMiddleware } from "./domains/auth/user.middleware.ts";
 import playsRoutes from "./domains/plays/plays.trpc-routes.ts";
 import playsCollectionRoutes from "./domains/plays/plays-collection.trpc-routes.ts";
@@ -32,6 +33,8 @@ export default function trpcServer(): express.Application {
     "/worker",
     // Read requestId from request header
     deliveryMiddleware(),
+    // Authenticate worker using shared API key
+    workerAuthMiddleware(),
     // Enable CORS for all routes
     cors({ credentials: true }),
     // Application TRPC routes
