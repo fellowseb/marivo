@@ -1,4 +1,5 @@
 import { v4 as uuidV4 } from 'uuid';
+import { useMutation } from '@tanstack/react-query';
 import {
   createContext,
   useCallback,
@@ -7,6 +8,7 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
+import { useTRPC } from '../../trpc';
 import type { LineContent, LineEditableContent } from './script.models';
 import { useScriptUndoRedo } from './script-undo-redo.context';
 import { type ScriptAction } from './script-state';
@@ -36,10 +38,20 @@ export interface ScriptEditionContext {
 
 const ScriptEditionContext = createContext<ScriptEditionContext | null>(null);
 
-export function ScriptEditionContextProvider(props: PropsWithChildren) {
+export interface ScriptEditionContextProviderProps {
+  uri: string;
+}
+
+export function ScriptEditionContextProvider(
+  props: PropsWithChildren<ScriptEditionContextProviderProps>,
+) {
   const context = useScriptContext();
+  const trpc = useTRPC();
   const { pushUndoRedo } = useScriptUndoRedo();
   const [insertedLineId, setInsertedLineId] = useState<string | null>(null);
+  const saveLineContentMutation = useMutation(
+    trpc.script.saveLineContent.mutationOptions(),
+  );
   const insertHeading = useCallback(
     (pos: number, level: number) => {
       if (!context) {
@@ -306,18 +318,41 @@ export function ScriptEditionContextProvider(props: PropsWithChildren) {
     },
     [context?.lineContents, context?.lastModifiedDate],
   );
-  const saveChanges = useCallback((id: string) => {
-    if (!context) {
-      const error = new Error('Unexpected undefined script context');
-      console.warn(error);
-      throw error;
-    }
-    const action = {
-      type: 'SAVE_CHANGES',
-      id,
-    } as const as ScriptAction;
-    context.dispatch(action);
-  }, []);
+  const saveChanges = useCallback(
+    (id: string) => {
+      if (!context) {
+        const error = new Error('Unexpected undefined script context');
+        console.warn(error);
+        throw error;
+      }
+      const action = {
+        type: 'SAVE_CHANGES',
+        id,
+      } as const as ScriptAction;
+      context.dispatch(action);
+      // Persist to server via API
+      const content = context.lineContents.get(id);
+      if (content && content.type === 'draft') {
+        saveLineContentMutation.mutate({
+          uri: props.uri,
+          lineId: id,
+          content: {
+            lineType: content.lineType,
+            text: 'text' in content ? content.text : '',
+            ...(content.lineType === 'chartext'
+              ? { characters: content.characters }
+              : {}),
+            ...(content.lineType === 'heading'
+              ? { headingLevel: content.headingLevel }
+              : {}),
+          },
+          contentType: 'saved_version',
+          version: null,
+        });
+      }
+    },
+    [context, props.uri, saveLineContentMutation],
+  );
   const saveChangesAsNewVersion = useCallback((id: string) => {
     if (!context) {
       const error = new Error('Unexpected undefined script context');
