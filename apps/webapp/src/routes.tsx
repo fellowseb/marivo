@@ -6,7 +6,7 @@ import PlaysPage, { PlaysPageBreadcrumbs } from "./features/play-admin/plays-pag
 import PlayPage, { PLAY_ROUTE_BASE } from "./features/play-admin/play-page.component";
 import Signin from "./features/auth/signin.component";
 import Signup from "./features/auth/signup.component";
-import { Show } from "@clerk/react";
+import AuthGuard from "./components/auth-guard.component";
 import UserAccountPage, {
   UserAccountPageBreadcrumbs,
 } from "./features/user-account/user-account-page.component";
@@ -39,7 +39,7 @@ function AppRoutes() {
   );
   return (
     <>
-      <Show when="signed-in">
+      <AuthGuard requireAuth={true} redirectTo="/signin">
         <CollectionMetadataContextProvider>
           <Routes>
             <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
@@ -58,8 +58,8 @@ function AppRoutes() {
             <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
           </Routes>
         </CollectionMetadataContextProvider>
-      </Show>
-      <Show when="signed-out">
+      </AuthGuard>
+      <AuthGuard requireAuth={false} redirectTo="/plays">
         <Routes>
           <Route path="*" element={<AuthLayout />}>
             <Route path="signin/*" element={<Signin />} />
@@ -67,7 +67,7 @@ function AppRoutes() {
             <Route path="*" element={<Navigate to="/signin" replace />}></Route>
           </Route>
         </Routes>
-      </Show>
+      </AuthGuard>
     </>
   );
 }
