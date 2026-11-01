@@ -1,3 +1,24 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
+minimumReleaseAgeExclude:
+  - '@tanstack/query-core@5.105.1'
+  - '@tanstack/react-query@5.105.1'
+  - globals@17.14.0
+skills:
+  dirs:
+    - .agents/skills
+
+overrides:
+  typescript: 5.9.3
+permissions:
+  '@swc/core':
+    build: true
+  '@trpc/client':
+    skills: true
+  '@trpc/server':
+    skills: true
+  '@trpc/tanstack-react-query':
+    skills: true
+  msgpackr-extract:
+    build: true

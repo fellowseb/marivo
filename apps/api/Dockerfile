@@ -1,5 +1,5 @@
 FROM node:24-alpine
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@12.15.0 --activate
 WORKDIR /app
 COPY package*.json ./
 RUN pnpm install --frozen-lockfile
