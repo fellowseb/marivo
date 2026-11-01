@@ -35,7 +35,7 @@
     "express": "^5.2.1",
     "postgres": "^3.4.9",
     "superjson": "^2.2.6",
-    "uuid": "^13.0.2",
+    "uuid": "^14.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
