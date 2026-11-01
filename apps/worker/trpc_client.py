@@ -45,7 +45,7 @@ class TRPCClient:
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
         if api_key:
-            self.session.headers.update({"x-worker-api-key": api_key})
+            self.session.headers.update({"x-marivo-worker-api-key": api_key})
         self.use_superjson = use_superjson
 
     def _request(

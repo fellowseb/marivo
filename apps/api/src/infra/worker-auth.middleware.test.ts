@@ -33,7 +33,7 @@ describe('workerAuthMiddleware', () => {
 
   it('calls next when key matches', () => {
     const next = vi.fn();
-    const req = makeReq({ 'x-worker-api-key': 'secret-key' });
+    const req = makeReq({ 'x-marivo-worker-api-key': 'secret-key' });
     const res = makeRes();
     workerAuthMiddleware()(req, res as unknown as Response, next);
     expect(next).toHaveBeenCalled();
@@ -51,7 +51,7 @@ describe('workerAuthMiddleware', () => {
 
   it('returns 401 when key is wrong', () => {
     const next = vi.fn();
-    const req = makeReq({ 'x-worker-api-key': 'wrong' });
+    const req = makeReq({ 'x-marivo-worker-api-key': 'wrong' });
     const res = makeRes();
     workerAuthMiddleware()(req, res as unknown as Response, next);
     expect(next).not.toHaveBeenCalled();
@@ -61,7 +61,7 @@ describe('workerAuthMiddleware', () => {
   it('returns 500 when WORKER_API_KEY is not configured', () => {
     delete process.env.WORKER_API_KEY;
     const next = vi.fn();
-    const req = makeReq({ 'x-worker-api-key': 'anything' });
+    const req = makeReq({ 'x-marivo-worker-api-key': 'anything' });
     const res = makeRes();
     workerAuthMiddleware()(req, res as unknown as Response, next);
     expect(next).not.toHaveBeenCalled();
