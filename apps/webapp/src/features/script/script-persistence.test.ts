@@ -59,7 +59,7 @@ describe('script-persistence', () => {
       expect(parsed.from).toBe('play');
       const inner = JSON.parse(parsed.state);
       expect(inner.linesOrder).toEqual(['line-1']);
-      expect(parsed.state.characters).toEqual({ 'char-1': 'HAMLET' });
+      expect(inner.characters).toEqual({ 'char-1': 'HAMLET' });
     });
 
     it('does not throw on localStorage failure', () => {
