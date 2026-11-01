@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router';
 
@@ -19,10 +19,10 @@ function renderAt(path: string) {
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route
-          path="/protected"
+          path="*"
           element={
-            <AuthGuard requireAuth={true} redirectTo="/signin">
-              <div>protected content</div>
+            <AuthGuard>
+              <div>app content</div>
             </AuthGuard>
           }
         />
@@ -33,27 +33,32 @@ function renderAt(path: string) {
 }
 
 describe('AuthGuard', () => {
-  beforeEach(() => {
-    authState.isLoaded = true;
-    authState.isSignedIn = true;
-  });
-
   it('shows spinner while auth is loading', () => {
     authState.isLoaded = false;
-    renderAt('/protected');
-    expect(screen.getByTestId('spinner')).toBeTruthy();
-    expect(screen.queryByText('protected content')).toBeNull();
-  });
-
-  it('renders children when signed in and requireAuth is true', () => {
-    renderAt('/protected');
-    expect(screen.getByText('protected content')).toBeTruthy();
-  });
-
-  it('redirects when not signed in and requireAuth is true', () => {
     authState.isSignedIn = false;
-    const { container } = renderAt('/protected');
-    // After redirect, protected content should not be rendered
-    expect(container.textContent).not.toContain('protected content');
+    renderAt('/plays');
+    expect(screen.getByTestId('spinner')).toBeTruthy();
+    expect(screen.queryByText('app content')).toBeNull();
+  });
+
+  it('renders children when signed in', () => {
+    authState.isLoaded = true;
+    authState.isSignedIn = true;
+    renderAt('/plays');
+    expect(screen.getByText('app content')).toBeTruthy();
+  });
+
+  it('redirects to signin when signed out on protected path', () => {
+    authState.isLoaded = true;
+    authState.isSignedIn = false;
+    const { container } = renderAt('/plays');
+    expect(container.textContent).not.toContain('app content');
+  });
+
+  it('renders children when signed out on signin page', () => {
+    authState.isLoaded = true;
+    authState.isSignedIn = false;
+    renderAt('/signin');
+    expect(screen.getAllByText('signin page').length).toBeGreaterThan(0);
   });
 });

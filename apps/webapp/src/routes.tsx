@@ -38,37 +38,31 @@ function AppRoutes() {
     </Routes>
   );
   return (
-    <>
-      <AuthGuard requireAuth={true} redirectTo="/signin">
-        <CollectionMetadataContextProvider>
-          <Routes>
-            <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
-              <Route path="plays" element={<PlaysPage />} />
-              <Route path="plays/new" element={<NewPlayPage />} />
-              <Route path="plays/new/empty" element={<NewEmptyScript />} />
-              <Route path="plays/new/import" element={<ImportScript />} />
-              <Route path="plays/new/from-collection" element={<FromCollection />} />
-              <Route path="plays/imports" element={<ScriptImportsPage />} />
-              <Route path="my-account/security?" element={<UserAccountPage />} />
-              <Route path="signin" element={<Navigate to="/plays" replace />} />
-              <Route path="signup" element={<Navigate to="/plays" replace />} />
-              <Route index element={<Navigate to="plays" replace />}></Route>
-              <Route path="*" element={<PageNotFound />} />
-            </Route>
-            <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
-          </Routes>
-        </CollectionMetadataContextProvider>
-      </AuthGuard>
-      <AuthGuard requireAuth={false} redirectTo="/plays" onlyOn={["/signin", "/signup"]}>
+    <AuthGuard>
+      <CollectionMetadataContextProvider>
         <Routes>
+          <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
+            <Route path="plays" element={<PlaysPage />} />
+            <Route path="plays/new" element={<NewPlayPage />} />
+            <Route path="plays/new/empty" element={<NewEmptyScript />} />
+            <Route path="plays/new/import" element={<ImportScript />} />
+            <Route path="plays/new/from-collection" element={<FromCollection />} />
+            <Route path="plays/imports" element={<ScriptImportsPage />} />
+            <Route path="my-account/security?" element={<UserAccountPage />} />
+            <Route path="signin" element={<Navigate to="/plays" replace />} />
+            <Route path="signup" element={<Navigate to="/plays" replace />} />
+            <Route index element={<Navigate to="plays" replace />}></Route>
+            <Route path="*" element={<PageNotFound />} />
+          </Route>
+          <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
           <Route path="*" element={<AuthLayout />}>
             <Route path="signin/*" element={<Signin />} />
             <Route path="signup/*" element={<Signup />} />
             <Route path="*" element={<Navigate to="/signin" replace />}></Route>
           </Route>
         </Routes>
-      </AuthGuard>
-    </>
+      </CollectionMetadataContextProvider>
+    </AuthGuard>
   );
 }
 
