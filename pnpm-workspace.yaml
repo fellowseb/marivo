@@ -12,9 +12,13 @@ skills:
 overrides:
   typescript: 5.9.3
 permissions:
+  '@swc/core':
+    build: true
   '@trpc/client':
     skills: true
   '@trpc/server':
     skills: true
   '@trpc/tanstack-react-query':
     skills: true
+  msgpackr-extract:
+    build: true
