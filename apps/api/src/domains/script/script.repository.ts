@@ -258,7 +258,7 @@ export class ScriptRepository extends UserRepositoryBase {
     // Update lines_order column in script
     await this.sql`
       UPDATE scripts
-        SET lines_order = ${this.sql.array(linesOrder)}::uuid[]
+        SET lines_order = ${linesOrder}::uuid[]
         WHERE id = ${scriptId};
     `;
     return scriptId;
@@ -297,7 +297,7 @@ export class ScriptRepository extends UserRepositoryBase {
       return Result.failure(new ScriptNotFound());
     }
     const contentId = uuidv4();
-    const now = Date.now();
+    const now = new Date();
     const { lineType, text, characters, headingLevel } = params.content;
     await this.sql`
       INSERT INTO lines_contents (
@@ -349,7 +349,7 @@ export class ScriptRepository extends UserRepositoryBase {
     if (!scriptRow) {
       return Result.failure(new ScriptNotFound());
     }
-    const now = Date.now();
+    const now = new Date();
     await this.sql`
       INSERT INTO lines (script_id, id, type, last_modified_date)
       VALUES (${params.scriptId}, ${params.lineId}, ${params.lineType}, ${now})`;
@@ -358,7 +358,7 @@ export class ScriptRepository extends UserRepositoryBase {
     newOrder.splice(params.position, 0, params.lineId);
     await this.sql`
       UPDATE scripts
-      SET lines_order = ${this.sql.array(newOrder)}::uuid[], last_modified_date = ${now}
+      SET lines_order = ${newOrder}::uuid[], last_modified_date = ${now}
       WHERE id = ${params.scriptId}`;
     return Result.ok({ lastModifiedDate: new Date(now) });
   }
@@ -372,13 +372,13 @@ export class ScriptRepository extends UserRepositoryBase {
     if (!scriptRow) {
       return Result.failure(new ScriptNotFound());
     }
-    const now = Date.now();
+    const now = new Date();
     await this.sql`
       DELETE FROM lines WHERE script_id = ${params.scriptId} AND id = ${params.lineId}`;
     const newOrder = (scriptRow.lines_order ?? []).filter((id) => id !== params.lineId);
     await this.sql`
       UPDATE scripts
-      SET lines_order = ${this.sql.array(newOrder)}::uuid[], last_modified_date = ${now}
+      SET lines_order = ${newOrder}::uuid[], last_modified_date = ${now}
       WHERE id = ${params.scriptId}`;
     return Result.ok({ lastModifiedDate: new Date(now) });
   }

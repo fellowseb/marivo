@@ -1,3 +1,5 @@
+SET client_min_messages TO WARNING;
+
 DROP VIEW IF EXISTS user_plays_view;
 DROP VIEW IF EXISTS user_pending_invites_view;
 DROP TABLE IF EXISTS script_imports;

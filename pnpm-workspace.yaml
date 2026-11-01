@@ -20,8 +20,14 @@ permissions:
     skills: true
   '@trpc/tanstack-react-query':
     skills: true
+  cpu-features:
+    build: true
   msgpackr-extract:
     build: true
   pnpm:
+    build: true
+  protobufjs:
+    build: true
+  ssh2:
     build: true
 autoInstallPeers: true
