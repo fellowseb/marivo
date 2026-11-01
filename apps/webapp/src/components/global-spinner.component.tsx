@@ -3,10 +3,10 @@ function GlobalSpinner() {
     <section id="loader" className="loader">
       <picture className="home-logo">
         <img
-          src="/stagecraft-logo-with-title-transparent.webp"
+          src="/marivo-logo-full-with-background.webp"
           width="247"
           height="250"
-          alt="StageCraft"
+          alt="Marivo"
           fetchPriority="high"
         />
       </picture>
