@@ -115,7 +115,7 @@ Before pushing, run:
 
 ```bash
 pnpm check-types   # TypeScript must pass
-pnpm lint          # ESLint must pass (zero warnings)
+pnpm lint          # Oxlint must pass (zero warnings)
 pnpm test          # All tests must pass
 pnpm build         # Build must succeed
 ```
