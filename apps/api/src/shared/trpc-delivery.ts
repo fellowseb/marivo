@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Request } from 'express';
 import { TRPCError } from '@trpc/server';
 import type { Provider } from '../shared/provider.ts';

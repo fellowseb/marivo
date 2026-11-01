@@ -138,7 +138,7 @@ function ScriptLine(props: ScriptLineProps) {
     // }
   };
 
-  const handleDelete = () => {
+  const _handleDelete = () => {
     if (lineContent.type === 'draft') {
       // props.onDraftTextEdit(lineContent.id, undefined, true);
     } else {

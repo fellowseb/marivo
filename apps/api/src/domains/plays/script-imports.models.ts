@@ -17,7 +17,7 @@ export type ScriptImport =
         title: string;
         author: string;
         language: string;
-        characters: any[];
+        characters: string[];
         number_of_roles: number;
         number_of_male_roles: number;
         number_of_female_roles: number;

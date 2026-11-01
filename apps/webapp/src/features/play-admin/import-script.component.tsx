@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
 import { Suspense, useEffect, useRef, useState, type DragEvent } from 'react';

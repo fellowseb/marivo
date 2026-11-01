@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Result } from '@marivo/utils';
 import { Record as DbRecord } from '../../shared/record.ts';
 import { AppError } from '../../shared/error.ts';
@@ -213,7 +214,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
   }
 
   async clearImport(params: { id: string }) {
-    await this.sql<{}[]>`
+    await this.sql<Record<string, never>[]>`
         DELETE
         FROM script_imports
         WHERE id = ${params.id} AND user_id = ${this.userId()};

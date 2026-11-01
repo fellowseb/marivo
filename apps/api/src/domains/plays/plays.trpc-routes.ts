@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import z from 'zod';
 import { octetInputParser } from '@trpc/server/http';
 import { publicProcedure, router } from '../../trpc.ts';

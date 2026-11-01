@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import superjson from 'superjson';
 import { v7 as uuidv7 } from 'uuid';
 import { StrictMode, useState } from 'react';

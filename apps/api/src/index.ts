@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import trpcServer from './trpc-server.ts';
 import { initStorage } from './infra/storage.ts';
 import { initDatabase } from './infra/db.ts';

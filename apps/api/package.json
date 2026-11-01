@@ -7,10 +7,12 @@
     "dev": "node --inspect --watch-path=./src --watch-path=./types src/index.ts",
     "check-types": "tsc --noEmit",
     "lint": "eslint src/ --max-warnings=0",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests",
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest --testPathIgnorePatterns=\".*integration\\.test\\.ts\"",
+    "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern=\".*integration\\.test\\.ts\""
   },
   "keywords": [],
-  "author": "Sébastien Wauquier",
+  "author": "S\u00e9bastien Wauquier",
   "license": "ISC",
   "packageManager": "pnpm@10.17.1",
   "type": "module",
@@ -44,6 +46,11 @@
     "globals": "^16.5.0",
     "types": "link:@clerk/shared/types",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.46.1"
+    "typescript-eslint": "8.46.1",
+    "@jest/globals": "^30.2.0",
+    "@marivo/jest-presets": "workspace:*",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5"
   }
 }
