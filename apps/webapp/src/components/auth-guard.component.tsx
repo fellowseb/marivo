@@ -24,7 +24,7 @@ export default function AuthGuard(props: PropsWithChildren<AuthGuardProps>) {
   }
 
   const ok = props.requireAuth ? isSignedIn : !isSignedIn;
-  if (!ok) {
+  if (!ok && location.pathname !== props.redirectTo) {
     return (
       <Navigate
         to={props.redirectTo}
@@ -32,6 +32,12 @@ export default function AuthGuard(props: PropsWithChildren<AuthGuardProps>) {
         state={{ from: location.pathname }}
       />
     );
+  }
+
+  // If requirement not met but already on redirect target, render nothing
+  // to avoid loops (the sibling guard handles that route).
+  if (!ok) {
+    return null;
   }
 
   return <>{props.children}</>;
