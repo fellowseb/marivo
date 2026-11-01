@@ -38,8 +38,9 @@ Every issue must have **one** of these labels:
 | `bug` | Something is broken |
 | `refactor` | Code restructuring without behavior change |
 | `build` | Build system, dependencies, CI/CD |
-| `chore` | Maintenance, docs, tooling |
+| `chore` | Maintenance, tooling |
 | `security` | Security-related changes |
+| `docs` | Documentation changes |
 
 ---
 
