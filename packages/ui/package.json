@@ -34,7 +34,7 @@
     "build": "bunchee",
     "dev": "bunchee --watch",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src/",
+    "lint": "oxlint src/ --deny-warnings",
     "test": "jest --passWithNoTests"
   },
   "jest": {

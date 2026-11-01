@@ -6,7 +6,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "node --inspect --watch-path=./src --watch-path=./types src/index.ts",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src/ --max-warnings=0",
+    "lint": "oxlint src/ --deny-warnings",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest --testPathIgnorePatterns='.*integration\\.test\\.ts'",
     "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest --testPathPattern='.*integration\\.test\\.ts'",

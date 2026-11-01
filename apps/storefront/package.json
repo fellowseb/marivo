@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0 --port 8080 --clearScreen false",
-    "lint": "eslint src/ --max-warnings 0",
+    "lint": "oxlint src/ --deny-warnings",
     "check-types": "tsc --noEmit",
     "preview": "vite preview"
   },
