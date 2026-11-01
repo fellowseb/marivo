@@ -57,7 +57,8 @@ describe('script-persistence', () => {
       expect(parsed.version).toBe(1);
       expect(parsed.uri).toBe('uri-123');
       expect(parsed.from).toBe('play');
-      expect(parsed.state.linesOrder).toEqual(['line-1']);
+      const inner = JSON.parse(parsed.state);
+      expect(inner.linesOrder).toEqual(['line-1']);
       expect(parsed.state.characters).toEqual({ 'char-1': 'HAMLET' });
     });
 
