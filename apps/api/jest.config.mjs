@@ -22,6 +22,9 @@ const config = {
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    // Resolve workspace packages to their source so tests work without building
+    '^@marivo/utils$': '<rootDir>/../../packages/utils/src/index.ts',
+    '^@marivo/utils/(.*)$': '<rootDir>/../../packages/utils/src/$1',
   },
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
 };
