@@ -15,7 +15,7 @@ parser = MistralParser()
 
 
 def process_script_text_files(job: Job):
-    client = TRPCClient(os.getenv("API_URL"), use_superjson=True)
+    client = TRPCClient(os.getenv("API_URL"), use_superjson=True, api_key=os.getenv("WORKER_API_KEY"))
     temp_dir = tempfile.TemporaryDirectory()
     try:
         print("Starting process_script_text_files job")
