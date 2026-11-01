@@ -38,11 +38,9 @@
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
-    "@marivo/jest-presets": "workspace:*",
     "@marivo/typescript-config": "workspace:*",
     "@types/node": "^26.6.6",
     "bunchee": "^7.0.2",
-    "eslint": "^9.39.4",
     "typescript": "5.9.3",
     "vitest": "^5.0.0"
   },
@@ -53,6 +51,5 @@
     "react-dom": ">=18"
   },
   "jest": {
-    "preset": "@marivo/jest-presets/browser"
   }
 }
