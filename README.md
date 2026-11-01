@@ -56,3 +56,7 @@ To format all packages, run
 ```
 pnpm format
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for issue, PR, branch, and commit conventions.
