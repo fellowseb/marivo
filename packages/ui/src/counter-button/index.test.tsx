@@ -1,4 +1,4 @@
-import { describe, it } from "@jest/globals";
+import { describe, it } from "vitest";
 import { createRoot } from "react-dom/client";
 import { CounterButton } from ".";
 

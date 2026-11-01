@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   saveScriptState,
   loadScriptState,
@@ -59,7 +59,7 @@ describe("script-persistence", () => {
     });
 
     it("does not throw on localStorage failure", () => {
-      const spy = jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
         throw new Error("QuotaExceeded");
       });
       expect(() => saveScriptState(makeState(), "uri", "play")).not.toThrow();

@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from "@jest/globals";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Result } from "@marivo/utils";
 import { SaveLineContentUseCase } from "./save-line-content.use-case.ts";
 import { CreateLineUseCase } from "./create-line.use-case.ts";
@@ -15,18 +15,18 @@ describe("Script write endpoints - integration (happy paths)", () => {
   const PLAY_URI = "550e8400-e29b-41d4-a716-446655440000";
   const SCRIPT_ID = 42;
 
-  let scriptRepository: jest.Mocked<ScriptRepository>;
-  let userPlaysRepository: jest.Mocked<UserPlaysRepository>;
+  let scriptRepository: vi.Mocked<ScriptRepository>;
+  let userPlaysRepository: vi.Mocked<UserPlaysRepository>;
 
   beforeEach(() => {
     scriptRepository = {
-      saveLineContent: jest.fn(),
-      createLine: jest.fn(),
-      deleteLine: jest.fn(),
-    } as unknown as jest.Mocked<ScriptRepository>;
+      saveLineContent: vi.fn(),
+      createLine: vi.fn(),
+      deleteLine: vi.fn(),
+    } as unknown as vi.Mocked<ScriptRepository>;
     userPlaysRepository = {
-      getScriptId: jest.fn().mockResolvedValue(Result.ok(SCRIPT_ID)),
-    } as unknown as jest.Mocked<UserPlaysRepository>;
+      getScriptId: vi.fn().mockResolvedValue(Result.ok(SCRIPT_ID)),
+    } as unknown as vi.Mocked<UserPlaysRepository>;
   });
 
   describe("saveLineContent happy path", () => {
