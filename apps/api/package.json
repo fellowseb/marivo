@@ -4,7 +4,7 @@
   "description": "Marivo API Server",
   "keywords": [],
   "license": "ISC",
-  "author": "S\u00e9bastien Wauquier",
+  "author": "Sébastien Wauquier",
   "type": "module",
   "exports": {
     ".": "./dist/api.d.ts"
@@ -15,8 +15,8 @@
     "check-types": "tsc --noEmit",
     "lint": "oxlint src/ --deny-warnings",
     "test": "vitest run",
-    "test:unit": "vitest run --exclude \"**/*.integration.test.ts\"",
-    "test:integration": "vitest run --include \"**/*.integration.test.ts\"",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -39,11 +39,13 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "^12.2.1",
     "@types/express": "^5.0.6",
     "@types/node": "^24.12.4",
     "@types/supertest": "^7.0.0",
     "globals": "^16.5.0",
     "supertest": "^7.1.4",
+    "testcontainers": "^10.28.0",
     "types": "link:@clerk/shared/types",
     "typescript": "5.9.3",
     "vitest": "^5.0.0"
