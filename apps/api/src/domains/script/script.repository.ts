@@ -72,7 +72,7 @@ export class ScriptRepository extends UserRepositoryBase {
         last_modified_date
       FROM lines 
       WHERE script_id = ${scriptRow.id}
-        AND last_modified_date > ${params.since.getTime()}`;
+        AND last_modified_date > ${params.since}`;
     const lineContentRows = await this.sql<LineContentRow[]>`
       SELECT
         l.id,
@@ -89,7 +89,7 @@ export class ScriptRepository extends UserRepositoryBase {
       FROM lines_contents l
         LEFT JOIN users u ON u.id = l.author_id
       WHERE script_id = ${scriptRow.id}
-        AND last_modified_date > ${params.since.getTime()}`;
+        AND last_modified_date > ${params.since}`;
     return Result.ok({
       checksum: scriptRow.checksum,
       diffs: [
