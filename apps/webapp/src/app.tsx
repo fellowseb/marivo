@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import superjson from 'superjson';
 import { v7 as uuidv7 } from 'uuid';
 import { StrictMode, useState } from 'react';
@@ -71,6 +70,7 @@ function TrpcApiProvider(props: React.PropsWithChildren<TrpcApiProviderProps>) {
             headers: async (h) => {
               const token = await getToken();
               const { importId } = h.op.context;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
               const importFileId = (h.op.input as any).id;
               return {
                 Authorization: `Bearer ${token}`,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import classNames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
 import { Suspense, useEffect, useRef, useState, type DragEvent } from 'react';
@@ -192,6 +191,7 @@ function ImportStep() {
     if (initStatus === 'success') {
       files.forEach((entry) => {
         if (entry.type === 'file') {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
           (entry.file as any).id = entry.id;
           mutateUpload(entry.file);
         }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Request } from 'express';
 import { TRPCError } from '@trpc/server';
 import type { Provider } from '../shared/provider.ts';
@@ -42,6 +41,7 @@ export function handleUseCase<T extends AnyUseCase>(provider: Provider<T>) {
         },
       });
     });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     return res as any;
   };
 }
