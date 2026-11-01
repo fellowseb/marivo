@@ -138,13 +138,6 @@ function ScriptLine(props: ScriptLineProps) {
     // }
   };
 
-  const _handleDelete = () => {
-    if (lineContent.type === 'draft') {
-      // props.onDraftTextEdit(lineContent.id, undefined, true);
-    } else {
-      props.onDraftInit?.(lineContent, undefined, true);
-    }
-  };
   const handleLineBlur = () => {
     const { current } = lineEditableContentRef;
     if (current) {

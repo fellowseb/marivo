@@ -59,7 +59,6 @@ function ImportFilters(props: ImportFiltersProps) {
     props.onStatusesChange(ALL_STATUS_OPTIONS);
   };
 
-  const _allSelected = ALL_STATUS_OPTIONS.every((s) => props.statuses.includes(s));
 
   return (
     <div className={styles.importFilters}>

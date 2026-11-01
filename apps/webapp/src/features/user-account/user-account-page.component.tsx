@@ -1,5 +1,4 @@
-import { NavLink, useLocation, useNavigate } from 'react-router';
-import _Tabs from '../../components/tabs.component';
+import { NavLink } from 'react-router';
 import styles from './user-account-page.module.css';
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
 import { UserProfile } from '@clerk/react-router';
@@ -21,18 +20,8 @@ export function UserAccountPageBreadcrumbs() {
   );
 }
 
-const HASHES = ['#general'];
 
 export function UserAccountPage() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const _handleTabChange = (tabIndex: number) => {
-    navigate({
-      hash: HASHES[tabIndex],
-    });
-  };
-  const hashIndex = HASHES.findIndex((hash) => hash === location.hash);
-  const _activeTab = hashIndex >= 0 ? hashIndex : undefined;
   return (
     <div className={styles.container}>
       <UserProfile
