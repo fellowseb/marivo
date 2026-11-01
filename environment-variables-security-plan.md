@@ -41,11 +41,11 @@ marivo/
 
 | File     | Credentials                                                                           | Risk Level                  |
 | -------- | ------------------------------------------------------------------------------------- | --------------------------- |
-| Multiple | Mistral API Key: `fswn7iU5dg42xPcb2WmOj9IPJxkzNbNT`                                   | **HIGH** - Financial risk   |
-| Multiple | Clerk Secret Key: `sk_test_9b0SZdsc0pRiBteDtwl4ywAgSqKiAAmA9iFZNxIIvC`                | **HIGH** - Auth bypass risk |
-| Multiple | Clerk Publishable Key: `pk_test_bGlrZWQtd3Jlbi00Ny5jbGVyay5hY2NvdW50cy5kZXYk`         | **MEDIUM**                  |
-| Multiple | Garage Access Key: `GK06c8fbd8a91d21d224a5b678`                                       | **HIGH** - Data access risk |
-| Multiple | Garage Secret Key: `be7ef169c7e1d10e36fedad8a70455dd685d79a4972b087e9fe8c293102c4750` | **HIGH** - Data access risk |
+| Multiple | Mistral API Key: `<REDACTED_MISTRAL_API_KEY>`                                   | **HIGH** - Financial risk   |
+| Multiple | Clerk Secret Key: `<REDACTED_CLERK_SECRET_KEY>`                | **HIGH** - Auth bypass risk |
+| Multiple | Clerk Publishable Key: `<REDACTED_CLERK_PUBLISHABLE_KEY>`         | **MEDIUM**                  |
+| Multiple | Garage Access Key: `<REDACTED_GARAGE_ACCESS_KEY>`                                       | **HIGH** - Data access risk |
+| Multiple | Garage Secret Key: `<REDACTED_GARAGE_SECRET_KEY>` | **HIGH** - Data access risk |
 | Multiple | PostgreSQL Password: `postgres`                                                       | **MEDIUM**                  |
 
 ### 🎯 Real Security Issue
@@ -458,19 +458,19 @@ npx lint-staged
 
 ```bash
 # From repository root
-grep -r "fswn7iU5dg42xPcb2WmOj9IPJxkzNbNT" . \
+grep -r "<REDACTED_MISTRAL_API_KEY>" . \
   --exclude-dir=.git \
   --exclude-dir=node_modules \
   --exclude-dir=dist \
   2>/dev/null || echo "✅ No Mistral key found"
 
-grep -r "sk_test_9b0SZdsc0pRiBteDtwl4ywAgSqKiAAmA9iFZNxIIvC" . \
+grep -r "<REDACTED_CLERK_SECRET_KEY>" . \
   --exclude-dir=.git \
   --exclude-dir=node_modules \
   --exclude-dir=dist \
   2>/dev/null || echo "✅ No Clerk secret key found"
 
-grep -r "GK06c8fbd8a91d21d224a5b678" . \
+grep -r "<REDACTED_GARAGE_ACCESS_KEY>" . \
   --exclude-dir=.git \
   --exclude-dir=node_modules \
   --exclude-dir=dist \
@@ -564,7 +564,7 @@ patterns=(
   "pk_live_"
   "sk_live_"
   "GK[0-9a-zA-Z]{20}"
-  "be7ef169c7e1d10e36fedad8a70455dd685d79a4972b087e9fe8c293102c4750"
+  "<REDACTED_GARAGE_SECRET_KEY>"
 )
 
 for pattern in "${patterns[@]}"; do
