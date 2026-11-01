@@ -1,4 +1,4 @@
-bullmq==2.20.0
+bullmq==3.4.3
 python-dotenv==1.2.2
 boto3==1.43.14
 mistralai==2.4.5
