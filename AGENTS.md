@@ -60,6 +60,22 @@ pnpm test          # All tests must pass
 - PR body must include `Closes #NNN`
 - Use `gh` CLI for issues and PRs: `gh issue create`, `gh pr create`
 
+### After Rebasing
+
+**Always regenerate the lockfile after a rebase** to avoid CI failures from
+lockfile/overrides mismatches:
+
+```bash
+git rebase origin/master
+pnpm install --no-frozen-lockfile   # regenerate lockfile
+pnpm install --frozen-lockfile      # verify it's in sync
+git add pnpm-lock.yaml && git commit --amend --no-edit  # or new commit
+git push --force-with-lease
+```
+
+If `pnpm install --frozen-lockfile` fails locally, the lockfile is stale —
+regenerate it before pushing.
+
 ---
 
 ## 4. Architecture Patterns
