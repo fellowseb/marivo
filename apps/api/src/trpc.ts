@@ -1,9 +1,9 @@
-import type { Request } from 'express';
-import superjson from 'superjson';
-import type { Sql } from 'postgres';
-import { initTRPC } from '@trpc/server';
-import * as trpcExpress from '@trpc/server/adapters/express';
-import { getDatabase } from './infra/db.ts';
+import type { Request } from "express";
+import superjson from "superjson";
+import type { Sql } from "postgres";
+import { initTRPC } from "@trpc/server";
+import * as trpcExpress from "@trpc/server/adapters/express";
+import { getDatabase } from "./infra/db.ts";
 
 export interface TrpcContext {
   req: Request;
@@ -11,9 +11,7 @@ export interface TrpcContext {
 }
 
 // created for each request
-export const createContext = ({
-  req,
-}: trpcExpress.CreateExpressContextOptions): TrpcContext => {
+export const createContext = ({ req }: trpcExpress.CreateExpressContextOptions): TrpcContext => {
   return {
     req,
     sql: getDatabase(),

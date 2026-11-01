@@ -1,29 +1,23 @@
-import { Suspense, useEffect } from 'react';
-import { NavLink, Route, Routes, useNavigate, useParams } from 'react-router';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import PlayPageLayout from '../../layouts/play-page-layout.component';
-import DotsLoader from '../../components/dots-loader.component';
-import PageNotFound from '../../components/page-not-found.component';
-import ErrorBoundary from '../../components/error-boundary.component';
-import ScriptTab from '../script-edition/script-tab.component';
-import MemorizeTab from '../lines-memorization/memorize-tab.component';
-import PlaySettingsTab from '../play-settings/play-settings-tab.component';
-import PlanningTab from '../planning/planning-tab.component';
-import BlockingTab from '../blocking/blocking-tab.component';
-import StagingDirectionsTab from '../staging-directions/staging-directions-tab.component';
-import { ScriptContextProvider } from '../script/script.context.tsx';
-import { ScriptEditionContextProvider } from '../script/script-edition.context.tsx';
-import { ScriptUndoRedoContextProvider } from '../script/script-undo-redo.context.tsx';
-import { ScriptTabToolbarContextProvider } from '../script-edition/script-tab-toolbar.context.tsx';
-import PermissionProtected, {
-  checkPermission,
-} from './permission-protected.component';
-import {
-  PlayContextProvider,
-  usePlayContext,
-  type PlayContextResult,
-} from './play.context';
-import styles from './play-page.module.css';
+import { Suspense, useEffect } from "react";
+import { NavLink, Route, Routes, useNavigate, useParams } from "react-router";
+import { HeaderBreadcrumbs } from "../../layouts/header.component";
+import PlayPageLayout from "../../layouts/play-page-layout.component";
+import DotsLoader from "../../components/dots-loader.component";
+import PageNotFound from "../../components/page-not-found.component";
+import ErrorBoundary from "../../components/error-boundary.component";
+import ScriptTab from "../script-edition/script-tab.component";
+import MemorizeTab from "../lines-memorization/memorize-tab.component";
+import PlaySettingsTab from "../play-settings/play-settings-tab.component";
+import PlanningTab from "../planning/planning-tab.component";
+import BlockingTab from "../blocking/blocking-tab.component";
+import StagingDirectionsTab from "../staging-directions/staging-directions-tab.component";
+import { ScriptContextProvider } from "../script/script.context.tsx";
+import { ScriptEditionContextProvider } from "../script/script-edition.context.tsx";
+import { ScriptUndoRedoContextProvider } from "../script/script-undo-redo.context.tsx";
+import { ScriptTabToolbarContextProvider } from "../script-edition/script-tab-toolbar.context.tsx";
+import PermissionProtected, { checkPermission } from "./permission-protected.component";
+import { PlayContextProvider, usePlayContext, type PlayContextResult } from "./play.context";
+import styles from "./play-page.module.css";
 
 function PlayPageTitle() {
   const play = usePlayContext();
@@ -41,7 +35,7 @@ function PlayPageTitle() {
       );
     },
     failure() {
-      return <>{'?'}</>;
+      return <>{"?"}</>;
     },
   });
 }
@@ -53,7 +47,7 @@ export function PlayPageBreadcrumbs() {
       crumbs={[
         <NavLink
           to={{
-            pathname: '/plays',
+            pathname: "/plays",
           }}
         >
           My plays
@@ -64,15 +58,15 @@ export function PlayPageBreadcrumbs() {
   );
 }
 
-export const PLAY_URI_PARAM = 'uri';
+export const PLAY_URI_PARAM = "uri";
 export const PLAY_ROUTE_BASE = `/plays/edit/:${PLAY_URI_PARAM}`;
 export const PLAY_SUB_ROUTES_PATHS = Object.freeze({
-  script: 'script',
-  stagingNotes: 'staging-notes',
-  blocking: 'blocking',
-  memorize: 'memorize',
-  planning: 'planning',
-  settings: 'settings',
+  script: "script",
+  stagingNotes: "staging-notes",
+  blocking: "blocking",
+  memorize: "memorize",
+  planning: "planning",
+  settings: "settings",
 });
 
 type ValuesOf<T> = T extends Record<string | number, infer V> ? V : unknown;
@@ -89,8 +83,7 @@ export function useNavigateToDefaultPlaySubpath(
 ) {
   let redirection: PlaySubPath | undefined;
   for (const key in PLAY_SUB_ROUTES_PATHS) {
-    const subpath =
-      PLAY_SUB_ROUTES_PATHS[key as keyof typeof PLAY_SUB_ROUTES_PATHS];
+    const subpath = PLAY_SUB_ROUTES_PATHS[key as keyof typeof PLAY_SUB_ROUTES_PATHS];
     if (checkPermission(playContext?.dataOr(undefined)?.permissions, subpath)) {
       redirection = subpath;
       break;
@@ -102,13 +95,13 @@ export function useNavigateToDefaultPlaySubpath(
       if (redirection) {
         navigate(
           {
-            pathname: `${opts.fromIndex ? '.' : '..'}/${redirection}`,
+            pathname: `${opts.fromIndex ? "." : ".."}/${redirection}`,
           },
-          { relative: 'path' },
+          { relative: "path" },
         );
       } else {
         navigate({
-          pathname: '/',
+          pathname: "/",
         });
       }
     }
@@ -124,10 +117,10 @@ function NavigateToDefaultSubpath() {
   return (
     <div
       style={{
-        flex: '1',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flex: "1",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <DotsLoader size="xlarge" />
@@ -148,10 +141,10 @@ function PlayPage() {
           fallback={
             <div
               style={{
-                flex: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                flex: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <DotsLoader size="xlarge" />

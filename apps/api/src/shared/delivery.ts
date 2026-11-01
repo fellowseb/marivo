@@ -1,9 +1,9 @@
-import type z from 'zod';
-import type { Request, RequestHandler, Response } from 'express';
-import { Result } from '@marivo/utils';
-import type { AnyUseCase } from './use-case.ts';
-import type { Provider } from './provider.ts';
-import { AppError } from './error.ts';
+import type z from "zod";
+import type { Request, RequestHandler, Response } from "express";
+import { Result } from "@marivo/utils";
+import type { AnyUseCase } from "./use-case.ts";
+import type { Provider } from "./provider.ts";
+import { AppError } from "./error.ts";
 
 export function sendSuccessResponse<T>(req: Request, res: Response, data: T) {
   const responseBody = {
@@ -14,11 +14,7 @@ export function sendSuccessResponse<T>(req: Request, res: Response, data: T) {
   res.status(200).send(responseBody);
 }
 
-export function sendFailureResponse(
-  req: Request,
-  res: Response,
-  error: AppError,
-) {
+export function sendFailureResponse(req: Request, res: Response, error: AppError) {
   const responseBody = {
     success: false,
     requestId: req.context.requestId,
@@ -26,10 +22,10 @@ export function sendFailureResponse(
   };
   let status;
   switch (error.family) {
-    case 'client':
+    case "client":
       status = 400;
       break;
-    case 'server':
+    case "server":
     default:
       status = 500;
       break;
@@ -57,25 +53,25 @@ function validateData<TError extends Error>(
 
 class InvalidInputParamsError extends AppError {
   constructor() {
-    super('Invalid input params', 'BAD_REQUEST');
+    super("Invalid input params", "BAD_REQUEST");
   }
 }
 
 class InvalidInputPayloadError extends AppError {
   constructor() {
-    super('Invalid input payload', 'BAD_REQUEST');
+    super("Invalid input payload", "BAD_REQUEST");
   }
 }
 
 class InvalidOutputError extends AppError {
   constructor() {
-    super('Invalid use case output format', 'BAD_REQUEST');
+    super("Invalid use case output format", "BAD_REQUEST");
   }
 }
 
 class UnexpectedAppError extends AppError {
   constructor() {
-    super('Unexpected application error', 'INTERNAL_SERVER_ERROR');
+    super("Unexpected application error", "INTERNAL_SERVER_ERROR");
   }
 }
 
@@ -88,21 +84,13 @@ export function useCase<TUseCase extends AnyUseCase>(config: {
   return async (req, res) => {
     try {
       if (config.inputParamsSchema) {
-        const result = validateData(
-          req.params,
-          config.inputParamsSchema,
-          InvalidInputParamsError,
-        );
+        const result = validateData(req.params, config.inputParamsSchema, InvalidInputParamsError);
         if (result.isFailure()) {
           return sendFailureResponse(req, res, result.errorOrThrow());
         }
       }
       if (config.inputPayloadSchema) {
-        const result = validateData(
-          req.body,
-          config.inputPayloadSchema,
-          InvalidInputPayloadError,
-        );
+        const result = validateData(req.body, config.inputPayloadSchema, InvalidInputPayloadError);
         if (result.isFailure()) {
           return sendFailureResponse(req, res, result.errorOrThrow());
         }
@@ -113,11 +101,7 @@ export function useCase<TUseCase extends AnyUseCase>(config: {
       outputResult.match({
         success: (outputData) => {
           if (config.outputSchema) {
-            validateData(
-              outputData,
-              config.outputSchema,
-              InvalidOutputError,
-            ).dataOrThrow();
+            validateData(outputData, config.outputSchema, InvalidOutputError).dataOrThrow();
           }
         },
         failure: () => {

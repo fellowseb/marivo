@@ -1,5 +1,5 @@
-import Tabs from '../../components/tabs.component';
-import styles from './staging-directions-tab.module.css';
+import Tabs from "../../components/tabs.component";
+import styles from "./staging-directions-tab.module.css";
 
 function StagingDirectionsTab() {
   return (
@@ -8,23 +8,23 @@ function StagingDirectionsTab() {
         containerClass={styles.tabs}
         tabs={[
           {
-            name: 'Characters',
+            name: "Characters",
             ContentComponent: <div>CharactersList</div>,
           },
           {
-            name: 'Props',
+            name: "Props",
             ContentComponent: <div>PropsList</div>,
           },
           {
-            name: 'Costumes',
+            name: "Costumes",
             ContentComponent: <div>CostumesList</div>,
           },
           {
-            name: 'Lights',
+            name: "Lights",
             ContentComponent: <div>LightsList</div>,
           },
           {
-            name: 'Sounds',
+            name: "Sounds",
             ContentComponent: <div>SoundsList</div>,
           },
         ]}

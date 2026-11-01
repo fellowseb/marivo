@@ -1,15 +1,15 @@
-import * as trpcExpress from '@trpc/server/adapters/express';
-import express from 'express';
-import cors from 'cors';
-import { clerkMiddleware } from '@clerk/express';
-import { createContext, router } from './trpc.ts';
-import { deliveryMiddleware } from './infra/delivery.middleware.ts';
-import { userMiddleware } from './domains/auth/user.middleware.ts';
-import playsRoutes from './domains/plays/plays.trpc-routes.ts';
-import playsCollectionRoutes from './domains/plays/plays-collection.trpc-routes.ts';
-import playsWorkerRoutes from './domains/plays/plays-worker.trpc-routes.ts';
-import scriptRoutes from './domains/script/script.trpc-routes.ts';
-import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
+import * as trpcExpress from "@trpc/server/adapters/express";
+import express from "express";
+import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
+import { createContext, router } from "./trpc.ts";
+import { deliveryMiddleware } from "./infra/delivery.middleware.ts";
+import { userMiddleware } from "./domains/auth/user.middleware.ts";
+import playsRoutes from "./domains/plays/plays.trpc-routes.ts";
+import playsCollectionRoutes from "./domains/plays/plays-collection.trpc-routes.ts";
+import playsWorkerRoutes from "./domains/plays/plays-worker.trpc-routes.ts";
+import scriptRoutes from "./domains/script/script.trpc-routes.ts";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 const appRouter = router({
   plays: playsRoutes,
@@ -29,7 +29,7 @@ export type AppRouterOutput = inferRouterOutputs<AppRouter>;
 export default function trpcServer(): express.Application {
   const app = express();
   app.use(
-    '/worker',
+    "/worker",
     // Read requestId from request header
     deliveryMiddleware(),
     // Enable CORS for all routes

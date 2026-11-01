@@ -1,7 +1,7 @@
-import type { IconValue } from './icon.component';
-import styles from './cards-select.module.css';
-import Button from './button.component';
-import { useState } from 'react';
+import type { IconValue } from "./icon.component";
+import styles from "./cards-select.module.css";
+import Button from "./button.component";
+import { useState } from "react";
 
 interface CardsSelectOption {
   label: string;
@@ -17,13 +17,7 @@ interface CardsSelectProps {
 
 export function CardsSelect(props: CardsSelectProps) {
   const [selection, setSelection] = useState<Set<string>>(
-    new Set(
-      props.value
-        ? Array.isArray(props.value)
-          ? props.value
-          : [props.value]
-        : null,
-    ),
+    new Set(props.value ? (Array.isArray(props.value) ? props.value : [props.value]) : null),
   );
   const handleSelect = (value: string) => () => {
     setSelection((prev) => {

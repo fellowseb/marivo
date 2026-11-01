@@ -24,7 +24,7 @@
 }
 
 .play {
-  mask: url('/src/assets/play-circle.svg') no-repeat;
+  mask: url("/src/assets/play-circle.svg") no-repeat;
   mask-clip: contain;
   background-color: #1f313c;
   width: 4em;

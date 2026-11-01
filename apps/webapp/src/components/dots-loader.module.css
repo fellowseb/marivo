@@ -31,7 +31,7 @@
 }
 .loader:before,
 .loader:after {
-  content: '';
+  content: "";
   grid-area: 1/1;
 }
 .loader:before {

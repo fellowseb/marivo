@@ -1,12 +1,12 @@
-import type { PlayListItemModel } from './plays.models';
+import type { PlayListItemModel } from "./plays.models";
 
 export type PlaysOrdering =
-  | 'orderByTitleAsc'
-  | 'orderByTitleDesc'
-  | 'orderByCreationDateAsc'
-  | 'orderByCreationDateDesc'
-  | 'orderByLastModificationDateAsc'
-  | 'orderByLastModificationDateDesc';
+  | "orderByTitleAsc"
+  | "orderByTitleDesc"
+  | "orderByCreationDateAsc"
+  | "orderByCreationDateDesc"
+  | "orderByLastModificationDateAsc"
+  | "orderByLastModificationDateDesc";
 
 export interface PlayFilterOptions {
   title: string;
@@ -37,33 +37,24 @@ function sortPlay(sortOptions: PlaySortOptions) {
       return 0;
     }
     switch (sortOptions.orderBy) {
-      case 'orderByTitleAsc':
+      case "orderByTitleAsc":
         return rhs.title.localeCompare(lhs.title);
-      case 'orderByTitleDesc':
+      case "orderByTitleDesc":
         return lhs.title.localeCompare(rhs.title);
-      case 'orderByCreationDateAsc':
+      case "orderByCreationDateAsc":
         return rhs.createdDate.getTime() - lhs.createdDate.getTime();
-      case 'orderByCreationDateDesc':
+      case "orderByCreationDateDesc":
         return lhs.createdDate.getTime() - rhs.createdDate.getTime();
-      case 'orderByLastModificationDateAsc':
-        return (
-          (rhs.lastModifiedDate?.getTime() ?? 0) -
-          (lhs.lastModifiedDate?.getTime() ?? 0)
-        );
-      case 'orderByLastModificationDateDesc':
-        return (
-          (lhs.lastModifiedDate?.getTime() ?? 0) -
-          (rhs.lastModifiedDate?.getTime() ?? 0)
-        );
+      case "orderByLastModificationDateAsc":
+        return (rhs.lastModifiedDate?.getTime() ?? 0) - (lhs.lastModifiedDate?.getTime() ?? 0);
+      case "orderByLastModificationDateDesc":
+        return (lhs.lastModifiedDate?.getTime() ?? 0) - (rhs.lastModifiedDate?.getTime() ?? 0);
       default:
         return 0;
     }
   };
 }
 
-export function filterSortPlays(
-  plays: PlayListItemModel[],
-  options: PlayFilterSortOptions,
-) {
+export function filterSortPlays(plays: PlayListItemModel[], options: PlayFilterSortOptions) {
   return plays.filter(filterPlay(options)).sort(sortPlay(options));
 }

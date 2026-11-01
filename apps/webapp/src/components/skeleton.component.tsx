@@ -1,5 +1,5 @@
-import classNames from 'classnames';
-import styles from './skeleton.module.css';
+import classNames from "classnames";
+import styles from "./skeleton.module.css";
 
 function Skeleton(props: { hideImage?: boolean }) {
   return (

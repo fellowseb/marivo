@@ -1,18 +1,18 @@
 export type ScriptImportStatus =
-  | 'uploading_files'
-  | 'processing_files'
-  | 'reviewing'
-  | 'done'
-  | 'error';
+  | "uploading_files"
+  | "processing_files"
+  | "reviewing"
+  | "done"
+  | "error";
 
 export type ScriptImport =
   | {
       id: string;
-      status: Exclude<ScriptImportStatus, 'reviewing'>;
+      status: Exclude<ScriptImportStatus, "reviewing">;
     }
   | {
       id: string;
-      status: ScriptImportStatus & 'reviewing';
+      status: ScriptImportStatus & "reviewing";
       metadata: {
         title: string;
         author: string;
@@ -34,19 +34,19 @@ export interface ScriptImportForProcessing {
 export interface Files {
   [id: string]:
     | {
-        type: 'url';
+        type: "url";
         url: string;
         size: undefined;
-        status: 'waiting' | 'in-progress' | 'ready';
+        status: "waiting" | "in-progress" | "ready";
       }
     | {
-        type: 'file';
+        type: "file";
         name: string;
         size: number;
-        status: 'waiting' | 'in-progress' | 'ready';
+        status: "waiting" | "in-progress" | "ready";
       };
 }
 
-export type Language = 'fr' | 'en';
+export type Language = "fr" | "en";
 
-export const Languages: Language[] = ['fr', 'en'];
+export const Languages: Language[] = ["fr", "en"];

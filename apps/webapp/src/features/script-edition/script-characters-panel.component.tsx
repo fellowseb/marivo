@@ -1,6 +1,6 @@
-import Button from '../../components/button.component';
-import Panel from '../../components/panel.component';
-import styles from './script-characters-panel.module.css';
+import Button from "../../components/button.component";
+import Panel from "../../components/panel.component";
+import styles from "./script-characters-panel.module.css";
 
 interface ScriptCharactersPanelProps {
   characters: { [id: string]: string };
@@ -15,9 +15,7 @@ function ScriptCharactersPanel(props: ScriptCharactersPanelProps) {
           {Object.keys(props.characters).map((characterId) => {
             return (
               <li>
-                <Button variant="discrete">
-                  {props.characters[characterId]}
-                </Button>
+                <Button variant="discrete">{props.characters[characterId]}</Button>
               </li>
             );
           })}

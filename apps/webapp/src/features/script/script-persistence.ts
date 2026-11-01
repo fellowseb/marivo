@@ -1,6 +1,6 @@
-import type { ScriptState } from './script-state';
+import type { ScriptState } from "./script-state";
 
-const STORAGE_KEY_PREFIX = 'marivo:script-state:';
+const STORAGE_KEY_PREFIX = "marivo:script-state:";
 const STORAGE_VERSION = 1;
 
 interface PersistedScriptState {
@@ -33,9 +33,10 @@ function serializeState(state: ScriptState, uri: string, from: string): Persiste
     if (value instanceof Map) {
       return { __map: Array.from(value.entries()).map(([k, v]) => [k, preConvert(v)]) };
     }
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
       const out: Record<string, unknown> = {};
-      for (const k of Object.keys(value)) out[k] = preConvert((value as Record<string, unknown>)[k]);
+      for (const k of Object.keys(value))
+        out[k] = preConvert((value as Record<string, unknown>)[k]);
       return out;
     }
     if (Array.isArray(value)) return value.map(preConvert);
@@ -58,16 +59,14 @@ interface SerializedDate {
 }
 
 function reviveDates(_key: string, value: unknown): unknown {
-  if (value && typeof value === 'object') {
-    if ('__date' in value) {
+  if (value && typeof value === "object") {
+    if ("__date" in value) {
       return new Date((value as SerializedDate).__date);
     }
-    if ('__map' in value) {
+    if ("__map" in value) {
       const entries = (value as SerializedMap).__map;
       // Recursively revive nested values inside the map entries
-      const revived = entries.map(
-        ([k, v]) => [k, reviveDates('', v)] as [unknown, unknown],
-      );
+      const revived = entries.map(([k, v]) => [k, reviveDates("", v)] as [unknown, unknown]);
       return new Map(revived);
     }
   }
@@ -92,9 +91,9 @@ function deserializeState(persisted: PersistedScriptState): ScriptState | null {
     return {
       lastModifiedDate: s.lastModifiedDate,
       remoteLastModifiedDate: s.remoteLastModifiedDate,
-      lines: s.lines as ScriptState['lines'],
-      lineContents: s.lineContents as ScriptState['lineContents'],
-      lineToContents: s.lineToContents as ScriptState['lineToContents'],
+      lines: s.lines as ScriptState["lines"],
+      lineContents: s.lineContents as ScriptState["lineContents"],
+      lineToContents: s.lineToContents as ScriptState["lineToContents"],
       linesOrder: s.linesOrder,
       characters: s.characters,
       checksums: new Map(),
@@ -102,7 +101,7 @@ function deserializeState(persisted: PersistedScriptState): ScriptState | null {
       outline: s.outline,
     };
   } catch (e) {
-    console.warn('Failed to deserialize persisted script state:', e);
+    console.warn("Failed to deserialize persisted script state:", e);
     return null;
   }
 }
@@ -113,7 +112,7 @@ export function saveScriptState(state: ScriptState, uri: string, from: string): 
     const persisted = serializeState(state, uri, from);
     localStorage.setItem(key, JSON.stringify(persisted));
   } catch (e) {
-    console.warn('Failed to save script state to localStorage:', e);
+    console.warn("Failed to save script state to localStorage:", e);
   }
 }
 
@@ -126,7 +125,7 @@ export function loadScriptState(uri: string, from: string): ScriptState | null {
     if (persisted.uri !== uri || persisted.from !== from) return null;
     return deserializeState(persisted);
   } catch (e) {
-    console.warn('Failed to load script state from localStorage:', e);
+    console.warn("Failed to load script state from localStorage:", e);
     return null;
   }
 }
@@ -136,7 +135,7 @@ export function clearScriptState(uri: string, from: string): void {
     const key = `${STORAGE_KEY_PREFIX}${uri}:${from}`;
     localStorage.removeItem(key);
   } catch (e) {
-    console.warn('Failed to clear script state from localStorage:', e);
+    console.warn("Failed to clear script state from localStorage:", e);
   }
 }
 
@@ -151,6 +150,6 @@ export function clearAllScriptStates(): void {
     }
     keysToRemove.forEach((key) => localStorage.removeItem(key));
   } catch (e) {
-    console.warn('Failed to clear all script states:', e);
+    console.warn("Failed to clear all script states:", e);
   }
 }

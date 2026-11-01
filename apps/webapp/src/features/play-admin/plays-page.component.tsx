@@ -1,11 +1,11 @@
-import styles from './plays-page.module.css';
-import PlayList from './plays-list.component';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import { useNavigate } from 'react-router';
-import Button from '../../components/button.component';
+import styles from "./plays-page.module.css";
+import PlayList from "./plays-list.component";
+import { HeaderBreadcrumbs } from "../../layouts/header.component";
+import { useNavigate } from "react-router";
+import Button from "../../components/button.component";
 
 export function PlaysPageBreadcrumbs() {
-  return <HeaderBreadcrumbs crumbs={['My plays']} />;
+  return <HeaderBreadcrumbs crumbs={["My plays"]} />;
 }
 
 function PlaysPage() {
@@ -13,7 +13,7 @@ function PlaysPage() {
 
   const handleCreateNewPlay = () => {
     navigate({
-      pathname: 'new',
+      pathname: "new",
     });
   };
 

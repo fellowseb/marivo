@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   createContext,
   useContext,
@@ -7,16 +7,11 @@ import {
   useReducer,
   useRef,
   type PropsWithChildren,
-} from 'react';
-import { useTRPC } from '../../trpc';
-import type { Line, LineContent } from './script.models';
-import { loadScriptState, saveScriptState } from './script-persistence';
-import {
-  reducer,
-  type LineContents,
-  type ScriptAction,
-  type ScriptState,
-} from './script-state';
+} from "react";
+import { useTRPC } from "../../trpc";
+import type { Line, LineContent } from "./script.models";
+import { loadScriptState, saveScriptState } from "./script-persistence";
+import { reducer, type LineContents, type ScriptAction, type ScriptState } from "./script-state";
 
 export interface ScriptContext {
   readonly lastModifiedDate: Date;
@@ -34,7 +29,7 @@ export interface ScriptContext {
 const ScriptContext = createContext<ScriptContext | null>(null);
 export interface ScriptContextProps {
   uri: string;
-  from: 'play' | 'import';
+  from: "play" | "import";
 }
 
 const initialState = {
@@ -50,18 +45,13 @@ const initialState = {
   outline: [],
 } satisfies ScriptState;
 
-export function ScriptContextProvider(
-  props: PropsWithChildren<ScriptContextProps>,
-) {
+export function ScriptContextProvider(props: PropsWithChildren<ScriptContextProps>) {
   // Load persisted state from localStorage as initial state
   const persistedInitialState = useMemo(() => {
     return loadScriptState(props.uri, props.from) ?? initialState;
   }, [props.uri, props.from]);
 
-  const [state, dispatch] = useReducer<ScriptState, [ScriptAction]>(
-    reducer,
-    persistedInitialState,
-  );
+  const [state, dispatch] = useReducer<ScriptState, [ScriptAction]>(reducer, persistedInitialState);
 
   // Track previous uri/from to detect navigation and save state
   const prevUriRef = useRef<string | null>(null);
@@ -113,19 +103,15 @@ export function ScriptContextProvider(
     }
     prevUriRef.current = props.uri;
     prevFromRef.current = props.from;
-    dispatch({ type: 'RESET', payload: persistedInitialState });
+    dispatch({ type: "RESET", payload: persistedInitialState });
   }, [props.uri, props.from]);
   useEffect(() => {
     dispatch({
-      type: 'PROCESS_LATEST_CHANGES_PAYLOAD',
+      type: "PROCESS_LATEST_CHANGES_PAYLOAD",
       payload: query.data,
     });
   }, [query.data]);
-  return (
-    <ScriptContext.Provider value={contextValue}>
-      {props.children}
-    </ScriptContext.Provider>
-  );
+  return <ScriptContext.Provider value={contextValue}>{props.children}</ScriptContext.Provider>;
 }
 
 export function useScriptContext() {

@@ -1,20 +1,18 @@
-import type { LegitAny } from './types.ts';
+import type { LegitAny } from "./types.ts";
 
 interface ResultInternals<TSuccess, TFailure> {
-  type: 'success' | 'failure';
+  type: "success" | "failure";
   dataOrThrow: () => TSuccess;
   dataOr: <T>(fallbackValue: T) => TSuccess | T;
   errorOrThrow: () => TFailure;
 }
 
-class Success<TSuccess, TFailure>
-  implements ResultInternals<TSuccess, TFailure>
-{
+class Success<TSuccess, TFailure> implements ResultInternals<TSuccess, TFailure> {
   constructor(data: TSuccess) {
     this.data = data;
   }
   data: TSuccess;
-  type = 'success' as const;
+  type = "success" as const;
   dataOrThrow(): TSuccess {
     return this.data;
   }
@@ -22,20 +20,18 @@ class Success<TSuccess, TFailure>
     return this.data;
   }
   errorOrThrow(): TFailure {
-    throw new Error('Unexpected Result failure');
+    throw new Error("Unexpected Result failure");
   }
 }
 
-class Failure<TSuccess, TFailure>
-  implements ResultInternals<TSuccess, TFailure>
-{
+class Failure<TSuccess, TFailure> implements ResultInternals<TSuccess, TFailure> {
   constructor(data: TFailure) {
     this.data = data;
   }
   data: TFailure;
-  type = 'failure' as const;
+  type = "failure" as const;
   dataOrThrow(): TSuccess {
-    throw new Error('Unexpected Result success');
+    throw new Error("Unexpected Result success");
   }
   dataOr<T>(fallbackValue: T): TSuccess | T {
     return fallbackValue;
@@ -55,24 +51,21 @@ export class Result<TSuccess = undefined, TFailure = undefined> {
   }
 
   public isOk(): boolean {
-    return this.internals.type === 'success';
+    return this.internals.type === "success";
   }
 
   public isFailure(): boolean {
-    return this.internals.type === 'failure';
+    return this.internals.type === "failure";
   }
 
-  public match<T>(matchers: {
-    success: (data: TSuccess) => T;
-    failure: (data: TFailure) => T;
-  }) {
+  public match<T>(matchers: { success: (data: TSuccess) => T; failure: (data: TFailure) => T }) {
     switch (this.internals.type) {
-      case 'success':
+      case "success":
         return matchers.success(this.internals.dataOrThrow());
-      case 'failure':
+      case "failure":
         return matchers.failure(this.internals.errorOrThrow());
       default:
-        throw new Error('Unexpected Result case');
+        throw new Error("Unexpected Result case");
     }
   }
 

@@ -5,7 +5,7 @@ import {
   type Dispatch,
   type PropsWithChildren,
   type SetStateAction,
-} from 'react';
+} from "react";
 
 interface ScriptTabToolbarContext {
   showSearchPanel: boolean;

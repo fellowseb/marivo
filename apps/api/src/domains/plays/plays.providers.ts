@@ -1,26 +1,26 @@
-import type { Request } from 'express';
-import { Result } from '@marivo/utils';
-import { AppError } from '../../shared/error.ts';
-import type { Provider } from '../../shared/provider.ts';
-import { UserContextService } from '../../shared/use-case.ts';
-import CreatePlayUseCase from './create-play.use-case.ts';
-import { DeletePlayUseCase } from './delete-play.use-case.ts';
-import { GetAllPlaysUseCase } from './get-all-plays.use-case.ts';
-import { RespondToInviteUseCase } from './respond-to-invite.use-case.ts';
-import { UserInvitesRepository } from './user-invites.repository.ts';
-import { UserPlaysRepository } from './user-plays.repository.ts';
-import { PlayDetailsUseCase } from './play-details.use-case.ts';
-import InitImportScriptUseCase from './init-import-script.use-case.ts';
-import { ImportScriptStatusUseCase } from './import-script-status.use-case.ts';
-import { UploadFileForScriptImportUseCase } from './upload-file-for-script-import.use-case.ts';
-import { ScriptImportsRepository } from './script-imports.repository.ts';
-import { getStorage } from '../../infra/storage.ts';
-import { getMessageBroker } from '../../infra/message-broker.ts';
-import { ScriptRepository } from '../script/script.repository.ts';
-import { SetScriptImportResultUseCase } from './set-script-import-result.use-case.ts';
-import CreatePlayFromImportUseCase from './create-play-from-import.use-case.ts';
-import { GetAllScriptImportsUseCase } from './get-all-script-imports.use-case.ts';
-import { PlaysCollectionRepository } from './plays-collection.repository.ts';
+import type { Request } from "express";
+import { Result } from "@marivo/utils";
+import { AppError } from "../../shared/error.ts";
+import type { Provider } from "../../shared/provider.ts";
+import { UserContextService } from "../../shared/use-case.ts";
+import CreatePlayUseCase from "./create-play.use-case.ts";
+import { DeletePlayUseCase } from "./delete-play.use-case.ts";
+import { GetAllPlaysUseCase } from "./get-all-plays.use-case.ts";
+import { RespondToInviteUseCase } from "./respond-to-invite.use-case.ts";
+import { UserInvitesRepository } from "./user-invites.repository.ts";
+import { UserPlaysRepository } from "./user-plays.repository.ts";
+import { PlayDetailsUseCase } from "./play-details.use-case.ts";
+import InitImportScriptUseCase from "./init-import-script.use-case.ts";
+import { ImportScriptStatusUseCase } from "./import-script-status.use-case.ts";
+import { UploadFileForScriptImportUseCase } from "./upload-file-for-script-import.use-case.ts";
+import { ScriptImportsRepository } from "./script-imports.repository.ts";
+import { getStorage } from "../../infra/storage.ts";
+import { getMessageBroker } from "../../infra/message-broker.ts";
+import { ScriptRepository } from "../script/script.repository.ts";
+import { SetScriptImportResultUseCase } from "./set-script-import-result.use-case.ts";
+import CreatePlayFromImportUseCase from "./create-play-from-import.use-case.ts";
+import { GetAllScriptImportsUseCase } from "./get-all-script-imports.use-case.ts";
+import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
 
 export abstract class ResourceAccessAuth<TInput> {
   abstract authorize(params: {
@@ -31,7 +31,7 @@ export abstract class ResourceAccessAuth<TInput> {
 
 class PlayAccessForbidden extends AppError {
   constructor() {
-    super('Forbidden play access', 'FORBIDDEN');
+    super("Forbidden play access", "FORBIDDEN");
   }
 }
 
@@ -59,30 +59,16 @@ export const providers = {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
       const playsRepository = new UserPlaysRepository(sql, userContextService);
-      const invitesRepository = new UserInvitesRepository(
-        sql,
-        userContextService,
-      );
-      return new GetAllPlaysUseCase(
-        playsRepository,
-        invitesRepository,
-        userContextService,
-      );
+      const invitesRepository = new UserInvitesRepository(sql, userContextService);
+      return new GetAllPlaysUseCase(playsRepository, invitesRepository, userContextService);
     },
   } as Provider<GetAllPlaysUseCase>,
   RespondToInviteUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
       const playsRepository = new UserPlaysRepository(sql, userContextService);
-      const invitesRepository = new UserInvitesRepository(
-        sql,
-        userContextService,
-      );
-      return new RespondToInviteUseCase(
-        userContextService,
-        playsRepository,
-        invitesRepository,
-      );
+      const invitesRepository = new UserInvitesRepository(sql, userContextService);
+      return new RespondToInviteUseCase(userContextService, playsRepository, invitesRepository);
     },
   } as Provider<RespondToInviteUseCase>,
   CreatePlayUseCase: {
@@ -90,11 +76,7 @@ export const providers = {
       const userContextService = new UserContextService(req);
       const scriptRepository = new ScriptRepository(sql, userContextService);
       const playsRepository = new UserPlaysRepository(sql, userContextService);
-      return new CreatePlayUseCase(
-        scriptRepository,
-        playsRepository,
-        userContextService,
-      );
+      return new CreatePlayUseCase(scriptRepository, playsRepository, userContextService);
     },
   } as Provider<CreatePlayUseCase>,
   DeletePlayUseCase: {
@@ -121,23 +103,14 @@ export const providers = {
   InitImportScriptUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
-      const scriptImportsRepository = new ScriptImportsRepository(
-        sql,
-        userContextService,
-      );
-      return new InitImportScriptUseCase(
-        scriptImportsRepository,
-        userContextService,
-      );
+      const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
+      return new InitImportScriptUseCase(scriptImportsRepository, userContextService);
     },
   } as Provider<InitImportScriptUseCase>,
   UploadFileForScriptImportUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
-      const scriptImportsRepository = new ScriptImportsRepository(
-        sql,
-        userContextService,
-      );
+      const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
       return new UploadFileForScriptImportUseCase(
         userContextService,
         scriptImportsRepository,
@@ -149,28 +122,16 @@ export const providers = {
   ImportScriptStatusUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
-      const scriptImportsRepository = new ScriptImportsRepository(
-        sql,
-        userContextService,
-      );
-      return new ImportScriptStatusUseCase(
-        userContextService,
-        scriptImportsRepository,
-      );
+      const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
+      return new ImportScriptStatusUseCase(userContextService, scriptImportsRepository);
     },
   } as Provider<ImportScriptStatusUseCase>,
   SetScriptImportResultUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
-      const scriptImportsRepository = new ScriptImportsRepository(
-        sql,
-        userContextService,
-      );
+      const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
       const scriptRepository = new ScriptRepository(sql, userContextService);
-      const playsCollectionRepository = new PlaysCollectionRepository(
-        sql,
-        userContextService,
-      );
+      const playsCollectionRepository = new PlaysCollectionRepository(sql, userContextService);
       return new SetScriptImportResultUseCase(
         userContextService,
         scriptImportsRepository,
@@ -184,10 +145,7 @@ export const providers = {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
       const playsRepository = new UserPlaysRepository(sql, userContextService);
-      const scriptImportsRepository = new ScriptImportsRepository(
-        sql,
-        userContextService,
-      );
+      const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
       return new CreatePlayFromImportUseCase(
         playsRepository,
         scriptImportsRepository,
@@ -198,14 +156,8 @@ export const providers = {
   GetAllScriptImportsUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
-      const scriptImportsRepository = new ScriptImportsRepository(
-        sql,
-        userContextService,
-      );
-      return new GetAllScriptImportsUseCase(
-        userContextService,
-        scriptImportsRepository,
-      );
+      const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
+      return new GetAllScriptImportsUseCase(userContextService, scriptImportsRepository);
     },
   } as Provider<GetAllScriptImportsUseCase>,
 };

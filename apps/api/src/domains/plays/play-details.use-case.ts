@@ -1,19 +1,16 @@
-import z from 'zod';
-import { assertUnreachable, Result } from '@marivo/utils';
-import {
-  AuthenticatedUseCase,
-  UserContextService,
-} from '../../shared/use-case.ts';
+import z from "zod";
+import { assertUnreachable, Result } from "@marivo/utils";
+import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
 import {
   PERMISSIONS_SCHEMA,
   RecordNotFound,
   UserPlaysRepository,
-} from './user-plays.repository.ts';
-import { AppError } from '../../shared/error.ts';
+} from "./user-plays.repository.ts";
+import { AppError } from "../../shared/error.ts";
 
 class UriNotFound extends AppError {
   constructor() {
-    super('Play URI not found', 'NOT_FOUND');
+    super("Play URI not found", "NOT_FOUND");
   }
 }
 
@@ -49,10 +46,7 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
   success: PlayDetailsUseCaseOutput;
   failure: UriNotFound;
 }> {
-  constructor(
-    playsRepository: UserPlaysRepository,
-    userContextService: UserContextService,
-  ) {
+  constructor(playsRepository: UserPlaysRepository, userContextService: UserContextService) {
     super(userContextService);
     this.playsRepository = playsRepository;
   }

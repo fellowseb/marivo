@@ -1,7 +1,7 @@
-import Button from '../../components/button.component';
-import CollapsibleSection from '../../components/collapsible-section.component';
-import Panel from '../../components/panel.component';
-import styles from './script-search-panel.module.css';
+import Button from "../../components/button.component";
+import CollapsibleSection from "../../components/collapsible-section.component";
+import Panel from "../../components/panel.component";
+import styles from "./script-search-panel.module.css";
 
 interface ScriptSearchPanelProps {
   onClose?: () => void;
@@ -13,7 +13,7 @@ function ScriptSearchPanel(props: ScriptSearchPanelProps) {
       <div className={styles.searchRow}>
         <input type="search" placeholder="Text..." />
       </div>
-      <CollapsibleSection Header={'▼ Options'}>
+      <CollapsibleSection Header={"▼ Options"}>
         <div className={styles.options}>
           <div className={styles.searchRow}>
             <input type="checkbox" />

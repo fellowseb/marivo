@@ -1,11 +1,8 @@
-import z from 'zod';
-import { Result } from '@marivo/utils';
-import {
-  AuthenticatedUseCase,
-  UserContextService,
-} from '../../shared/use-case.ts';
-import type { UserPlaysRepository } from './user-plays.repository.ts';
-import type { UserInvitesRepository } from './user-invites.repository.ts';
+import z from "zod";
+import { Result } from "@marivo/utils";
+import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
+import type { UserPlaysRepository } from "./user-plays.repository.ts";
+import type { UserInvitesRepository } from "./user-invites.repository.ts";
 
 export const GetAllPlaysUseCaseOutputSchema = z.object({
   plays: z.array(

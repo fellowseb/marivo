@@ -8,7 +8,7 @@
   width: 100px;
   height: 100px;
   background-color: #1f313c77;
-  mask-image: url('/src/assets/icons/alert-hexagon.svg');
+  mask-image: url("/src/assets/icons/alert-hexagon.svg");
   mask-repeat: no-repeat;
 }
 

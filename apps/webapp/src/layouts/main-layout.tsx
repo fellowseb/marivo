@@ -1,9 +1,9 @@
-import type { PropsWithChildren, ReactNode } from 'react';
-import { Outlet } from 'react-router';
-import Header from './header.component';
-import styles from './main-layout.module.css';
-import { NotificationsPanel } from '../components/notifications-panel.component';
-import { useNetworkStatusNotifier } from '../lib/use-network-status-notifier';
+import type { PropsWithChildren, ReactNode } from "react";
+import { Outlet } from "react-router";
+import Header from "./header.component";
+import styles from "./main-layout.module.css";
+import { NotificationsPanel } from "../components/notifications-panel.component";
+import { useNetworkStatusNotifier } from "../lib/use-network-status-notifier";
 
 interface MainLayoutBaseProps {
   breadcrumbs: ReactNode;
@@ -15,15 +15,11 @@ export function MainLayoutBase(props: PropsWithChildren<MainLayoutBaseProps>) {
   useNetworkStatusNotifier();
   return (
     <div className={styles.mainContainer}>
-      <Header
-        pageBreadcrumbs={props.breadcrumbs}
-        Menu={props.Menu}
-        Toolbar={props.Toolbar}
-      />
+      <Header pageBreadcrumbs={props.breadcrumbs} Menu={props.Menu} Toolbar={props.Toolbar} />
       <main
         className={styles.main}
         style={{
-          marginTop: props.Menu ? '7.4rem' : '4rem',
+          marginTop: props.Menu ? "7.4rem" : "4rem",
         }}
       >
         {props.children}

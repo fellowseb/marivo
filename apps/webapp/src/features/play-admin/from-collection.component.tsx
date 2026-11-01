@@ -1,12 +1,12 @@
-import { NavLink, useNavigate } from 'react-router';
-import Button from '../../components/button.component';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import FlowStep from '../../components/flow-step.component';
-import CollapsibleSection from '../../components/collapsible-section.component';
-import styles from './from-collection.module.css';
-import { CollectionItem } from './collection-item.component';
-import { CardsSelect } from '../../components/cards-select.component';
-import { useCollectionMetadataContext } from './collection-metadata.context';
+import { NavLink, useNavigate } from "react-router";
+import Button from "../../components/button.component";
+import { HeaderBreadcrumbs } from "../../layouts/header.component";
+import FlowStep from "../../components/flow-step.component";
+import CollapsibleSection from "../../components/collapsible-section.component";
+import styles from "./from-collection.module.css";
+import { CollectionItem } from "./collection-item.component";
+import { CardsSelect } from "../../components/cards-select.component";
+import { useCollectionMetadataContext } from "./collection-metadata.context";
 
 export function FromCollectionBreadcrumbs() {
   return (
@@ -15,14 +15,14 @@ export function FromCollectionBreadcrumbs() {
       crumbs={[
         <NavLink
           to={{
-            pathname: '/plays/new',
+            pathname: "/plays/new",
           }}
         >
           New play
         </NavLink>,
         <NavLink
           to={{
-            pathname: '/plays/new/from-collection',
+            pathname: "/plays/new/from-collection",
           }}
         >
           From collection
@@ -37,12 +37,12 @@ function FromCollection() {
   const collectionItems = [
     {
       scriptTitle: "Le Jeu de l'Amour et du Hasard",
-      scriptAuthor: 'P. de Marivaux',
+      scriptAuthor: "P. de Marivaux",
     },
   ];
   const navigate = useNavigate();
   const handlePrevious = () => {
-    navigate('/plays/new');
+    navigate("/plays/new");
   };
   return (
     <FlowStep
@@ -72,12 +72,12 @@ function FromCollection() {
               multiple={true}
               options={[
                 {
-                  label: 'FR',
-                  value: 'fr',
+                  label: "FR",
+                  value: "fr",
                 },
                 {
-                  label: 'EN',
-                  value: 'en',
+                  label: "EN",
+                  value: "en",
                 },
               ]}
             />
@@ -87,144 +87,138 @@ function FromCollection() {
               multiple={true}
               options={[
                 {
-                  label: '1',
-                  value: '1',
+                  label: "1",
+                  value: "1",
                 },
                 {
-                  label: '2',
-                  value: '2',
+                  label: "2",
+                  value: "2",
                 },
                 {
-                  label: '3',
-                  value: '3',
+                  label: "3",
+                  value: "3",
                 },
                 {
-                  label: '4',
-                  value: '4',
+                  label: "4",
+                  value: "4",
                 },
                 {
-                  label: '5',
-                  value: '5',
+                  label: "5",
+                  value: "5",
                 },
                 {
-                  label: '6',
-                  value: '6',
+                  label: "6",
+                  value: "6",
                 },
                 {
-                  label: '7',
-                  value: '7',
+                  label: "7",
+                  value: "7",
                 },
                 {
-                  label: '8',
-                  value: '8',
+                  label: "8",
+                  value: "8",
                 },
                 {
-                  label: '9',
-                  value: '9',
+                  label: "9",
+                  value: "9",
                 },
                 {
-                  label: '10+',
-                  value: '10+',
-                },
-              ]}
-            />
-          </CollapsibleSection>
-          <CollapsibleSection
-            Header="▶ Number of male roles"
-            collapsed={false}
-          >
-            <CardsSelect
-              multiple={true}
-              options={[
-                {
-                  label: '1',
-                  value: '1',
-                },
-                {
-                  label: '2',
-                  value: '2',
-                },
-                {
-                  label: '3',
-                  value: '3',
-                },
-                {
-                  label: '4',
-                  value: '4',
-                },
-                {
-                  label: '5',
-                  value: '5',
-                },
-                {
-                  label: '6',
-                  value: '6',
-                },
-                {
-                  label: '7',
-                  value: '7',
-                },
-                {
-                  label: '8',
-                  value: '8',
-                },
-                {
-                  label: '9',
-                  value: '9',
-                },
-                {
-                  label: '10+',
-                  value: '10+',
+                  label: "10+",
+                  value: "10+",
                 },
               ]}
             />
           </CollapsibleSection>
-          <CollapsibleSection
-            Header="▶ Number of female roles"
-            collapsed={false}
-          >
+          <CollapsibleSection Header="▶ Number of male roles" collapsed={false}>
             <CardsSelect
               multiple={true}
               options={[
                 {
-                  label: '1',
-                  value: '1',
+                  label: "1",
+                  value: "1",
                 },
                 {
-                  label: '2',
-                  value: '2',
+                  label: "2",
+                  value: "2",
                 },
                 {
-                  label: '3',
-                  value: '3',
+                  label: "3",
+                  value: "3",
                 },
                 {
-                  label: '4',
-                  value: '4',
+                  label: "4",
+                  value: "4",
                 },
                 {
-                  label: '5',
-                  value: '5',
+                  label: "5",
+                  value: "5",
                 },
                 {
-                  label: '6',
-                  value: '6',
+                  label: "6",
+                  value: "6",
                 },
                 {
-                  label: '7',
-                  value: '7',
+                  label: "7",
+                  value: "7",
                 },
                 {
-                  label: '8',
-                  value: '8',
+                  label: "8",
+                  value: "8",
                 },
                 {
-                  label: '9',
-                  value: '9',
+                  label: "9",
+                  value: "9",
                 },
                 {
-                  label: '10+',
-                  value: '10+',
+                  label: "10+",
+                  value: "10+",
+                },
+              ]}
+            />
+          </CollapsibleSection>
+          <CollapsibleSection Header="▶ Number of female roles" collapsed={false}>
+            <CardsSelect
+              multiple={true}
+              options={[
+                {
+                  label: "1",
+                  value: "1",
+                },
+                {
+                  label: "2",
+                  value: "2",
+                },
+                {
+                  label: "3",
+                  value: "3",
+                },
+                {
+                  label: "4",
+                  value: "4",
+                },
+                {
+                  label: "5",
+                  value: "5",
+                },
+                {
+                  label: "6",
+                  value: "6",
+                },
+                {
+                  label: "7",
+                  value: "7",
+                },
+                {
+                  label: "8",
+                  value: "8",
+                },
+                {
+                  label: "9",
+                  value: "9",
+                },
+                {
+                  label: "10+",
+                  value: "10+",
                 },
               ]}
             />
@@ -251,10 +245,7 @@ function FromCollection() {
         <div className={styles.separator} />
         <div className={styles.results}>
           {collectionItems.map((item) => (
-            <CollectionItem
-              scriptTitle={item.scriptTitle}
-              scriptAuthor={item.scriptAuthor}
-            />
+            <CollectionItem scriptTitle={item.scriptTitle} scriptAuthor={item.scriptAuthor} />
           ))}
         </div>
       </div>

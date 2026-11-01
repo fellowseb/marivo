@@ -9,8 +9,8 @@ import {
   type KeyboardEventHandler,
   type MouseEventHandler,
   type PropsWithChildren,
-} from 'react';
-import classNames from 'classnames';
+} from "react";
+import classNames from "classnames";
 import {
   type CueLineEditableContent,
   type FreeTextLineEditableContent,
@@ -19,13 +19,9 @@ import {
   type LineContent,
   type LineEditableContent,
   type LineInfo,
-} from './script.models';
-import {
-  handleDirections,
-  replaceBreaklines,
-  printCharacterName,
-} from './script.utils';
-import styles from './script-line.module.css';
+} from "./script.models";
+import { handleDirections, replaceBreaklines, printCharacterName } from "./script.utils";
+import styles from "./script-line.module.css";
 
 interface ScriptLineProps {
   line: Line;
@@ -37,11 +33,7 @@ interface ScriptLineProps {
   onShowMenu?: (id: string) => void;
   onSelect?: (id: string, add: boolean) => void;
   onDraftTextEdit?: (contentId: string, text: string) => void;
-  onDraftInit?: (
-    content: LineContent,
-    text?: string,
-    deleted?: boolean,
-  ) => void;
+  onDraftInit?: (content: LineContent, text?: string, deleted?: boolean) => void;
   onEdit?: (id: string, content: LineEditableContent) => void;
   selected?: boolean;
   characters: { [id: string]: string };
@@ -111,13 +103,13 @@ function ScriptLine(props: ScriptLineProps) {
       //   props.onDraftInit(lineContent, current.textContent);
       // }
       let editableContent: LineEditableContent;
-      if (lineContent.lineType === 'freetext') {
+      if (lineContent.lineType === "freetext") {
         editableContent = {
           lineType: lineContent.lineType,
           text: current.textContent,
           deleted: false,
         } satisfies FreeTextLineEditableContent;
-      } else if (lineContent.lineType === 'chartext') {
+      } else if (lineContent.lineType === "chartext") {
         editableContent = {
           lineType: lineContent.lineType,
           text: current.textContent,
@@ -149,13 +141,13 @@ function ScriptLine(props: ScriptLineProps) {
         //   props.onDraftInit(lineContent, current.textContent);
         // }
         let editableContent: LineEditableContent;
-        if (lineContent.lineType === 'freetext') {
+        if (lineContent.lineType === "freetext") {
           editableContent = {
             lineType: lineContent.lineType,
             text: current.textContent,
             deleted: false,
           } satisfies FreeTextLineEditableContent;
-        } else if (lineContent.lineType === 'chartext') {
+        } else if (lineContent.lineType === "chartext") {
           editableContent = {
             lineType: lineContent.lineType,
             text: current.textContent,
@@ -182,17 +174,12 @@ function ScriptLine(props: ScriptLineProps) {
   //   lineContent.text !==
   //     (lineEditableContentRef.current?.childNodes ?? [])[0]?.nodeValue;
   const [prefixDirection, textWithoutPrefix] =
-    isEditing || props.line.type !== 'chartext'
-      ? ['', lineContent.text]
+    isEditing || props.line.type !== "chartext"
+      ? ["", lineContent.text]
       : handleDirections(lineContent.text);
-  const textWithBRs = isEditable
-    ? textWithoutPrefix
-    : replaceBreaklines(textWithoutPrefix);
-  const dangerouslySetInnerHTML = useMemo(
-    () => ({ __html: textWithBRs }),
-    [textWithBRs],
-  );
-  const isHeading = lineContent.lineType === 'heading';
+  const textWithBRs = isEditable ? textWithoutPrefix : replaceBreaklines(textWithoutPrefix);
+  const dangerouslySetInnerHTML = useMemo(() => ({ __html: textWithBRs }), [textWithBRs]);
+  const isHeading = lineContent.lineType === "heading";
   const focusOnNewMount = useEffectEvent(() => {
     if (newlyInserted.current) {
       lineEditableContentRef.current?.focus();
@@ -249,12 +236,11 @@ function ScriptLine(props: ScriptLineProps) {
           })}
           onClick={handleHandleClick}
         >
-          {line.type === 'chartext' && props.num !== undefined ? (
+          {line.type === "chartext" && props.num !== undefined ? (
             <div className={styles.repliqueNum}>{props.num}</div>
           ) : null}
         </div>
-        {lineContent.lineType === 'chartext' &&
-        lineContent.characters.length ? (
+        {lineContent.lineType === "chartext" && lineContent.characters.length ? (
           <div
             className={classNames({
               [styles.repliqueCharacter]: true,
@@ -262,9 +248,7 @@ function ScriptLine(props: ScriptLineProps) {
             })}
             onClick={handleClick}
           >
-            {lineContent.characters
-              .map(printCharacterName(characters))
-              .join(', ')}
+            {lineContent.characters.map(printCharacterName(characters)).join(", ")}
             {prefixDirection ? ` ${prefixDirection}` : null}
           </div>
         ) : null}
@@ -273,23 +257,17 @@ function ScriptLine(props: ScriptLineProps) {
             className={classNames({
               [styles.repliqueText]: true,
               [styles.repliqueDeleted]: lineContent.deleted,
-              [styles.freetextLine]: line.type === 'freetext',
+              [styles.freetextLine]: line.type === "freetext",
               [styles.partName]: isHeading,
-              [styles.partNameDepth0]:
-                isHeading && lineContent.headingLevel === 0,
-              [styles.partNameDepth1]:
-                isHeading && lineContent.headingLevel === 1,
-              [styles.partNameDepth2]:
-                isHeading && lineContent.headingLevel === 2,
-              [styles.partNameDepth3]:
-                isHeading && lineContent.headingLevel === 3,
-              [styles.partNameDepth4]:
-                isHeading && lineContent.headingLevel === 4,
-              [styles.partNameDepth5]:
-                isHeading && lineContent.headingLevel === 5,
+              [styles.partNameDepth0]: isHeading && lineContent.headingLevel === 0,
+              [styles.partNameDepth1]: isHeading && lineContent.headingLevel === 1,
+              [styles.partNameDepth2]: isHeading && lineContent.headingLevel === 2,
+              [styles.partNameDepth3]: isHeading && lineContent.headingLevel === 3,
+              [styles.partNameDepth4]: isHeading && lineContent.headingLevel === 4,
+              [styles.partNameDepth5]: isHeading && lineContent.headingLevel === 5,
             })}
             spellCheck={true}
-            contentEditable={isEditable ? 'plaintext-only' : false}
+            contentEditable={isEditable ? "plaintext-only" : false}
             onFocus={handleLineFocus}
             onBlur={handleLineBlur}
             onInput={handleKeyUp}
@@ -304,7 +282,7 @@ function ScriptLine(props: ScriptLineProps) {
               })}
               onClick={handleMenuClick}
               style={{
-                anchorName: '--menu-anchor-' + line.id,
+                anchorName: "--menu-anchor-" + line.id,
               }}
             >
               <div
@@ -347,9 +325,7 @@ function sortByCharacterName(lhs: [string, string], rhs: [string, string]) {
 
 export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
   const elemRef = useRef<HTMLDivElement>(null);
-  const sortedChars = Object.entries(props.characters).sort(
-    sortByCharacterName,
-  );
+  const sortedChars = Object.entries(props.characters).sort(sortByCharacterName);
   const handleKeyUp: KeyboardEventHandler = ({ key }) => {
     if (key.length == 1 && /[0-9]/.test(key)) {
       const digit = parseInt(key, 10);
@@ -358,20 +334,17 @@ export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
       } else if (Number.isInteger(digit) && showCharactersMenu) {
         props.insertCueLine?.(props.pos, sortedChars[digit - 1][0]);
       }
-    } else if (key === '#') {
+    } else if (key === "#") {
       setShowHeadingMenu((prev) => !prev);
       setShowCharactersMenu(false);
       return true;
-    } else if (key === '@') {
+    } else if (key === "@") {
       setShowCharactersMenu((prev) => !prev);
       setShowHeadingMenu(false);
       return true;
-    } else if (
-      key.length == 1 ||
-      (key.length > 1 && /[^a-zA-Z0-9]/.test(key))
-    ) {
+    } else if (key.length == 1 || (key.length > 1 && /[^a-zA-Z0-9]/.test(key))) {
       props.insertFreetextLine?.(props.pos, key);
-    } else if (key === 'Escape') {
+    } else if (key === "Escape") {
       if (showHeadingMenu) {
         setShowHeadingMenu(false);
       } else if (showCharactersMenu) {
@@ -397,8 +370,7 @@ export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
       ref={elemRef}
     >
       <span className={styles.instructions}>
-        Start typing to insert a new{' '}
-        <kbd className="kbc-button no-container">#</kbd> heading,{' '}
+        Start typing to insert a new <kbd className="kbc-button no-container">#</kbd> heading,{" "}
         <kbd className="kbc-button no-container">@</kbd> cue line or free text
       </span>
       <div
@@ -409,9 +381,7 @@ export function ScriptLineToBe(props: PropsWithChildren<ScriptLineToBeProps>) {
       >
         <div>
           <kbd className="kbc-button no-container">0</kbd>
-          <div className={classNames([styles.partName, styles.partNameDepth0])}>
-            Title
-          </div>
+          <div className={classNames([styles.partName, styles.partNameDepth0])}>Title</div>
         </div>
         <div>
           <kbd className="kbc-button no-container">1</kbd>

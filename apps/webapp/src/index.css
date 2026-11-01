@@ -18,7 +18,7 @@ body {
   align-items: center;
   min-height: calc(100vh - 8px);
   justify-content: center;
-  background-image: url('/loader.svg');
+  background-image: url("/loader.svg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 35rem;

@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Fragment } from 'react/jsx-runtime';
-import Skeleton from '../../components/skeleton.component';
-import ScriptLine, { ScriptLineToBe } from './script-line.component';
-import styles from './script.module.css';
-import type { ScriptContext } from './script.context';
-import type { LineContent, LineEditableContent } from './script.models';
-import type { ScriptEditionContext } from './script-edition.context';
-import { getLineContentForDisplayWithInfo } from './script.utils';
+import { useEffect, useState } from "react";
+import { Fragment } from "react/jsx-runtime";
+import Skeleton from "../../components/skeleton.component";
+import ScriptLine, { ScriptLineToBe } from "./script-line.component";
+import styles from "./script.module.css";
+import type { ScriptContext } from "./script.context";
+import type { LineContent, LineEditableContent } from "./script.models";
+import type { ScriptEditionContext } from "./script-edition.context";
+import { getLineContentForDisplayWithInfo } from "./script.utils";
 
 interface ScriptProps {
   scriptContext: ScriptContext | null;
@@ -14,11 +14,7 @@ interface ScriptProps {
   isEditable: boolean;
   onLineMenuClicked?: (id: string) => void;
   onLineDraftTextEdit?: (id: string, text: string) => void;
-  onLineDraftInit?: (
-    content: LineContent,
-    text?: string,
-    deleted?: boolean,
-  ) => void;
+  onLineDraftInit?: (content: LineContent, text?: string, deleted?: boolean) => void;
   onLineEdit?: (id: string, content: LineEditableContent) => void;
 }
 
@@ -26,17 +22,17 @@ function Script(props: ScriptProps) {
   const { scriptContext, scriptEditionContext } = props;
   const [selectedLines, setSelectedLines] = useState(new Set<string>());
   const on = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       setSelectedLines(new Set());
     }
-    if (event.key === 'Delete' && selectedLines.size) {
+    if (event.key === "Delete" && selectedLines.size) {
       // scriptContext.removeLines([...selectedLines]);
     }
   };
   useEffect(() => {
-    document.addEventListener('keyup', on);
+    document.addEventListener("keyup", on);
     return () => {
-      document.removeEventListener('keyup', on);
+      document.removeEventListener("keyup", on);
     };
   }, [selectedLines]);
   const handleClick = () => {
@@ -73,9 +69,8 @@ function Script(props: ScriptProps) {
               scriptContext.lineContents,
               scriptContext.lineToContents,
             );
-            const isDeletedSavedLine =
-              content.deleted && content.type === 'saved_version';
-            if (line.type === 'chartext' && !isDeletedSavedLine) {
+            const isDeletedSavedLine = content.deleted && content.type === "saved_version";
+            if (line.type === "chartext" && !isDeletedSavedLine) {
               ++lineCount;
             }
             const selected = selectedLines.has(line.id);
@@ -84,9 +79,7 @@ function Script(props: ScriptProps) {
                 {props.isEditable ? (
                   <ScriptLineToBe
                     insertCueLine={scriptEditionContext?.insertCueLine}
-                    insertFreetextLine={
-                      scriptEditionContext?.insertFreetextLine
-                    }
+                    insertFreetextLine={scriptEditionContext?.insertFreetextLine}
                     insertHeading={scriptEditionContext?.insertHeading}
                     characters={scriptContext.characters}
                     pos={i}
@@ -99,9 +92,7 @@ function Script(props: ScriptProps) {
                   onDraftTextEdit={props.onLineDraftTextEdit}
                   onDraftInit={props.onLineDraftInit}
                   onEdit={props.onLineEdit}
-                  newlyInserted={
-                    props.scriptEditionContext?.insertedLineId === line.id
-                  }
+                  newlyInserted={props.scriptEditionContext?.insertedLineId === line.id}
                   num={lineCount}
                   line={line}
                   characters={scriptContext.characters}

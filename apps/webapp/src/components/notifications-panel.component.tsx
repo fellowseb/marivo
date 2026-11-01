@@ -1,8 +1,8 @@
-import Icon from './icon.component';
-import Button from './button.component';
-import { useNotificationsDisplay } from './notifications.context.tsx';
-import styles from './notifications-panel.module.css';
-import classNames from 'classnames';
+import Icon from "./icon.component";
+import Button from "./button.component";
+import { useNotificationsDisplay } from "./notifications.context.tsx";
+import styles from "./notifications-panel.module.css";
+import classNames from "classnames";
 
 export function NotificationsPanel() {
   const { notifications, hideNotification } = useNotificationsDisplay();
@@ -14,12 +14,12 @@ export function NotificationsPanel() {
           <div
             className={classNames({
               [styles.notification]: true,
-              [styles.error]: type === 'error',
-              [styles.info]: type === 'info',
+              [styles.error]: type === "error",
+              [styles.info]: type === "info",
             })}
           >
             <Icon
-              value={icon ?? (type === 'error' ? 'error' : 'notification')}
+              value={icon ?? (type === "error" ? "error" : "notification")}
               size="large"
               mode="primary"
               customClassNames={[styles.icon]}

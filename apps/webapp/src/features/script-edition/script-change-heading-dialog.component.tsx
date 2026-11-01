@@ -1,10 +1,10 @@
-import classNames from 'classnames';
-import { createRef, useRef, type KeyboardEvent, type RefObject } from 'react';
-import Button from '../../components/button.component';
-import { Dialog } from '../../components/dialog.component';
-import type { HeadingLineContent, LineContent } from '../script/script.models';
-import styles from './script-change-heading-dialog.module.css';
-import lineStyles from '../script/script-line.module.css';
+import classNames from "classnames";
+import { createRef, useRef, type KeyboardEvent, type RefObject } from "react";
+import Button from "../../components/button.component";
+import { Dialog } from "../../components/dialog.component";
+import type { HeadingLineContent, LineContent } from "../script/script.models";
+import styles from "./script-change-heading-dialog.module.css";
+import lineStyles from "../script/script-line.module.css";
 
 interface ScriptChangeHeadingDialogProps {
   onOK: () => void;
@@ -15,38 +15,34 @@ interface ScriptChangeHeadingDialogProps {
 const CHOICES = [
   {
     style: lineStyles.partNameDepth0,
-    sampleText: 'Title',
+    sampleText: "Title",
   },
   {
     style: lineStyles.partNameDepth1,
-    sampleText: 'Act',
+    sampleText: "Act",
   },
   {
     style: lineStyles.partNameDepth2,
-    sampleText: 'Scene',
+    sampleText: "Scene",
   },
   {
     style: lineStyles.partNameDepth3,
-    sampleText: 'Heading (level 3)',
+    sampleText: "Heading (level 3)",
   },
   {
     style: lineStyles.partNameDepth4,
-    sampleText: 'Heading (level 4)',
+    sampleText: "Heading (level 4)",
   },
 ];
 
-export function ScriptChangeHeadingDialog(
-  props: ScriptChangeHeadingDialogProps,
-) {
+export function ScriptChangeHeadingDialog(props: ScriptChangeHeadingDialogProps) {
   const choicesRefs = useRef<RefObject<HTMLInputElement | null>[]>([]);
-  choicesRefs.current = CHOICES.map(
-    (_, i) => choicesRefs.current[i] ?? createRef(),
-  );
+  choicesRefs.current = CHOICES.map((_, i) => choicesRefs.current[i] ?? createRef());
   const handleOkClick = () => {
     props.onOK();
   };
   const handleKeyUp = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       props.onOK();
     }
   };
@@ -55,7 +51,7 @@ export function ScriptChangeHeadingDialog(
       .map((elem) => elem.current)
       .filter((elem) => !!elem)
       .filter((elem) => elem.checked)
-      .map((elem) => parseInt(elem.id.substring('choice-'.length), 10));
+      .map((elem) => parseInt(elem.id.substring("choice-".length), 10));
     props.onHeadingLevelChange(headings.length ? headings[0] : 0);
   };
   const content = props.lineContent as HeadingLineContent;
@@ -74,19 +70,15 @@ export function ScriptChangeHeadingDialog(
           <li key={idx}>
             <input
               type="radio"
-              id={'choice-' + idx}
+              id={"choice-" + idx}
               name="choices"
               checked={content.headingLevel === idx}
               onChange={handleChange}
               ref={choicesRefs.current[idx]}
             />
             <label
-              htmlFor={'choice-' + idx}
-              className={classNames([
-                lineStyles.partName,
-                style,
-                styles.headingChoice,
-              ])}
+              htmlFor={"choice-" + idx}
+              className={classNames([lineStyles.partName, style, styles.headingChoice])}
             >
               {sampleText}
             </label>

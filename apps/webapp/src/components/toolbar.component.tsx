@@ -1,7 +1,7 @@
-import styles from './toolbar.module.css';
-import type { IconValue } from './icon.component';
-import Icon from './icon.component';
-import classNames from 'classnames';
+import styles from "./toolbar.module.css";
+import type { IconValue } from "./icon.component";
+import Icon from "./icon.component";
+import classNames from "classnames";
 
 interface ToolbarItemProps {
   label: string;
@@ -22,11 +22,7 @@ function ToolbarItem(props: ToolbarItemProps) {
       onClick={props.onAction}
     >
       <div className={styles.iconContainer}>
-        <Icon
-          size="small"
-          mode={props.disabled ? 'disabled' : 'primary'}
-          value={props.icon}
-        />
+        <Icon size="small" mode={props.disabled ? "disabled" : "primary"} value={props.icon} />
       </div>
       <span className={styles.label}>{props.label}</span>
     </button>
@@ -51,13 +47,7 @@ function Toolbar(props: ToolbarProps) {
   return (
     <div className={styles.container}>
       {props.definition.items.map(({ id, label, icon, disabled, onAction }) => (
-        <ToolbarItem
-          key={id}
-          label={label}
-          icon={icon}
-          disabled={disabled}
-          onAction={onAction}
-        />
+        <ToolbarItem key={id} label={label} icon={icon} disabled={disabled} onAction={onAction} />
       ))}
     </div>
   );

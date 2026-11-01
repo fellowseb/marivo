@@ -1,6 +1,6 @@
-import Toolbar from '../../components/toolbar.component';
-import { useScriptTabToolbarContext } from './script-tab-toolbar.context';
-import { useScriptUndoRedo } from '../script/script-undo-redo.context';
+import Toolbar from "../../components/toolbar.component";
+import { useScriptTabToolbarContext } from "./script-tab-toolbar.context";
+import { useScriptUndoRedo } from "../script/script-undo-redo.context";
 
 export function ScriptToolbar() {
   const { setShowNavigatePanel, setShowSearchPanel, setShowCharactersPanel } =
@@ -15,41 +15,41 @@ export function ScriptToolbar() {
       definition={{
         items: [
           {
-            id: 'script-undo',
-            label: 'undo',
-            icon: 'undo',
+            id: "script-undo",
+            label: "undo",
+            icon: "undo",
             disabled: undoDisabled,
             onAction: handleUndo,
           },
           {
-            id: 'script-redo',
-            label: 'redo',
-            icon: 'redo',
+            id: "script-redo",
+            label: "redo",
+            icon: "redo",
             disabled: redoDisabled,
             onAction: handleRedo,
           },
           {
-            id: 'script-search',
-            label: 'search',
-            icon: 'search',
+            id: "script-search",
+            label: "search",
+            icon: "search",
             disabled: false,
             onAction: () => {
               setShowSearchPanel((prev) => !prev);
             },
           },
           {
-            id: 'script-navigate',
-            label: 'navigate',
-            icon: 'navigate',
+            id: "script-navigate",
+            label: "navigate",
+            icon: "navigate",
             disabled: false,
             onAction: () => {
               setShowNavigatePanel((prev) => !prev);
             },
           },
           {
-            id: 'script-characters',
-            label: 'characters',
-            icon: 'characterLine',
+            id: "script-characters",
+            label: "characters",
+            icon: "characterLine",
             disabled: false,
             onAction: () => {
               setShowCharactersPanel((prev) => !prev);

@@ -1,37 +1,34 @@
-import z from 'zod';
-import { octetInputParser } from '@trpc/server/http';
-import { publicProcedure, router } from '../../trpc.ts';
-import {
-  appErrorToTrpcError,
-  handleUseCase,
-} from '../../shared/trpc-delivery.ts';
-import type { Provider } from '../../shared/provider.ts';
-import { getDatabase } from '../../infra/db.ts';
-import { providers, ResourceAccessAuth } from './plays.providers.ts';
-import { GetAllPlaysUseCaseOutputSchema } from './get-all-plays.use-case.ts';
-import { RespondToInviteUseCaseInputSchema } from './respond-to-invite.use-case.ts';
+import z from "zod";
+import { octetInputParser } from "@trpc/server/http";
+import { publicProcedure, router } from "../../trpc.ts";
+import { appErrorToTrpcError, handleUseCase } from "../../shared/trpc-delivery.ts";
+import type { Provider } from "../../shared/provider.ts";
+import { getDatabase } from "../../infra/db.ts";
+import { providers, ResourceAccessAuth } from "./plays.providers.ts";
+import { GetAllPlaysUseCaseOutputSchema } from "./get-all-plays.use-case.ts";
+import { RespondToInviteUseCaseInputSchema } from "./respond-to-invite.use-case.ts";
 import {
   CreatePlayUseCaseInputSchema,
   CreatePlayUseCaseOutputSchema,
-} from './create-play.use-case.ts';
-import { DeletePlayUseCaseInputSchema } from './delete-play.use-case.ts';
+} from "./create-play.use-case.ts";
+import { DeletePlayUseCaseInputSchema } from "./delete-play.use-case.ts";
 import {
   PlayDetailsUseCaseInputSchema,
   PlayDetailsUseCaseOutputSchema,
-} from './play-details.use-case.ts';
-import { InitImportScriptUseCaseInputSchema } from './init-import-script.use-case.ts';
+} from "./play-details.use-case.ts";
+import { InitImportScriptUseCaseInputSchema } from "./init-import-script.use-case.ts";
 import {
   ImportScriptStatusUseCaseInputSchema,
   ImportScriptStatusUseCaseOutputSchema,
-} from './import-script-status.use-case.ts';
+} from "./import-script-status.use-case.ts";
 import {
   CreatePlayFromImportUseCaseInputSchema,
   CreatePlayFromImportUseCaseOutputSchema,
-} from './create-play-from-import.use-case.ts';
-import { GetAllScriptImportsUseCaseOutputSchema } from './get-all-script-imports.use-case.ts';
+} from "./create-play-from-import.use-case.ts";
+import { GetAllScriptImportsUseCaseOutputSchema } from "./get-all-script-imports.use-case.ts";
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return async ({ ctx, input, next }: any) => {
     await getDatabase().begin(async (sql) => {
       const authChecker = provider.instantiate({ req: ctx.req, sql });

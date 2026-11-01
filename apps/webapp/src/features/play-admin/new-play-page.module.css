@@ -42,7 +42,7 @@
 
 .desc:before {
   display: contents;
-  content: '▶ ';
+  content: "▶ ";
 }
 
 .subdesc {

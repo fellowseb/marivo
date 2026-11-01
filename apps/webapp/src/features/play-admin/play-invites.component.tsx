@@ -1,10 +1,10 @@
-import styles from './play-invites.module.css';
-import Button from '../../components/button.component';
-import { useTRPC } from '../../trpc';
-import { useMutation } from '@tanstack/react-query';
-import { useEffect, useEffectEvent } from 'react';
-import classNames from 'classnames';
-import { useNotifications } from '../../components/notifications.context';
+import styles from "./play-invites.module.css";
+import Button from "../../components/button.component";
+import { useTRPC } from "../../trpc";
+import { useMutation } from "@tanstack/react-query";
+import { useEffect, useEffectEvent } from "react";
+import classNames from "classnames";
+import { useNotifications } from "../../components/notifications.context";
 
 interface PlayInviteItemProps {
   id: string;
@@ -60,8 +60,8 @@ function PlayInviteItem(props: PlayInviteItemProps) {
   useEffect(() => {
     if (isErrorAccept || isErrorDecline) {
       showNotification({
-        type: 'error',
-        message: 'An unexpected error occured. Refresh and retry in a bit.',
+        type: "error",
+        message: "An unexpected error occured. Refresh and retry in a bit.",
         autoHide: true,
       });
     }
@@ -74,7 +74,7 @@ function PlayInviteItem(props: PlayInviteItemProps) {
   const ownerIdString =
     props.ownerFullName || props.ownerUsername
       ? `${props.ownerFullName} (${props.ownerUsername})`
-      : 'Someone';
+      : "Someone";
   return (
     <li
       className={classNames({
@@ -89,14 +89,14 @@ function PlayInviteItem(props: PlayInviteItemProps) {
       </span>
       <div className={styles.inviteActions}>
         <Button
-          icon={isPendingAccept ? 'animatedWaiting' : 'accept'}
+          icon={isPendingAccept ? "animatedWaiting" : "accept"}
           onClick={handleAccept}
           disabled={isPending || isSuccess}
         >
           Accept
         </Button>
         <Button
-          icon={isPendingDecline ? 'animatedWaiting' : 'decline'}
+          icon={isPendingDecline ? "animatedWaiting" : "decline"}
           onClick={handleDecline}
           disabled={isPending || isSuccess}
         >
@@ -123,19 +123,17 @@ export interface PlayInvitesProps {
 export function PlayInvites(props: PlayInvitesProps) {
   return (
     <>
-      {props.invites.map(
-        ({ uri, ownerFullName, ownerUsername, playTitle, sentDate }) => (
-          <PlayInviteItem
-            key={uri}
-            id={uri}
-            ownerFullName={ownerFullName}
-            ownerUsername={ownerUsername}
-            title={playTitle}
-            sentDate={sentDate}
-            respondedToInvite={props.respondedToInvite}
-          />
-        ),
-      )}
+      {props.invites.map(({ uri, ownerFullName, ownerUsername, playTitle, sentDate }) => (
+        <PlayInviteItem
+          key={uri}
+          id={uri}
+          ownerFullName={ownerFullName}
+          ownerUsername={ownerUsername}
+          title={playTitle}
+          sentDate={sentDate}
+          respondedToInvite={props.respondedToInvite}
+        />
+      ))}
     </>
   );
 }

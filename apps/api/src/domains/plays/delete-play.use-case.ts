@@ -1,11 +1,8 @@
-import z from 'zod';
-import { Result } from '@marivo/utils';
-import {
-  AuthenticatedUseCase,
-  UserContextService,
-} from '../../shared/use-case.ts';
-import type { UserPlaysRepository } from './user-plays.repository.ts';
-import { PlayNotFound } from './user-plays.repository.ts';
+import z from "zod";
+import { Result } from "@marivo/utils";
+import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
+import type { UserPlaysRepository } from "./user-plays.repository.ts";
+import { PlayNotFound } from "./user-plays.repository.ts";
 
 export const DeletePlayUseCaseInputSchema = z.object({
   uri: z.string(),
@@ -13,14 +10,10 @@ export const DeletePlayUseCaseInputSchema = z.object({
 
 type DeletePlayUseCaseInput = z.infer<typeof DeletePlayUseCaseInputSchema>;
 
-
 export class DeletePlayUseCase extends AuthenticatedUseCase<{
   params: DeletePlayUseCaseInput;
 }> {
-  constructor(
-    userContext: UserContextService,
-    playsRepository: UserPlaysRepository,
-  ) {
+  constructor(userContext: UserContextService, playsRepository: UserPlaysRepository) {
     super(userContext);
     this.playsRepository = playsRepository;
   }
@@ -30,7 +23,7 @@ export class DeletePlayUseCase extends AuthenticatedUseCase<{
     if (result.isFailure()) {
       const error = result.errorOrThrow();
       if (error instanceof PlayNotFound) {
-        throw new Error('Play not found or you are not the owner');
+        throw new Error("Play not found or you are not the owner");
       }
       throw error;
     }

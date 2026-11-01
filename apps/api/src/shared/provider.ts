@@ -1,5 +1,5 @@
-import type { Request } from 'express';
-import type { TransactionSql } from 'postgres';
+import type { Request } from "express";
+import type { TransactionSql } from "postgres";
 
 interface ProviderContext {
   req: Request;

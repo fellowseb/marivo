@@ -1,14 +1,14 @@
-import { pipeline } from 'node:stream/promises';
-import { Transform } from 'node:stream';
-import { parse } from 'csv-parse';
-import { stringify } from 'csv-stringify';
-import { v4 as uuidv4 } from 'uuid';
-import { type TransactionSql } from 'postgres';
-import { Result } from '@marivo/utils';
-import { UserContextService } from '../../shared/use-case.ts';
-import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
-import { AppError } from '../../shared/error.ts';
-import { type ScriptDiff } from './script.models.ts';
+import { pipeline } from "node:stream/promises";
+import { Transform } from "node:stream";
+import { parse } from "csv-parse";
+import { stringify } from "csv-stringify";
+import { v4 as uuidv4 } from "uuid";
+import { type TransactionSql } from "postgres";
+import { Result } from "@marivo/utils";
+import { UserContextService } from "../../shared/use-case.ts";
+import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
+import { AppError } from "../../shared/error.ts";
+import { type ScriptDiff } from "./script.models.ts";
 
 interface ScriptRow {
   id: number;
@@ -20,15 +20,15 @@ interface ScriptRow {
 
 interface LineRow {
   id: string;
-  type: 'chartext' | 'heading' | 'freetext';
+  type: "chartext" | "heading" | "freetext";
   last_modified_date: number;
 }
 
 interface LineContentRow {
   id: string;
-  type: 'saved_version' | 'shared_draft';
+  type: "saved_version" | "shared_draft";
   line_id: string;
-  line_type: 'chartext' | 'heading' | 'freetext';
+  line_type: "chartext" | "heading" | "freetext";
   deleted: boolean;
   characters: string[] | null;
   heading_level: number | null;
@@ -40,7 +40,7 @@ interface LineContentRow {
 
 export class ScriptNotFound extends AppError {
   constructor() {
-    super('Unable to find script', 'NOT_FOUND');
+    super("Unable to find script", "NOT_FOUND");
   }
 }
 
@@ -99,31 +99,31 @@ export class ScriptRepository extends UserRepositoryBase {
             lineType: lineRow.type,
             lastModifiedDate: new Date(lineRow.last_modified_date),
             change: {
-              type: 'line_create' as const,
+              type: "line_create" as const,
             },
           };
         }),
         ...lineContentRows.map((lineContentRow) => {
           const change = lineContentRow.deleted
             ? {
-                type: 'content_delete' as const,
+                type: "content_delete" as const,
               }
             : {
-                type: 'content_create_update' as const,
+                type: "content_create_update" as const,
                 content:
-                  lineContentRow.line_type === 'heading'
+                  lineContentRow.line_type === "heading"
                     ? {
-                        lineType: 'heading' as const,
+                        lineType: "heading" as const,
                         headingLevel: lineContentRow.heading_level ?? 0,
                         text: lineContentRow.text,
                       }
-                    : lineContentRow.line_type === 'freetext'
+                    : lineContentRow.line_type === "freetext"
                       ? {
-                          lineType: 'freetext' as const,
+                          lineType: "freetext" as const,
                           text: lineContentRow.text,
                         }
                       : {
-                          lineType: 'chartext' as const,
+                          lineType: "chartext" as const,
                           text: lineContentRow.text,
                           characters: lineContentRow.characters ?? [],
                         },
@@ -161,13 +161,13 @@ export class ScriptRepository extends UserRepositoryBase {
       ) RETURNING id;
     `;
     if (!scriptRow) {
-      throw new Error('Failed to create script');
+      throw new Error("Failed to create script");
     }
-    const parser = parse({ columns: false, delimiter: '|' }); // Parse as arrays (not objects)
+    const parser = parse({ columns: false, delimiter: "|" }); // Parse as arrays (not objects)
     const stringifier = stringify({
-      delimiter: '\t',
+      delimiter: "\t",
       header: false,
-      record_delimiter: '\n',
+      record_delimiter: "\n",
     });
     const scriptId = scriptRow.id;
 
@@ -193,9 +193,8 @@ export class ScriptRepository extends UserRepositoryBase {
       objectMode: true,
       transform(row: string[], _encoding, callback) {
         const lineType = row[0];
-        const characters = lineType === 'chartext' ? row[1] : '{}';
-        const headingLevel =
-          lineType === 'heading' ? parseInt(row[2] as string, 10) : 5;
+        const characters = lineType === "chartext" ? row[1] : "{}";
+        const headingLevel = lineType === "heading" ? parseInt(row[2] as string, 10) : 5;
         const id = uuidv4();
         callback(null, [
           scriptId, // script_id
@@ -205,8 +204,8 @@ export class ScriptRepository extends UserRepositoryBase {
           headingLevel, // heading_level
           row[3], // text
           id, // id
-          'saved_version', // type
-          'cd39946332fa4324929603d8659de563', // checksum
+          "saved_version", // type
+          "cd39946332fa4324929603d8659de563", // checksum
           1, // version
         ]);
         count++;
@@ -214,8 +213,7 @@ export class ScriptRepository extends UserRepositoryBase {
     });
 
     // Insert lines
-    const copyLinesQuery = await this
-      .sql`COPY lines (script_id, id, type) FROM stdin`.writable();
+    const copyLinesQuery = await this.sql`COPY lines (script_id, id, type) FROM stdin`.writable();
     await pipeline(
       params.linesStream,
       parser,
@@ -240,11 +238,11 @@ export class ScriptRepository extends UserRepositoryBase {
         checksum,
         version
       ) FROM stdin`.writable();
-    const parser2 = parse({ columns: false, delimiter: '|' }); // Parse as arrays (not objects)
+    const parser2 = parse({ columns: false, delimiter: "|" }); // Parse as arrays (not objects)
     const stringifier2 = stringify({
-      delimiter: '\t',
+      delimiter: "\t",
       header: false,
-      record_delimiter: '\n',
+      record_delimiter: "\n",
     });
 
     await pipeline(
@@ -276,7 +274,7 @@ export class ScriptRepository extends UserRepositoryBase {
       ) RETURNING id;
     `;
     if (!scriptRow) {
-      throw new Error('Failed to create script');
+      throw new Error("Failed to create script");
     }
     return scriptRow.id;
   }
@@ -285,12 +283,12 @@ export class ScriptRepository extends UserRepositoryBase {
     scriptId: number;
     lineId: string;
     content: {
-      lineType: 'heading' | 'chartext' | 'freetext';
+      lineType: "heading" | "chartext" | "freetext";
       text: string;
       characters?: string[] | undefined;
       headingLevel?: number | undefined;
     };
-    contentType: 'saved_version' | 'shared_draft';
+    contentType: "saved_version" | "shared_draft";
     version: number | null;
   }): Promise<Result<{ contentId: string; lastModifiedDate: Date }, ScriptNotFound>> {
     const [scriptRow] = await this.sql<ScriptRow[]>`
@@ -319,8 +317,8 @@ export class ScriptRepository extends UserRepositoryBase {
         ${params.scriptId},
         ${params.lineId},
         ${lineType},
-        ${lineType === 'chartext' ? this.sql.json(characters ?? []) : null},
-        ${lineType === 'heading' ? (headingLevel ?? 0) : null},
+        ${lineType === "chartext" ? this.sql.json(characters ?? []) : null},
+        ${lineType === "heading" ? (headingLevel ?? 0) : null},
         ${text},
         ${contentId},
         ${params.contentType},
@@ -343,7 +341,7 @@ export class ScriptRepository extends UserRepositoryBase {
   async createLine(params: {
     scriptId: number;
     lineId: string;
-    lineType: 'heading' | 'chartext' | 'freetext';
+    lineType: "heading" | "chartext" | "freetext";
     position: number;
   }): Promise<Result<{ lastModifiedDate: Date }, ScriptNotFound>> {
     const [scriptRow] = await this.sql<ScriptRow[]>`

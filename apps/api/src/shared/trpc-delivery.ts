@@ -1,13 +1,9 @@
-import { type Request } from 'express';
-import { TRPCError } from '@trpc/server';
-import type { Provider } from '../shared/provider.ts';
-import type {
-  AnyUseCase,
-  ParamsOfUseCase,
-  SuccessOfUseCase,
-} from '../shared/use-case.ts';
-import { getDatabase } from '../infra/db.ts';
-import { AppError } from './error.ts';
+import { type Request } from "express";
+import { TRPCError } from "@trpc/server";
+import type { Provider } from "../shared/provider.ts";
+import type { AnyUseCase, ParamsOfUseCase, SuccessOfUseCase } from "../shared/use-case.ts";
+import { getDatabase } from "../infra/db.ts";
+import { AppError } from "./error.ts";
 
 export function appErrorToTrpcError(err: unknown) {
   if (err instanceof AppError) {
@@ -19,7 +15,7 @@ export function appErrorToTrpcError(err: unknown) {
   }
   return new TRPCError({
     message: `${err}`,
-    code: 'INTERNAL_SERVER_ERROR',
+    code: "INTERNAL_SERVER_ERROR",
   });
 }
 
@@ -41,7 +37,7 @@ export function handleUseCase<T extends AnyUseCase>(provider: Provider<T>) {
         },
       });
     });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return res as any;
   };
 }

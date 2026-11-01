@@ -1,7 +1,7 @@
-import type { IncomingHttpHeaders } from 'node:http';
-import { type LegitAny, Result } from '@marivo/utils';
-import type { Request } from 'express';
-import type { AppError } from './error.ts';
+import type { IncomingHttpHeaders } from "node:http";
+import { type LegitAny, Result } from "@marivo/utils";
+import type { Request } from "express";
+import type { AppError } from "./error.ts";
 
 export interface AuthenticatedUserContext {
   userId: number;
@@ -23,16 +23,15 @@ export abstract class AuthenticatedUseCase<
     success?: unknown;
     failure?: AppError;
   },
-> implements UseCase<T>
-{
+> implements UseCase<T> {
   constructor(userContextService: UserContextService) {
     this.userContextService = userContextService;
   }
 
   abstract execute(
-    params: T['params'],
+    params: T["params"],
     headers: IncomingHttpHeaders,
-  ): Promise<Result<T['success'], T['failure']>>;
+  ): Promise<Result<T["success"], T["failure"]>>;
 
   protected getUserContext(): AuthenticatedUserContext {
     return this.userContextService.get();
@@ -49,9 +48,9 @@ export interface UseCase<
   },
 > {
   execute(
-    params: T['params'],
+    params: T["params"],
     headers: IncomingHttpHeaders,
-  ): Promise<Result<T['success'], T['failure']>>;
+  ): Promise<Result<T["success"], T["failure"]>>;
 }
 
 export type AnyUseCase = UseCase<{

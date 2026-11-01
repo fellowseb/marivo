@@ -1,5 +1,5 @@
-import classNames from 'classnames';
-import styles from './participants-settings.module.css';
+import classNames from "classnames";
+import styles from "./participants-settings.module.css";
 
 function ParticipantsSettings() {
   return (

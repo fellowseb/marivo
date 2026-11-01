@@ -1,15 +1,15 @@
-import { Queue } from 'bullmq';
+import { Queue } from "bullmq";
 
-type MarivoJob = 'process-script-text-files';
+type MarivoJob = "process-script-text-files";
 
 let instance: MessageBroker;
 
 export class MessageBroker {
   constructor() {
-    this.jobsQueue = new Queue('marivo-jobs', {
+    this.jobsQueue = new Queue("marivo-jobs", {
       connection: {
-        host: process.env.REDIS_HOST ?? 'redis',
-        port: Number.parseInt(process.env.REDIS_PORT ?? '6379'),
+        host: process.env.REDIS_HOST ?? "redis",
+        port: Number.parseInt(process.env.REDIS_PORT ?? "6379"),
       },
     });
   }
@@ -30,7 +30,7 @@ export function initMessageBroker() {
 
 export function getMessageBroker() {
   if (!instance) {
-    throw new Error('MessageBroker not initialized');
+    throw new Error("MessageBroker not initialized");
   }
   return instance;
 }

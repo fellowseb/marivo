@@ -1,7 +1,7 @@
-import trpcServer from './trpc-server.ts';
-import { initStorage } from './infra/storage.ts';
-import { initDatabase } from './infra/db.ts';
-import { initMessageBroker } from './infra/message-broker.ts';
+import trpcServer from "./trpc-server.ts";
+import { initStorage } from "./infra/storage.ts";
+import { initDatabase } from "./infra/db.ts";
+import { initMessageBroker } from "./infra/message-broker.ts";
 
 function listen() {
   try {
@@ -10,7 +10,7 @@ function listen() {
       console.log(`tRPC API server istening on ${trpcPort}`);
     });
   } catch (err) {
-    console.error('Listen failed', err);
+    console.error("Listen failed", err);
   }
 }
 
@@ -28,7 +28,7 @@ async function init() {
     // Start listening
     listen();
   } catch (err) {
-    console.error('Ini failed', err);
+    console.error("Ini failed", err);
   }
 }
 

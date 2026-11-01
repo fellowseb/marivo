@@ -1,9 +1,9 @@
-import { NavLink } from 'react-router';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import FlowStep from '../../components/flow-step.component';
-import OngoingImportsNotification from './ongoing-imports-notification.component';
-import styles from './new-play-page.module.css';
-import { useCollectionMetadataContext } from './collection-metadata.context';
+import { NavLink } from "react-router";
+import { HeaderBreadcrumbs } from "../../layouts/header.component";
+import FlowStep from "../../components/flow-step.component";
+import OngoingImportsNotification from "./ongoing-imports-notification.component";
+import styles from "./new-play-page.module.css";
+import { useCollectionMetadataContext } from "./collection-metadata.context";
 
 export function NewPlayPageBreadcrumbs() {
   return (
@@ -12,7 +12,7 @@ export function NewPlayPageBreadcrumbs() {
       crumbs={[
         <NavLink
           to={{
-            pathname: '/plays/new',
+            pathname: "/plays/new",
           }}
         >
           New play
@@ -31,7 +31,7 @@ export function NewPlayPage() {
       <NavLink
         className={styles.section}
         to={{
-          pathname: 'import',
+          pathname: "import",
         }}
       >
         <div className={styles.desc}>Import script from an external source</div>
@@ -40,12 +40,11 @@ export function NewPlayPage() {
       <NavLink
         className={styles.section}
         to={{
-          pathname: 'from-collection',
+          pathname: "from-collection",
         }}
       >
         <div className={styles.desc}>
-          Pick from a collection of <strong>{count} scripts</strong> in the
-          Public Domain.
+          Pick from a collection of <strong>{count} scripts</strong> in the Public Domain.
         </div>
         <div className={styles.subdesc}>
           A large selection of the most famous playwrights for FREE !
@@ -58,7 +57,7 @@ export function NewPlayPage() {
       <NavLink
         className={styles.section}
         to={{
-          pathname: 'empty',
+          pathname: "empty",
         }}
       >
         <div className={styles.desc}>Start with an empty script</div>

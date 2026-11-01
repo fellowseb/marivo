@@ -1,11 +1,11 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
-import { useTRPC } from '../../trpc';
-import Button from '../../components/button.component';
-import { Dialog } from '../../components/dialog.component';
-import styles from './delete-play-dialog.module.css';
-import { useNotifications } from '../../components/notifications.context';
-import DotsLoader from '../../components/dots-loader.component';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import { useTRPC } from "../../trpc";
+import Button from "../../components/button.component";
+import { Dialog } from "../../components/dialog.component";
+import styles from "./delete-play-dialog.module.css";
+import { useNotifications } from "../../components/notifications.context";
+import DotsLoader from "../../components/dots-loader.component";
 
 interface DeletePlayDialogProps {
   playTitle: string;
@@ -37,15 +37,15 @@ export function DeletePlayDialog(props: DeletePlayDialogProps) {
           showNotification({
             autoHide: true,
             message: `Play "${props.playTitle}" has been deleted`,
-            type: 'info',
+            type: "info",
           });
-          navigate({ pathname: '/plays' });
+          navigate({ pathname: "/plays" });
         },
         onError: (error) => {
           showNotification({
             autoHide: true,
-            message: error.message || 'Failed to delete play',
-            type: 'error',
+            message: error.message || "Failed to delete play",
+            type: "error",
           });
           props.onClose();
         },
@@ -65,7 +65,7 @@ export function DeletePlayDialog(props: DeletePlayDialogProps) {
       actions={
         <>
           <Button icon="delete" onClick={handleDelete} disabled={isPending}>
-            {isPending ? <DotsLoader size="small" /> : 'Delete'}
+            {isPending ? <DotsLoader size="small" /> : "Delete"}
           </Button>
           <Button icon="clear" onClick={handleCancel} disabled={isPending}>
             Cancel
@@ -75,12 +75,12 @@ export function DeletePlayDialog(props: DeletePlayDialogProps) {
     >
       <p>
         Are you sure you want to delete the current play project &quot;
-        {props.playTitle}&quot;? This action is <strong>IRREVERSIBLE</strong> as
-        all related data will be wiped out.
+        {props.playTitle}&quot;? This action is <strong>IRREVERSIBLE</strong> as all related data
+        will be wiped out.
       </p>
       <p>
-        You may instead want to <strong>archive it</strong> to disable all
-        modifications from participants.
+        You may instead want to <strong>archive it</strong> to disable all modifications from
+        participants.
       </p>
     </Dialog>
   );

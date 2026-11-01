@@ -1,19 +1,19 @@
-import z from 'zod';
-import { Result } from '@marivo/utils';
-import { type UseCase } from '../../shared/use-case.ts';
-import { ScriptNotFound, ScriptRepository } from './script.repository.ts';
-import type { PlayNotFound, UserPlaysRepository } from '../plays/user-plays.repository.ts';
+import z from "zod";
+import { Result } from "@marivo/utils";
+import { type UseCase } from "../../shared/use-case.ts";
+import { ScriptNotFound, ScriptRepository } from "./script.repository.ts";
+import type { PlayNotFound, UserPlaysRepository } from "../plays/user-plays.repository.ts";
 
 export const SaveLineContentUseCaseInputSchema = z.object({
   uri: z.uuid(),
   lineId: z.uuidv4(),
   content: z.object({
-    lineType: z.enum(['heading', 'chartext', 'freetext']),
+    lineType: z.enum(["heading", "chartext", "freetext"]),
     text: z.string(),
     characters: z.array(z.uuidv4()).optional(),
     headingLevel: z.number().min(0).optional(),
   }),
-  contentType: z.enum(['saved_version', 'shared_draft']),
+  contentType: z.enum(["saved_version", "shared_draft"]),
   version: z.number().min(0).nullable().optional(),
 });
 
@@ -25,17 +25,11 @@ export const SaveLineContentUseCaseOutputSchema = z.object({
 type SaveLineContentUseCaseInput = z.infer<typeof SaveLineContentUseCaseInputSchema>;
 type SaveLineContentUseCaseOutput = z.infer<typeof SaveLineContentUseCaseOutputSchema>;
 
-export class SaveLineContentUseCase
-  implements
-    UseCase<{
-      params: SaveLineContentUseCaseInput;
-      success: SaveLineContentUseCaseOutput;
-    }>
-{
-  constructor(
-    scriptRepository: ScriptRepository,
-    userPlaysRepository: UserPlaysRepository,
-  ) {
+export class SaveLineContentUseCase implements UseCase<{
+  params: SaveLineContentUseCaseInput;
+  success: SaveLineContentUseCaseOutput;
+}> {
+  constructor(scriptRepository: ScriptRepository, userPlaysRepository: UserPlaysRepository) {
     this.scriptRepository = scriptRepository;
     this.userPlaysRepository = userPlaysRepository;
   }

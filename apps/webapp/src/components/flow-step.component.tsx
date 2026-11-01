@@ -1,5 +1,5 @@
-import type { PropsWithChildren, ReactNode } from 'react';
-import styles from './flow-step.module.css';
+import type { PropsWithChildren, ReactNode } from "react";
+import styles from "./flow-step.module.css";
 
 interface FlowStepProps {
   title: string | ReactNode;
@@ -14,14 +14,12 @@ function FlowStep(props: PropsWithChildren<FlowStepProps>) {
       <div
         className={styles.container}
         style={{
-          flex: props.growVertically ? '1' : '0',
+          flex: props.growVertically ? "1" : "0",
         }}
       >
         {props.children}
       </div>
-      {props.Actions ? (
-        <div className={styles.actions}>{props.Actions}</div>
-      ) : null}
+      {props.Actions ? <div className={styles.actions}>{props.Actions}</div> : null}
     </div>
   );
 }

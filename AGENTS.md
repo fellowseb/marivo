@@ -8,13 +8,13 @@
 
 **Every PR must include tests.** No exceptions.
 
-| Layer | What to test | Test type | Where |
-|-------|-------------|-----------|-------|
-| **API use cases** | Happy path + error cases | Unit tests (mock repositories) | `apps/api/src/**/*.test.ts` |
-| **API endpoints** | Full request→response flow | Integration tests | `apps/api/src/**/*.integration.test.ts` |
-| **Webapp utilities** | Pure functions, storage, reducers | Unit tests | `apps/webapp/src/**/*.test.ts` |
-| **Webapp components** | Render, interaction, props | Unit tests (jsdom) | `apps/webapp/src/**/*.test.tsx` |
-| **Worker (Python)** | Job processing, parsers | Unit tests (pytest) | `apps/worker/tests/` |
+| Layer                 | What to test                      | Test type                      | Where                                   |
+| --------------------- | --------------------------------- | ------------------------------ | --------------------------------------- |
+| **API use cases**     | Happy path + error cases          | Unit tests (mock repositories) | `apps/api/src/**/*.test.ts`             |
+| **API endpoints**     | Full request→response flow        | Integration tests              | `apps/api/src/**/*.integration.test.ts` |
+| **Webapp utilities**  | Pure functions, storage, reducers | Unit tests                     | `apps/webapp/src/**/*.test.ts`          |
+| **Webapp components** | Render, interaction, props        | Unit tests (jsdom)             | `apps/webapp/src/**/*.test.tsx`         |
+| **Worker (Python)**   | Job processing, parsers           | Unit tests (pytest)            | `apps/worker/tests/`                    |
 
 ### Running Tests
 

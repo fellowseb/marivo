@@ -1,22 +1,22 @@
-export type LineContentType = 'draft' | 'shared_draft' | 'saved_version';
+export type LineContentType = "draft" | "shared_draft" | "saved_version";
 
-export type LineType = 'freetext' | 'heading' | 'chartext';
+export type LineType = "freetext" | "heading" | "chartext";
 
 export interface FreeTextLineEditableContent {
-  lineType: LineType & 'freetext';
+  lineType: LineType & "freetext";
   text: string;
   deleted?: boolean;
 }
 
 export interface HeadingLineEditableContent {
-  lineType: LineType & 'heading';
+  lineType: LineType & "heading";
   text: string;
   headingLevel: number;
   deleted?: boolean;
 }
 
 export interface CueLineEditableContent {
-  lineType: LineType & 'chartext';
+  lineType: LineType & "chartext";
   characters: string[];
   text: string;
   deleted?: boolean;
@@ -25,12 +25,12 @@ export interface CueLineEditableContent {
 export function createEditableContent<TLineType extends LineType>(
   lineType: TLineType,
   content: Omit<
-    TLineType extends 'chartext'
+    TLineType extends "chartext"
       ? CueLineEditableContent
-      : TLineType extends 'freetext'
+      : TLineType extends "freetext"
         ? FreeTextLineEditableContent
         : HeadingLineEditableContent,
-    'lineType'
+    "lineType"
   >,
 ): LineEditableContent {
   return {
@@ -53,18 +53,13 @@ export interface LineContentCommons {
   authorUsername: string;
 }
 
-export type FreeTextLineContent = FreeTextLineEditableContent &
-  LineContentCommons;
+export type FreeTextLineContent = FreeTextLineEditableContent & LineContentCommons;
 
-export type HeadingLineContent = HeadingLineEditableContent &
-  LineContentCommons;
+export type HeadingLineContent = HeadingLineEditableContent & LineContentCommons;
 
 export type CueLineContent = CueLineEditableContent & LineContentCommons;
 
-export type LineContent =
-  | CueLineContent
-  | HeadingLineContent
-  | FreeTextLineContent;
+export type LineContent = CueLineContent | HeadingLineContent | FreeTextLineContent;
 
 export interface Line {
   id: string;

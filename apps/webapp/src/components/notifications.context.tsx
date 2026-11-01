@@ -1,4 +1,4 @@
-import { v7 as uuidV7 } from 'uuid';
+import { v7 as uuidV7 } from "uuid";
 import {
   createContext,
   useCallback,
@@ -6,8 +6,8 @@ import {
   useMemo,
   useState,
   type PropsWithChildren,
-} from 'react';
-import type { IconValue } from './icon.component';
+} from "react";
+import type { IconValue } from "./icon.component";
 
 export const NotificationsContext = createContext<{
   showNotification: (notif: Notification) => string;
@@ -19,7 +19,7 @@ interface Notification {
   id?: string;
   message: string;
   icon?: IconValue;
-  type: 'info' | 'error';
+  type: "info" | "error";
   autoHide?: boolean;
 }
 
@@ -31,9 +31,7 @@ interface DisplayedNotification extends Notification {
 const timeoutIds = new Map<string, number>();
 
 export function NotificationsContextProvider(props: PropsWithChildren) {
-  const [notifications, setNotifications] = useState<DisplayedNotification[]>(
-    [],
-  );
+  const [notifications, setNotifications] = useState<DisplayedNotification[]>([]);
   const hideNotification = useCallback((deletedId: string) => {
     setNotifications((notifs) => {
       const withoutNotif = [...notifs];
@@ -98,7 +96,7 @@ export function NotificationsContextProvider(props: PropsWithChildren) {
 export function useNotifications() {
   const ctx = useContext(NotificationsContext);
   if (!ctx) {
-    throw new Error('Unexpected null NotificationsContext');
+    throw new Error("Unexpected null NotificationsContext");
   }
   return {
     showNotification: ctx.showNotification,
@@ -109,7 +107,7 @@ export function useNotifications() {
 export function useNotificationsDisplay() {
   const ctx = useContext(NotificationsContext);
   if (!ctx) {
-    throw new Error('Unexpected null NotificationsContext');
+    throw new Error("Unexpected null NotificationsContext");
   }
   return {
     notifications: ctx.notifications,

@@ -1,6 +1,6 @@
-import { useState, type ReactElement, type ReactNode } from 'react';
-import styles from './tabs.module.css';
-import classNames from 'classnames';
+import { useState, type ReactElement, type ReactNode } from "react";
+import styles from "./tabs.module.css";
+import classNames from "classnames";
 
 interface TabProps {
   name: string | ReactElement;
@@ -61,9 +61,7 @@ function Tabs(props: TabsProps) {
           );
         })}
       </div>
-      <div className={styles.contentContainer}>
-        {props.tabs[activeTab].ContentComponent}
-      </div>
+      <div className={styles.contentContainer}>{props.tabs[activeTab].ContentComponent}</div>
     </div>
   );
 }

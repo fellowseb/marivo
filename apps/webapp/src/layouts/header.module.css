@@ -30,7 +30,7 @@
   width: 20px;
   height: 20px;
   background-color: #333;
-  mask-image: url('/src/assets/dots-vertical.svg');
+  mask-image: url("/src/assets/dots-vertical.svg");
   mask-repeat: no-repeat;
   mask-position: 0 0;
 }
@@ -47,7 +47,7 @@
 .logo {
   margin-top: 3px;
   display: block;
-  background-image: url('/src/assets/marivo-app-text-logo.webp');
+  background-image: url("/src/assets/marivo-app-text-logo.webp");
   background-size: 90%;
   background-position: 10px 0;
   background-repeat: no-repeat;
@@ -90,7 +90,7 @@
 
 .pageTitle {
   color: #1f313c;
-  font-family: 'Lobster Two', sans-serif;
+  font-family: "Lobster Two", sans-serif;
   font-size: 2rem;
   margin: 0;
   align-content: center;
@@ -103,7 +103,7 @@
 }
 
 .userContainer {
-  font-family: 'Lobster Two', sans-serif;
+  font-family: "Lobster Two", sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -128,25 +128,25 @@
 }
 
 .userActionSettings {
-  mask: url('/src/assets/user-circle.svg') no-repeat;
+  mask: url("/src/assets/user-circle.svg") no-repeat;
   mask-size: contain;
   background-color: #1f313c;
 }
 
 .userActionNotifications {
-  mask: url('/src/assets/bell-O3.svg') no-repeat;
+  mask: url("/src/assets/bell-O3.svg") no-repeat;
   mask-size: contain;
   background-color: #1f313c;
 }
 
 .userActionHelp {
-  mask: url('/src/assets/help-circle.svg') no-repeat;
+  mask: url("/src/assets/help-circle.svg") no-repeat;
   mask-size: contain;
   background-color: #1f313c;
 }
 
 .userActionLogout {
-  mask: url('/src/assets/log-out-02.svg') no-repeat;
+  mask: url("/src/assets/log-out-02.svg") no-repeat;
   mask-size: contain;
   background-color: #1f313c;
 }

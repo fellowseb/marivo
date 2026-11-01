@@ -1,7 +1,7 @@
 .repliqueCharacter {
   font-size: 1.2rem;
   font-weight: bold;
-  font-family: 'Cutive Mono', monospace;
+  font-family: "Cutive Mono", monospace;
   font-optical-sizing: auto;
 }
 
@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   font-size: 1.2rem;
-  font-family: 'Cutive Mono', monospace;
+  font-family: "Cutive Mono", monospace;
   font-optical-sizing: auto;
 }
 
@@ -98,7 +98,7 @@
 }
 
 .editableReplique:hover .repliqueHandle::after {
-  content: '⣿';
+  content: "⣿";
   color: white;
 }
 
@@ -153,12 +153,12 @@
 }
 
 .repliqueActionViewVersions {
-  mask: url('/src/assets/clock-rewind.svg') no-repeat center;
+  mask: url("/src/assets/clock-rewind.svg") no-repeat center;
   mask-size: contain;
 }
 
 .repliqueActionDelete {
-  mask: url('/src/assets/trash-03.svg') no-repeat center;
+  mask: url("/src/assets/trash-03.svg") no-repeat center;
   mask-size: contain;
 }
 
@@ -217,7 +217,7 @@
 .partName {
   text-align: center;
   font-size: 1.2rem;
-  font-family: 'Cutive Mono', monospace;
+  font-family: "Cutive Mono", monospace;
   font-optical-sizing: auto;
 }
 

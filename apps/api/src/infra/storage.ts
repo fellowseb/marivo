@@ -1,20 +1,16 @@
-import process from 'node:process';
-import {
-  GetObjectCommand,
-  HeadBucketCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import { Readable } from 'node:stream';
+import process from "node:process";
+import { GetObjectCommand, HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { Readable } from "node:stream";
 
 export class Storage {
   constructor() {
     this.client = new S3Client({
-      region: 'garage',
-      endpoint: process.env.GARAGE_ENDPOINT ?? '',
+      region: "garage",
+      endpoint: process.env.GARAGE_ENDPOINT ?? "",
       credentials: {
-        accessKeyId: process.env.GARAGE_ACCESS_KEY ?? '',
-        secretAccessKey: process.env.GARAGE_SECRET_KEY ?? '',
+        accessKeyId: process.env.GARAGE_ACCESS_KEY ?? "",
+        secretAccessKey: process.env.GARAGE_SECRET_KEY ?? "",
       },
       forcePathStyle: true,
     });
@@ -23,7 +19,7 @@ export class Storage {
   /**
    * Upload a file to storage.
    */
-  async upload(bucket: 'marivo-imports', path: string, body: ReadableStream) {
+  async upload(bucket: "marivo-imports", path: string, body: ReadableStream) {
     console.log(`[storage] uploading to ${bucket} ${path}`);
     const upload = new Upload({
       client: this.client,
@@ -37,7 +33,7 @@ export class Storage {
     console.log(`[storage] upload done !`);
   }
 
-  async download(bucket: 'marivo-imports', path: string) {
+  async download(bucket: "marivo-imports", path: string) {
     const response = await this.client.send(
       new GetObjectCommand({
         Bucket: bucket,
@@ -45,12 +41,12 @@ export class Storage {
       }),
     );
     if (!response.Body) {
-      throw new Error('Response has no body');
+      throw new Error("Response has no body");
     }
     const readable = Readable.fromWeb(response.Body.transformToWebStream(), {
-      encoding: 'utf8',
+      encoding: "utf8",
     });
-    readable.setEncoding('utf8');
+    readable.setEncoding("utf8");
     return readable;
   }
 
@@ -78,12 +74,12 @@ let instance: Storage;
 
 export async function initStorage() {
   instance = new Storage();
-  await instance.initBucket('marivo-imports');
+  await instance.initBucket("marivo-imports");
 }
 
 export function getStorage() {
   if (!instance) {
-    throw new Error('Storage not initialized');
+    throw new Error("Storage not initialized");
   }
   return instance;
 }

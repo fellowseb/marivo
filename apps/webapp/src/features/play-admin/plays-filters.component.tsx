@@ -1,10 +1,10 @@
-import { useRef } from 'react';
-import styles from './plays-filters.module.css';
-import type { PlayFilterSortOptions, PlaysOrdering } from './plays.lib';
-import Button from '../../components/button.component';
-import Icon from '../../components/icon.component';
-import classNames from 'classnames';
-import CollapsibleSection from '../../components/collapsible-section.component';
+import { useRef } from "react";
+import styles from "./plays-filters.module.css";
+import type { PlayFilterSortOptions, PlaysOrdering } from "./plays.lib";
+import Button from "../../components/button.component";
+import Icon from "../../components/icon.component";
+import classNames from "classnames";
+import CollapsibleSection from "../../components/collapsible-section.component";
 
 interface PlaysFiltersHeaderProps {
   collapsed: boolean;
@@ -35,9 +35,9 @@ export interface PlaysFiltersProps {
 }
 
 export const DEFAULT_FILTER_OPTIONS: PlayFilterSortOptions = {
-  orderBy: 'orderByLastModificationDateAsc',
+  orderBy: "orderByLastModificationDateAsc",
   onlyPlaysSelfOwns: false,
-  title: '',
+  title: "",
 };
 
 function PlaysFilters(props: PlaysFiltersProps) {
@@ -46,7 +46,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
   const onlyPlaysSelfOwnsRef = useRef<HTMLInputElement>(null);
   const handleFiltersChange = () => {
     props.onFiltersChange({
-      title: titleFilterRef.current?.value?.toLowerCase() ?? '',
+      title: titleFilterRef.current?.value?.toLowerCase() ?? "",
       orderBy: orderByRef.current?.value as PlaysOrdering,
       onlyPlaysSelfOwns: onlyPlaysSelfOwnsRef.current?.checked ?? false,
     });
@@ -59,8 +59,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
       orderByRef.current.value = DEFAULT_FILTER_OPTIONS.orderBy;
     }
     if (onlyPlaysSelfOwnsRef.current) {
-      onlyPlaysSelfOwnsRef.current.checked =
-        DEFAULT_FILTER_OPTIONS.onlyPlaysSelfOwns;
+      onlyPlaysSelfOwnsRef.current.checked = DEFAULT_FILTER_OPTIONS.onlyPlaysSelfOwns;
     }
     handleFiltersChange();
   };
@@ -83,41 +82,31 @@ function PlaysFilters(props: PlaysFiltersProps) {
               value={props.filters.title}
             />
             <label>Sort by:</label>
-            <select
-              onChange={handleFiltersChange}
-              ref={orderByRef}
-              value={props.filters.orderBy}
-            >
+            <select onChange={handleFiltersChange} ref={orderByRef} value={props.filters.orderBy}>
               <button>
                 <selectedcontent></selectedcontent>
               </button>
-              <option
-                value={'orderByLastModificationDateAsc' satisfies PlaysOrdering}
-              >
+              <option value={"orderByLastModificationDateAsc" satisfies PlaysOrdering}>
                 Last modification date
                 <Icon value="asc" size="small" mode="primary" />
               </option>
-              <option
-                value={
-                  'orderByLastModificationDateDesc' satisfies PlaysOrdering
-                }
-              >
+              <option value={"orderByLastModificationDateDesc" satisfies PlaysOrdering}>
                 Last modification date
                 <Icon value="desc" size="small" mode="primary" />
               </option>
-              <option value={'orderByCreationDateAsc' satisfies PlaysOrdering}>
+              <option value={"orderByCreationDateAsc" satisfies PlaysOrdering}>
                 Creation date
                 <Icon value="asc" size="small" mode="primary" />
               </option>
-              <option value={'orderByCreationDateDesc' satisfies PlaysOrdering}>
+              <option value={"orderByCreationDateDesc" satisfies PlaysOrdering}>
                 Creation date
                 <Icon value="desc" size="small" mode="primary" />
               </option>
-              <option value={'orderByTitleAsc' satisfies PlaysOrdering}>
+              <option value={"orderByTitleAsc" satisfies PlaysOrdering}>
                 Title
                 <Icon value="asc" size="small" mode="primary" />
               </option>
-              <option value={'orderByTitleDesc' satisfies PlaysOrdering}>
+              <option value={"orderByTitleDesc" satisfies PlaysOrdering}>
                 Title
                 <Icon value="desc" size="small" mode="primary" />
               </option>

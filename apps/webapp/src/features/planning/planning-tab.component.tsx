@@ -1,7 +1,7 @@
-import Tabs from '../../components/tabs.component';
-import AvailabilitiesPlanning from './availabilities-planning.component';
-import MeetingsPlanning from './meetings-planning.component';
-import styles from './planning-tab.module.css';
+import Tabs from "../../components/tabs.component";
+import AvailabilitiesPlanning from "./availabilities-planning.component";
+import MeetingsPlanning from "./meetings-planning.component";
+import styles from "./planning-tab.module.css";
 
 function PlanningTab() {
   return (
@@ -10,11 +10,11 @@ function PlanningTab() {
         containerClass={styles.tabs}
         tabs={[
           {
-            name: 'Rehearsals / Meetings',
+            name: "Rehearsals / Meetings",
             ContentComponent: <MeetingsPlanning />,
           },
           {
-            name: 'Availabilities',
+            name: "Availabilities",
             ContentComponent: <AvailabilitiesPlanning />,
           },
         ]}

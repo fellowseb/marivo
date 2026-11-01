@@ -8,7 +8,7 @@
   width: 20px;
   height: 20px;
   background-color: #1f313c;
-  mask-image: url('/src/assets/book-open-01.svg');
+  mask-image: url("/src/assets/book-open-01.svg");
   mask-repeat: no-repeat;
   mask-position: 0 0px;
 }

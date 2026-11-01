@@ -1,37 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
-import Button from '../../components/button.component';
-import MenuDropdown from '../../components/menu-dropdown.component';
-import Script from '../script/script.component';
-import { useScriptContext } from '../script/script.context';
-import { useScriptEditionContext } from '../script/script-edition.context';
+import { useEffect, useRef, useState } from "react";
+import Button from "../../components/button.component";
+import MenuDropdown from "../../components/menu-dropdown.component";
+import Script from "../script/script.component";
+import { useScriptContext } from "../script/script.context";
+import { useScriptEditionContext } from "../script/script-edition.context";
 import type {
   CueLineEditableContent,
   HeadingLineEditableContent,
   LineContent,
   LineEditableContent,
-} from '../script/script.models';
-import { ScriptChangeHeadingDialog } from './script-change-heading-dialog.component';
-import { ScriptChangeCharactersDialog } from './script-change-characters-dialog.component';
-import { ScriptLineVersionsDialog } from './script-line-versions-dialog.component';
-import ScriptSearchPanel from './script-search-panel.component';
-import { useScriptTabToolbarContext } from './script-tab-toolbar.context';
-import styles from './script-tab.module.css';
-import ScriptNavigatePanel from './script-navigate-panel.component';
-import ScriptCharactersPanel from './script-characters-panel.component.tsx';
+} from "../script/script.models";
+import { ScriptChangeHeadingDialog } from "./script-change-heading-dialog.component";
+import { ScriptChangeCharactersDialog } from "./script-change-characters-dialog.component";
+import { ScriptLineVersionsDialog } from "./script-line-versions-dialog.component";
+import ScriptSearchPanel from "./script-search-panel.component";
+import { useScriptTabToolbarContext } from "./script-tab-toolbar.context";
+import styles from "./script-tab.module.css";
+import ScriptNavigatePanel from "./script-navigate-panel.component";
+import ScriptCharactersPanel from "./script-characters-panel.component.tsx";
 import {
   getLineContentForDisplayWithInfo,
   getLinePreviousVersions,
   getLineSharedDrafts,
-} from '../script/script.utils';
+} from "../script/script.utils";
 
 function ScriptTab() {
   const scriptContext = useScriptContext();
   const scriptEditionContext = useScriptEditionContext();
-  const handleInitDraft = (
-    content: LineContent,
-    text?: string,
-    deleted?: boolean,
-  ) => {
+  const handleInitDraft = (content: LineContent, text?: string, deleted?: boolean) => {
     scriptEditionContext?.initDraft(content, text, deleted);
   };
   const handleEditLineText = (id: string, text: string) => {
@@ -42,10 +38,8 @@ function ScriptTab() {
   };
   const [lineIdForMenu, setLineIdForMenu] = useState<string | null>(null);
   const [showChangeHeadingDialog, setShowChangeHeadingDialog] = useState(false);
-  const [showChangeCharactersDialog, setShowChangeCharactersDialog] =
-    useState(false);
-  const [showPreviousVersionsDialog, setShowPreviousVersionsDialog] =
-    useState(false);
+  const [showChangeCharactersDialog, setShowChangeCharactersDialog] = useState(false);
+  const [showPreviousVersionsDialog, setShowPreviousVersionsDialog] = useState(false);
   const [showSharedDraftsDialog, setShowSharedDraftsDialog] = useState(false);
   const {
     showSearchPanel,
@@ -55,9 +49,7 @@ function ScriptTab() {
     setShowNavigatePanel,
     setShowCharactersPanel,
   } = useScriptTabToolbarContext();
-  const menuLine = lineIdForMenu
-    ? scriptContext?.lines.get(lineIdForMenu)
-    : undefined;
+  const menuLine = lineIdForMenu ? scriptContext?.lines.get(lineIdForMenu) : undefined;
   const [menuLineContent, menuLineInfo] =
     menuLine && scriptContext
       ? (getLineContentForDisplayWithInfo(
@@ -152,8 +144,8 @@ function ScriptTab() {
     if (menuLineContent) {
       scriptEditionContext?.editLine(menuLineContent.lineId, {
         deleted: menuLineContent.deleted,
-        text: menuLineContent.text ?? '',
-        lineType: 'heading',
+        text: menuLineContent.text ?? "",
+        lineType: "heading",
         headingLevel,
       } satisfies HeadingLineEditableContent);
     }
@@ -163,8 +155,8 @@ function ScriptTab() {
       scriptEditionContext?.editLine(menuLineContent.lineId, {
         characters,
         deleted: menuLineContent.deleted,
-        text: menuLineContent.text ?? '',
-        lineType: 'chartext',
+        text: menuLineContent.text ?? "",
+        lineType: "chartext",
       } satisfies CueLineEditableContent);
     }
   };
@@ -179,23 +171,15 @@ function ScriptTab() {
   }, [lineIdForMenu]);
   const handleDeleteSharedDraft = (contentId: string) => {
     if (menuLineContent) {
-      scriptEditionContext?.deleteSharedDraft(
-        menuLineContent.lineId,
-        contentId,
-      );
+      scriptEditionContext?.deleteSharedDraft(menuLineContent.lineId, contentId);
     }
   };
   const handleDeletePreviousVersion = (contentId: string) => {
     if (menuLineContent) {
-      scriptEditionContext?.deletePreviousVersion(
-        menuLineContent.lineId,
-        contentId,
-      );
+      scriptEditionContext?.deletePreviousVersion(menuLineContent.lineId, contentId);
     }
   };
-  const handleApplySharedDraftAsNewVersion = (
-    sharedDraftContent: LineContent,
-  ) => {
+  const handleApplySharedDraftAsNewVersion = (sharedDraftContent: LineContent) => {
     if (menuLineContent) {
       scriptEditionContext?.applySharedDraftAsNewVersion(
         menuLineContent.lineId,
@@ -203,9 +187,7 @@ function ScriptTab() {
       );
     }
   };
-  const handleApplyPreviousVersionAsNewVersion = (
-    previousVersion: LineContent,
-  ) => {
+  const handleApplyPreviousVersionAsNewVersion = (previousVersion: LineContent) => {
     if (menuLineContent) {
       scriptEditionContext?.applyPreviousVersionAsNewVersion(
         menuLineContent.lineId,
@@ -231,17 +213,12 @@ function ScriptTab() {
       showChangeCharactersDialog ||
       showSharedDraftsDialog ||
       showPreviousVersionsDialog);
-  const showPanels =
-    showSearchPanel || showNavigatePanel || showCharactersPanel;
+  const showPanels = showSearchPanel || showNavigatePanel || showCharactersPanel;
   const sharedDraftContents =
     (showSharedDraftsDialog &&
       menuLine &&
       scriptContext &&
-      getLineSharedDrafts(
-        menuLine,
-        scriptContext.lineContents,
-        scriptContext.lineToContents,
-      )) ||
+      getLineSharedDrafts(menuLine, scriptContext.lineContents, scriptContext.lineToContents)) ||
     [];
   const previousVersionsContents =
     (showPreviousVersionsDialog &&
@@ -270,12 +247,12 @@ function ScriptTab() {
           ref={menuDialogRef}
           onBlur={handleMenuBlur}
         >
-          {menuLineContent.lineType === 'heading' ? (
+          {menuLineContent.lineType === "heading" ? (
             <Button icon="heading" onClick={handleChangeHeadingLevel}>
               Change heading level
             </Button>
           ) : null}
-          {menuLineContent.lineType === 'chartext' ? (
+          {menuLineContent.lineType === "chartext" ? (
             <Button icon="characterLine" onClick={handleChangeCharacters}>
               Change characters
             </Button>
@@ -331,9 +308,7 @@ function ScriptTab() {
       ) : null}
       {showPanels ? (
         <div className={styles.panelsContainer}>
-          {showSearchPanel ? (
-            <ScriptSearchPanel onClose={handleCloseSearchPanel} />
-          ) : null}
+          {showSearchPanel ? <ScriptSearchPanel onClose={handleCloseSearchPanel} /> : null}
           {showNavigatePanel ? (
             <ScriptNavigatePanel
               onClose={handleCloseNavigatePanel}
@@ -349,10 +324,7 @@ function ScriptTab() {
         </div>
       ) : null}
       {showModalDialog && menuLineContent ? (
-        <div
-          className={styles.modalContainer}
-          onClick={handleDialogOutsideClick}
-        >
+        <div className={styles.modalContainer} onClick={handleDialogOutsideClick}>
           {showChangeHeadingDialog ? (
             <ScriptChangeHeadingDialog
               onOK={handleDialogOK}
@@ -377,12 +349,8 @@ function ScriptTab() {
               onOK={handleDialogOK}
               onDeleteSharedDraft={handleDeleteSharedDraft}
               onDeletePreviousVersion={handleDeletePreviousVersion}
-              onApplySharedDraftAsNewVersion={
-                handleApplySharedDraftAsNewVersion
-              }
-              onApplyPreviousVersionAsNewVersion={
-                handleApplyPreviousVersionAsNewVersion
-              }
+              onApplySharedDraftAsNewVersion={handleApplySharedDraftAsNewVersion}
+              onApplyPreviousVersionAsNewVersion={handleApplyPreviousVersionAsNewVersion}
             />
           ) : null}
         </div>

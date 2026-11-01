@@ -1,5 +1,5 @@
-import classNames from 'classnames';
-import styles from './general-settings.module.css';
+import classNames from "classnames";
+import styles from "./general-settings.module.css";
 
 function IntegrationsSettings() {
   return (
@@ -9,12 +9,7 @@ function IntegrationsSettings() {
         <div className={styles.line}>
           <label>Notify WhatsApp group</label>
           <input type="checkbox" />
-          <input
-            type="text"
-            size={36}
-            defaultValue="WhatsApp Group ID"
-            disabled={true}
-          />
+          <input type="text" size={36} defaultValue="WhatsApp Group ID" disabled={true} />
         </div>
         <div className={styles.line}>
           <label>Script updates</label>

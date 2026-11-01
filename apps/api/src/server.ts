@@ -1,9 +1,9 @@
-import express from 'express';
-import cors from 'cors';
-import { clerkMiddleware } from '@clerk/express';
-import { deliveryMiddleware } from './infra/delivery.middleware.ts';
-import { userMiddleware } from './domains/auth/user.middleware.ts';
-import playsRoutes from './domains/plays/plays.routes.ts';
+import express from "express";
+import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
+import { deliveryMiddleware } from "./infra/delivery.middleware.ts";
+import { userMiddleware } from "./domains/auth/user.middleware.ts";
+import playsRoutes from "./domains/plays/plays.routes.ts";
 
 export default function server(): express.Application {
   const app = express();
@@ -18,6 +18,6 @@ export default function server(): express.Application {
     // Attach user-related properties to the request
     userMiddleware(),
   );
-  app.use('/plays', playsRoutes);
+  app.use("/plays", playsRoutes);
   return app;
 }

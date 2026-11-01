@@ -1,5 +1,5 @@
-import type { TransactionSql } from 'postgres';
-import { UserContextService } from './use-case.ts';
+import type { TransactionSql } from "postgres";
+import { UserContextService } from "./use-case.ts";
 
 export abstract class UserRepositoryBase {
   public constructor(sql: TransactionSql, userContext: UserContextService) {

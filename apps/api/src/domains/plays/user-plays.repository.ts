@@ -1,16 +1,16 @@
-import z from 'zod';
-import { Result } from '@marivo/utils';
-import { Record } from '../../shared/record.ts';
-import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
-import type { UserPlay } from './plays.models.ts';
-import { AppError } from '../../shared/error.ts';
+import z from "zod";
+import { Result } from "@marivo/utils";
+import { Record } from "../../shared/record.ts";
+import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
+import type { UserPlay } from "./plays.models.ts";
+import { AppError } from "../../shared/error.ts";
 
 interface GetAllPlaysRecordValues {
   id: number;
   title: string;
   uri: string;
   created_date: Date;
-  user_role: 'owner' | 'participant';
+  user_role: "owner" | "participant";
   owner_username: string;
   owner_full_name: string;
   last_modified_date: Date;
@@ -19,14 +19,14 @@ interface GetAllPlaysRecordValues {
 export class GetAllPlaysRecord extends Record<GetAllPlaysRecordValues> {
   toModel(): UserPlay {
     return {
-      id: this.get('id'),
-      uri: this.get('uri'),
-      title: this.get('title'),
-      createdDate: this.get('created_date'),
-      isOwner: this.get('user_role') === 'owner',
-      ownerFullName: this.get('owner_full_name'),
-      ownerUsername: this.get('owner_username'),
-      lastModifiedDate: this.get('last_modified_date'),
+      id: this.get("id"),
+      uri: this.get("uri"),
+      title: this.get("title"),
+      createdDate: this.get("created_date"),
+      isOwner: this.get("user_role") === "owner",
+      ownerFullName: this.get("owner_full_name"),
+      ownerUsername: this.get("owner_username"),
+      lastModifiedDate: this.get("last_modified_date"),
     };
   }
 }
@@ -36,7 +36,7 @@ interface PlayDetailsRecordValues {
   title: string;
   uri: string;
   created_date: Date;
-  user_role: 'owner' | 'participant';
+  user_role: "owner" | "participant";
   owner_username: string;
   owner_full_name: string;
   last_modified_date: Date;
@@ -98,7 +98,7 @@ interface PlayParticipants {
 
 export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
   toModel(): PlayDetails {
-    const isOwner = this.get('user_role') === 'owner';
+    const isOwner = this.get("user_role") === "owner";
     let permissionsResolved: UserPermissions = PERMISSIONS_DEFAULTS;
     if (isOwner) {
       permissionsResolved = Object.keys(PERMISSIONS_DEFAULTS).reduce(
@@ -109,11 +109,11 @@ export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
         {} as UserPermissions,
       );
     } else {
-      const dbPermissions = this.get('permissions');
+      const dbPermissions = this.get("permissions");
       if (dbPermissions) {
         const result = PERMISSIONS_SCHEMA.safeParse(dbPermissions);
         if (!result.success) {
-          throw new Error('Invalid permissions object in database');
+          throw new Error("Invalid permissions object in database");
         }
         permissionsResolved = Object.keys(PERMISSIONS_DEFAULTS).reduce(
           (acc, key) => ({
@@ -126,14 +126,14 @@ export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
     }
     return {
       details: {
-        id: this.get('id'),
-        uri: this.get('uri'),
-        title: this.get('title'),
-        createdDate: this.get('created_date'),
+        id: this.get("id"),
+        uri: this.get("uri"),
+        title: this.get("title"),
+        createdDate: this.get("created_date"),
         isOwner,
-        ownerFullName: this.get('owner_full_name'),
-        ownerUsername: this.get('owner_username'),
-        lastModifiedDate: this.get('last_modified_date'),
+        ownerFullName: this.get("owner_full_name"),
+        ownerUsername: this.get("owner_username"),
+        lastModifiedDate: this.get("last_modified_date"),
       },
       permissions: {
         ...PERMISSIONS_DEFAULTS,
@@ -163,7 +163,7 @@ export class PlayParticipantsRecord {
   private records: PlayParticipantsRecordValues[];
 }
 
-const DEFAULT_COMEDIAN_ROLE_NAME = 'Comedian';
+const DEFAULT_COMEDIAN_ROLE_NAME = "Comedian";
 const DEFAULT_COMEDIAN_PERMISSIONS = {
   scriptRead: true,
   scriptWriteSharedDrafts: true,
@@ -181,7 +181,7 @@ const DEFAULT_COMEDIAN_PERMISSIONS = {
 
 export class PlayNotFound extends AppError {
   constructor(uri: string) {
-    super('Play not found', 'NOT_FOUND', {
+    super("Play not found", "NOT_FOUND", {
       cause: {
         uri,
       },
@@ -256,7 +256,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
       ) RETURNING id;
     `;
     if (playRow === undefined) {
-      throw new Error('Unexpected empty row on createPlay');
+      throw new Error("Unexpected empty row on createPlay");
     }
     const { id: createdPlayId } = playRow;
     await this.sql`
@@ -308,13 +308,11 @@ export class UserPlaysRepository extends UserRepositoryBase {
     });
   }
 
-  async checkPlayAccess(params: {
-    uri: string;
-  }): Promise<Result<undefined, PlayNotFound>> {
+  async checkPlayAccess(params: { uri: string }): Promise<Result<undefined, PlayNotFound>> {
     const res = await this.sql<
       {
         id: number;
-        user_role: 'owner' | 'participant';
+        user_role: "owner" | "participant";
       }[]
     >`
         SELECT 
@@ -329,9 +327,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
     return Result.ok(undefined);
   }
 
-  async getScriptId(params: {
-    uri: string;
-  }): Promise<Result<number, PlayNotFound>> {
+  async getScriptId(params: { uri: string }): Promise<Result<number, PlayNotFound>> {
     const [playRow] = await this.sql<{ script_id: number }[]>`
         SELECT script_id
         FROM plays
@@ -347,12 +343,12 @@ export class UserPlaysRepository extends UserRepositoryBase {
     if (result.isFailure()) {
       return result as Result<undefined, PlayNotFound>;
     }
-    const [playRow] = await this.sql<{ user_role: 'owner' | 'participant' }[]>`
+    const [playRow] = await this.sql<{ user_role: "owner" | "participant" }[]>`
         SELECT user_role
         FROM user_plays_view
         WHERE user_id = ${this.userId()} AND uri = ${params.uri};
     `;
-    if (!playRow || playRow.user_role !== 'owner') {
+    if (!playRow || playRow.user_role !== "owner") {
       return Result.failure(new PlayNotFound(params.uri));
     }
     const [playIdRow] = await this.sql<{ id: number; script_id: number }[]>`
@@ -383,6 +379,6 @@ export class UserPlaysRepository extends UserRepositoryBase {
 
 export class RecordNotFound extends Error {
   public constructor() {
-    super('Database record not found');
+    super("Database record not found");
   }
 }

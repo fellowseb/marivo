@@ -1,13 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
-export function useBackgroundSync(params: {
-  serviceId: string;
-  onRefresh: () => void;
-}) {
+export function useBackgroundSync(params: { serviceId: string; onRefresh: () => void }) {
   useEffect(() => {
     const subscription = window.serviceWorker.messages
       .filter({
-        type: 'SYNC_NEEDED',
+        type: "SYNC_NEEDED",
         serviceId: params.serviceId,
       })
       .subscribe(() => {

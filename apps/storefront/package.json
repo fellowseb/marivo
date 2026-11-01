@@ -1,7 +1,7 @@
 {
   "name": "@marivo/storefront",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -13,7 +13,6 @@
   "devDependencies": {
     "@eslint/css": "2.0.1",
     "@eslint/js": "^9.39.4",
-    "@marivo/eslint-config": "workspace:*",
     "@marivo/typescript-config": "workspace:*",
     "@types/node": "^26.6.6",
     "eslint": "^9.39.4",

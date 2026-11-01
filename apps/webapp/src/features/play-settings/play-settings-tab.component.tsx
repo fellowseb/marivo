@@ -1,11 +1,11 @@
-import { useLocation, useNavigate } from 'react-router';
-import Tabs from '../../components/tabs.component';
-import GeneralSettings from './general-settings.component';
-import IntegrationsSettings from './integrations-settings.component';
-import ParticipantsSettings from './participants-settings.component';
-import styles from './play-settings-tab.module.css';
+import { useLocation, useNavigate } from "react-router";
+import Tabs from "../../components/tabs.component";
+import GeneralSettings from "./general-settings.component";
+import IntegrationsSettings from "./integrations-settings.component";
+import ParticipantsSettings from "./participants-settings.component";
+import styles from "./play-settings-tab.module.css";
 
-const HASHES = ['#general', '#participants', '#integrations'];
+const HASHES = ["#general", "#participants", "#integrations"];
 
 function PlaySettingsTab() {
   const location = useLocation();
@@ -25,15 +25,15 @@ function PlaySettingsTab() {
         activeTab={activeTab}
         tabs={[
           {
-            name: 'General',
+            name: "General",
             ContentComponent: <GeneralSettings />,
           },
           {
-            name: 'Participants & Permissions',
+            name: "Participants & Permissions",
             ContentComponent: <ParticipantsSettings />,
           },
           {
-            name: 'Integrations',
+            name: "Integrations",
             ContentComponent: <IntegrationsSettings />,
           },
         ]}
