@@ -17,3 +17,4 @@ apps/api/dev/garage
 # Issue/PR template scratch files (use gh CLI instead)
 .github/ISSUES/
 .github/PRS/
+package-lock.json

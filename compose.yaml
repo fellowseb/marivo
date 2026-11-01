@@ -12,7 +12,6 @@ services:
       - garage
       - redis
     volumes:
-      - ./node_modules:/app/node_modules
       - ./apps/api:/app/apps/api
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
