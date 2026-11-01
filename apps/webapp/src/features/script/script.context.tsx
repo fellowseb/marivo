@@ -5,10 +5,12 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   type PropsWithChildren,
 } from 'react';
 import { useTRPC } from '../../trpc';
 import type { Line, LineContent } from './script.models';
+import { loadScriptState, saveScriptState } from './script-persistence';
 import {
   reducer,
   type LineContents,
@@ -51,10 +53,25 @@ const initialState = {
 export function ScriptContextProvider(
   props: PropsWithChildren<ScriptContextProps>,
 ) {
+  // Load persisted state from localStorage as initial state
+  const persistedInitialState = useMemo(() => {
+    return loadScriptState(props.uri, props.from) ?? initialState;
+  }, [props.uri, props.from]);
+
   const [state, dispatch] = useReducer<ScriptState, [ScriptAction]>(
     reducer,
-    initialState,
+    persistedInitialState,
   );
+
+  // Track previous uri/from to detect navigation and save state
+  const prevUriRef = useRef<string | null>(null);
+  const prevFromRef = useRef<string | null>(null);
+
+  // Save state to localStorage whenever it changes (debounced via effect)
+  useEffect(() => {
+    saveScriptState(state, props.uri, props.from);
+  }, [state, props.uri, props.from]);
+
   const contextValue = useMemo(
     () =>
       ({
@@ -90,7 +107,13 @@ export function ScriptContextProvider(
   );
   // Reset state when uri or from changes (navigation between plays)
   useEffect(() => {
-    dispatch({ type: 'RESET', payload: initialState });
+    // Save previous state before resetting
+    if (prevUriRef.current !== null && prevFromRef.current !== null) {
+      saveScriptState(state, prevUriRef.current, prevFromRef.current);
+    }
+    prevUriRef.current = props.uri;
+    prevFromRef.current = props.from;
+    dispatch({ type: 'RESET', payload: persistedInitialState });
   }, [props.uri, props.from]);
   useEffect(() => {
     dispatch({
