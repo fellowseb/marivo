@@ -1,4 +1,4 @@
-import styles from './collection-item.module.css';
+import styles from "./collection-item.module.css";
 
 interface CollectionItemProps {
   scriptTitle: string;

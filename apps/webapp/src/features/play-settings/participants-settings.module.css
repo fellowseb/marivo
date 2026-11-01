@@ -62,7 +62,7 @@
 .deleteFunctionBtn {
   width: 1rem;
   height: 1rem;
-  mask: url('/src/assets/trash-03.svg') no-repeat;
+  mask: url("/src/assets/trash-03.svg") no-repeat;
   background-color: #1f313c;
   transform: rotate(-90deg);
 }

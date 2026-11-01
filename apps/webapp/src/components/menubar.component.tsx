@@ -1,10 +1,10 @@
-import classNames from 'classnames';
-import { NavLink } from 'react-router';
-import styles from './menubar.module.css';
-import type { IconValue } from './icon.component';
-import Icon from './icon.component';
-import type { AppRouterOutput } from '@marivo/api';
-import { usePlayContext } from '../features/play-admin/play.context';
+import classNames from "classnames";
+import { NavLink } from "react-router";
+import styles from "./menubar.module.css";
+import type { IconValue } from "./icon.component";
+import Icon from "./icon.component";
+import type { AppRouterOutput } from "@marivo/api";
+import { usePlayContext } from "../features/play-admin/play.context";
 
 interface MenuBarItemProps {
   label: string;
@@ -35,7 +35,7 @@ export interface MenuBarDefinition {
     label: string;
     icon: IconValue;
     path: string;
-    accessPermission: keyof AppRouterOutput['plays']['playDetails']['permissions'];
+    accessPermission: keyof AppRouterOutput["plays"]["playDetails"]["permissions"];
   }[];
 }
 

@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "sideEffects": false,
   "files": [
     "dist/**",
     "dist"
   ],
+  "sideEffects": false,
   "exports": {
     "./counter-button": {
       "import": {
@@ -37,12 +37,8 @@
     "lint": "oxlint src/ --deny-warnings",
     "test": "jest --passWithNoTests"
   },
-  "jest": {
-    "preset": "@marivo/jest-presets/browser"
-  },
   "devDependencies": {
     "@jest/globals": "^30.5.2",
-    "@marivo/eslint-config": "workspace:*",
     "@marivo/jest-presets": "workspace:*",
     "@marivo/typescript-config": "workspace:*",
     "@types/node": "^26.6.6",
@@ -56,5 +52,8 @@
     "@types/react-dom": ">=18",
     "react": ">=18",
     "react-dom": ">=18"
+  },
+  "jest": {
+    "preset": "@marivo/jest-presets/browser"
   }
 }

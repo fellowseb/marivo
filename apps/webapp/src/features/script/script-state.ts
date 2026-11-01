@@ -1,5 +1,5 @@
-import type { AppRouterOutput } from '@marivo/api';
-import { assertUnreachable } from '@marivo/utils';
+import type { AppRouterOutput } from "@marivo/api";
+import { assertUnreachable } from "@marivo/utils";
 import type {
   CueLineContent,
   FreeTextLineContent,
@@ -7,11 +7,8 @@ import type {
   Line,
   LineContent,
   LineEditableContent,
-} from './script.models';
-import {
-  buildScriptOutline,
-  isLineEditableContentSameAsPrevious,
-} from './script.utils';
+} from "./script.models";
+import { buildScriptOutline, isLineEditableContentSameAsPrevious } from "./script.utils";
 
 export interface LineContents {
   sharedDrafts: string[];
@@ -33,116 +30,113 @@ export interface ScriptState {
 
 export type ScriptAction =
   | {
-      type: 'RESET';
+      type: "RESET";
       payload: ScriptState;
     }
   | {
-      type: 'PROCESS_LATEST_CHANGES_PAYLOAD';
-      payload: AppRouterOutput['script']['latestChanges'];
+      type: "PROCESS_LATEST_CHANGES_PAYLOAD";
+      payload: AppRouterOutput["script"]["latestChanges"];
     }
   | {
-      type: 'INSERT_HEADING_LINE';
+      type: "INSERT_HEADING_LINE";
       id: string;
       lastModifiedDate: Date;
       pos: number;
       level: number;
     }
   | {
-      type: 'INSERT_CUE_LINE';
+      type: "INSERT_CUE_LINE";
       id: string;
       lastModifiedDate: Date;
       pos: number;
       characterId?: string;
     }
   | {
-      type: 'INSERT_FREETEXT_LINE';
+      type: "INSERT_FREETEXT_LINE";
       id: string;
       lastModifiedDate: Date;
       pos: number;
       init: string;
     }
   | {
-      type: 'INIT_DRAFT';
+      type: "INIT_DRAFT";
       lastModifiedDate: Date;
       content: LineContent;
       text?: string;
       deleted?: boolean;
     }
   | {
-      type: 'UNDO_INIT_DRAFT';
+      type: "UNDO_INIT_DRAFT";
       lineId: string;
       lastModifiedDate: Date;
     }
   | {
-      type: 'EDIT' | 'UNDO_EDIT';
+      type: "EDIT" | "UNDO_EDIT";
       id: string;
       lastModifiedDate: Date;
       content: LineEditableContent;
     }
   | {
-      type: 'EDIT_LINE';
+      type: "EDIT_LINE";
       id: string;
       lastModifiedDate: Date;
       text: string;
     }
   | {
-      type: 'UNDO_EDIT_LINE';
+      type: "UNDO_EDIT_LINE";
       id: string;
       lineLastModifiedDate: Date;
       lastModifiedDate: Date;
       text: string;
     }
   | {
-      type: 'REMOVE_LINES';
+      type: "REMOVE_LINES";
       ids: string[];
     }
   | {
-      type:
-        | 'UNDO_INSERT_CUE_LINE'
-        | 'UNDO_INSERT_HEADING_LINE'
-        | 'UNDO_INSERT_FREETEXT_LINE';
+      type: "UNDO_INSERT_CUE_LINE" | "UNDO_INSERT_HEADING_LINE" | "UNDO_INSERT_FREETEXT_LINE";
       id: string;
       lastModifiedDate: Date;
     }
   | {
-      type: 'DISCARD_CHANGES';
+      type: "DISCARD_CHANGES";
       id: string;
       lastModifiedDate: Date;
     }
   | {
-      type: 'UNDO_DISCARD_CHANGES';
+      type: "UNDO_DISCARD_CHANGES";
       id: string;
       lastModifiedDate: Date;
       content: LineContent;
     }
   | {
-      type: 'SAVE_CHANGES';
+      type: "SAVE_CHANGES";
       id: string;
     }
   | {
-      type: 'SAVE_CHANGES_AS_NEW_VERSION';
-      id: string;
-      contentId: string;
-    }
-  | {
-      type: 'SAVE_CHANGES_AS_SHARED_DRAFT';
+      type: "SAVE_CHANGES_AS_NEW_VERSION";
       id: string;
       contentId: string;
     }
   | {
-      type: 'DELETE_SHARED_DRAFT' | 'DELETE_PREVIOUS_VERSION';
+      type: "SAVE_CHANGES_AS_SHARED_DRAFT";
       id: string;
       contentId: string;
     }
   | {
-      type: 'APPLY_SHARED_DRAFT_AS_NEW_VERSION';
+      type: "DELETE_SHARED_DRAFT" | "DELETE_PREVIOUS_VERSION";
+      id: string;
+      contentId: string;
+    }
+  | {
+      type: "APPLY_SHARED_DRAFT_AS_NEW_VERSION";
       id: string;
       contentId: string;
       sharedDraft: LineContent;
       lastModifiedDate: Date;
     }
   | {
-      type: 'APPLY_PREVIOUS_VERSION_AS_NEW_VERSION';
+      type: "APPLY_PREVIOUS_VERSION_AS_NEW_VERSION";
       id: string;
       contentId: string;
       previousVersion: LineContent;
@@ -150,14 +144,14 @@ export type ScriptAction =
     };
 
 export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
-  console.log('#DEBUG script state action', action.type);
+  console.log("#DEBUG script state action", action.type);
   switch (action.type) {
-    case 'PROCESS_LATEST_CHANGES_PAYLOAD': {
+    case "PROCESS_LATEST_CHANGES_PAYLOAD": {
       const lineToContents = new Map(state.lineToContents);
       const [lines, lineContents] = action.payload.diffs.reduce(
         ([accLines, accLineContents], curr) => {
-          if ('lineType' in curr) {
-            if (curr.change.type === 'line_create') {
+          if ("lineType" in curr) {
+            if (curr.change.type === "line_create") {
               accLines.set(curr.id, {
                 id: curr.id,
                 lastModifiedDate: curr.lastModifiedDate,
@@ -177,18 +171,18 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 sharedDrafts: [],
                 versions: [],
               };
-              console.warn('Unexpected case');
+              console.warn("Unexpected case");
             }
-            if (curr.type === 'shared_draft') {
+            if (curr.type === "shared_draft") {
               m.sharedDrafts.push(curr.id);
-            } else if (curr.type === 'saved_version') {
+            } else if (curr.type === "saved_version") {
               if (!curr.version) {
-                console.warn('Unexpected empty version');
+                console.warn("Unexpected empty version");
               }
               m.versions[curr.version ?? 1] = curr.id;
             }
             lineToContents.set(curr.lineId, m);
-            if (curr.change.type === 'content_delete') {
+            if (curr.change.type === "content_delete") {
               accLineContents.set(curr.id, {
                 id: curr.id,
                 lineId: curr.lineId,
@@ -198,7 +192,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 deleted: true,
                 authorUsername: curr.authorUsername,
               } satisfies LineContent);
-            } else if (curr.change.type === 'content_create_update') {
+            } else if (curr.change.type === "content_create_update") {
               accLineContents.set(curr.id, {
                 id: curr.id,
                 lineId: curr.lineId,
@@ -217,8 +211,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         [new Map(state.lines), new Map(state.lineContents)],
       );
       const remoteLastModifiedDate =
-        state.remoteLastModifiedDate.getTime() !==
-        action.payload.lastModifiedDate.getTime()
+        state.remoteLastModifiedDate.getTime() !== action.payload.lastModifiedDate.getTime()
           ? action.payload.lastModifiedDate
           : state.remoteLastModifiedDate;
       // TODO: compare linesOrder
@@ -235,36 +228,31 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         characters: action.payload.characters ?? {},
         checksums: state?.checksums ?? new Map(),
         scriptChecksum: state?.scriptChecksum ?? null,
-        outline: buildScriptOutline(
-          linesOrder,
-          lines,
-          lineContents,
-          lineToContents,
-        ),
+        outline: buildScriptOutline(linesOrder, lines, lineContents, lineToContents),
       };
     }
-    case 'INSERT_HEADING_LINE': {
+    case "INSERT_HEADING_LINE": {
       const lines = new Map(state.lines);
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
       const { id, lastModifiedDate } = action;
       lines.set(id, {
-        type: 'heading',
+        type: "heading",
         lastModifiedDate,
         id,
       } satisfies Line);
       const headingLevel = action.level ?? 1;
       const text =
         headingLevel === 0
-          ? 'Title'
+          ? "Title"
           : headingLevel === 1
-            ? 'Act'
+            ? "Act"
             : headingLevel === 2
-              ? 'Scene'
-              : 'Heading';
+              ? "Scene"
+              : "Heading";
       lineContents.set(id, {
-        lineType: 'heading',
-        type: 'draft',
+        lineType: "heading",
+        type: "draft",
         lastModifiedDate,
         text,
         version: 0,
@@ -288,15 +276,10 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         lineContents,
         lineToContents,
         linesOrder,
-        outline: buildScriptOutline(
-          linesOrder,
-          lines,
-          lineContents,
-          lineToContents,
-        ),
+        outline: buildScriptOutline(linesOrder, lines, lineContents, lineToContents),
       };
     }
-    case 'INSERT_CUE_LINE': {
+    case "INSERT_CUE_LINE": {
       const lines = new Map(state.lines);
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
@@ -304,16 +287,15 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       lines.set(id, {
         lastModifiedDate,
         id,
-        type: 'chartext',
+        type: "chartext",
       } satisfies Line);
       lineContents.set(id, {
         lineId: id,
-        type: 'draft',
-        lineType: 'chartext',
+        type: "draft",
+        lineType: "chartext",
         lastModifiedDate,
-        text: '',
-        characters:
-          action.characterId !== undefined ? [action.characterId] : [],
+        text: "",
+        characters: action.characterId !== undefined ? [action.characterId] : [],
         version: 0,
         id,
       } satisfies CueLineContent);
@@ -335,20 +317,20 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         linesOrder,
       };
     }
-    case 'INSERT_FREETEXT_LINE': {
+    case "INSERT_FREETEXT_LINE": {
       const lines = new Map(state.lines);
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
       const { id, lastModifiedDate } = action;
       lines.set(id, {
-        type: 'freetext',
+        type: "freetext",
         lastModifiedDate,
         id,
       } satisfies Line);
       lineContents.set(id, {
         lineId: id,
-        lineType: 'freetext',
-        type: 'draft',
+        lineType: "freetext",
+        type: "draft",
         lastModifiedDate,
         text: action.init,
         version: 0,
@@ -372,9 +354,9 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         linesOrder,
       };
     }
-    case 'UNDO_INSERT_CUE_LINE':
-    case 'UNDO_INSERT_HEADING_LINE':
-    case 'UNDO_INSERT_FREETEXT_LINE': {
+    case "UNDO_INSERT_CUE_LINE":
+    case "UNDO_INSERT_HEADING_LINE":
+    case "UNDO_INSERT_FREETEXT_LINE": {
       const lines = new Map(state.lines);
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
@@ -394,28 +376,21 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         linesOrder,
         lineContents,
         lineToContents,
-        outline: buildScriptOutline(
-          linesOrder,
-          lines,
-          lineContents,
-          lineToContents,
-        ),
+        outline: buildScriptOutline(linesOrder, lines, lineContents, lineToContents),
       };
     }
-    case 'EDIT':
-    case 'UNDO_EDIT': {
+    case "EDIT":
+    case "UNDO_EDIT": {
       const { id, content, lastModifiedDate } = action;
       // Get latest version
       const contents = state.lineToContents.get(id);
       if (!contents) {
-        console.error('Unexpected: line id not found, unable to edit');
+        console.error("Unexpected: line id not found, unable to edit");
         return state;
       }
       const versions = contents.versions.slice().reverse().filter(Boolean);
       const latestVersionContent =
-        versions.length && versions[0]
-          ? state.lineContents.get(versions[0])
-          : undefined;
+        versions.length && versions[0] ? state.lineContents.get(versions[0]) : undefined;
       if (
         latestVersionContent &&
         isLineEditableContentSameAsPrevious(content, latestVersionContent)
@@ -439,7 +414,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         const draftId = id;
         lineContents.set(draftId, {
           ...content,
-          type: 'draft',
+          type: "draft",
           lineId: id,
           id: draftId,
           lastModifiedDate,
@@ -458,13 +433,13 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         };
       }
     }
-    case 'INIT_DRAFT': {
+    case "INIT_DRAFT": {
       const { content, lastModifiedDate, text, deleted } = action;
       const lineContents = new Map(state.lineContents);
       const draftId = content.lineId;
       lineContents.set(draftId, {
         ...content,
-        type: 'draft',
+        type: "draft",
         lineId: content.lineId,
         id: draftId,
         ...(text ? { text } : {}),
@@ -483,7 +458,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
-    case 'UNDO_INIT_DRAFT': {
+    case "UNDO_INIT_DRAFT": {
       const lineContents = new Map(state.lineContents);
       lineContents.delete(action.lineId);
       return {
@@ -498,15 +473,15 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
-    case 'EDIT_LINE': {
+    case "EDIT_LINE": {
       const { id, lastModifiedDate } = action;
       if (!state.lineContents.has(id)) {
         return state;
       }
       const lineContents = new Map(state.lineContents);
       const existingLineContent = lineContents.get(id);
-      if (!existingLineContent || existingLineContent.type !== 'draft') {
-        console.warn('Unexpected line type');
+      if (!existingLineContent || existingLineContent.type !== "draft") {
+        console.warn("Unexpected line type");
         return state;
       }
       lineContents.set(id, {
@@ -526,15 +501,15 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
-    case 'UNDO_EDIT_LINE': {
+    case "UNDO_EDIT_LINE": {
       const { id, lastModifiedDate, lineLastModifiedDate } = action;
       if (!state.lineContents.has(id)) {
         return state;
       }
       const lineContents = new Map(state.lineContents);
       const existingLineContent = lineContents.get(id);
-      if (!existingLineContent || existingLineContent.type !== 'draft') {
-        console.warn('Unexpected line type');
+      if (!existingLineContent || existingLineContent.type !== "draft") {
+        console.warn("Unexpected line type");
         return state;
       }
       lineContents.set(id, {
@@ -554,7 +529,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
-    case 'REMOVE_LINES': {
+    case "REMOVE_LINES": {
       // const lines = new Map(state.lines);
       // const linesOrder = [...state.linesOrder];
       // action.ids.forEach((id) => {
@@ -576,7 +551,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       // };
       return state;
     }
-    case 'DISCARD_CHANGES': {
+    case "DISCARD_CHANGES": {
       const { id, lastModifiedDate } = action;
       const lineContents = new Map(state.lineContents);
       lineContents.delete(id);
@@ -592,7 +567,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
-    case 'UNDO_DISCARD_CHANGES': {
+    case "UNDO_DISCARD_CHANGES": {
       const { id, content, lastModifiedDate } = action;
       const lineContents = new Map(state.lineContents);
       lineContents.set(id, content);
@@ -608,17 +583,17 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
-    case 'SAVE_CHANGES_AS_SHARED_DRAFT': {
+    case "SAVE_CHANGES_AS_SHARED_DRAFT": {
       const { id, contentId } = action;
       const content = state.lineContents.get(id);
       if (!content) {
-        console.warn('Unexpected state during SAVE_CHANGES_AS_SHARED_DRAFT');
+        console.warn("Unexpected state during SAVE_CHANGES_AS_SHARED_DRAFT");
         return state;
       }
       const lineContents = new Map(state.lineContents);
       lineContents.set(contentId, {
         ...content,
-        type: 'shared_draft',
+        type: "shared_draft",
         id: contentId,
         lineId: id,
         version: null,
@@ -634,32 +609,26 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineContents,
         lineToContents,
-        outline: buildScriptOutline(
-          state.linesOrder,
-          state.lines,
-          lineContents,
-          lineToContents,
-        ),
+        outline: buildScriptOutline(state.linesOrder, state.lines, lineContents, lineToContents),
       };
     }
-    case 'SAVE_CHANGES_AS_NEW_VERSION': {
+    case "SAVE_CHANGES_AS_NEW_VERSION": {
       const { id, contentId } = action;
       const content = state.lineContents.get(id);
       const contents = state.lineToContents.get(id);
       const newVersionNumber =
         contents && contents.versions.length
-          ? (state.lineContents.get(
-              contents.versions.slice().reverse().find(Boolean) ?? '',
-            )?.version ?? 0) + 1
+          ? (state.lineContents.get(contents.versions.slice().reverse().find(Boolean) ?? "")
+              ?.version ?? 0) + 1
           : 1;
       if (!content) {
-        console.warn('Unexpected state during SAVE_CHANGES_AS_NEW_VERSION');
+        console.warn("Unexpected state during SAVE_CHANGES_AS_NEW_VERSION");
         return state;
       }
       const lineContents = new Map(state.lineContents);
       lineContents.set(contentId, {
         ...content,
-        type: 'saved_version',
+        type: "saved_version",
         id: contentId,
         lineId: id,
         version: newVersionNumber,
@@ -677,32 +646,25 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineContents,
         lineToContents,
-        outline: buildScriptOutline(
-          state.linesOrder,
-          state.lines,
-          lineContents,
-          lineToContents,
-        ),
+        outline: buildScriptOutline(state.linesOrder, state.lines, lineContents, lineToContents),
       };
     }
-    case 'SAVE_CHANGES': {
+    case "SAVE_CHANGES": {
       const { id } = action;
       const content = state.lineContents.get(id);
       const contents = state.lineToContents.get(id);
       const versionnedContent =
         contents && contents.versions.length
-          ? state.lineContents.get(
-              contents.versions.slice().reverse().find(Boolean) ?? '',
-            )
+          ? state.lineContents.get(contents.versions.slice().reverse().find(Boolean) ?? "")
           : undefined;
       if (!content || !versionnedContent) {
-        console.warn('Unexpected state during SAVE_CHANGES');
+        console.warn("Unexpected state during SAVE_CHANGES");
         return state;
       }
       const lineContents = new Map(state.lineContents);
       lineContents.set(versionnedContent.id, {
         ...content,
-        type: 'saved_version',
+        type: "saved_version",
         id: versionnedContent.id,
         lineId: versionnedContent.lineId,
         version: versionnedContent.version,
@@ -719,16 +681,14 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ),
       };
     }
-    case 'DELETE_PREVIOUS_VERSION': {
+    case "DELETE_PREVIOUS_VERSION": {
       const { id, contentId: contentIdToDelete } = action;
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
       lineContents.delete(contentIdToDelete);
       const lineToContentsEntry = lineToContents.get(id);
       const newVersions =
-        lineToContentsEntry?.versions.filter(
-          (contentId) => contentId !== contentIdToDelete,
-        ) ?? [];
+        lineToContentsEntry?.versions.filter((contentId) => contentId !== contentIdToDelete) ?? [];
       lineToContents.set(id, {
         versions: newVersions,
         sharedDrafts: [...(lineToContentsEntry?.sharedDrafts ?? [])],
@@ -739,16 +699,15 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         lineContents,
       };
     }
-    case 'DELETE_SHARED_DRAFT': {
+    case "DELETE_SHARED_DRAFT": {
       const { id, contentId: contentIdToDelete } = action;
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
       lineContents.delete(contentIdToDelete);
       const lineToContentsEntry = lineToContents.get(id);
       const newSharedDrafts =
-        lineToContentsEntry?.sharedDrafts.filter(
-          (contentId) => contentId !== contentIdToDelete,
-        ) ?? [];
+        lineToContentsEntry?.sharedDrafts.filter((contentId) => contentId !== contentIdToDelete) ??
+        [];
       lineToContents.set(id, {
         sharedDrafts: newSharedDrafts,
         versions: [...(lineToContentsEntry?.versions ?? [])],
@@ -759,22 +718,21 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         lineContents,
       };
     }
-    case 'APPLY_PREVIOUS_VERSION_AS_NEW_VERSION': {
+    case "APPLY_PREVIOUS_VERSION_AS_NEW_VERSION": {
       const { id, contentId, previousVersion, lastModifiedDate } = action;
       const contents = state.lineToContents.get(id);
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
       const newVersionNumber =
         contents && contents.versions.length
-          ? (state.lineContents.get(
-              contents.versions.slice().reverse().find(Boolean) ?? '',
-            )?.version ?? 0) + 1
+          ? (state.lineContents.get(contents.versions.slice().reverse().find(Boolean) ?? "")
+              ?.version ?? 0) + 1
           : 1;
       lineContents.set(contentId, {
         ...previousVersion,
         id: contentId,
         lastModifiedDate,
-        type: 'saved_version',
+        type: "saved_version",
         version: newVersionNumber,
         lineId: id,
       } satisfies LineContent);
@@ -788,39 +746,31 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineToContents,
         lineContents,
-        outline: buildScriptOutline(
-          state.linesOrder,
-          state.lines,
-          lineContents,
-          lineToContents,
-        ),
+        outline: buildScriptOutline(state.linesOrder, state.lines, lineContents, lineToContents),
       };
     }
-    case 'APPLY_SHARED_DRAFT_AS_NEW_VERSION': {
+    case "APPLY_SHARED_DRAFT_AS_NEW_VERSION": {
       const { id, contentId, sharedDraft, lastModifiedDate } = action;
       const contents = state.lineToContents.get(id);
       const lineContents = new Map(state.lineContents);
       const lineToContents = new Map(state.lineToContents);
       const newVersionNumber =
         contents && contents.versions.length
-          ? (state.lineContents.get(
-              contents.versions.slice().reverse().find(Boolean) ?? '',
-            )?.version ?? 0) + 1
+          ? (state.lineContents.get(contents.versions.slice().reverse().find(Boolean) ?? "")
+              ?.version ?? 0) + 1
           : 1;
       lineContents.set(contentId, {
         ...sharedDraft,
         id: contentId,
         lastModifiedDate,
-        type: 'saved_version',
+        type: "saved_version",
         version: newVersionNumber,
         lineId: id,
       } satisfies LineContent);
       lineContents.delete(sharedDraft.id);
       const lineToContentsEntry = lineToContents.get(id);
       const newSharedDrafts =
-        lineToContentsEntry?.sharedDrafts.filter(
-          (contentId) => contentId !== sharedDraft.id,
-        ) ?? [];
+        lineToContentsEntry?.sharedDrafts.filter((contentId) => contentId !== sharedDraft.id) ?? [];
       const newVersions = [...(lineToContentsEntry?.versions ?? []), contentId];
       lineToContents.set(id, {
         sharedDrafts: newSharedDrafts,
@@ -830,15 +780,10 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
         ...state,
         lineToContents,
         lineContents,
-        outline: buildScriptOutline(
-          state.linesOrder,
-          state.lines,
-          lineContents,
-          lineToContents,
-        ),
+        outline: buildScriptOutline(state.linesOrder, state.lines, lineContents, lineToContents),
       };
     }
-    case 'RESET':
+    case "RESET":
       return action.payload;
     default:
       assertUnreachable(action);

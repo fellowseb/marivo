@@ -1,11 +1,11 @@
-import type { ToolbarDefinition } from '../../components/toolbar.component';
+import type { ToolbarDefinition } from "../../components/toolbar.component";
 
 export const MEMORIZE_TOOLBAR: ToolbarDefinition = {
   items: [
     {
-      label: 'search',
-      icon: 'search',
-      id: 'memorize-search',
+      label: "search",
+      icon: "search",
+      id: "memorize-search",
       disabled: false,
       onAction: () => {},
     },

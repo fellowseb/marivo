@@ -1,7 +1,7 @@
-import classNames from 'classnames';
-import { type PropsWithChildren, type ReactNode, useState } from 'react';
-import styles from './collapsible-section.module.css';
-import Button from './button.component';
+import classNames from "classnames";
+import { type PropsWithChildren, type ReactNode, useState } from "react";
+import styles from "./collapsible-section.module.css";
+import Button from "./button.component";
 
 interface CollapsibleSectionProps {
   Header: ReactNode;

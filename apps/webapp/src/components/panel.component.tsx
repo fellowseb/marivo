@@ -1,7 +1,7 @@
-import type { PropsWithChildren } from 'react';
-import Button from './button.component';
-import Icon, { type IconValue } from './icon.component';
-import styles from './panel.module.css';
+import type { PropsWithChildren } from "react";
+import Button from "./button.component";
+import Icon, { type IconValue } from "./icon.component";
+import styles from "./panel.module.css";
 
 interface PanelProps {
   title: string;

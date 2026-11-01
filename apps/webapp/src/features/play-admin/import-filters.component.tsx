@@ -1,29 +1,25 @@
-import styles from './import-filters.module.css';
-import Button from '../../components/button.component';
-import Icon from '../../components/icon.component';
-import CollapsibleSection from '../../components/collapsible-section.component';
+import styles from "./import-filters.module.css";
+import Button from "../../components/button.component";
+import Icon from "../../components/icon.component";
+import CollapsibleSection from "../../components/collapsible-section.component";
 
-export type ImportStatus = 'uploading_files' | 'processing_files' | 'reviewing';
+export type ImportStatus = "uploading_files" | "processing_files" | "reviewing";
 
 export interface ImportFiltersProps {
   statuses: ImportStatus[];
   onStatusesChange: (statuses: ImportStatus[]) => void;
 }
 
-const ALL_STATUS_OPTIONS: ImportStatus[] = [
-  'uploading_files',
-  'processing_files',
-  'reviewing',
-];
+const ALL_STATUS_OPTIONS: ImportStatus[] = ["uploading_files", "processing_files", "reviewing"];
 
 function getStatusLabel(status: ImportStatus): string {
   switch (status) {
-    case 'uploading_files':
-      return 'Uploading files';
-    case 'processing_files':
-      return 'Processing files';
-    case 'reviewing':
-      return 'Reviewing';
+    case "uploading_files":
+      return "Uploading files";
+    case "processing_files":
+      return "Processing files";
+    case "reviewing":
+      return "Reviewing";
     default:
       return status;
   }
@@ -40,9 +36,7 @@ function ImportFiltersHeader(props: ImportFiltersHeaderProps) {
         <Icon value="filter" size="small" mode="primary" />
         Filter by status
       </span>
-      <span className={styles.arrowDown}>
-        {props.collapsed ? '▼' : '▲'}
-      </span>
+      <span className={styles.arrowDown}>{props.collapsed ? "▼" : "▲"}</span>
     </div>
   );
 }
@@ -58,7 +52,6 @@ function ImportFilters(props: ImportFiltersProps) {
   const handleClearClick = () => {
     props.onStatusesChange(ALL_STATUS_OPTIONS);
   };
-
 
   return (
     <div className={styles.importFilters}>

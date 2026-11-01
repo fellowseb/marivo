@@ -1,20 +1,15 @@
-import z from 'zod';
-import { Result } from '@marivo/utils';
-import {
-  AuthenticatedUseCase,
-  UserContextService,
-} from '../../shared/use-case.ts';
-import type { UserInvitesRepository } from './user-invites.repository.ts';
-import type { UserPlaysRepository } from './user-plays.repository.ts';
+import z from "zod";
+import { Result } from "@marivo/utils";
+import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
+import type { UserInvitesRepository } from "./user-invites.repository.ts";
+import type { UserPlaysRepository } from "./user-plays.repository.ts";
 
 export const RespondToInviteUseCaseInputSchema = z.object({
   inviteUri: z.string(),
   accept: z.boolean(),
 });
 
-type RespondToInviteUseCaseInput = z.infer<
-  typeof RespondToInviteUseCaseInputSchema
->;
+type RespondToInviteUseCaseInput = z.infer<typeof RespondToInviteUseCaseInputSchema>;
 
 export class RespondToInviteUseCase extends AuthenticatedUseCase<{
   params: RespondToInviteUseCaseInput;

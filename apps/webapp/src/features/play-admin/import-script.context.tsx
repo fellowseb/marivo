@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import {
   createContext,
   useCallback,
@@ -7,10 +7,10 @@ import {
   useMemo,
   useState,
   type PropsWithChildren,
-} from 'react';
-import { useSearchParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
-import { useTRPC } from '../../trpc';
+} from "react";
+import { useSearchParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../../trpc";
 
 interface ImportScriptMetadata {
   title: string;
@@ -26,12 +26,12 @@ interface ImportScriptMetadata {
 
 type Step =
   | {
-      name: 'import';
+      name: "import";
       importId: string;
       processing: boolean;
     }
-  | { name: 'preview'; importId: string; metadata: ImportScriptMetadata }
-  | { name: 'name'; importId: string; metadata: ImportScriptMetadata };
+  | { name: "preview"; importId: string; metadata: ImportScriptMetadata }
+  | { name: "name"; importId: string; metadata: ImportScriptMetadata };
 
 interface ImportScriptContext {
   step: Step | undefined;
@@ -41,20 +41,18 @@ interface ImportScriptContext {
   backToReview: () => void;
 }
 
-const ImportScriptContext = createContext<ImportScriptContext | undefined>(
-  undefined,
-);
+const ImportScriptContext = createContext<ImportScriptContext | undefined>(undefined);
 
 export function ImportScriptContextProvider(props: PropsWithChildren) {
   const trpc = useTRPC();
   const [searchParams] = useSearchParams();
-  const resumeImportId = searchParams.get('resume');
+  const resumeImportId = searchParams.get("resume");
   const [importId, setImportId] = useState(resumeImportId ?? uuidv4());
   const [step, setStep] = useState<Step | undefined>(
     resumeImportId
       ? undefined
       : {
-          name: 'import',
+          name: "import",
           importId,
           processing: false,
         },
@@ -63,41 +61,39 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
     importId,
   });
   statusQry.enabled = () => {
-    return Boolean(importId && step?.name !== 'import');
+    return Boolean(importId && step?.name !== "import");
   };
   statusQry.refetchInterval = 5000;
   const { status: statusStatus, data: statusData } = useQuery(statusQry);
   useEffect(() => {
-    if (statusStatus === 'success' && statusData.id === importId) {
+    if (statusStatus === "success" && statusData.id === importId) {
       switch (statusData.status) {
-        case 'processing_files':
-        case 'uploading_files':
+        case "processing_files":
+        case "uploading_files":
           setStep((prev) => {
             if (
               prev &&
-              (prev.name !== 'import' ||
-                !prev.processing ||
-                prev.importId !== importId)
+              (prev.name !== "import" || !prev.processing || prev.importId !== importId)
             ) {
               return {
-                name: 'import',
+                name: "import",
                 importId,
                 processing: true,
               };
             }
           });
           break;
-        case 'reviewing':
+        case "reviewing":
           setStep((prev) => {
             if (
               !prev ||
               (prev &&
-                (prev.name !== 'preview' ||
+                (prev.name !== "preview" ||
                   prev.metadata !== statusData.metadata ||
                   prev.importId !== importId))
             ) {
               return {
-                name: 'preview',
+                name: "preview",
                 importId,
                 metadata: statusData.metadata,
               };
@@ -111,18 +107,18 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
     const newImportId = uuidv4();
     setImportId(newImportId);
     setStep({
-      name: 'import',
+      name: "import",
       importId: newImportId,
       processing: false,
     });
   }, []);
   const reviewDone = useCallback(() => {
     setStep((prev) => {
-      if (prev?.name !== 'preview') {
+      if (prev?.name !== "preview") {
         return prev;
       }
       return {
-        name: 'name',
+        name: "name",
         importId,
         metadata: prev.metadata,
       };
@@ -130,11 +126,11 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
   }, []);
   const backToReview = useCallback(() => {
     setStep((prev) => {
-      if (prev?.name !== 'name') {
+      if (prev?.name !== "name") {
         return prev;
       }
       return {
-        name: 'preview',
+        name: "preview",
         importId,
         metadata: prev.metadata,
       };
@@ -152,16 +148,14 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
     [step],
   );
   return (
-    <ImportScriptContext.Provider value={context}>
-      {props.children}
-    </ImportScriptContext.Provider>
+    <ImportScriptContext.Provider value={context}>{props.children}</ImportScriptContext.Provider>
   );
 }
 
 export function useImportScriptContext(): ImportScriptContext {
   const context = useContext(ImportScriptContext);
   if (!context) {
-    throw new Error('No import script context');
+    throw new Error("No import script context");
   }
   return context;
 }

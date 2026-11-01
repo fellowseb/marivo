@@ -1,6 +1,6 @@
-import { useScriptContext } from '../script/script.context';
-import Script from '../script/script.component';
-import styles from './blocking-tab.module.css';
+import { useScriptContext } from "../script/script.context";
+import Script from "../script/script.component";
+import styles from "./blocking-tab.module.css";
 
 function BlockingTab() {
   const scriptContext = useScriptContext();

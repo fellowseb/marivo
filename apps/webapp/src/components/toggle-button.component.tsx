@@ -1,5 +1,5 @@
-import { useRef, useState, type KeyboardEventHandler } from 'react';
-import styles from './toggle-button.module.css';
+import { useRef, useState, type KeyboardEventHandler } from "react";
+import styles from "./toggle-button.module.css";
 
 interface ToggleButtonProps {
   onToggle: (value: boolean) => void;
@@ -17,30 +17,20 @@ export function ToggleButton(props: ToggleButtonProps) {
     }
   };
   const handleKeyDown: KeyboardEventHandler = (event) => {
-    if (event.code === 'Space') {
+    if (event.code === "Space") {
       event.preventDefault();
     }
   };
   const handleKeyUp: KeyboardEventHandler = (event) => {
-    if (event.code === 'Space' && checkboxRef.current) {
+    if (event.code === "Space" && checkboxRef.current) {
       event.preventDefault();
       setToggled((prevValue) => !prevValue);
       props.onToggle(!toggled);
     }
   };
   return (
-    <label
-      className={styles.switch}
-      tabIndex={0}
-      onKeyUp={handleKeyUp}
-      onKeyDown={handleKeyDown}
-    >
-      <input
-        type="checkbox"
-        onChange={handleChange}
-        ref={checkboxRef}
-        checked={toggled}
-      />
+    <label className={styles.switch} tabIndex={0} onKeyUp={handleKeyUp} onKeyDown={handleKeyDown}>
+      <input type="checkbox" onChange={handleChange} ref={checkboxRef} checked={toggled} />
       <span className={styles.slider}></span>
       {props.label}
     </label>

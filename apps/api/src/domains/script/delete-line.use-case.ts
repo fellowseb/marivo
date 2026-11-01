@@ -1,8 +1,8 @@
-import z from 'zod';
-import { Result } from '@marivo/utils';
-import { type UseCase } from '../../shared/use-case.ts';
-import { ScriptNotFound, ScriptRepository } from './script.repository.ts';
-import type { PlayNotFound, UserPlaysRepository } from '../plays/user-plays.repository.ts';
+import z from "zod";
+import { Result } from "@marivo/utils";
+import { type UseCase } from "../../shared/use-case.ts";
+import { ScriptNotFound, ScriptRepository } from "./script.repository.ts";
+import type { PlayNotFound, UserPlaysRepository } from "../plays/user-plays.repository.ts";
 
 export const DeleteLineUseCaseInputSchema = z.object({
   uri: z.uuid(),
@@ -16,17 +16,11 @@ export const DeleteLineUseCaseOutputSchema = z.object({
 type DeleteLineUseCaseInput = z.infer<typeof DeleteLineUseCaseInputSchema>;
 type DeleteLineUseCaseOutput = z.infer<typeof DeleteLineUseCaseOutputSchema>;
 
-export class DeleteLineUseCase
-  implements
-    UseCase<{
-      params: DeleteLineUseCaseInput;
-      success: DeleteLineUseCaseOutput;
-    }>
-{
-  constructor(
-    scriptRepository: ScriptRepository,
-    userPlaysRepository: UserPlaysRepository,
-  ) {
+export class DeleteLineUseCase implements UseCase<{
+  params: DeleteLineUseCaseInput;
+  success: DeleteLineUseCaseOutput;
+}> {
+  constructor(scriptRepository: ScriptRepository, userPlaysRepository: UserPlaysRepository) {
     this.scriptRepository = scriptRepository;
     this.userPlaysRepository = userPlaysRepository;
   }

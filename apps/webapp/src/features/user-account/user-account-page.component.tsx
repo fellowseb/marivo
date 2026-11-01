@@ -1,7 +1,7 @@
-import { NavLink } from 'react-router';
-import styles from './user-account-page.module.css';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import { UserProfile } from '@clerk/react-router';
+import { NavLink } from "react-router";
+import styles from "./user-account-page.module.css";
+import { HeaderBreadcrumbs } from "../../layouts/header.component";
+import { UserProfile } from "@clerk/react-router";
 
 export function UserAccountPageBreadcrumbs() {
   return (
@@ -10,7 +10,7 @@ export function UserAccountPageBreadcrumbs() {
       crumbs={[
         <NavLink
           to={{
-            pathname: '/my-account',
+            pathname: "/my-account",
           }}
         >
           My account
@@ -20,16 +20,15 @@ export function UserAccountPageBreadcrumbs() {
   );
 }
 
-
 export function UserAccountPage() {
   return (
     <div className={styles.container}>
       <UserProfile
         routing="virtual"
         appearance={{
-          theme: 'simple',
+          theme: "simple",
           variables: {
-            colorBackground: '#ece2cc',
+            colorBackground: "#ece2cc",
           },
         }}
       />

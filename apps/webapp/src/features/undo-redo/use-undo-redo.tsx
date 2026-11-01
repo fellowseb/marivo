@@ -1,4 +1,4 @@
-import { useState, type ActionDispatch } from 'react';
+import { useState, type ActionDispatch } from "react";
 
 export interface UndoRedoStackItem<TAction> {
   action: TAction;
@@ -78,7 +78,7 @@ export function useUndoRedo<TAction>() {
   const undoLabels = state.labels.slice(0, state.position).reverse();
   const undo = (count: number = 1) => {
     if (count <= 0 || count > undoItems.length) {
-      throw new Error('Undo: range error');
+      throw new Error("Undo: range error");
     }
     for (let idx = 0; idx < undoItems.length && idx < count; ++idx) {
       const { action, dispatch } = undoItems[idx];
@@ -95,7 +95,7 @@ export function useUndoRedo<TAction>() {
   const redoLabels = state.labels.slice(state.position);
   const redo = (count: number = 1) => {
     if (count <= 0 || count > redoItems.length) {
-      throw new Error('Redo: range error');
+      throw new Error("Redo: range error");
     }
     for (let idx = 0; idx < redoItems.length && idx < count; ++idx) {
       const { action, dispatch } = redoItems[idx];

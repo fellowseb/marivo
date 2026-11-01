@@ -1,6 +1,6 @@
-import classNames from 'classnames';
-import styles from './icon.module.css';
-import iconsStyles from './icons.module.css';
+import classNames from "classnames";
+import styles from "./icon.module.css";
+import iconsStyles from "./icons.module.css";
 
 const ICON_CLASSES = {
   accept: iconsStyles.accept,
@@ -53,9 +53,9 @@ const ICON_CLASSES = {
 
 export type IconValue = keyof typeof ICON_CLASSES;
 
-export type IconSize = 'small' | 'medium' | 'large';
+export type IconSize = "small" | "medium" | "large";
 
-export type IconColorMode = 'primary' | 'secondary' | 'disabled';
+export type IconColorMode = "primary" | "secondary" | "disabled";
 
 export interface IconProps {
   value: IconValue;
@@ -69,12 +69,12 @@ function Icon(props: IconProps) {
     <div
       className={classNames({
         [styles.icon]: true,
-        [styles.sizeSmall]: props.size === 'small',
-        [styles.sizeMedium]: props.size === 'medium',
-        [styles.sizeLarge]: props.size === 'large',
-        [styles.primary]: props.mode === 'primary',
-        [styles.secondary]: props.mode === 'secondary',
-        [styles.disabled]: props.mode === 'disabled',
+        [styles.sizeSmall]: props.size === "small",
+        [styles.sizeMedium]: props.size === "medium",
+        [styles.sizeLarge]: props.size === "large",
+        [styles.primary]: props.mode === "primary",
+        [styles.secondary]: props.mode === "secondary",
+        [styles.disabled]: props.mode === "disabled",
         [ICON_CLASSES[props.value]]: true,
         ...(props.customClassNames ?? []).reduce(
           (acc, curr) => ({

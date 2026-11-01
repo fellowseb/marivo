@@ -14,7 +14,7 @@
 
 .logo {
   position: absolute;
-  background-image: url('/src/assets/logo.webp');
+  background-image: url("/src/assets/logo.webp");
   background-size: 100px 100px;
   left: -40px;
   top: -40px;

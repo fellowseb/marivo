@@ -1,6 +1,6 @@
-import { Record } from '../../shared/record.ts';
-import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
-import type { UserInvite } from './invites.models.ts';
+import { Record } from "../../shared/record.ts";
+import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
+import type { UserInvite } from "./invites.models.ts";
 
 interface GetPendingInvitesRecordValues {
   uri: string;
@@ -13,11 +13,11 @@ interface GetPendingInvitesRecordValues {
 export class GetPendingInvitesRecord extends Record<GetPendingInvitesRecordValues> {
   toModel(): UserInvite {
     return {
-      uri: this.get('uri'),
-      sentDate: this.get('sent_date'),
-      playTitle: this.get('title'),
-      ownerUsername: this.get('owner_username'),
-      ownerFullName: this.get('owner_full_name'),
+      uri: this.get("uri"),
+      sentDate: this.get("sent_date"),
+      playTitle: this.get("title"),
+      ownerUsername: this.get("owner_username"),
+      ownerFullName: this.get("owner_full_name"),
     };
   }
 }
@@ -47,16 +47,16 @@ export class UserInvitesRepository extends UserRepositoryBase {
     const userId = this.userId();
     const res = await this.sql<{ play_id: number; role_id: number | null }[]>`
       UPDATE invites
-        SET status = ${params.accept ? 'accepted' : 'rejected'}
+        SET status = ${params.accept ? "accepted" : "rejected"}
         WHERE uri = ${params.inviteUri} AND invited_user_id = ${userId}
         RETURNING play_id, role_id;
     `;
     if (!res) {
-      throw new Error('Unexpected empty query result');
+      throw new Error("Unexpected empty query result");
     }
     const resRow = res[0];
     if (!resRow) {
-      throw new Error('Unexpected undefined query result row');
+      throw new Error("Unexpected undefined query result row");
     }
     return {
       playId: resRow.play_id,

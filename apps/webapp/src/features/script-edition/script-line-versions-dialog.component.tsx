@@ -1,13 +1,13 @@
-import classNames from 'classnames';
-import { formatDistanceToNow } from 'date-fns';
-import { type KeyboardEvent } from 'react';
-import Button from '../../components/button.component';
-import { Dialog } from '../../components/dialog.component';
-import CollapsibleSection from '../../components/collapsible-section.component';
-import { usePlayContext } from '../play-admin/play.context';
-import ScriptLine from '../script/script-line.component';
-import type { Line, LineContent, LineInfo } from '../script/script.models';
-import styles from './script-line-versions-dialog.module.css';
+import classNames from "classnames";
+import { formatDistanceToNow } from "date-fns";
+import { type KeyboardEvent } from "react";
+import Button from "../../components/button.component";
+import { Dialog } from "../../components/dialog.component";
+import CollapsibleSection from "../../components/collapsible-section.component";
+import { usePlayContext } from "../play-admin/play.context";
+import ScriptLine from "../script/script-line.component";
+import type { Line, LineContent, LineInfo } from "../script/script.models";
+import styles from "./script-line-versions-dialog.module.css";
 
 interface LineVersionHeaderProps {
   collapsed: boolean;
@@ -38,8 +38,8 @@ const Header = ({
         {version != null ? `v${version} by ` : `by `}
         <strong>
           {authorUsername
-            ? `${participants[authorUsername].fullName ?? ''} (@${authorUsername})`
-            : 'Someone'}
+            ? `${participants[authorUsername].fullName ?? ""} (@${authorUsername})`
+            : "Someone"}
         </strong>
         , {formatDistanceToNow(lastModifiedDate)} ago
       </span>
@@ -135,21 +135,19 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
     props.onOK();
   };
   const handleKeyUp = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       props.onOK();
     }
   };
-  const handleApplyPreviousVersionAsNewVersion =
-    (previousVersion: LineContent) => () => {
-      props.onApplyPreviousVersionAsNewVersion?.(previousVersion);
-    };
+  const handleApplyPreviousVersionAsNewVersion = (previousVersion: LineContent) => () => {
+    props.onApplyPreviousVersionAsNewVersion?.(previousVersion);
+  };
   const handleDeletePreviousVersion = (contentId: string) => () => {
     props.onDeletePreviousVersion?.(contentId);
   };
-  const handleApplySharedDraftAsNewVersion =
-    (sharedDraft: LineContent) => () => {
-      props.onApplySharedDraftAsNewVersion?.(sharedDraft);
-    };
+  const handleApplySharedDraftAsNewVersion = (sharedDraft: LineContent) => () => {
+    props.onApplySharedDraftAsNewVersion?.(sharedDraft);
+  };
   const handleDeleteSharedDraft = (contentId: string) => () => {
     props.onDeleteSharedDraft?.(contentId);
   };
@@ -157,12 +155,11 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
     return null;
   }
   const sortedSharedDrafts = props.sharedDraftContents.sort(
-    (lhs, rhs) =>
-      rhs.lastModifiedDate.getTime() - lhs.lastModifiedDate.getTime(),
+    (lhs, rhs) => rhs.lastModifiedDate.getTime() - lhs.lastModifiedDate.getTime(),
   );
   return (
     <Dialog
-      title={`${props.line.type === 'heading' ? 'Heading' : props.line.type === 'chartext' ? 'Cue' : 'Freetext'} line versions`}
+      title={`${props.line.type === "heading" ? "Heading" : props.line.type === "chartext" ? "Cue" : "Freetext"} line versions`}
       actions={
         <Button icon="accept" onClick={handleOkClick} autoFocus={true}>
           OK
@@ -172,12 +169,7 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
       customClassNames={[styles.dialog]}
     >
       <h2 className={styles.sectionTitle}>Current version</h2>
-      <div
-        className={classNames([
-          styles.contentContainer,
-          styles.currentContentContainer,
-        ])}
-      >
+      <div className={classNames([styles.contentContainer, styles.currentContentContainer])}>
         <LineVersion
           participants={playResult.dataOrThrow().participants}
           content={props.currentContent}
@@ -200,9 +192,7 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
                 characters={props.characters}
                 lineInfo={props.lineInfo}
                 line={props.line}
-                onApplyAsNewVersion={handleApplyPreviousVersionAsNewVersion(
-                  sharedContent,
-                )}
+                onApplyAsNewVersion={handleApplyPreviousVersionAsNewVersion(sharedContent)}
                 onDelete={handleDeletePreviousVersion(sharedContent.id)}
               />
             );
@@ -223,9 +213,7 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
                 characters={props.characters}
                 lineInfo={props.lineInfo}
                 line={props.line}
-                onApplyAsNewVersion={handleApplySharedDraftAsNewVersion(
-                  sharedContent,
-                )}
+                onApplyAsNewVersion={handleApplySharedDraftAsNewVersion(sharedContent)}
                 onDelete={handleDeleteSharedDraft(sharedContent.id)}
               />
             );

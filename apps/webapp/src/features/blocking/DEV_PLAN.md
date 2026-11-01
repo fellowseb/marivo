@@ -20,6 +20,7 @@
 ## 🎯 Contexte & Objectifs
 
 ### Cas d'usage principaux
+
 1. **Metteur en scène** :
    - Créer et éditer des mouvements de personnages/décor sur une timeline
    - Partager les "blocking" avec les comédiens
@@ -35,6 +36,7 @@
    - Import/export de plans de scène
 
 ### Contraintes
+
 - ✅ **Extensibilité** : Architecture modulaire pour permettre un passage à WebGL (PixiJS) si besoin de performances accrues
 - ✅ **Performance** : Doit gérer 50+ éléments animés simultanément
 - ✅ **Synchronisation** : Précision temporelle entre texte et animation
@@ -123,19 +125,20 @@
 
 ### Comparatif Final
 
-| Critère | Konva.js (Canvas) | PixiJS (WebGL) | SVG Natif | Fabric.js |
-|---------|------------------|----------------|-----------|-----------|
-| **Performance** | ⭐⭐⭐ (50-100 él) | ⭐⭐⭐⭐⭐ (1000+ él) | ⭐⭐ (20-50 él) | ⭐⭐⭐ (100 él) |
-| **Drag & Drop** | ✅ Natif | ⚠️ Manuel | ⚠️ Manuel | ✅ Natif |
-| **Édition** | ✅✅✅ Excellente | ⚠️ Basique | ⚠️ Basique | ✅✅✅ Excellente |
-| **Poids** | ~100 Ko | ~50 Ko | 0 Ko | ~200 Ko |
-| **React** | ✅ react-konva | ✅ react-pixi | ✅ Natif | ⚠️ Manuel |
-| **Complexité** | Moyenne | Élevée | Faible | Élevée |
-| **Extensibilité** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
+| Critère           | Konva.js (Canvas)  | PixiJS (WebGL)        | SVG Natif       | Fabric.js         |
+| ----------------- | ------------------ | --------------------- | --------------- | ----------------- |
+| **Performance**   | ⭐⭐⭐ (50-100 él) | ⭐⭐⭐⭐⭐ (1000+ él) | ⭐⭐ (20-50 él) | ⭐⭐⭐ (100 él)   |
+| **Drag & Drop**   | ✅ Natif           | ⚠️ Manuel             | ⚠️ Manuel       | ✅ Natif          |
+| **Édition**       | ✅✅✅ Excellente  | ⚠️ Basique            | ⚠️ Basique      | ✅✅✅ Excellente |
+| **Poids**         | ~100 Ko            | ~50 Ko                | 0 Ko            | ~200 Ko           |
+| **React**         | ✅ react-konva     | ✅ react-pixi         | ✅ Natif        | ⚠️ Manuel         |
+| **Complexité**    | Moyenne            | Élevée                | Faible          | Élevée            |
+| **Extensibilité** | ⭐⭐⭐⭐           | ⭐⭐⭐⭐⭐            | ⭐⭐            | ⭐⭐              |
 
 ### Décision : **Konva.js en Production, PixiJS en Backup**
 
 **Pourquoi Konva.js ?**
+
 - ✅ Performant pour 50-100 éléments (largement suffisant pour du théâtre)
 - ✅ Drag & drop et édition native
 - ✅ Intégration React parfaite via `react-konva`
@@ -143,10 +146,12 @@
 - ✅ Facile à prendre en main
 
 **Pourquoi garder PixiJS en option ?**
+
 - Si un jour tu as besoin de **1000+ éléments animés** (ex: particules, effets spéciaux)
 - La migration sera **facile** grâce à l'interface Renderer abstraite
 
 **Implémentation** :
+
 ```
 features/blocking/
 ├── adapters/
@@ -162,6 +167,7 @@ features/blocking/
 ## 📅 Plan de Développement par Phase
 
 ### Phase 0 : Préparation (1 jour)
+
 **Objectif** : Mise en place de l'architecture de base
 
 - [ ] Créer la structure de dossiers `features/blocking/`
@@ -171,6 +177,7 @@ features/blocking/
 - [ ] Mettre en place les hooks de base (`useBlocking`, `useTimeline`)
 
 **Livrables** :
+
 - Structure de fichiers prête
 - Types TypeScript définis
 - Environnement de dev configuré
@@ -178,9 +185,11 @@ features/blocking/
 ---
 
 ### Phase 1 : Modèles & Génération (3-4 jours)
+
 **Objectif** : Implémenter le cœur du domaine et la génération automatique
 
 #### Tâches :
+
 - [ ] **Modèles de données** (`models/`)
   - [ ] `types.ts` : Types de base (Position, CharacterState, PropState, StageState)
   - [ ] `timeline.ts` : Classe Timeline avec méthodes utilitaires
@@ -199,6 +208,7 @@ features/blocking/
   - [ ] Préparation pour les timings audio (futur)
 
 **Livrables** :
+
 - Modèles TypeScript complets
 - Génération automatique de timelines depuis un script
 - Calcul des durées entre keyframes
@@ -206,9 +216,11 @@ features/blocking/
 ---
 
 ### Phase 2 : Rendu & Édition Basique (5-7 jours)
+
 **Objectif** : Afficher la scène et permettre une édition simple
 
 #### Tâches :
+
 - [ ] **Renderer Interface** (`adapters/renderer/renderer.interface.ts`)
   - [ ] Définir l'interface commune pour tous les renderers
   - [ ] Méthodes : `render()`, `updateElement()`, `onDrag()`, `destroy()`
@@ -238,6 +250,7 @@ features/blocking/
   - [ ] Thème cohérent avec l'app existante
 
 **Livrables** :
+
 - Scene visible avec personnages et props
 - Édition basique du plan 2D (ajout/suppression/déplacement)
 - Intégration avec Konva.js
@@ -245,9 +258,11 @@ features/blocking/
 ---
 
 ### Phase 3 : Animation & Timeline (5-7 jours)
+
 **Objectif** : Animer la scène selon la timeline
 
 #### Tâches :
+
 - [ ] **AnimeJS Adapter** (`adapters/animejs-adapter.ts`)
   - [ ] Conversion Timeline → AnimeJS Timeline
   - [ ] Gestion des keyframes (position, opacité, etc.)
@@ -280,6 +295,7 @@ features/blocking/
   - [ ] Scroll automatique du script
 
 **Livrables** :
+
 - Animation fluide selon la timeline
 - Contrôles de lecture complets
 - Édition visuelle de la timeline
@@ -288,9 +304,11 @@ features/blocking/
 ---
 
 ### Phase 4 : Fonctionnalités Avancées (5-7 jours)
+
 **Objectif** : Ajouter les fonctionnalités d'édition avancée
 
 #### Tâches :
+
 - [ ] **Édition des keyframes**
   - [ ] Ajout manuel de keyframes (via clic sur la timeline)
   - [ ] Suppression de keyframes
@@ -318,6 +336,7 @@ features/blocking/
   - [ ] Stockage des audios
 
 **Livrables** :
+
 - Édition complète des keyframes
 - Outils d'édition avancés (grille, redimensionnement, etc.)
 - Sauvegarde/chargement des plans de scène
@@ -326,9 +345,11 @@ features/blocking/
 ---
 
 ### Phase 5 : Synchronisation Audio (3-5 jours)
+
 **Objectif** : Implémenter le mode de lecture audio
 
 #### Tâches :
+
 - [ ] **Audio Timing Strategy** (`services/timing-strategies/audio-strategy.ts`)
   - [ ] Chargement des fichiers audio
   - [ ] Synchronisation avec la timeline
@@ -345,6 +366,7 @@ features/blocking/
   - [ ] Visualisation de la forme d'onde (optionnel)
 
 **Livrables** :
+
 - Mode de lecture audio fonctionnel
 - Génération automatique des audios
 - Synchronisation parfaite audio/animation
@@ -352,9 +374,11 @@ features/blocking/
 ---
 
 ### Phase 6 : Optimisations & Finitions (3-5 jours)
+
 **Objectif** : Améliorer les performances et l'expérience utilisateur
 
 #### Tâches :
+
 - [ ] **Optimisations de performance**
   - [ ] Virtualisation de la timeline (ne pas rendre les keyframes hors écran)
   - [ ] Memoization des composants React
@@ -378,6 +402,7 @@ features/blocking/
   - [ ] Tests e2e (workflows utilisateur)
 
 **Livrables** :
+
 - Application optimisée et fluide
 - Expérience utilisateur polie
 - Code robuste et testé
@@ -385,9 +410,11 @@ features/blocking/
 ---
 
 ### Phase 7 : Préparation IA (2-3 jours)
+
 **Objectif** : Préparer l'intégration future de l'IA
 
 #### Tâches :
+
 - [ ] **Service Movement AI** (`services/movement-ai.ts`)
   - [ ] Détection des mouvements dans le texte (patterns regex)
   - [ ] Génération de suggestions de keyframes
@@ -399,21 +426,25 @@ features/blocking/
   - [ ] Acceptation/Rejet des suggestions
 
 **Livrables** :
+
 - Système prêt pour l'intégration IA
 - Détection basique des mouvements via regex
 
 ---
 
 ### Phase 8 : Migration WebGL (Optionnelle - Futur)
+
 **Objectif** : Basculer vers PixiJS si besoin de performances accrues
 
 #### Tâches :
+
 - [ ] Implémenter `PixiRenderer` (`adapters/renderer/pixi-renderer.ts`)
 - [ ] Adapter les composants existants
 - [ ] Tests de performance comparatifs
 - [ ] Migration progressive (feature flag)
 
 **Livrables** :
+
 - Renderer WebGL fonctionnel
 - Migration transparente pour l'utilisateur
 
@@ -502,7 +533,7 @@ export interface CharacterState {
   position: Position;
   visible: boolean;
   action?: string; // 'standing', 'walking', 'sitting', etc.
-  direction?: 'left' | 'right' | 'center' | 'up' | 'down';
+  direction?: "left" | "right" | "center" | "up" | "down";
   color?: string; // Pour l'affichage
 }
 
@@ -554,7 +585,7 @@ export interface Keyframe {
   positionInLine?: number; // Offset en mots depuis le début de la ligne (0 = début)
   stageState: StageState;
   label?: string;
-  createdBy: 'system' | 'user' | 'ai';
+  createdBy: "system" | "user" | "ai";
   timing: KeyframeTiming;
   color?: string; // Pour l'UI (bleu = début de réplique, vert = intra, etc.)
 }
@@ -564,7 +595,7 @@ export interface Timeline {
   id: string;
   keyframes: Keyframe[];
   totalDuration: number; // en ms
-  playbackMode: 'virtual' | 'audio' | 'manual';
+  playbackMode: "virtual" | "audio" | "manual";
   stagePlanId?: string; // Référence au plan de scène
   scriptId: string; // Référence au script
   createdAt: Date;
@@ -583,7 +614,7 @@ export interface StagePlan {
 }
 
 // Élément de scène (générique)
-export type StageElementType = 'character' | 'prop';
+export type StageElementType = "character" | "prop";
 export interface StageElement {
   id: string;
   type: StageElementType;
@@ -599,7 +630,7 @@ export interface StageElement {
 }
 
 // Modes de lecture
-export type PlaybackMode = 'virtual' | 'audio' | 'manual';
+export type PlaybackMode = "virtual" | "audio" | "manual";
 ```
 
 ### Interface du Renderer
@@ -607,7 +638,7 @@ export type PlaybackMode = 'virtual' | 'audio' | 'manual';
 ```typescript
 // src/features/blocking/adapters/renderer/renderer.interface.ts
 
-import type { StageState, Position, Dimensions } from '../../models/types';
+import type { StageState, Position, Dimensions } from "../../models/types";
 
 export interface ElementProps {
   id: string;
@@ -634,29 +665,29 @@ export interface RendererEventHandlers {
 export interface Renderer {
   // Initialisation
   initialize(container: HTMLElement, dimensions: Dimensions): Promise<void>;
-  
+
   // Rendu
   render(stageState: StageState): void;
-  
+
   // Mise à jour d'un élément
   updateElement(id: string, props: Partial<ElementProps>): void;
-  
+
   // Ajout d'un élément
   addElement(element: StageElement, props?: Partial<ElementProps>): void;
-  
+
   // Suppression d'un élément
   removeElement(id: string): void;
-  
+
   // Gestion des événements
   setEventHandlers(handlers: RendererEventHandlers): void;
-  
+
   // Nettoyage
   destroy(): void;
-  
+
   // Utilitaires
   getElement(id: string): ElementProps | null;
   getAllElements(): ElementProps[];
-  
+
   // Pour l'édition
   enableDrag(dragEnabled: boolean): void;
   enableSelection(selectionEnabled: boolean): void;
@@ -669,10 +700,10 @@ export interface Renderer {
 ```typescript
 // src/features/blocking/adapters/renderer/konva-renderer.ts
 
-import Konva from 'konva';
-import { Stage as KonvaStage, Layer as KonvaLayer, Group as KonvaGroup } from 'konva';
-import type { Renderer, RendererEventHandlers, ElementProps } from './renderer.interface';
-import type { StageState, Position, Dimensions, StageElement } from '../../models/types';
+import Konva from "konva";
+import { Stage as KonvaStage, Layer as KonvaLayer, Group as KonvaGroup } from "konva";
+import type { Renderer, RendererEventHandlers, ElementProps } from "./renderer.interface";
+import type { StageState, Position, Dimensions, StageElement } from "../../models/types";
 
 export class KonvaRenderer implements Renderer {
   private stage: KonvaStage | null = null;
@@ -681,129 +712,129 @@ export class KonvaRenderer implements Renderer {
   private eventHandlers: RendererEventHandlers = {};
   private gridSize: number = 20;
   private showGrid: boolean = false;
-  
+
   async initialize(container: HTMLElement, dimensions: Dimensions): Promise<void> {
     this.stage = new KonvaStage({
       container,
       width: dimensions.width,
       height: dimensions.height,
     });
-    
+
     this.layer = new KonvaLayer();
     this.stage.add(this.layer);
-    
+
     // Dessiner la grille si activée
     this.updateGrid();
-    
+
     // Forcer le redessin
     this.stage.draw();
   }
-  
+
   render(stageState: StageState): void {
     if (!this.layer) return;
-    
+
     // Effacer les éléments existants (sauf le fond)
     this.elements.forEach((group) => group.destroy());
     this.elements.clear();
-    
+
     // Dessiner le fond
     this.drawBackground(stageState);
-    
+
     // Dessiner les props
     Object.entries(stageState.props).forEach(([id, prop]) => {
       this.drawProp(id, prop);
     });
-    
+
     // Dessiner les personnages
     Object.entries(stageState.characters).forEach(([id, char]) => {
       this.drawCharacter(id, char);
     });
-    
+
     this.layer.draw();
   }
-  
+
   private drawBackground(stageState: StageState): void {
     if (!this.layer) return;
-    
+
     const bg = new Konva.Rect({
       x: 0,
       y: 0,
       width: stageState.dimensions.width,
       height: stageState.dimensions.height,
-      fill: stageState.background || '#f0f0f0',
+      fill: stageState.background || "#f0f0f0",
     });
     this.layer.add(bg);
   }
-  
+
   private drawCharacter(id: string, char: CharacterState): void {
     if (!this.layer) return;
-    
+
     const group = new KonvaGroup({
       x: char.position.x,
       y: char.position.y,
       draggable: true,
     });
-    
+
     // Cercle pour le personnage
     const circle = new Konva.Circle({
       radius: 20,
-      fill: char.color || '#4a90e2',
-      stroke: 'black',
+      fill: char.color || "#4a90e2",
+      stroke: "black",
       strokeWidth: 2,
     });
     group.add(circle);
-    
+
     // Nom du personnage
     const text = new Konva.Text({
       text: id,
       y: -30,
-      align: 'center',
+      align: "center",
       fontSize: 12,
     });
     group.add(text);
-    
+
     // Direction (flèche)
     if (char.direction) {
       const arrow = this.drawDirectionArrow(char.direction);
       group.add(arrow);
     }
-    
+
     // Événements
-    group.on('dragstart', () => this.eventHandlers.onDragStart?.(id, char.position));
-    group.on('dragmove', () => {
+    group.on("dragstart", () => this.eventHandlers.onDragStart?.(id, char.position));
+    group.on("dragmove", () => {
       this.eventHandlers.onDrag?.(id, { x: group.x(), y: group.y() });
     });
-    group.on('dragend', () => {
+    group.on("dragend", () => {
       const newPos = { x: group.x(), y: group.y() };
       this.eventHandlers.onDragEnd?.(id, newPos);
     });
-    group.on('click', () => this.eventHandlers.onClick?.(id));
-    group.on('dblclick', () => this.eventHandlers.onDoubleClick?.(id));
-    
+    group.on("click", () => this.eventHandlers.onClick?.(id));
+    group.on("dblclick", () => this.eventHandlers.onDoubleClick?.(id));
+
     this.layer.add(group);
     this.elements.set(id, group);
   }
-  
+
   private drawProp(id: string, prop: PropState): void {
     // Implémentation similaire pour les props
   }
-  
+
   updateElement(id: string, props: Partial<ElementProps>): void {
     const group = this.elements.get(id);
     if (!group) return;
-    
+
     if (props.x !== undefined) group.x(props.x);
     if (props.y !== undefined) group.y(props.y);
     if (props.visible !== undefined) group.visible(props.visible);
     // ... autres propriétés
-    
+
     this.layer?.draw();
   }
-  
+
   addElement(element: StageElement): void {
     // Implémentation
   }
-  
+
   removeElement(id: string): void {
     const group = this.elements.get(id);
     if (group) {
@@ -812,46 +843,46 @@ export class KonvaRenderer implements Renderer {
       this.layer?.draw();
     }
   }
-  
+
   setEventHandlers(handlers: RendererEventHandlers): void {
     this.eventHandlers = handlers;
   }
-  
+
   destroy(): void {
     this.stage?.destroy();
     this.stage = null;
     this.layer = null;
     this.elements.clear();
   }
-  
+
   // ... autres méthodes
-  
+
   private updateGrid(): void {
     if (!this.layer || !this.showGrid) return;
-    
+
     // Dessiner la grille
     for (let i = 0; i < this.stage!.width(); i += this.gridSize) {
       const line = new Konva.Line({
         points: [i, 0, i, this.stage!.height()],
-        stroke: '#ddd',
+        stroke: "#ddd",
         strokeWidth: 1,
       });
       this.layer.add(line);
     }
-    
+
     for (let i = 0; i < this.stage!.height(); i += this.gridSize) {
       const line = new Konva.Line({
         points: [0, i, this.stage!.width(), i],
-        stroke: '#ddd',
+        stroke: "#ddd",
         strokeWidth: 1,
       });
       this.layer.add(line);
     }
   }
-  
+
   private drawDirectionArrow(direction: string): Konva.Arrow {
     // Implémentation de la flèche de direction
-    return new Konva.Arrow({ /* ... */ });
+    return new Konva.Arrow({/* ... */});
   }
 }
 ```
@@ -861,6 +892,7 @@ export class KonvaRenderer implements Renderer {
 ## ⚠️ Points de Vigilance
 
 ### Performance
+
 1. **Nombre d'éléments** :
    - Konva.js : ~100 éléments max pour des animations fluides (OK pour du théâtre)
    - Si > 500 éléments → passer à PixiJS (WebGL)
@@ -875,6 +907,7 @@ export class KonvaRenderer implements Renderer {
    - Éviter les fuites mémoire avec les event listeners
 
 ### Synchronisation
+
 1. **Précision temporelle** :
    - Utiliser `performance.now()` pour un timing précis
    - Éviter `setTimeout`/`setInterval` pour les animations
@@ -884,6 +917,7 @@ export class KonvaRenderer implements Renderer {
    - **Solution** : Le texte est la source de vérité, l'animation suit
 
 ### Édition
+
 1. **Undo/Redo** :
    - Implémenter un système de historique pour l'édition
    - **Solution** : Utiliser un pattern Command ou un simple tableau d'états
@@ -893,6 +927,7 @@ export class KonvaRenderer implements Renderer {
    - **Solution** : Stocker les IDs sélectionnés dans un state
 
 ### Backend
+
 1. **Stockage des timelines** :
    - Les timelines peuvent devenir grosses (beaucoup de keyframes)
    - **Solution** : Compresser les données (ex: ne stocker que les différences entre keyframes)
@@ -905,29 +940,29 @@ export class KonvaRenderer implements Renderer {
 
 ## ❓ Décisions en Attente
 
-| Décision | Options | Recommandation | Priorité |
-|----------|---------|----------------|----------|
-| **Moteur de rendu initial** | Konva.js vs SVG Natif | **Konva.js** | ⭐⭐⭐ |
-| **Génération audio** | Client-side (Web Speech API) vs Server-side (AWS Polly) | **Server-side** (meilleure qualité) | ⭐⭐ |
-| **Stockage des audios** | Base64 en DB vs Fichiers S3/MinIO | **Fichiers** (plus léger) | ⭐⭐ |
-| **Format des plans** | JSON vs Binary | **JSON** (plus lisible) | ⭐ |
-| **Gestion des conflits** | Last-write-wins vs Merge manuel | **Last-write-wins** (simple) | ⭐ |
+| Décision                    | Options                                                 | Recommandation                      | Priorité |
+| --------------------------- | ------------------------------------------------------- | ----------------------------------- | -------- |
+| **Moteur de rendu initial** | Konva.js vs SVG Natif                                   | **Konva.js**                        | ⭐⭐⭐   |
+| **Génération audio**        | Client-side (Web Speech API) vs Server-side (AWS Polly) | **Server-side** (meilleure qualité) | ⭐⭐     |
+| **Stockage des audios**     | Base64 en DB vs Fichiers S3/MinIO                       | **Fichiers** (plus léger)           | ⭐⭐     |
+| **Format des plans**        | JSON vs Binary                                          | **JSON** (plus lisible)             | ⭐       |
+| **Gestion des conflits**    | Last-write-wins vs Merge manuel                         | **Last-write-wins** (simple)        | ⭐       |
 
 ---
 
 ## 📊 Estimation des Temps
 
-| Phase | Durée Estmée | Complexité | Équipe |
-|-------|--------------|------------|--------|
-| Phase 0 | 1 jour | Faible | 1 dev |
-| Phase 1 | 3-4 jours | Moyenne | 1 dev |
-| Phase 2 | 5-7 jours | Élevée | 1-2 devs |
-| Phase 3 | 5-7 jours | Élevée | 1-2 devs |
-| Phase 4 | 5-7 jours | Élevée | 1-2 devs |
-| Phase 5 | 3-5 jours | Moyenne | 1 dev |
-| Phase 6 | 3-5 jours | Moyenne | 1 dev |
-| Phase 7 | 2-3 jours | Faible | 1 dev |
-| **Total** | **~27-36 jours** | | |
+| Phase     | Durée Estmée     | Complexité | Équipe   |
+| --------- | ---------------- | ---------- | -------- |
+| Phase 0   | 1 jour           | Faible     | 1 dev    |
+| Phase 1   | 3-4 jours        | Moyenne    | 1 dev    |
+| Phase 2   | 5-7 jours        | Élevée     | 1-2 devs |
+| Phase 3   | 5-7 jours        | Élevée     | 1-2 devs |
+| Phase 4   | 5-7 jours        | Élevée     | 1-2 devs |
+| Phase 5   | 3-5 jours        | Moyenne    | 1 dev    |
+| Phase 6   | 3-5 jours        | Moyenne    | 1 dev    |
+| Phase 7   | 2-3 jours        | Faible     | 1 dev    |
+| **Total** | **~27-36 jours** |            |          |
 
 > ⚠️ **Note** : Ces estimations supposent un développeur expérimenté avec React/TypeScript.
 > Pour une équipe de 2 devs, diviser par ~1.5.
@@ -937,20 +972,24 @@ export class KonvaRenderer implements Renderer {
 ## 🎯 Prochaines Étapes
 
 ### Immédiat (Cette session)
+
 - [ ] Valider ce plan de développement
 - [ ] Décider des choix en attente (moteur de rendu, génération audio, etc.)
 - [ ] Prioriser les phases si nécessaire
 
 ### Court Terme (1 semaine)
+
 - [ ] Démarrer la **Phase 0** (préparation)
 - [ ] Créer les types TypeScript
 - [ ] Configurer l'environnement
 
 ### Moyen Terme (2-3 semaines)
+
 - [ ] Implémenter les **Phases 1-3** (modèles + rendu + animation)
 - [ ] Avoir une démo fonctionnelle de base
 
 ### Long Terme (1-2 mois)
+
 - [ ] Compléter toutes les phases
 - [ ] Tests utilisateurs
 - [ ] Corrections et optimisations
@@ -969,6 +1008,6 @@ export class KonvaRenderer implements Renderer {
 
 ## 🔄 Historique des Révisions
 
-| Version | Date | Auteur | Changements |
-|---------|------|--------|-------------|
-| 1.0 | 2026-07-26 | Mistral Vibe | Création initiale |
+| Version | Date       | Auteur       | Changements       |
+| ------- | ---------- | ------------ | ----------------- |
+| 1.0     | 2026-07-26 | Mistral Vibe | Création initiale |

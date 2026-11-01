@@ -1,6 +1,6 @@
-import Button from '../../components/button.component';
-import Panel from '../../components/panel.component';
-import styles from './script-navigate-panel.module.css';
+import Button from "../../components/button.component";
+import Panel from "../../components/panel.component";
+import styles from "./script-navigate-panel.module.css";
 
 interface ScriptNavigatePanelProps {
   outline: { heading: string; headingLevel: number }[];
@@ -16,7 +16,7 @@ function ScriptNavigatePanel(props: ScriptNavigatePanelProps) {
     window.scrollBy({
       top: elem.offsetTop - window.pageYOffset,
       left: 0,
-      behavior: 'instant',
+      behavior: "instant",
     });
   };
   return (
@@ -25,29 +25,21 @@ function ScriptNavigatePanel(props: ScriptNavigatePanelProps) {
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Outline</div>
           <ul className={styles.outlineContainer}>
-            {props.outline.map(
-              ({ heading, headingLevel, lineId }, idx, arr) => {
-                let treeStruct =
-                  headingLevel === 0 ? '' : idx === arr.length - 1 ? '└' : '├';
-                if (headingLevel !== 0) {
-                  treeStruct = treeStruct.concat(
-                    ...new Array(headingLevel).fill('─'),
-                  );
-                  treeStruct += ' ';
-                }
-                return (
-                  <li>
-                    <Button
-                      variant="discrete"
-                      onClick={handleHeadingClick(lineId)}
-                    >
-                      {treeStruct}
-                      {heading}
-                    </Button>
-                  </li>
-                );
-              },
-            )}
+            {props.outline.map(({ heading, headingLevel, lineId }, idx, arr) => {
+              let treeStruct = headingLevel === 0 ? "" : idx === arr.length - 1 ? "└" : "├";
+              if (headingLevel !== 0) {
+                treeStruct = treeStruct.concat(...new Array(headingLevel).fill("─"));
+                treeStruct += " ";
+              }
+              return (
+                <li>
+                  <Button variant="discrete" onClick={handleHeadingClick(lineId)}>
+                    {treeStruct}
+                    {heading}
+                  </Button>
+                </li>
+              );
+            })}
           </ul>
         </div>
         <div className={styles.section}>

@@ -36,10 +36,5 @@
     "restriction": "off",
     "nursery": "off"
   },
-  "ignorePatterns": [
-    "dist/**",
-    "node_modules/**",
-    "*.config.js",
-    "*.config.mjs"
-  ]
+  "ignorePatterns": ["dist/**", "node_modules/**", "*.config.js", "*.config.mjs"]
 }

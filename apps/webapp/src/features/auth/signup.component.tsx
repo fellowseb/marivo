@@ -1,4 +1,4 @@
-import { SignUp } from '@clerk/react-router';
+import { SignUp } from "@clerk/react-router";
 
 function Signup() {
   return <SignUp signInUrl="/signin" />;

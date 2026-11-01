@@ -37,15 +37,15 @@ ci: add github actions workflow
 
 Every issue must have **one** of these labels:
 
-| Label | When to use |
-|-------|-------------|
-| `feature` | New functionality |
-| `bug` | Something is broken |
+| Label      | When to use                                |
+| ---------- | ------------------------------------------ |
+| `feature`  | New functionality                          |
+| `bug`      | Something is broken                        |
 | `refactor` | Code restructuring without behavior change |
-| `build` | Build system, dependencies, CI/CD |
-| `chore` | Maintenance, tooling |
-| `security` | Security-related changes |
-| `docs` | Documentation changes |
+| `build`    | Build system, dependencies, CI/CD          |
+| `chore`    | Maintenance, tooling                       |
+| `security` | Security-related changes                   |
+| `docs`     | Documentation changes                      |
 
 ---
 

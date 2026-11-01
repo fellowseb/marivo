@@ -3,47 +3,25 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "build/**",
-        "dist/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "dependsOn": ["^build"],
+      "outputs": ["build/**", "dist/**"]
     },
     "test": {
-      "outputs": [
-        "coverage/**"
-      ],
+      "outputs": ["coverage/**"],
       "dependsOn": []
     },
     "lint": {
-      "dependsOn": [
-        "^build",
-        "^lint"
-      ]
+      "dependsOn": ["^build", "^lint"]
     },
     "check-types": {
-      "dependsOn": [
-        "^build",
-        "^check-types"
-      ]
+      "dependsOn": ["^build", "^check-types"]
     },
     "dev": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     }
   },
-  "globalEnv": [
-    "GARAGE_ACCESS_KEY",
-    "GARAGE_ENDPOINT",
-    "GARAGE_SECRET_KEY"
-  ]
+  "globalEnv": ["GARAGE_ACCESS_KEY", "GARAGE_ENDPOINT", "GARAGE_SECRET_KEY"]
 }

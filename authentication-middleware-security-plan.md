@@ -20,13 +20,13 @@ The marivo API has **critical authentication vulnerabilities** that allow unauth
 
 ### 🔴 Confirmed Security Issues
 
-| Issue | Location | Severity | Description |
-|-------|----------|----------|-------------|
-| **1** | `trpc-server.ts:31-46` | **CRITICAL** | Worker routes (`/worker`) have NO authentication middleware |
-| **2** | All tRPC route files | **HIGH** | All procedures use `publicProcedure` - no protected procedures |
+| Issue | Location                               | Severity     | Description                                                                |
+| ----- | -------------------------------------- | ------------ | -------------------------------------------------------------------------- |
+| **1** | `trpc-server.ts:31-46`                 | **CRITICAL** | Worker routes (`/worker`) have NO authentication middleware                |
+| **2** | All tRPC route files                   | **HIGH**     | All procedures use `publicProcedure` - no protected procedures             |
 | **3** | `set-script-import-result.use-case.ts` | **CRITICAL** | Extends `AuthenticatedUseCase` but called via unauthenticated worker route |
-| **4** | `trpc-server.ts` | **HIGH** | Inconsistent auth: main routes protected, worker routes unprotected |
-| **5** | All endpoints | **MEDIUM** | No rate limiting on any API endpoints |
+| **4** | `trpc-server.ts`                       | **HIGH**     | Inconsistent auth: main routes protected, worker routes unprotected        |
+| **5** | All endpoints                          | **MEDIUM**   | No rate limiting on any API endpoints                                      |
 
 ### 📁 Affected Files
 
@@ -47,6 +47,7 @@ marivo/apps/api/src/
 ### 💥 Attack Scenarios
 
 #### Scenario 1: Unauthorized Worker Job Execution
+
 ```bash
 # Attacker can call worker endpoints directly
 POST /worker/plays/setScriptImportResult
@@ -58,6 +59,7 @@ POST /worker/plays/setScriptImportResult
 ```
 
 #### Scenario 2: Bypassing Authentication on Protected Use Cases
+
 ```bash
 # Many use cases extend AuthenticatedUseCase
 # But are exposed via publicProcedure
@@ -69,6 +71,7 @@ POST /trpc/plays.create
 ```
 
 #### Scenario 3: Brute Force Attacks
+
 ```bash
 # No rate limiting on authentication endpoints
 POST /trpc/auth.signin (if exists)
@@ -143,17 +146,18 @@ Use Case Execution:
 
 #### Objective: Block unauthorized access to all endpoints
 
-| Step | Action | Responsible | Time | Priority |
-|------|--------|-------------|------|----------|
-| 1.1 | **Add authentication to worker routes** | Backend Dev | 1 hour | CRITICAL |
-| 1.2 | **Create protected procedure type** | Backend Dev | 2 hours | CRITICAL |
-| 1.3 | **Audit all use cases for auth requirements** | Backend Dev | 2 hours | CRITICAL |
-| 1.4 | **Add rate limiting to all endpoints** | Backend Dev | 1 hour | HIGH |
-| 1.5 | **Test authentication enforcement** | QA | 1 hour | HIGH |
+| Step | Action                                        | Responsible | Time    | Priority |
+| ---- | --------------------------------------------- | ----------- | ------- | -------- |
+| 1.1  | **Add authentication to worker routes**       | Backend Dev | 1 hour  | CRITICAL |
+| 1.2  | **Create protected procedure type**           | Backend Dev | 2 hours | CRITICAL |
+| 1.3  | **Audit all use cases for auth requirements** | Backend Dev | 2 hours | CRITICAL |
+| 1.4  | **Add rate limiting to all endpoints**        | Backend Dev | 1 hour  | HIGH     |
+| 1.5  | **Test authentication enforcement**           | QA          | 1 hour  | HIGH     |
 
 #### Step 1.1: Add Authentication to Worker Routes
 
 **Current Problem (`trpc-server.ts:31-46`):**
+
 ```typescript
 app.use(
   '/worker',
@@ -168,6 +172,7 @@ app.use(
 ```
 
 **Solution - Add Clerk Authentication:**
+
 ```typescript
 app.use(
   '/worker',
@@ -186,17 +191,20 @@ app.use(
 **Important Consideration**: The Python worker calls these endpoints. You have two options:
 
 **Option A: Use API Keys for Worker**
+
 - Create a dedicated service account for the worker
 - Pass API key in headers
 - Validate API key in custom middleware before clerkMiddleware
 
 **Option B: Use Clerk Machine-to-Machine Auth**
+
 - Configure Clerk to allow machine users
 - Worker authenticates with Clerk using service account credentials
 
 **Recommendation**: **Option A** (API Keys) for simplicity and separation of concerns.
 
 **Implementation:**
+
 ```typescript
 // Create worker authentication middleware
 import { getAuth } from '@clerk/express';
@@ -233,36 +241,38 @@ app.use(
 #### Step 1.2: Create Protected Procedure Type
 
 **Current (`trpc.ts`):**
+
 ```typescript
 // Only publicProcedure exists
 export const publicProcedure = t.procedure;
 ```
 
 **Solution - Add Authentication Procedures:**
+
 ```typescript
-import { getAuth } from '@clerk/express';
+import { getAuth } from "@clerk/express";
 
 // Protected procedure - requires authentication
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   const { req } = ctx;
   const auth = getAuth(req);
-  
+
   if (!auth?.userId) {
     throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'Authentication required',
+      code: "UNAUTHORIZED",
+      message: "Authentication required",
     });
   }
-  
+
   // Ensure user context is set
   const userContext = (req as any).context;
   if (!userContext?.userId) {
     throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'User context not established',
+      code: "UNAUTHORIZED",
+      message: "User context not established",
     });
   }
-  
+
   return next({
     ctx: {
       ...ctx,
@@ -285,14 +295,14 @@ export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 export const workerProcedure = t.procedure.use(async ({ ctx, next }) => {
   const { req } = ctx;
   const userContext = (req as any).context;
-  
+
   if (!userContext?.isWorker) {
     throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'Worker authentication required',
+      code: "UNAUTHORIZED",
+      message: "Worker authentication required",
     });
   }
-  
+
   return next({ ctx });
 });
 ```
@@ -302,6 +312,7 @@ export const workerProcedure = t.procedure.use(async ({ ctx, next }) => {
 **Audit Process:**
 
 1. **List all use cases:**
+
 ```bash
 find apps/api/src/domains -name "*.use-case.ts" -type f
 ```
@@ -313,35 +324,37 @@ find apps/api/src/domains -name "*.use-case.ts" -type f
 
 3. **Create authentication matrix:**
 
-| Use Case | Extends | Requires Auth | Current Route | Action Needed |
-|----------|---------|---------------|---------------|---------------|
-| CreatePlayUseCase | AuthenticatedUseCase | ✅ Yes | plays.create | Convert to protectedProcedure |
-| PlayDetailsUseCase | AuthenticatedUseCase | ✅ Yes | plays.playDetails | Convert to protectedProcedure |
-| GetAllPlaysUseCase | AuthenticatedUseCase | ✅ Yes | plays.list | Convert to protectedProcedure |
-| DeletePlayUseCase | AuthenticatedUseCase | ✅ Yes | plays.delete | Convert to protectedProcedure |
-| SetScriptImportResultUseCase | AuthenticatedUseCase | ✅ Yes | worker/plays.setScriptImportResult | Convert to workerProcedure |
-| GetMetadataUseCase | AuthenticatedUseCase | ✅ Yes | playsCollection.getMetadata | Convert to protectedProcedure |
-| ... | ... | ... | ... | ... |
+| Use Case                     | Extends              | Requires Auth | Current Route                      | Action Needed                 |
+| ---------------------------- | -------------------- | ------------- | ---------------------------------- | ----------------------------- |
+| CreatePlayUseCase            | AuthenticatedUseCase | ✅ Yes        | plays.create                       | Convert to protectedProcedure |
+| PlayDetailsUseCase           | AuthenticatedUseCase | ✅ Yes        | plays.playDetails                  | Convert to protectedProcedure |
+| GetAllPlaysUseCase           | AuthenticatedUseCase | ✅ Yes        | plays.list                         | Convert to protectedProcedure |
+| DeletePlayUseCase            | AuthenticatedUseCase | ✅ Yes        | plays.delete                       | Convert to protectedProcedure |
+| SetScriptImportResultUseCase | AuthenticatedUseCase | ✅ Yes        | worker/plays.setScriptImportResult | Convert to workerProcedure    |
+| GetMetadataUseCase           | AuthenticatedUseCase | ✅ Yes        | playsCollection.getMetadata        | Convert to protectedProcedure |
+| ...                          | ...                  | ...           | ...                                | ...                           |
 
 4. **Update each route file** to use appropriate procedure type.
 
 #### Step 1.4: Add Rate Limiting
 
 **Install rate limiting middleware:**
+
 ```bash
 npm install express-rate-limit
 ```
 
 **Add to `trpc-server.ts`:**
+
 ```typescript
-import rateLimit from 'express-rate-limit';
+import rateLimit from "express-rate-limit";
 
 // Rate limiting configuration
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: {
-    error: 'Too many requests, please try again later.',
+    error: "Too many requests, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -351,22 +364,22 @@ const apiLimiter = rateLimit({
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
-  skip: (req) => !req.path.includes('/auth'), // Only limit auth paths
+  skip: (req) => !req.path.includes("/auth"), // Only limit auth paths
   message: {
-    error: 'Too many authentication attempts, please try again later.',
+    error: "Too many authentication attempts, please try again later.",
   },
 });
 
 // Apply to all routes
 export default function trpcServer(): express.Application {
   const app = express();
-  
+
   // Global rate limiting
   app.use(apiLimiter);
-  
+
   // Auth-specific rate limiting
   app.use(authLimiter);
-  
+
   // ... rest of middleware
 }
 ```
@@ -374,6 +387,7 @@ export default function trpcServer(): express.Application {
 #### Step 1.5: Test Authentication Enforcement
 
 **Test Script:**
+
 ```bash
 #!/bin/bash
 
@@ -418,17 +432,18 @@ done
 
 #### Objective: Implement proper authentication at all levels
 
-| Step | Action | Responsible | Time | Priority |
-|------|--------|-------------|------|----------|
-| 2.1 | **Create worker service account** | DevOps | 1 hour | HIGH |
-| 2.2 | **Update all route files with protected procedures** | Backend Dev | 4 hours | HIGH |
-| 2.3 | **Create authentication middleware for worker** | Backend Dev | 2 hours | HIGH |
-| 2.4 | **Update Python worker with API key** | DevOps | 1 hour | HIGH |
-| 2.5 | **Add authentication tests** | QA | 2 hours | MEDIUM |
+| Step | Action                                               | Responsible | Time    | Priority |
+| ---- | ---------------------------------------------------- | ----------- | ------- | -------- |
+| 2.1  | **Create worker service account**                    | DevOps      | 1 hour  | HIGH     |
+| 2.2  | **Update all route files with protected procedures** | Backend Dev | 4 hours | HIGH     |
+| 2.3  | **Create authentication middleware for worker**      | Backend Dev | 2 hours | HIGH     |
+| 2.4  | **Update Python worker with API key**                | DevOps      | 1 hour  | HIGH     |
+| 2.5  | **Add authentication tests**                         | QA          | 2 hours | MEDIUM   |
 
 #### Step 2.1: Create Worker Service Account
 
 **Generate API key for worker:**
+
 ```bash
 # Generate secure API key
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
@@ -436,6 +451,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 **Add to environment:**
+
 ```bash
 # .env.development.local (API)
 WORKER_API_KEY=generated_key_here
@@ -450,8 +466,9 @@ API_URL=http://api:3001
 **Example: `plays.trpc-routes.ts`**
 
 **Before:**
+
 ```typescript
-import { publicProcedure, router } from '../../trpc.ts';
+import { publicProcedure, router } from "../../trpc.ts";
 
 export default router({
   list: publicProcedure
@@ -467,8 +484,9 @@ export default router({
 ```
 
 **After:**
+
 ```typescript
-import { protectedProcedure, router } from '../../trpc.ts';
+import { protectedProcedure, router } from "../../trpc.ts";
 
 export default router({
   list: protectedProcedure
@@ -484,8 +502,9 @@ export default router({
 ```
 
 **Worker routes:**
+
 ```typescript
-import { workerProcedure, router } from '../../trpc.ts';
+import { workerProcedure, router } from "../../trpc.ts";
 
 export default router({
   setScriptImportResult: workerProcedure
@@ -495,18 +514,21 @@ export default router({
 ```
 
 **Create a helper to determine procedure type:**
+
 ```typescript
 // In trpc-delivery.ts or similar
-import { protectedProcedure, workerProcedure, publicProcedure } from '../trpc.ts';
+import { protectedProcedure, workerProcedure, publicProcedure } from "../trpc.ts";
 
 export function getProcedureForUseCase(useCase: any) {
   // Check if use case requires authentication
   if (useCase.prototype instanceof AuthenticatedUseCase) {
     // Check if it's a worker use case
     const useCaseName = useCase.name;
-    if (useCaseName.includes('Worker') || 
-        useCaseName.includes('ScriptImport') ||
-        useCaseName.includes('SetScriptImportResult')) {
+    if (
+      useCaseName.includes("Worker") ||
+      useCaseName.includes("ScriptImport") ||
+      useCaseName.includes("SetScriptImportResult")
+    ) {
       return workerProcedure;
     }
     return protectedProcedure;
@@ -518,19 +540,20 @@ export function getProcedureForUseCase(useCase: any) {
 #### Step 2.3: Create Worker Authentication Middleware
 
 **`infra/worker-auth.middleware.ts`:**
+
 ```typescript
-import type { NextFunction, Request, RequestHandler, Response } from 'express';
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 
 export function workerAuthMiddleware(): RequestHandler {
   return function (req: Request, _res: Response, next: NextFunction) {
-    const apiKey = req.headers['x-worker-api-key'] as string;
+    const apiKey = req.headers["x-worker-api-key"] as string;
     const expectedKey = process.env.WORKER_API_KEY;
-    
+
     if (!expectedKey) {
-      console.warn('WORKER_API_KEY not configured');
+      console.warn("WORKER_API_KEY not configured");
       return next();
     }
-    
+
     if (apiKey && apiKey === expectedKey) {
       // Mark as worker request
       const context = req.context ?? {};
@@ -539,7 +562,7 @@ export function workerAuthMiddleware(): RequestHandler {
       req.context = context;
       return next();
     }
-    
+
     // Not a worker request, continue to next middleware
     next();
   };
@@ -549,6 +572,7 @@ export function workerAuthMiddleware(): RequestHandler {
 #### Step 2.4: Update Python Worker
 
 **`apps/worker/trpc_client.py` - Add API Key:**
+
 ```python
 class TRPCClient:
     def __init__(self, base_url: str, api_key: str = None, use_superjson: bool = False):
@@ -567,6 +591,7 @@ class TRPCClient:
 ```
 
 **Update `process_script_text_files.py`:**
+
 ```python
 # Load API key from environment
 api_key = os.getenv("WORKER_API_KEY")
@@ -578,85 +603,82 @@ client = TRPCClient(os.getenv("API_URL"), api_key=api_key, use_superjson=True)
 ```
 
 **Update worker Docker Compose:**
+
 ```yaml
 services:
   worker:
     # ...
     env_file:
-      - './apps/worker/.env.development.local'
+      - "./apps/worker/.env.development.local"
     # Ensure WORKER_API_KEY is in the env file
 ```
 
 #### Step 2.5: Add Authentication Tests
 
 **`apps/api/src/__tests__/auth.test.ts`:**
-```typescript
-import supertest from 'supertest';
-import { describe, it, expect } from '@jest/globals';
-import { createServer } from '../server';
 
-describe('Authentication', () => {
+```typescript
+import supertest from "supertest";
+import { describe, it, expect } from "@jest/globals";
+import { createServer } from "../server";
+
+describe("Authentication", () => {
   const request = supertest(createServer());
 
-  describe('Public routes', () => {
-    it('should allow access to health check without auth', async () => {
-      await request
-        .get('/health')
-        .expect(200);
+  describe("Public routes", () => {
+    it("should allow access to health check without auth", async () => {
+      await request.get("/health").expect(200);
     });
   });
 
-  describe('Protected routes', () => {
-    it('should block access to protected routes without auth', async () => {
-      await request
-        .post('/trpc/plays.create')
-        .send({ title: 'Test' })
-        .expect(401);
+  describe("Protected routes", () => {
+    it("should block access to protected routes without auth", async () => {
+      await request.post("/trpc/plays.create").send({ title: "Test" }).expect(401);
     });
 
-    it('should allow access with valid auth', async () => {
+    it("should allow access with valid auth", async () => {
       // Mock Clerk authentication
-      const authToken = 'test_token';
+      const authToken = "test_token";
       await request
-        .post('/trpc/plays.create')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send({ title: 'Test' })
+        .post("/trpc/plays.create")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({ title: "Test" })
         .expect(200);
     });
   });
 
-  describe('Worker routes', () => {
-    it('should block access without API key', async () => {
+  describe("Worker routes", () => {
+    it("should block access without API key", async () => {
       await request
-        .post('/worker/plays.setScriptImportResult')
-        .send({ importId: 'test', result: { success: true, metadata: {} } })
+        .post("/worker/plays.setScriptImportResult")
+        .send({ importId: "test", result: { success: true, metadata: {} } })
         .expect(401);
     });
 
-    it('should allow access with valid API key', async () => {
+    it("should allow access with valid API key", async () => {
       await request
-        .post('/worker/plays.setScriptImportResult')
-        .set('X-Worker-API-Key', process.env.WORKER_API_KEY || 'test_key')
-        .send({ importId: 'test', result: { success: true, metadata: {} } })
+        .post("/worker/plays.setScriptImportResult")
+        .set("X-Worker-API-Key", process.env.WORKER_API_KEY || "test_key")
+        .send({ importId: "test", result: { success: true, metadata: {} } })
         .expect(200);
     });
 
-    it('should block access with invalid API key', async () => {
+    it("should block access with invalid API key", async () => {
       await request
-        .post('/worker/plays.setScriptImportResult')
-        .set('X-Worker-API-Key', 'invalid_key')
-        .send({ importId: 'test', result: { success: true, metadata: {} } })
+        .post("/worker/plays.setScriptImportResult")
+        .set("X-Worker-API-Key", "invalid_key")
+        .send({ importId: "test", result: { success: true, metadata: {} } })
         .expect(401);
     });
   });
 
-  describe('Rate limiting', () => {
-    it('should limit requests to 100 per 15 minutes', async () => {
+  describe("Rate limiting", () => {
+    it("should limit requests to 100 per 15 minutes", async () => {
       // Make 101 requests
-      const promises = Array(101).fill(request.get('/health'));
+      const promises = Array(101).fill(request.get("/health"));
       const results = await Promise.allSettled(promises);
-      
-      const failures = results.filter(r => r.status === 'rejected');
+
+      const failures = results.filter((r) => r.status === "rejected");
       expect(failures.length).toBeGreaterThan(0);
     });
   });
@@ -669,51 +691,45 @@ describe('Authentication', () => {
 
 #### Objective: Implement fine-grained permission control
 
-| Step | Action | Responsible | Time | Priority |
-|------|--------|-------------|------|----------|
-| 3.1 | **Design permission model** | Backend Dev | 2 hours | MEDIUM |
-| 3.2 | **Create permission middleware** | Backend Dev | 2 hours | MEDIUM |
-| 3.3 | **Add permission checks to routes** | Backend Dev | 2 hours | MEDIUM |
-| 3.4 | **Add permission tests** | QA | 1 hour | LOW |
+| Step | Action                              | Responsible | Time    | Priority |
+| ---- | ----------------------------------- | ----------- | ------- | -------- |
+| 3.1  | **Design permission model**         | Backend Dev | 2 hours | MEDIUM   |
+| 3.2  | **Create permission middleware**    | Backend Dev | 2 hours | MEDIUM   |
+| 3.3  | **Add permission checks to routes** | Backend Dev | 2 hours | MEDIUM   |
+| 3.4  | **Add permission tests**            | QA          | 1 hour  | LOW      |
 
 #### Step 3.1: Design Permission Model
 
 **Define user roles and permissions:**
+
 ```typescript
 // types/permissions.ts
-export type Permission = 
-  | 'play:create'
-  | 'play:read'
-  | 'play:update'
-  | 'play:delete'
-  | 'play:invite'
-  | 'script:read'
-  | 'script:write'
-  | 'admin:all';
+export type Permission =
+  | "play:create"
+  | "play:read"
+  | "play:update"
+  | "play:delete"
+  | "play:invite"
+  | "script:read"
+  | "script:write"
+  | "admin:all";
 
-export type Role = 'user' | 'admin' | 'worker';
+export type Role = "user" | "admin" | "worker";
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-  user: [
-    'play:create',
-    'play:read',
-    'play:update',
-    'play:invite',
-    'script:read',
-    'script:write',
-  ],
+  user: ["play:create", "play:read", "play:update", "play:invite", "script:read", "script:write"],
   admin: [
-    'play:create',
-    'play:read',
-    'play:update',
-    'play:delete',
-    'play:invite',
-    'script:read',
-    'script:write',
-    'admin:all',
+    "play:create",
+    "play:read",
+    "play:update",
+    "play:delete",
+    "play:invite",
+    "script:read",
+    "script:write",
+    "admin:all",
   ],
   worker: [
-    'script:write', // Only what worker needs
+    "script:write", // Only what worker needs
   ],
 };
 ```
@@ -721,33 +737,34 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
 #### Step 3.2: Create Permission Middleware
 
 **`infra/permission.middleware.ts`:**
+
 ```typescript
-import type { NextFunction, Request, RequestHandler, Response } from 'express';
-import { TRPCError } from '@trpc/server';
-import type { Permission } from '../types/permissions.ts';
+import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { TRPCError } from "@trpc/server";
+import type { Permission } from "../types/permissions.ts";
 
 export function requirePermission(permission: Permission): RequestHandler {
   return function (req: Request, _res: Response, next: NextFunction) {
     const context = (req as any).context;
-    
+
     if (!context?.userId) {
       throw new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'Authentication required',
+        code: "UNAUTHORIZED",
+        message: "Authentication required",
       });
     }
-    
+
     // Check if user has permission
     // This would query your database or use cached permissions
     const userPermissions = getUserPermissions(context.userId);
-    
+
     if (!userPermissions.includes(permission)) {
       throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Insufficient permissions',
+        code: "FORBIDDEN",
+        message: "Insufficient permissions",
       });
     }
-    
+
     next();
   };
 }
@@ -761,34 +778,33 @@ async function getUserPermissions(userId: number): Promise<Permission[]> {
 ```
 
 **tRPC procedure with permission:**
+
 ```typescript
 // In trpc.ts
 export const protectedProcedure = t.procedure.use(authMiddleware);
 
 // Create permission-protected procedure
-import { requirePermission } from '../infra/permission.middleware.ts';
+import { requirePermission } from "../infra/permission.middleware.ts";
 
 export function createProtectedProcedure(permission: Permission) {
-  return t.procedure
-    .use(authMiddleware)
-    .use(async ({ ctx, next }) => {
-      const { req } = ctx;
-      const userPermissions = getUserPermissionsFromRequest(req);
-      
-      if (!userPermissions.includes(permission)) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Insufficient permissions',
-        });
-      }
-      
-      return next({ ctx });
-    });
+  return t.procedure.use(authMiddleware).use(async ({ ctx, next }) => {
+    const { req } = ctx;
+    const userPermissions = getUserPermissionsFromRequest(req);
+
+    if (!userPermissions.includes(permission)) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Insufficient permissions",
+      });
+    }
+
+    return next({ ctx });
+  });
 }
 
 // Usage in route
 export default router({
-  delete: createProtectedProcedure('play:delete')
+  delete: createProtectedProcedure("play:delete")
     .input(DeletePlayUseCaseInputSchema)
     .output(z.undefined())
     .mutation(handleUseCase(providers.DeletePlayUseCase)),
@@ -802,17 +818,17 @@ export default router({
 ```typescript
 // plays.trpc-routes.ts
 export default router({
-  list: createProtectedProcedure('play:read')
+  list: createProtectedProcedure("play:read")
     .input(z.undefined())
     .output(GetAllPlaysUseCaseOutputSchema)
     .query(handleUseCase(providers.GetAllPlaysUseCase)),
-  
-  create: createProtectedProcedure('play:create')
+
+  create: createProtectedProcedure("play:create")
     .input(CreatePlayUseCaseInputSchema)
     .output(CreatePlayUseCaseOutputSchema)
     .mutation(handleUseCase(providers.CreatePlayUseCase)),
-  
-  delete: createProtectedProcedure('play:delete')
+
+  delete: createProtectedProcedure("play:delete")
     .input(DeletePlayUseCaseInputSchema)
     .output(z.undefined())
     .mutation(handleUseCase(providers.DeletePlayUseCase)),
@@ -822,29 +838,30 @@ export default router({
 #### Step 3.4: Add Permission Tests
 
 **Extend `auth.test.ts`:**
+
 ```typescript
-describe('Permissions', () => {
-  it('should allow user to create play', async () => {
+describe("Permissions", () => {
+  it("should allow user to create play", async () => {
     await request
-      .post('/trpc/plays.create')
-      .set('Authorization', 'Bearer user_token')
-      .send({ title: 'Test' })
+      .post("/trpc/plays.create")
+      .set("Authorization", "Bearer user_token")
+      .send({ title: "Test" })
       .expect(200);
   });
 
-  it('should block user from deleting play without permission', async () => {
+  it("should block user from deleting play without permission", async () => {
     await request
-      .post('/trpc/plays.delete')
-      .set('Authorization', 'Bearer user_token')
-      .send({ uri: 'test' })
+      .post("/trpc/plays.delete")
+      .set("Authorization", "Bearer user_token")
+      .send({ uri: "test" })
       .expect(403);
   });
 
-  it('should allow admin to delete play', async () => {
+  it("should allow admin to delete play", async () => {
     await request
-      .post('/trpc/plays.delete')
-      .set('Authorization', 'Bearer admin_token')
-      .send({ uri: 'test' })
+      .post("/trpc/plays.delete")
+      .set("Authorization", "Bearer admin_token")
+      .send({ uri: "test" })
       .expect(200);
   });
 });
@@ -856,16 +873,17 @@ describe('Permissions', () => {
 
 #### Objective: Verify all authentication fixes and harden the system
 
-| Step | Action | Responsible | Time | Priority |
-|------|--------|-------------|------|----------|
-| 4.1 | **Security audit of all routes** | Security | 2 hours | HIGH |
-| 4.2 | **Penetration testing** | Security | 2 hours | HIGH |
-| 4.3 | **Performance testing** | QA | 1 hour | MEDIUM |
-| 4.4 | **Document authentication system** | DevOps | 1 hour | MEDIUM |
+| Step | Action                             | Responsible | Time    | Priority |
+| ---- | ---------------------------------- | ----------- | ------- | -------- |
+| 4.1  | **Security audit of all routes**   | Security    | 2 hours | HIGH     |
+| 4.2  | **Penetration testing**            | Security    | 2 hours | HIGH     |
+| 4.3  | **Performance testing**            | QA          | 1 hour  | MEDIUM   |
+| 4.4  | **Document authentication system** | DevOps      | 1 hour  | MEDIUM   |
 
 #### Step 4.1: Security Audit
 
 **Audit Checklist:**
+
 - [ ] All worker routes have authentication
 - [ ] All protected routes use appropriate procedure type
 - [ ] All AuthenticatedUseCase instances are behind auth
@@ -875,6 +893,7 @@ describe('Permissions', () => {
 - [ ] Authentication middleware properly handles edge cases
 
 **Audit Script:**
+
 ```bash
 #!/bin/bash
 
@@ -910,18 +929,19 @@ echo "Audit complete"
 
 **Manual Test Cases:**
 
-| Test | Method | URL | Expected | Actual |
-|------|--------|-----|----------|--------|
-| Unauthenticated worker call | POST | /worker/plays.setScriptImportResult | 401 | |
-| Unauthenticated play create | POST | /trpc/plays.create | 401 | |
-| Invalid API key | POST | /worker/... | 401 | |
-| Valid API key | POST | /worker/... | 200 | |
-| Rate limit exceeded | GET | /health (100+ times) | 429 | |
-| Invalid permissions | POST | /trpc/plays.delete (as user) | 403 | |
+| Test                        | Method | URL                                 | Expected | Actual |
+| --------------------------- | ------ | ----------------------------------- | -------- | ------ |
+| Unauthenticated worker call | POST   | /worker/plays.setScriptImportResult | 401      |        |
+| Unauthenticated play create | POST   | /trpc/plays.create                  | 401      |        |
+| Invalid API key             | POST   | /worker/...                         | 401      |        |
+| Valid API key               | POST   | /worker/...                         | 200      |        |
+| Rate limit exceeded         | GET    | /health (100+ times)                | 429      |        |
+| Invalid permissions         | POST   | /trpc/plays.delete (as user)        | 403      |        |
 
 #### Step 4.3: Performance Testing
 
 **Load Test Authentication:**
+
 ```bash
 # Test auth overhead
 ab -n 1000 -c 10 http://localhost:3001/trpc/plays.list
@@ -933,6 +953,7 @@ ab -n 200 -c 20 http://localhost:3001/health
 #### Step 4.4: Document Authentication System
 
 **Create `docs/authentication.md`:**
+
 ```markdown
 # Authentication System
 
@@ -941,36 +962,38 @@ ab -n 200 -c 20 http://localhost:3001/health
 This document describes the authentication and authorization system for the Marivo API.
 
 ## Authentication Flow
-
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Request    │────▶│ clerkMiddleware│────▶│ userMiddleware│
-└─────────────┘     └─────────────┘     └─────────────┘
-                                                      │
-                        ┌─────────────────────────────────┴─────────────────────────────────┐
-                        │                                                                      │
-                        ▼                                                                      ▼
-              ┌─────────────────┐                          ┌─────────────────┐
-              │  Public Routes   │                          │ Protected Routes │
-              │  (no auth required)│                       │ (auth required)  │
-              └─────────────────┘                          └─────────────────┘
-                        │                                                                      │
-                        ▼                                                                      ▼
-              ┌─────────────────┐                          ┌─────────────────┐
-              │   publicProcedure│                          │ protectedProcedure│
-              │   (no check)     │                          │ (checks auth)    │
-              └─────────────────┘                          └─────────────────┘
+
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│ Request │────▶│ clerkMiddleware│────▶│ userMiddleware│
+└─────────────┘ └─────────────┘ └─────────────┘
+│
+┌─────────────────────────────────┴─────────────────────────────────┐
+│ │
+▼ ▼
+┌─────────────────┐ ┌─────────────────┐
+│ Public Routes │ │ Protected Routes │
+│ (no auth required)│ │ (auth required) │
+└─────────────────┘ └─────────────────┘
+│ │
+▼ ▼
+┌─────────────────┐ ┌─────────────────┐
+│ publicProcedure│ │ protectedProcedure│
+│ (no check) │ │ (checks auth) │
+└─────────────────┘ └─────────────────┘
 
 ## Components
 
 ### 1. Clerk Authentication
 
 We use [Clerk](https://clerk.com/) for user authentication. Clerk provides:
+
 - Session management
 - JWT validation
 - User context
 
 **Middleware:** `@clerk/express.clerkMiddleware()`
+
 - Validates incoming requests
 - Attaches user information to `req.auth`
 - Must be applied before userMiddleware
@@ -980,12 +1003,14 @@ We use [Clerk](https://clerk.com/) for user authentication. Clerk provides:
 **File:** `infra/user-middleware.ts`
 
 Extracts user information from Clerk and attaches to request context:
+
 - `req.context.userId` - Database user ID
 - `req.context.isWorker` - Boolean (for worker requests)
 
 ### 3. tRPC Procedures
 
 #### Public Procedure
+
 - No authentication required
 - Use for truly public endpoints (health checks, public data)
 
@@ -995,6 +1020,7 @@ publicProcedure
 ```
 
 #### Protected Procedure
+
 - Requires valid authentication
 - Use for user-specific endpoints
 
@@ -1004,6 +1030,7 @@ protectedProcedure
 ```
 
 #### Worker Procedure
+
 - Requires valid worker API key
 - Use for internal worker-to-API communication
 
@@ -1015,36 +1042,38 @@ workerProcedure
 ### 4. Worker Authentication
 
 Internal services (Python worker) authenticate using API keys:
+
 - Header: `X-Worker-API-Key`
 - Configured in: `WORKER_API_KEY` environment variable
 - Rotated: Quarterly
 
 ## Route Protection Matrix
 
-| Route | Path | Procedure | Authentication | Permission |
-|-------|------|-----------|----------------|-----------|
-| Health Check | /health | publicProcedure | None | None |
-| Play List | /trpc/plays.list | protectedProcedure | Required | play:read |
-| Play Create | /trpc/plays.create | protectedProcedure | Required | play:create |
-| Play Delete | /trpc/plays.delete | protectedProcedure | Required | play:delete |
-| Play Details | /trpc/plays.playDetails | protectedProcedure | Required | play:read |
-| Script Import | /trpc/plays.initImportScript | protectedProcedure | Required | play:create |
-| Set Import Result | /worker/plays.setScriptImportResult | workerProcedure | Worker API Key | None |
-| Get Metadata | /trpc/playsCollection.getMetadata | protectedProcedure | Required | play:read |
+| Route             | Path                                | Procedure          | Authentication | Permission  |
+| ----------------- | ----------------------------------- | ------------------ | -------------- | ----------- |
+| Health Check      | /health                             | publicProcedure    | None           | None        |
+| Play List         | /trpc/plays.list                    | protectedProcedure | Required       | play:read   |
+| Play Create       | /trpc/plays.create                  | protectedProcedure | Required       | play:create |
+| Play Delete       | /trpc/plays.delete                  | protectedProcedure | Required       | play:delete |
+| Play Details      | /trpc/plays.playDetails             | protectedProcedure | Required       | play:read   |
+| Script Import     | /trpc/plays.initImportScript        | protectedProcedure | Required       | play:create |
+| Set Import Result | /worker/plays.setScriptImportResult | workerProcedure    | Worker API Key | None        |
+| Get Metadata      | /trpc/playsCollection.getMetadata   | protectedProcedure | Required       | play:read   |
 
 ## Error Codes
 
-| Code | Description | When Thrown |
-|------|-------------|-------------|
-| 401 | Unauthorized | Missing or invalid authentication |
-| 403 | Forbidden | Valid auth but insufficient permissions |
-| 429 | Too Many Requests | Rate limit exceeded |
+| Code | Description       | When Thrown                             |
+| ---- | ----------------- | --------------------------------------- |
+| 401  | Unauthorized      | Missing or invalid authentication       |
+| 403  | Forbidden         | Valid auth but insufficient permissions |
+| 429  | Too Many Requests | Rate limit exceeded                     |
 
 ## Testing
 
 ### Local Development
 
 1. Copy environment template:
+
    ```bash
    cp apps/api/.env.template apps/api/.env.local
    ```
@@ -1056,6 +1085,7 @@ Internal services (Python worker) authenticate using API keys:
 ### Production
 
 All authentication must be:
+
 - Enabled
 - Monitored
 - Logged
@@ -1064,16 +1094,19 @@ All authentication must be:
 ## Troubleshooting
 
 ### "Authentication error"
+
 - Clerk middleware not applied to route
 - Missing or invalid Clerk session token
 - User context not set in request
 
 ### "Insufficient permissions"
+
 - User lacks required permission for endpoint
 - Permission middleware not applied
 - User role not properly configured
 
 ### "Worker authentication required"
+
 - Missing X-Worker-API-Key header
 - Invalid API key
 - Worker API key not configured in environment
@@ -1092,9 +1125,11 @@ All authentication must be:
 ## Contact
 
 For authentication issues, contact:
+
 - Security Team: security@marivo.app
 - Backend Team: backend@marivo.app
-```
+
+````
 
 ---
 
@@ -1187,9 +1222,10 @@ npm run build
 pm2 restart api
 
 # Revert to original (insecure) state
-```
+````
 
 **Authentication Middleware Issues:**
+
 ```bash
 # Disable specific middleware
 git checkout HEAD -- apps/api/src/infra/worker-auth.middleware.ts
@@ -1198,6 +1234,7 @@ pm2 restart api
 ```
 
 ### Emergency Contacts
+
 - **Primary**: seb@marivo.app
 - **Secondary**: security@marivo.app
 - **Backend Team**: backend@marivo.app
@@ -1209,6 +1246,7 @@ pm2 restart api
 ### 📢 Stakeholder Notifications
 
 **Pre-Implementation:**
+
 ```markdown
 # 🔒 CRITICAL: Authentication Security Fix
 
@@ -1217,35 +1255,42 @@ Team,
 We've identified critical authentication vulnerabilities in our API that require immediate attention.
 
 ## What's Wrong
+
 - Worker routes have NO authentication
 - Anyone can call internal worker endpoints
 - Protected use cases can be accessed without auth
 
 ## What's Happening
+
 Over the next 6 days, we'll be:
+
 1. Adding authentication to all endpoints
 2. Implementing proper procedure-level auth
 3. Setting up worker authentication
 4. Adding rate limiting
 
 ## Impact
+
 - **Day 1**: Worker will be temporarily unable to process jobs during deployment
 - **Day 1-6**: Some endpoints may have brief downtime
 - **Ongoing**: All requests will require proper authentication
 
 ## What You Need to Do
+
 1. **For API Developers**: Review and update your route files
 2. **For Worker Developers**: Update worker to use API key
 3. **For QA**: Test authentication flows
 4. **For All**: Be aware of deployment schedule
 
 ## Questions?
+
 Contact seb@marivo.app or #security channel immediately.
 
 This is a CRITICAL security fix. Please prioritize accordingly.
 ```
 
 **Post-Implementation:**
+
 ```markdown
 # ✅ Authentication Security Fix Complete
 
@@ -1254,6 +1299,7 @@ Team,
 The authentication middleware security fixes are now complete.
 
 ## What Changed
+
 - ✅ Worker routes now require authentication
 - ✅ Protected procedures enforce authentication
 - ✅ Worker uses API key for internal calls
@@ -1262,22 +1308,26 @@ The authentication middleware security fixes are now complete.
 - ✅ Documentation updated
 
 ## New Requirements
+
 - All API endpoints now require authentication
 - Worker must present valid API key
 - Protected routes require user session
 - Rate limits: 100 requests/15min (general), 10/15min (auth)
 
 ## For Developers
+
 - Use `protectedProcedure` for user endpoints
 - Use `workerProcedure` for worker-only endpoints
 - Use `publicProcedure` only for truly public endpoints
 - Always check permissions for sensitive operations
 
 ## Resources
+
 - [Authentication Documentation](docs/authentication.md)
 - [Updated README](README.md)
 
 ## Questions or Issues?
+
 Contact #security or seb@marivo.app
 ```
 
@@ -1286,6 +1336,7 @@ Contact #security or seb@marivo.app
 ## Files Reference
 
 ### Files to Create
+
 ```
 apps/api/src/infra/worker-auth.middleware.ts
 apps/api/src/__tests__/auth.test.ts
@@ -1293,6 +1344,7 @@ docs/authentication.md
 ```
 
 ### Files to Update
+
 ```
 apps/api/src/trpc.ts (add protectedProcedure, workerProcedure)
 apps/api/src/trpc-server.ts (add auth to worker routes)
@@ -1314,28 +1366,31 @@ package.json (add express-rate-limit)
 
 ### 📊 Key Performance Indicators
 
-| Metric | Baseline | Target | Measurement |
-|--------|----------|--------|-------------|
-| Unauthenticated endpoint access | High risk | 0 | Security audit |
-| Worker endpoint exposure | High risk | 0 | Penetration test |
-| Rate limiting effectiveness | 0% | 100% | Load testing |
-| Authentication overhead | N/A | < 50ms | Performance test |
-| Permission enforcement | 0% | 100% | Audit |
+| Metric                          | Baseline  | Target | Measurement      |
+| ------------------------------- | --------- | ------ | ---------------- |
+| Unauthenticated endpoint access | High risk | 0      | Security audit   |
+| Worker endpoint exposure        | High risk | 0      | Penetration test |
+| Rate limiting effectiveness     | 0%        | 100%   | Load testing     |
+| Authentication overhead         | N/A       | < 50ms | Performance test |
+| Permission enforcement          | 0%        | 100%   | Audit            |
 
 ### 🎯 Success Criteria
 
 **Security:**
+
 - 0 unauthenticated access to protected endpoints
 - 0 unauthorized permission access
 - 100% of worker requests authenticated
 - 100% of protected routes use protectedProcedure
 
 **Reliability:**
+
 - < 50ms authentication overhead
 - 0 authentication-related outages
 - 100% of legitimate requests succeed
 
 **Maintainability:**
+
 - Clear authentication documentation
 - Easy to add new protected routes
 - Simple permission system

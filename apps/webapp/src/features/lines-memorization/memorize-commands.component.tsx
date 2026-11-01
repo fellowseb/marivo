@@ -1,13 +1,10 @@
-import Button from '../../components/button.component';
-import { Dialog } from '../../components/dialog.component';
-import styles from './memorize-commands.module.css';
+import Button from "../../components/button.component";
+import { Dialog } from "../../components/dialog.component";
+import styles from "./memorize-commands.module.css";
 
 function MemorizeCommands() {
   return (
-    <Dialog
-      title="Start Session"
-      actions={<Button icon="accept">Start</Button>}
-    >
+    <Dialog title="Start Session" actions={<Button icon="accept">Start</Button>}>
       <div className={styles.playOptions}>
         <div className={styles.playOptionsLine}>
           <label>Character</label>

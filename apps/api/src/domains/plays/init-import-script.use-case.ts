@@ -1,24 +1,21 @@
-import z from 'zod';
-import { Result } from '@marivo/utils';
-import {
-  AuthenticatedUseCase,
-  UserContextService,
-} from '../../shared/use-case.ts';
-import type { AppError } from '../../shared/error.ts';
-import { ScriptImportsRepository } from './script-imports.repository.ts';
+import z from "zod";
+import { Result } from "@marivo/utils";
+import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
+import type { AppError } from "../../shared/error.ts";
+import { ScriptImportsRepository } from "./script-imports.repository.ts";
 
 export const InitImportScriptUseCaseInputSchema = z.object({
   importId: z.string().length(36),
   files: z.array(
-    z.discriminatedUnion('type', [
+    z.discriminatedUnion("type", [
       z.object({
         id: z.string(),
-        type: z.literal('url'),
+        type: z.literal("url"),
         url: z.url(),
       }),
       z.object({
         id: z.string(),
-        type: z.literal('file'),
+        type: z.literal("file"),
         size: z.number(),
         name: z.string(),
       }),
@@ -26,9 +23,7 @@ export const InitImportScriptUseCaseInputSchema = z.object({
   ),
 });
 
-type InitImportScriptUseCaseInput = z.infer<
-  typeof InitImportScriptUseCaseInputSchema
->;
+type InitImportScriptUseCaseInput = z.infer<typeof InitImportScriptUseCaseInputSchema>;
 
 class InitImportScriptUseCase extends AuthenticatedUseCase<{
   params: InitImportScriptUseCaseInput;

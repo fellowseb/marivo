@@ -1,49 +1,43 @@
-import classNames from 'classnames';
-import { v4 as uuidv4 } from 'uuid';
-import { Suspense, useEffect, useRef, useState, type DragEvent } from 'react';
-import { NavLink, useNavigate } from 'react-router';
-import { useMutation, useMutationState, useQuery } from '@tanstack/react-query';
-import { useTRPC } from '../../trpc';
-import Button from '../../components/button.component';
-import Icon from '../../components/icon.component';
-import FlowStep from '../../components/flow-step.component';
-import Admonition from '../../components/admonition.component';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import DotsLoader from '../../components/dots-loader.component';
-import PageNotFound from '../../components/page-not-found.component';
-import ErrorBoundary from '../../components/error-boundary.component';
-import styles from './import-script.module.css';
-import { assertUnreachable } from '@marivo/utils';
-import Script from '../script/script.component';
-import {
-  ScriptContextProvider,
-  useScriptContext,
-} from '../script/script.context';
-import { ToggleButton } from '../../components/toggle-button.component';
-import { CardsSelect } from '../../components/cards-select.component';
-import {
-  ImportScriptContextProvider,
-  useImportScriptContext,
-} from './import-script.context';
-import { useCollectionMetadataContext } from './collection-metadata.context';
+import classNames from "classnames";
+import { v4 as uuidv4 } from "uuid";
+import { Suspense, useEffect, useRef, useState, type DragEvent } from "react";
+import { NavLink, useNavigate } from "react-router";
+import { useMutation, useMutationState, useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../../trpc";
+import Button from "../../components/button.component";
+import Icon from "../../components/icon.component";
+import FlowStep from "../../components/flow-step.component";
+import Admonition from "../../components/admonition.component";
+import { HeaderBreadcrumbs } from "../../layouts/header.component";
+import DotsLoader from "../../components/dots-loader.component";
+import PageNotFound from "../../components/page-not-found.component";
+import ErrorBoundary from "../../components/error-boundary.component";
+import styles from "./import-script.module.css";
+import { assertUnreachable } from "@marivo/utils";
+import Script from "../script/script.component";
+import { ScriptContextProvider, useScriptContext } from "../script/script.context";
+import { ToggleButton } from "../../components/toggle-button.component";
+import { CardsSelect } from "../../components/cards-select.component";
+import { ImportScriptContextProvider, useImportScriptContext } from "./import-script.context";
+import { useCollectionMetadataContext } from "./collection-metadata.context";
 import {
   ScriptTabToolbarContextProvider,
   useScriptTabToolbarContext,
-} from '../script-edition/script-tab-toolbar.context';
-import ScriptSearchPanel from '../script-edition/script-search-panel.component';
-import ScriptNavigatePanel from '../script-edition/script-navigate-panel.component';
-import ScriptCharactersPanel from '../script-edition/script-characters-panel.component';
-import { ImportScriptPreviewToolbar } from './import-script-preview-toolbar';
+} from "../script-edition/script-tab-toolbar.context";
+import ScriptSearchPanel from "../script-edition/script-search-panel.component";
+import ScriptNavigatePanel from "../script-edition/script-navigate-panel.component";
+import ScriptCharactersPanel from "../script-edition/script-characters-panel.component";
+import { ImportScriptPreviewToolbar } from "./import-script-preview-toolbar";
 
 type ScriptImportFile =
   | {
       id: string;
-      type: 'url';
+      type: "url";
       url: string;
     }
   | {
       id: string;
-      type: 'file';
+      type: "file";
       file: File;
     };
 
@@ -54,14 +48,14 @@ export function ImportScriptBreadcrumbs() {
       crumbs={[
         <NavLink
           to={{
-            pathname: '/plays/new',
+            pathname: "/plays/new",
           }}
         >
           New play
         </NavLink>,
         <NavLink
           to={{
-            pathname: '/plays/new/import',
+            pathname: "/plays/new/import",
           }}
         >
           Import script
@@ -86,9 +80,7 @@ interface ImportScriptMetadata {
 function ImportStep() {
   const navigate = useNavigate();
   const trpc = useTRPC();
-  const { mutate, status: initStatus } = useMutation(
-    trpc.plays.initImportScript.mutationOptions(),
-  );
+  const { mutate, status: initStatus } = useMutation(trpc.plays.initImportScript.mutationOptions());
   const { step, importId } = useImportScriptContext();
   const opts = trpc.plays.uploadFileForScriptImport.mutationOptions({
     meta: {
@@ -100,11 +92,7 @@ function ImportStep() {
       },
     },
   });
-  const {
-    mutate: mutateUpload,
-    reset: resetUpload,
-    status: statusUpload,
-  } = useMutation(opts);
+  const { mutate: mutateUpload, reset: resetUpload, status: statusUpload } = useMutation(opts);
   const uploadsState = useMutationState({
     filters: {
       mutationKey: trpc.plays.uploadFileForScriptImport.mutationKey(),
@@ -123,7 +111,7 @@ function ImportStep() {
         if (fi) {
           f.push({
             id: uuidv4(),
-            type: 'file',
+            type: "file",
             file: fi,
           });
         }
@@ -172,26 +160,24 @@ function ImportStep() {
     mutate({
       importId,
       files: files.map((f) => {
-        return f.type === 'url'
+        return f.type === "url"
           ? f
           : {
               id: f.id,
-              type: 'file',
+              type: "file",
               name: f.file.name,
               size: f.file.size,
             };
       }),
     });
   };
-  const [scriptLineHovered, setScriptLineHovered] = useState<number | null>(
-    null,
-  );
+  const [scriptLineHovered, setScriptLineHovered] = useState<number | null>(null);
 
   useEffect(() => {
-    if (initStatus === 'success') {
+    if (initStatus === "success") {
       files.forEach((entry) => {
-        if (entry.type === 'file') {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (entry.type === "file") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (entry.file as any).id = entry.id;
           mutateUpload(entry.file);
         }
@@ -212,7 +198,7 @@ function ImportStep() {
       }
       return files.concat({
         id: uuidv4(),
-        type: 'url',
+        type: "url",
         url,
       });
     });
@@ -238,7 +224,7 @@ function ImportStep() {
           if (fi) {
             f.push({
               id: uuidv4(),
-              type: 'file',
+              type: "file",
               file: fi,
             });
           }
@@ -250,12 +236,12 @@ function ImportStep() {
     event.stopPropagation();
   };
   const handlePrevious = () => {
-    navigate('/plays/new');
+    navigate("/plays/new");
   };
   const isPending =
-    initStatus === 'pending' ||
-    statusUpload === 'pending' ||
-    (step?.name === 'import' && step.processing);
+    initStatus === "pending" ||
+    statusUpload === "pending" ||
+    (step?.name === "import" && step.processing);
   return (
     <FlowStep
       title="Create from an external source ▶  Import script"
@@ -264,7 +250,7 @@ function ImportStep() {
           <Button icon="previous" onClick={handlePrevious} />
           <Button
             disabled={files.length === 0 || isPending}
-            icon={isPending ? 'animatedWaiting' : 'import'}
+            icon={isPending ? "animatedWaiting" : "import"}
             rightIcon="next"
             onClick={handleInitImport}
           >
@@ -273,8 +259,8 @@ function ImportStep() {
         </>
       }
     >
-      Provide the script file(s) by either uploading it(/them) from disk or
-      entering a URL to a remote location.
+      Provide the script file(s) by either uploading it(/them) from disk or entering a URL to a
+      remote location.
       <Admonition type="info">
         Supported formats: PDF, TXT.
         <br />
@@ -282,40 +268,38 @@ function ImportStep() {
       </Admonition>
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '10px',
-          gap: '10px',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          padding: "10px",
+          gap: "10px",
+          alignItems: "center",
         }}
       >
-        <div>
-          Selected script files: {files.length === 0 ? 'none' : files.length}
-        </div>
+        <div>Selected script files: {files.length === 0 ? "none" : files.length}</div>
         {files.length === 0 ? null : (
           <ul
             style={{
-              margin: '0',
-              padding: '0',
-              gap: '4px',
-              listStyle: 'none',
-              alignSelf: 'stretch',
-              display: 'flex',
-              flexDirection: 'column',
+              margin: "0",
+              padding: "0",
+              gap: "4px",
+              listStyle: "none",
+              alignSelf: "stretch",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             {files.map((f, i) => (
               <li
-                key={`${i}`.concat(f.type === 'url' ? f.url : f.file.name)}
+                key={`${i}`.concat(f.type === "url" ? f.url : f.file.name)}
                 style={{
-                  margin: '0',
-                  padding: '4px',
-                  listStyle: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: '#1f313C22',
-                  borderRadius: '10px',
+                  margin: "0",
+                  padding: "4px",
+                  listStyle: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  background: "#1f313C22",
+                  borderRadius: "10px",
                 }}
                 onMouseEnter={handleFileLineEnter(i)}
                 onMouseLeave={handleFileLineLeave()}
@@ -325,26 +309,25 @@ function ImportStep() {
                   mode="primary"
                   size="medium"
                   customClassNames={
-                    i >= uploadsState.length ||
-                    uploadsState[i].status !== 'pending'
+                    i >= uploadsState.length || uploadsState[i].status !== "pending"
                       ? [styles.hidden]
                       : []
                   }
                 />
                 {i + 1}
-                {'. '}
+                {". "}
                 <span
                   style={{
-                    flex: '1',
+                    flex: "1",
                   }}
                 >
-                  {f.type === 'url' ? f.url : f.file.name}
+                  {f.type === "url" ? f.url : f.file.name}
                 </span>
                 <div
                   style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: '2px',
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "2px",
                   }}
                   className={classNames({
                     [styles.hidden]: scriptLineHovered !== i,
@@ -372,17 +355,17 @@ function ImportStep() {
         )}
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            padding: '20px',
-            border: '3px dashed #1f313C',
-            borderRadius: '10px',
-            alignSelf: 'stretch',
-            justifyContent: 'center',
-            background: dragOver ? '#1f313C22' : 'transparent',
-            transition: 'background 0.1s ease',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "4px",
+            padding: "20px",
+            border: "3px dashed #1f313C",
+            borderRadius: "10px",
+            alignSelf: "stretch",
+            justifyContent: "center",
+            background: dragOver ? "#1f313C22" : "transparent",
+            transition: "background 0.1s ease",
           }}
           onDragEnter={handleDragEnter}
           onDragLeave={handleMouseLeave}
@@ -392,28 +375,24 @@ function ImportStep() {
         >
           <span
             style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
             }}
           >
             <Icon value="dragNdrop" size="medium" mode="primary" />
             Drop files here
           </span>
           <span className={styles.or}>or</span>
-          <Button
-            icon="browseFiles"
-            onClick={handleBrowseClick}
-            disabled={isPending}
-          >
+          <Button icon="browseFiles" onClick={handleBrowseClick} disabled={isPending}>
             Browse your disk
           </Button>
           <span className={styles.or}>or</span>
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: '4px',
+              display: "flex",
+              flexDirection: "row",
+              gap: "4px",
             }}
           >
             <input
@@ -422,18 +401,14 @@ function ImportStep() {
               placeholder="Enter URL to remote file..."
               ref={inputURLRef}
             />
-            <Button
-              icon="next"
-              onClick={handleURLButtonClick}
-              disabled={isPending}
-            />
+            <Button icon="next" onClick={handleURLButtonClick} disabled={isPending} />
           </div>
         </div>
         <input
           type="file"
           accept=".txt,.pdf"
           multiple={true}
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           ref={inputFromDiskRef}
           onChange={handleFileInputChange}
         />
@@ -457,8 +432,7 @@ function PreviewStep(props: PreviewStepProps) {
     setShowNavigatePanel,
     setShowCharactersPanel,
   } = useScriptTabToolbarContext();
-  const showPanels =
-    showSearchPanel || showNavigatePanel || showCharactersPanel;
+  const showPanels = showSearchPanel || showNavigatePanel || showCharactersPanel;
   const handleCloseSearchPanel = () => {
     setShowSearchPanel(false);
   };
@@ -471,8 +445,8 @@ function PreviewStep(props: PreviewStepProps) {
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'row',
+        display: "flex",
+        flexDirection: "row",
       }}
     >
       <FlowStep
@@ -487,17 +461,15 @@ function PreviewStep(props: PreviewStepProps) {
         }
         growVertically={true}
       >
-        You can review the import result to make sure there isn't a massive
-        issue before creating the project.
-        <br /> (i.e. entire sections missing or in wrong order). You'll be able
-        to modify the script later.
+        You can review the import result to make sure there isn't a massive issue before creating
+        the project.
+        <br /> (i.e. entire sections missing or in wrong order). You'll be able to modify the script
+        later.
         <Script isEditable={false} scriptContext={previewScriptContext} />
       </FlowStep>
       {showPanels ? (
         <div className={styles.panelsContainer}>
-          {showSearchPanel ? (
-            <ScriptSearchPanel onClose={handleCloseSearchPanel} />
-          ) : null}
+          {showSearchPanel ? <ScriptSearchPanel onClose={handleCloseSearchPanel} /> : null}
           {showNavigatePanel ? (
             <ScriptNavigatePanel
               onClose={handleCloseNavigatePanel}
@@ -526,7 +498,7 @@ function NameStep(props: NameStepProps) {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [createReady, setCreateReady] = useState(false);
   const handleTitleChange = () => {
-    setCreateReady((titleInputRef.current?.value ?? '').length > 0);
+    setCreateReady((titleInputRef.current?.value ?? "").length > 0);
   };
   const trpc = useTRPC();
   const { mutate, isPending, isSuccess, data } = useMutation(
@@ -534,12 +506,12 @@ function NameStep(props: NameStepProps) {
   );
   const navigate = useNavigate();
   const handleCreate = () => {
-    const title = titleInputRef.current?.value ?? 'New play';
+    const title = titleInputRef.current?.value ?? "New play";
     mutate({ title, importId: props.importId });
   };
   const [createdUri, setCreatedUri] = useState<string | null>(null);
   const queryOpts = trpc.plays.playDetails.queryOptions({
-    uri: createdUri ?? '',
+    uri: createdUri ?? "",
   });
   queryOpts.enabled = !!createdUri;
   const {
@@ -565,8 +537,8 @@ function NameStep(props: NameStepProps) {
     setAddToCommonsLib((prev) => !prev);
   };
   const flowTitle = addToCommonsLib
-    ? 'Create from an external source ▶ Add details to public play'
-    : 'Create from an external source ▶ Name your new play';
+    ? "Create from an external source ▶ Add details to public play"
+    : "Create from an external source ▶ Name your new play";
   return (
     <>
       <Admonition type="info" title="Administator commands">
@@ -583,11 +555,7 @@ function NameStep(props: NameStepProps) {
             <Button icon="previous" onClick={props.onBack} />
             <Button
               disabled={!createReady}
-              icon={
-                isPending || (isQueryPending && isQueryEnabled)
-                  ? 'animatedWaiting'
-                  : 'newPlay'
-              }
+              icon={isPending || (isQueryPending && isQueryEnabled) ? "animatedWaiting" : "newPlay"}
               onClick={handleCreate}
             >
               Create
@@ -611,12 +579,7 @@ function NameStep(props: NameStepProps) {
             </div>
             <div className={styles.row}>
               <label>Author</label>
-              <input
-                type="text"
-                size={60}
-                maxLength={100}
-                value={props.metadata.author}
-              />
+              <input type="text" size={60} maxLength={100} value={props.metadata.author} />
             </div>
             <div className={styles.row}>
               <label>Language</label>
@@ -624,12 +587,12 @@ function NameStep(props: NameStepProps) {
                 value={props.metadata.language}
                 options={[
                   {
-                    label: 'FR',
-                    value: 'fr',
+                    label: "FR",
+                    value: "fr",
                   },
                   {
-                    label: 'EN',
-                    value: 'en',
+                    label: "EN",
+                    value: "en",
                   },
                 ]}
               />
@@ -637,87 +600,87 @@ function NameStep(props: NameStepProps) {
             <div className={styles.row}>
               <label>Number of roles</label>
               <CardsSelect
-                value={'' + props.metadata.number_of_roles}
+                value={"" + props.metadata.number_of_roles}
                 options={[
                   {
-                    label: '1',
-                    value: '1',
+                    label: "1",
+                    value: "1",
                   },
                   {
-                    label: '2',
-                    value: '2',
+                    label: "2",
+                    value: "2",
                   },
                   {
-                    label: '3',
-                    value: '3',
+                    label: "3",
+                    value: "3",
                   },
                   {
-                    label: '4',
-                    value: '4',
+                    label: "4",
+                    value: "4",
                   },
                   {
-                    label: '5',
-                    value: '5',
+                    label: "5",
+                    value: "5",
                   },
                   {
-                    label: '6',
-                    value: '6',
+                    label: "6",
+                    value: "6",
                   },
                   {
-                    label: '7',
-                    value: '7',
+                    label: "7",
+                    value: "7",
                   },
                   {
-                    label: '8',
-                    value: '8',
+                    label: "8",
+                    value: "8",
                   },
                   {
-                    label: '9',
-                    value: '9',
+                    label: "9",
+                    value: "9",
                   },
                   {
-                    label: '10',
-                    value: '10',
+                    label: "10",
+                    value: "10",
                   },
                   {
-                    label: '11',
-                    value: '11',
+                    label: "11",
+                    value: "11",
                   },
                   {
-                    label: '12',
-                    value: '12',
+                    label: "12",
+                    value: "12",
                   },
                   {
-                    label: '13',
-                    value: '13',
+                    label: "13",
+                    value: "13",
                   },
                   {
-                    label: '14',
-                    value: '14',
+                    label: "14",
+                    value: "14",
                   },
                   {
-                    label: '15',
-                    value: '15',
+                    label: "15",
+                    value: "15",
                   },
                   {
-                    label: '16',
-                    value: '16',
+                    label: "16",
+                    value: "16",
                   },
                   {
-                    label: '17',
-                    value: '17',
+                    label: "17",
+                    value: "17",
                   },
                   {
-                    label: '18',
-                    value: '18',
+                    label: "18",
+                    value: "18",
                   },
                   {
-                    label: '19',
-                    value: '19',
+                    label: "19",
+                    value: "19",
                   },
                   {
-                    label: '20',
-                    value: '20',
+                    label: "20",
+                    value: "20",
                   },
                 ]}
               />
@@ -728,84 +691,84 @@ function NameStep(props: NameStepProps) {
                 value={String(props.metadata.number_of_male_roles)}
                 options={[
                   {
-                    label: '1',
-                    value: '1',
+                    label: "1",
+                    value: "1",
                   },
                   {
-                    label: '2',
-                    value: '2',
+                    label: "2",
+                    value: "2",
                   },
                   {
-                    label: '3',
-                    value: '3',
+                    label: "3",
+                    value: "3",
                   },
                   {
-                    label: '4',
-                    value: '4',
+                    label: "4",
+                    value: "4",
                   },
                   {
-                    label: '5',
-                    value: '5',
+                    label: "5",
+                    value: "5",
                   },
                   {
-                    label: '6',
-                    value: '6',
+                    label: "6",
+                    value: "6",
                   },
                   {
-                    label: '7',
-                    value: '7',
+                    label: "7",
+                    value: "7",
                   },
                   {
-                    label: '8',
-                    value: '8',
+                    label: "8",
+                    value: "8",
                   },
                   {
-                    label: '9',
-                    value: '9',
+                    label: "9",
+                    value: "9",
                   },
                   {
-                    label: '10',
-                    value: '10',
+                    label: "10",
+                    value: "10",
                   },
                   {
-                    label: '11',
-                    value: '11',
+                    label: "11",
+                    value: "11",
                   },
                   {
-                    label: '12',
-                    value: '12',
+                    label: "12",
+                    value: "12",
                   },
                   {
-                    label: '13',
-                    value: '13',
+                    label: "13",
+                    value: "13",
                   },
                   {
-                    label: '14',
-                    value: '14',
+                    label: "14",
+                    value: "14",
                   },
                   {
-                    label: '15',
-                    value: '15',
+                    label: "15",
+                    value: "15",
                   },
                   {
-                    label: '16',
-                    value: '16',
+                    label: "16",
+                    value: "16",
                   },
                   {
-                    label: '17',
-                    value: '17',
+                    label: "17",
+                    value: "17",
                   },
                   {
-                    label: '18',
-                    value: '18',
+                    label: "18",
+                    value: "18",
                   },
                   {
-                    label: '19',
-                    value: '19',
+                    label: "19",
+                    value: "19",
                   },
                   {
-                    label: '20',
-                    value: '20',
+                    label: "20",
+                    value: "20",
                   },
                 ]}
               />
@@ -813,87 +776,87 @@ function NameStep(props: NameStepProps) {
             <div className={styles.row}>
               <label>Number of female roles</label>
               <CardsSelect
-                value={'' + props.metadata.number_of_female_roles}
+                value={"" + props.metadata.number_of_female_roles}
                 options={[
                   {
-                    label: '1',
-                    value: '1',
+                    label: "1",
+                    value: "1",
                   },
                   {
-                    label: '2',
-                    value: '2',
+                    label: "2",
+                    value: "2",
                   },
                   {
-                    label: '3',
-                    value: '3',
+                    label: "3",
+                    value: "3",
                   },
                   {
-                    label: '4',
-                    value: '4',
+                    label: "4",
+                    value: "4",
                   },
                   {
-                    label: '5',
-                    value: '5',
+                    label: "5",
+                    value: "5",
                   },
                   {
-                    label: '6',
-                    value: '6',
+                    label: "6",
+                    value: "6",
                   },
                   {
-                    label: '7',
-                    value: '7',
+                    label: "7",
+                    value: "7",
                   },
                   {
-                    label: '8',
-                    value: '8',
+                    label: "8",
+                    value: "8",
                   },
                   {
-                    label: '9',
-                    value: '9',
+                    label: "9",
+                    value: "9",
                   },
                   {
-                    label: '10',
-                    value: '10',
+                    label: "10",
+                    value: "10",
                   },
                   {
-                    label: '11',
-                    value: '11',
+                    label: "11",
+                    value: "11",
                   },
                   {
-                    label: '12',
-                    value: '12',
+                    label: "12",
+                    value: "12",
                   },
                   {
-                    label: '13',
-                    value: '13',
+                    label: "13",
+                    value: "13",
                   },
                   {
-                    label: '14',
-                    value: '14',
+                    label: "14",
+                    value: "14",
                   },
                   {
-                    label: '15',
-                    value: '15',
+                    label: "15",
+                    value: "15",
                   },
                   {
-                    label: '16',
-                    value: '16',
+                    label: "16",
+                    value: "16",
                   },
                   {
-                    label: '17',
-                    value: '17',
+                    label: "17",
+                    value: "17",
                   },
                   {
-                    label: '18',
-                    value: '18',
+                    label: "18",
+                    value: "18",
                   },
                   {
-                    label: '19',
-                    value: '19',
+                    label: "19",
+                    value: "19",
                   },
                   {
-                    label: '20',
-                    value: '20',
+                    label: "20",
+                    value: "20",
                   },
                 ]}
               />
@@ -927,18 +890,17 @@ function NameStep(props: NameStepProps) {
           <>
             Give a name to your project.
             <Admonition type="info">
-              This name doesn't need to correspond to the title of the play. For
-              instance you might also want to indicate the name of the troupe or
-              company, and maybe the year.
+              This name doesn't need to correspond to the title of the play. For instance you might
+              also want to indicate the name of the troupe or company, and maybe the year.
               <br />
               You'll be able to change it later on !
             </Admonition>
             <div
               style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: '4px',
-                alignItems: 'center',
+                display: "flex",
+                flexDirection: "row",
+                gap: "4px",
+                alignItems: "center",
               }}
             >
               <label>Project name</label>
@@ -959,25 +921,24 @@ function NameStep(props: NameStepProps) {
 }
 
 function ImportScriptFlow() {
-  const { step, startOver, reviewDone, backToReview } =
-    useImportScriptContext();
+  const { step, startOver, reviewDone, backToReview } = useImportScriptContext();
   if (!step) {
     return <DotsLoader size="xlarge" />;
   }
   switch (step.name) {
-    case 'import':
+    case "import":
       return <ImportStep />;
-    case 'preview':
+    case "preview":
       return (
         <ErrorBoundary fallback={<PageNotFound />}>
           <Suspense
             fallback={
               <div
                 style={{
-                  flex: '1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  flex: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <DotsLoader size="xlarge" />
@@ -993,14 +954,8 @@ function ImportScriptFlow() {
           </Suspense>
         </ErrorBoundary>
       );
-    case 'name':
-      return (
-        <NameStep
-          onBack={backToReview}
-          importId={step.importId}
-          metadata={step.metadata}
-        />
-      );
+    case "name":
+      return <NameStep onBack={backToReview} importId={step.importId} metadata={step.metadata} />;
     default:
       assertUnreachable(step);
   }

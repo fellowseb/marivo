@@ -1,11 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import {
-  createContext,
-  useContext,
-  useMemo,
-  type PropsWithChildren,
-} from 'react';
-import { useTRPC } from '../../trpc';
+import { useQuery } from "@tanstack/react-query";
+import { createContext, useContext, useMemo, type PropsWithChildren } from "react";
+import { useTRPC } from "../../trpc";
 
 interface CollectionMetadataContext {
   genres: string[];
@@ -21,9 +16,7 @@ const CollectionMetadataContext = createContext<CollectionMetadataContext>({
 
 export function CollectionMetadataContextProvider(props: PropsWithChildren) {
   const trpc = useTRPC();
-  const { isSuccess, data } = useQuery(
-    trpc.playsCollection.getMetadata.queryOptions(),
-  );
+  const { isSuccess, data } = useQuery(trpc.playsCollection.getMetadata.queryOptions());
   const context = useMemo<CollectionMetadataContext>(
     () => ({
       genres: isSuccess ? data.genres : [],

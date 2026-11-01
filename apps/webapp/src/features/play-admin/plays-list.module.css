@@ -84,7 +84,7 @@
   flex-direction: row;
   align-items: center;
   gap: 4px;
-  font-family: 'Lobster Two', sans-serif;
+  font-family: "Lobster Two", sans-serif;
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -114,20 +114,20 @@
 .playPosterOverlay {
   width: 100px;
   height: 100px;
-  mask: url('/src/assets/book-closed.svg') no-repeat;
+  mask: url("/src/assets/book-closed.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
   background-color: #e8e4da;
 }
 
 .playPosterOverlay.opening {
-  mask: url('/src/assets/dots-horizontal.svg') no-repeat;
+  mask: url("/src/assets/dots-horizontal.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
 }
 
 .play.disabled:hover .playPosterOverlay {
-  mask: url('/src/assets/book-closed.svg') no-repeat;
+  mask: url("/src/assets/book-closed.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
 }
@@ -137,13 +137,13 @@
 }
 
 .play:hover .playPosterOverlay {
-  mask: url('/src/assets/book-open-01.svg') no-repeat;
+  mask: url("/src/assets/book-open-01.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
 }
 
 .play:hover .playPosterOverlay.opening {
-  mask: url('/src/assets/dots-horizontal.svg') no-repeat;
+  mask: url("/src/assets/dots-horizontal.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
 }

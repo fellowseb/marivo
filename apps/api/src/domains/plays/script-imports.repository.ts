@@ -1,18 +1,18 @@
-import { Result } from '@marivo/utils';
-import { Record as DbRecord } from '../../shared/record.ts';
-import { AppError } from '../../shared/error.ts';
-import { UserRepositoryBase } from '../../shared/user-repository-base.ts';
+import { Result } from "@marivo/utils";
+import { Record as DbRecord } from "../../shared/record.ts";
+import { AppError } from "../../shared/error.ts";
+import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
 import type {
   Files,
   Language,
   ScriptImport,
   ScriptImportForProcessing,
   ScriptImportStatus,
-} from './script-imports.models.ts';
+} from "./script-imports.models.ts";
 
 export class ScriptImportNotFound extends AppError {
   constructor() {
-    super('Script import not found', 'BAD_REQUEST');
+    super("Script import not found", "BAD_REQUEST");
   }
 }
 
@@ -22,7 +22,7 @@ interface GetScriptImportsRecordValues {
   result_metadata_title: string;
   result_metadata_author: string;
   result_metadata_language: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result_metadata_characters: any[];
   result_metadata_number_of_roles: number;
   result_metadata_number_of_male_roles: number;
@@ -34,30 +34,26 @@ interface GetScriptImportsRecordValues {
 
 export class GetScriptImportsRecord extends DbRecord<GetScriptImportsRecordValues> {
   toModel(): ScriptImport {
-    const status = this.get('status') as ScriptImportStatus;
-    return status === 'reviewing'
+    const status = this.get("status") as ScriptImportStatus;
+    return status === "reviewing"
       ? {
-          id: this.get('id'),
+          id: this.get("id"),
           status,
           metadata: {
-            title: this.get('result_metadata_title'),
-            author: this.get('result_metadata_author'),
-            language: this.get('result_metadata_language'),
-            characters: this.get('result_metadata_characters'),
-            number_of_roles: this.get('result_metadata_number_of_roles'),
-            number_of_male_roles: this.get(
-              'result_metadata_number_of_male_roles',
-            ),
-            number_of_female_roles: this.get(
-              'result_metadata_number_of_female_roles',
-            ),
-            genre: this.get('result_metadata_genre') ?? undefined,
-            period: this.get('result_metadata_period') ?? undefined,
-            suggestions: this.get('result_metadata_suggestions') ?? undefined,
+            title: this.get("result_metadata_title"),
+            author: this.get("result_metadata_author"),
+            language: this.get("result_metadata_language"),
+            characters: this.get("result_metadata_characters"),
+            number_of_roles: this.get("result_metadata_number_of_roles"),
+            number_of_male_roles: this.get("result_metadata_number_of_male_roles"),
+            number_of_female_roles: this.get("result_metadata_number_of_female_roles"),
+            genre: this.get("result_metadata_genre") ?? undefined,
+            period: this.get("result_metadata_period") ?? undefined,
+            suggestions: this.get("result_metadata_suggestions") ?? undefined,
           },
         }
       : {
-          id: this.get('id'),
+          id: this.get("id"),
           status,
         };
   }
@@ -71,7 +67,7 @@ interface GetScriptImportFilesForProcessingRecordValues {
 export class GetScriptImportFilesForProcessingRecord extends DbRecord<GetScriptImportFilesForProcessingRecordValues> {
   toModel(): ScriptImportForProcessing {
     return {
-      files: this.get('files'),
+      files: this.get("files"),
     };
   }
 }
@@ -79,24 +75,21 @@ export class GetScriptImportFilesForProcessingRecord extends DbRecord<GetScriptI
 type ScriptImportFile =
   | {
       id: string;
-      type: 'url';
+      type: "url";
       url: string;
     }
   | {
       id: string;
-      type: 'file';
+      type: "file";
       name: string;
       size: number;
     };
 
 export class ScriptImportsRepository extends UserRepositoryBase {
-  async initImport(params: {
-    importId: string;
-    files: ScriptImportFile[];
-  }): Promise<undefined> {
+  async initImport(params: { importId: string; files: ScriptImportFile[] }): Promise<undefined> {
     await this.clearImport({ id: params.importId });
     const files: Files = params.files.reduce((acc, file, i) => {
-      if (file.type === 'file') {
+      if (file.type === "file") {
         return {
           ...acc,
           [file.id]: {
@@ -104,7 +97,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
             type: file.type,
             name: file.name,
             size: file.size,
-            status: 'waiting',
+            status: "waiting",
           },
         };
       }
@@ -114,7 +107,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
           type: file.type,
           url: file.url,
           size: undefined,
-          status: 'waiting',
+          status: "waiting",
         },
       };
     }, {} as Files);
@@ -148,26 +141,24 @@ export class ScriptImportsRepository extends UserRepositoryBase {
         ) FOR UPDATE;
     `;
     if (!record) {
-      throw new Error('Unexpected importId not found on file uploaded');
+      throw new Error("Unexpected importId not found on file uploaded");
     }
     const { files } = record;
     const fileInfo = files[params.fileId];
     if (!fileInfo) {
-      throw new Error('Attempt to upload unknown file id ' + params.fileId);
+      throw new Error("Attempt to upload unknown file id " + params.fileId);
     }
     const filesUpdated = {
       ...files,
       [params.fileId]: {
         ...fileInfo,
-        status: 'ready',
+        status: "ready",
       },
     };
-    const readyToProcess = Object.values(filesUpdated).every(
-      ({ status }) => status === 'ready',
-    );
+    const readyToProcess = Object.values(filesUpdated).every(({ status }) => status === "ready");
     await this.sql`
       UPDATE script_imports
-        SET status = ${readyToProcess ? 'processing_files' : 'uploading_files'},
+        SET status = ${readyToProcess ? "processing_files" : "uploading_files"},
             files = ${this.sql.json(filesUpdated)}
         WHERE id = ${params.importId} AND user_id = ${this.userId()};
       `;
@@ -188,26 +179,24 @@ export class ScriptImportsRepository extends UserRepositoryBase {
     `;
     const record = records[0];
     if (!record) {
-      throw new Error('Unexpected importId not found on file uploaded');
+      throw new Error("Unexpected importId not found on file uploaded");
     }
     const { files } = record;
     const fileInfo = files[params.fileId];
     if (!fileInfo) {
-      throw new Error('Attempt to fetch unknown file id');
+      throw new Error("Attempt to fetch unknown file id");
     }
     const filesUpdated = {
       ...files,
       [params.fileId]: {
         ...fileInfo,
-        status: 'ready',
+        status: "ready",
       },
     };
-    const readyToProcess = Object.values(filesUpdated).every(
-      ({ status }) => status === 'ready',
-    );
+    const readyToProcess = Object.values(filesUpdated).every(({ status }) => status === "ready");
     await this.sql`
       UPDATE script_imports
-        SET status = ${readyToProcess ? 'processing_files' : 'uploading_files'}
+        SET status = ${readyToProcess ? "processing_files" : "uploading_files"}
           AND files = ${this.sql.json(files)}
         WHERE id = ${params.importId} AND user_id = ${this.userId()};
       `;
@@ -249,9 +238,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
   async getScriptImportFilesForProcessing(
     importId: string,
   ): Promise<Result<ScriptImportForProcessing, ScriptImportNotFound>> {
-    const records = await this.sql<
-      GetScriptImportFilesForProcessingRecordValues[]
-    >`
+    const records = await this.sql<GetScriptImportFilesForProcessingRecordValues[]>`
         SELECT
           files
         FROM script_imports
@@ -265,14 +252,10 @@ export class ScriptImportsRepository extends UserRepositoryBase {
     if (!record) {
       return Result.failure(new ScriptImportNotFound());
     }
-    return Result.ok(
-      new GetScriptImportFilesForProcessingRecord(record).toModel(),
-    );
+    return Result.ok(new GetScriptImportFilesForProcessingRecord(record).toModel());
   }
 
-  async getScriptImportStatus(
-    id: string,
-  ): Promise<Result<ScriptImport, ScriptImportNotFound>> {
+  async getScriptImportStatus(id: string): Promise<Result<ScriptImport, ScriptImportNotFound>> {
     const [record] = await this.sql<GetScriptImportsRecordValues[]>`
         SELECT
           id,
@@ -297,9 +280,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
     return Result.ok(new GetScriptImportsRecord(record).toModel());
   }
 
-  async getResultScriptId(params: {
-    id: string;
-  }): Promise<Result<number, ScriptImportNotFound>> {
+  async getResultScriptId(params: { id: string }): Promise<Result<number, ScriptImportNotFound>> {
     const [importRow] = await this.sql<{ result_script_id: number }[]>`
         SELECT result_script_id
         FROM script_imports
@@ -345,10 +326,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
     `;
   }
 
-  async setScriptImportFailure(params: {
-    importId: string;
-    error: string;
-  }): Promise<void> {
+  async setScriptImportFailure(params: { importId: string; error: string }): Promise<void> {
     await this.sql`
       UPDATE script_imports
         SET status = 'error'::script_import_status_enum, error = ${!!params.error}

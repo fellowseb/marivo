@@ -1,4 +1,4 @@
-import './style.css';
+import "./style.css";
 
 interface LogoSpotlightsEffectOptions {
   initialDelay: number;
@@ -23,12 +23,7 @@ class LogoSpotlightsEffect {
       const rightSpotAngle = Math.random() * 100 - 50;
       const leftSpotSpeed = Math.random() * 0.5 + 0.5;
       const rightSpotSpeed = Math.random() * 0.5 + 0.5;
-      this.moveSpotlights(
-        leftSpotAngle,
-        leftSpotSpeed,
-        rightSpotAngle,
-        rightSpotSpeed,
-      );
+      this.moveSpotlights(leftSpotAngle, leftSpotSpeed, rightSpotAngle, rightSpotSpeed);
     }, 1000);
   }
 
@@ -43,58 +38,58 @@ class LogoSpotlightsEffect {
     rightSpotAngle: number,
     rightSpotSpeed: number,
   ) {
-    const rightSpotElem = document.getElementById('logo-spot-right');
+    const rightSpotElem = document.getElementById("logo-spot-right");
     if (!rightSpotElem) {
-      throw new Error('Unable to find logo-spot-right element');
+      throw new Error("Unable to find logo-spot-right element");
     }
-    const leftSpotElem = document.getElementById('logo-spot-left');
+    const leftSpotElem = document.getElementById("logo-spot-left");
     if (!leftSpotElem) {
-      throw new Error('Unable to find logo-spot-left element');
+      throw new Error("Unable to find logo-spot-left element");
     }
     leftSpotElem.setAttribute(
-      'style',
+      "style",
       `transform: rotate(${leftSpotAngle}deg); transition: transform ${leftSpotSpeed}s ease-out;`,
     );
     rightSpotElem.setAttribute(
-      'style',
+      "style",
       `transform: rotate(${rightSpotAngle}deg); transition: transform ${rightSpotSpeed}s ease-out;`,
     );
   }
 
   private listenTryOutBtnHover() {
-    const tryOutBtn = document.getElementById('try-out-btn');
+    const tryOutBtn = document.getElementById("try-out-btn");
     if (!tryOutBtn) {
       return;
     }
-    tryOutBtn.addEventListener('mouseenter', () => {
+    tryOutBtn.addEventListener("mouseenter", () => {
       this.stopMovement();
       this.moveSpotlights(0, 0.1, 0, 0.1);
       this.showLightRays();
     });
-    tryOutBtn.addEventListener('mouseleave', () => {
+    tryOutBtn.addEventListener("mouseleave", () => {
       this.hideLightRays();
       this.startMovement();
     });
   }
 
   private showLightRays() {
-    const lightRaysElem = document.getElementById('logo-light-rays');
+    const lightRaysElem = document.getElementById("logo-light-rays");
     if (!lightRaysElem) {
       return;
     }
-    lightRaysElem.setAttribute('class', 'logo-light-rays');
+    lightRaysElem.setAttribute("class", "logo-light-rays");
   }
 
   private hideLightRays() {
-    const lightRaysElem = document.getElementById('logo-light-rays');
+    const lightRaysElem = document.getElementById("logo-light-rays");
     if (!lightRaysElem) {
       return;
     }
-    lightRaysElem.setAttribute('class', 'logo-light-rays hidden');
+    lightRaysElem.setAttribute("class", "logo-light-rays hidden");
   }
 
   private listenTryOutBtnClick() {
-    const tryOutBtn = document.getElementById('try-out-btn');
+    const tryOutBtn = document.getElementById("try-out-btn");
     if (!tryOutBtn) {
       return;
     }
@@ -123,7 +118,7 @@ class LogoSpotlightsEffect {
 
 const SPOTLIGHTS_MOVEMENT_DELAY_MS = 5_000;
 
-window.addEventListener('DOMContentLoaded', function onDOMLoaded() {
+window.addEventListener("DOMContentLoaded", function onDOMLoaded() {
   new LogoSpotlightsEffect().init({
     initialDelay: SPOTLIGHTS_MOVEMENT_DELAY_MS,
   });

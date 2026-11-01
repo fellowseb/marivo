@@ -1,20 +1,14 @@
-import {
-  createContext,
-  useContext,
+import { createContext, useContext, useMemo, type PropsWithChildren } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import type { AppRouterOutput } from "@marivo/api";
+import { useTRPC } from "../../trpc";
+import { Result } from "@marivo/utils";
 
-  useMemo,
-  type PropsWithChildren,
-} from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import type { AppRouterOutput } from '@marivo/api';
-import { useTRPC } from '../../trpc';
-import { Result } from '@marivo/utils';
-
-export type PlayContextData = AppRouterOutput['plays']['playDetails'];
+export type PlayContextData = AppRouterOutput["plays"]["playDetails"];
 
 class PlayNotFound extends Error {
   constructor() {
-    super('Play not found');
+    super("Play not found");
   }
 }
 
@@ -33,11 +27,7 @@ export function PlayContextProvider(
   const playContextData = useMemo(() => {
     return Result.ok(query.data);
   }, [query.data]);
-  return (
-    <PlayContext.Provider value={playContextData}>
-      {children}
-    </PlayContext.Provider>
-  );
+  return <PlayContext.Provider value={playContextData}>{children}</PlayContext.Provider>;
 }
 
 export function usePlayContext() {

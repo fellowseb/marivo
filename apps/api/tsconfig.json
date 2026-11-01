@@ -1,8 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "files": [
-    "./src/api.ts"
-  ],
+  "files": ["./src/api.ts"],
   "compilerOptions": {
     "emitDeclarationOnly": true,
     // File Layout
@@ -15,12 +13,8 @@
     "noEmit": false,
     // "types": [],
     // For nodejs:
-    "lib": [
-      "esnext"
-    ],
-    "typeRoots": [
-      "./types",
-    ],
+    "lib": ["esnext"],
+    "typeRoots": ["./types"],
     "allowImportingTsExtensions": true,
     // and npm install -D @types/node
     // Other Outputs

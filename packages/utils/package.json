@@ -1,11 +1,11 @@
 {
   "name": "@marivo/utils",
   "version": "0.0.0",
-  "type": "module",
   "private": true,
   "files": [
     "dist"
   ],
+  "type": "module",
   "main": "./dist/es/index.js",
   "module": "./dist/es/index.js",
   "types": "./dist/es/index.d.ts",
@@ -28,12 +28,8 @@
     "check-types": "tsc --noEmit",
     "test": "jest --passWithNoTests"
   },
-  "jest": {
-    "preset": "@marivo/jest-presets/node"
-  },
   "devDependencies": {
     "@jest/globals": "^30.5.2",
-    "@marivo/eslint-config": "workspace:*",
     "@marivo/jest-presets": "workspace:*",
     "@marivo/typescript-config": "workspace:*",
     "@types/node": "^26.6.6",
@@ -41,5 +37,8 @@
     "eslint": "^9.39.4",
     "jest": "^30.5.2",
     "typescript": "5.9.3"
+  },
+  "jest": {
+    "preset": "@marivo/jest-presets/node"
   }
 }

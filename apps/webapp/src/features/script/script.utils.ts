@@ -1,11 +1,11 @@
-import type { LineContents } from './script-state';
+import type { LineContents } from "./script-state";
 import type {
   LineEditableContent,
   LineContent,
   Line,
   LineInfo,
   HeadingLineContent,
-} from './script.models';
+} from "./script.models";
 
 function displayDirection(direction: string) {
   return direction.substring(1, direction.length - 1);
@@ -21,7 +21,7 @@ export function highlightDirections(lineText: string) {
 export function handleDirections(lineText: string): [string, string] {
   const res = /^\s*\(\((.*)\)\)\s*\n/.exec(lineText);
   if (!res || res.length === 0) {
-    return ['', highlightDirections(lineText)];
+    return ["", highlightDirections(lineText)];
   }
   const direction = res[0].trim();
   return [
@@ -33,8 +33,8 @@ export function handleDirections(lineText: string): [string, string] {
 export function printCharacterName(characters: { [charId: string]: string }) {
   return (charId: string) => {
     // Special case
-    if (charId === 'ALL') {
-      return 'ALL';
+    if (charId === "ALL") {
+      return "ALL";
     }
     return characters[charId];
   };
@@ -49,21 +49,20 @@ export function isLineEditableContentSameAsPrevious(
   previous: LineContent,
 ) {
   const commonsEqual =
-    previous.text === editableContent.text &&
-    previous.deleted === editableContent.deleted;
+    previous.text === editableContent.text && previous.deleted === editableContent.deleted;
   return (
     commonsEqual &&
-    ((editableContent.lineType === 'chartext' &&
-      previous.lineType === 'chartext' &&
+    ((editableContent.lineType === "chartext" &&
+      previous.lineType === "chartext" &&
       areArraysEqual(editableContent.characters, previous.characters)) ||
-      (editableContent.lineType === 'heading' &&
-        previous.lineType === 'heading' &&
+      (editableContent.lineType === "heading" &&
+        previous.lineType === "heading" &&
         editableContent.headingLevel === previous.headingLevel))
   );
 }
 
 export function replaceBreaklines(lineText: string) {
-  return lineText.replaceAll('\n', '<br/>');
+  return lineText.replaceAll("\n", "<br/>");
 }
 
 export function getLineContentForDisplayWithInfo(
@@ -87,7 +86,7 @@ export function getLineContentForDisplayWithInfo(
     const { versions, sharedDrafts } = contents;
     const presentVersions = versions.filter(Boolean).reverse().slice();
     if (!content && presentVersions.length) {
-      const latestVersionContent = lineContents.get(presentVersions[0] ?? '');
+      const latestVersionContent = lineContents.get(presentVersions[0] ?? "");
       if (latestVersionContent) {
         content = latestVersionContent;
       }
@@ -97,7 +96,7 @@ export function getLineContentForDisplayWithInfo(
     isNewUnsaved = presentVersions.length === 0;
   }
   if (!content) {
-    throw new Error('No line content found');
+    throw new Error("No line content found");
   }
   return [
     content,
@@ -131,10 +130,7 @@ export function getLinePreviousVersions(
 ): LineContent[] {
   const { id } = line;
   const contents = lineToContents.get(id);
-  const previousVersions = contents?.versions
-    .filter(Boolean)
-    .reverse()
-    .slice(1);
+  const previousVersions = contents?.versions.filter(Boolean).reverse().slice(1);
   return contents
     ? (previousVersions?.map((contentId) => {
         return lineContents.get(contentId)!;
@@ -151,14 +147,10 @@ export function buildScriptOutline(
   return linesOrder.reduce(
     (acc, curr) => {
       const line = lines.get(curr);
-      if (!line || line.type !== 'heading') {
+      if (!line || line.type !== "heading") {
         return acc;
       }
-      const [lineContent] = getLineContentForDisplayWithInfo(
-        line,
-        lineContents,
-        lineToContents,
-      );
+      const [lineContent] = getLineContentForDisplayWithInfo(line, lineContents, lineToContents);
       if (lineContent.deleted) {
         return acc;
       }

@@ -16,13 +16,15 @@ The marivo repository is a well-structured monorepo with a modern tech stack inc
 **THE APPLICATION CANNOT SAVE USER DATA**. The most critical issue is that **script edits are not persisted to the server** and there's **no local storage** - users will lose all their work when they refresh the page. Additionally, **no API endpoints exist for writing script data** to the database.
 
 ### Key Missing Capabilities
+
 - ❌ **No data persistence** - Edits are lost on page refresh
-- ❌ **No server write endpoints** for script data  
+- ❌ **No server write endpoints** for script data
 - ❌ **No collaboration features** - Cannot support team workflows
 - ❌ **Incomplete core features** - Staging, Blocking contain only placeholders
 - ❌ **No version control** or history for scripts
 
 ### ✅ Strengths
+
 - Clean architecture with domain-driven design
 - Modern tech stack (React 19, Tanstack Query, tRPC)
 - Good component organization
@@ -1137,6 +1139,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 ### Current State Analysis
 
 **CSS Architecture:**
+
 - **55 module CSS files** scattered across components and features
 - No centralized design system or CSS variables/tokens
 - Hardcoded colors repeated throughout (e.g., `#1f313c`, `#e8ce7d`, `#7b520033`)
@@ -1144,12 +1147,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 - Mix of global styles (`app.css`) and module styles
 
 **Global Styles:**
+
 - `app.css` contains base styles for form elements, inputs, selects, checkboxes, radios
-- Custom focus states using `:focus-visible` 
+- Custom focus states using `:focus-visible`
 - Custom styling for native form controls (removing default appearance)
 - Some duplicate declarations (e.g., color values overridden)
 
 **Component Styles:**
+
 - Each component has its own `.module.css` file
 - No consistent naming convention for CSS classes
 - Some CSS files are quite large (up to 299 lines)
@@ -1160,12 +1165,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: No design tokens or CSS variables, leading to inconsistent styling and hard-to-maintain colors
 
 **Current Problems**:
+
 - Color `#1f313c` appears in multiple opacity variants across files
 - Same colors defined in different formats (hex vs rgba)
 - No semantic color naming (primary, secondary, error, etc.)
 - Difficult to theme or change color scheme
 
 **Files affected**:
+
 - `apps/webapp/src/app.css`
 - All `.module.css` files in components and features
 
@@ -1179,29 +1186,29 @@ The webapp package reveals significant opportunities for improvement in **CSS or
   --color-primary-900: #1f313c;
   --color-primary-800: #2a4250;
   --color-primary-700: #355364;
-  
+
   /* Secondary colors */
   --color-secondary-900: #7b5200;
   --color-secondary-800: #956500;
-  
+
   /* Accent colors */
   --color-accent-400: #e8ce7d;
   --color-accent-300: #f0d890;
-  
+
   /* Background colors */
   --color-background: #fef8eb;
   --color-background-secondary: #1f313c11;
-  
+
   /* Text colors */
   --color-text-primary: #1f313c;
   --color-text-secondary: #666;
-  
+
   /* Opacity utilities */
-  --opacity-low: 0.07;    /* ~11 in hex */
+  --opacity-low: 0.07; /* ~11 in hex */
   --opacity-medium: 0.13; /* ~22 in hex */
-  --opacity-high: 0.2;    /* ~33 in hex */
+  --opacity-high: 0.2; /* ~33 in hex */
   --opacity-higher: 0.33; /* ~55 in hex */
-  --opacity-highest: 0.4;  /* ~66 in hex */
+  --opacity-highest: 0.4; /* ~66 in hex */
 }
 ```
 
@@ -1218,19 +1225,21 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Inconsistent CSS class naming across components
 
 **Current Problems**:
+
 - No clear naming pattern (BEM, utility classes, etc.)
 - Some classes use kebab-case, others camelCase
 - No consistent prefixing for component-scoped styles
 - Difficult to understand relationships between classes
 
 **Files affected**:
+
 - All `.module.css` files
 
 **Recommendation**:
 
 1. **Adopt a naming convention** (e.g., BEM-like):
    - Component root: `component-name`
-   - Elements: `component-name__element`  
+   - Elements: `component-name__element`
    - Modifiers: `component-name__element--modifier`
    - States: `is-active`, `is-loading`, `has-error`
 
@@ -1238,6 +1247,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 3. **Add linting for CSS class names**
 
 **Example improvement**:
+
 ```css
 /* Before */
 .play {
@@ -1265,12 +1275,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Large CSS files and inconsistent organization
 
 **Current Problems**:
+
 - Some CSS files exceed 200+ lines (`script-line.module.css`: 299 lines)
 - Related styles are scattered across multiple files
 - No separation of concerns (layout vs styling vs themes)
 - Duplicate styles across different components
 
 **Files affected**:
+
 - Large `.module.css` files throughout the app
 
 **Recommendation**:
@@ -1295,6 +1307,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: No CSS quality control or linting
 
 **Current Problems**:
+
 - No consistent property ordering
 - No detection of duplicate properties
 - No validation of color formats
@@ -1321,11 +1334,13 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Duplicate styles and high specificity causing maintenance issues
 
 **Current Problems**:
+
 - Same styles repeated across multiple components
 - Overly specific selectors making styles hard to override
 - !important usage in some places
 
 **Files affected**:
+
 - Various `.module.css` files with duplicated styles
 
 **Recommendation**:
@@ -1344,6 +1359,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 ### Current State Analysis
 
 **Current Shared Components** (in `src/components/`):
+
 - `global-spinner.component.tsx`
 - `skeleton.component.tsx` (with `skeleton.module.css`)
 - `unexpected-error.component.tsx` (with `unexpected-error.module.css`)
@@ -1357,6 +1373,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 - `icon.component.tsx` (with `icon.module.css`)
 
 **Shared UI Package** (`packages/ui/`):
+
 - Currently contains only demo components (`CounterButton`, `Link`)
 - Not being used effectively in the main webapp
 
@@ -1365,12 +1382,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Many common UI patterns are duplicated across features instead of being shared
 
 **Current Problems**:
+
 - Loading states implemented differently in each feature
 - Form controls and inputs duplicated
 - Dialogs and modals custom-built for each use case
 - Buttons and interactive elements inconsistent
 
 **Files affected**:
+
 - Various feature components with duplicated patterns
 
 **Recommendation**:
@@ -1389,6 +1408,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 4. **Add Storybook** for component documentation and testing
 
 **Example components to create**:
+
 ```tsx
 // Button component with variants
 <Button variant="primary" size="medium" onClick={handleClick}>
@@ -1396,9 +1416,9 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 </Button>
 
 // Form input with label and error handling
-<Input 
-  label="Email" 
-  value={email} 
+<Input
+  label="Email"
+  value={email}
   onChange={setEmail}
   error={emailError}
 />
@@ -1419,12 +1439,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: The `packages/ui` workspace package is underutilized
 
 **Current Problems**:
+
 - Only contains demo/tutorial components
 - Not integrated with the main webapp
 - Missing build and distribution setup
 - No clear purpose or scope
 
 **Files affected**:
+
 - `packages/ui/` directory
 - Main webapp component usage
 
@@ -1449,12 +1471,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Inconsistent component prop interfaces and APIs
 
 **Current Problems**:
+
 - Some components use explicit prop types, others don't
 - Inconsistent naming (e.g., `onToggle` vs `onChange`)
 - Mixed required/optional prop patterns
 - No consistent pattern for event handlers
 
 **Files affected**:
+
 - All component files in `src/components/`
 
 **Recommendation**:
@@ -1482,11 +1506,13 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: No component unit tests
 
 **Current Problems**:
+
 - No tests for shared components
 - No way to verify component behavior changes
 - Risk of regressions in UI
 
 **Files affected**:
+
 - All component files
 
 **Recommendation**:
@@ -1510,12 +1536,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Components may have unnecessary re-renders and performance issues
 
 **Current Problems**:
+
 - No `React.memo` usage for pure components
 - No `useMemo`/`useCallback` for expensive operations
 - Large components that could be split
 - Potential prop drilling issues
 
 **Files affected**:
+
 - Various component files
 
 **Recommendation**:
@@ -1537,6 +1565,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **React Version**: 19.2.6 (latest)
 **TypeScript**: 5.9.3
 **Features Used**:
+
 - Functional components with hooks
 - TypeScript typing
 - Context API
@@ -1545,6 +1574,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 - Clerk authentication
 
 **Current Patterns**:
+
 - Feature-based organization
 - Custom hooks in `src/lib/`
 - Context providers for shared state
@@ -1556,12 +1586,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Inconsistent project structure and organization
 
 **Current Problems**:
+
 - Mixed `.component.tsx` and `.tsx` naming
 - Some features have dedicated folders, others don't
 - Large files with mixed concerns
 - No consistent pattern for co-located tests/styles
 
 **Files affected**:
+
 - All React files in `src/`
 
 **Recommendation**:
@@ -1573,6 +1605,7 @@ The webapp package reveals significant opportunities for improvement in **CSS or
    - Use `.lib.ts` for utility functions
 
 2. **Consistent folder structure**:
+
    ```
    features/feature-name/
    ├── feature-name.component.tsx
@@ -1595,12 +1628,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Inconsistent TypeScript usage and typing
 
 **Current Problems**:
+
 - Some components have comprehensive typing, others minimal
 - Some files lack proper TypeScript imports
 - Inconsistent type naming conventions
 - Some complex types could be better organized
 
 **Files affected**:
+
 - Various React component files
 
 **Recommendation**:
@@ -1625,12 +1660,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Custom hooks are scattered and could be better organized
 
 **Current Problems**:
+
 - Hooks in `src/lib/` mixed with utilities
 - Some hooks are feature-specific
 - No consistent naming convention
 - No documentation
 
 **Files affected**:
+
 - `src/lib/use-background-sync.ts`
 - `src/lib/use-trpc-background-sync.ts`
 - `src/lib/use-network-status-notifier.ts`
@@ -1638,10 +1675,11 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Recommendation**:
 
 1. **Create dedicated hooks directory**:
+
    ```
    src/hooks/
    ├── use-background-sync.ts
-   ├── use-trpc-background-sync.ts  
+   ├── use-trpc-background-sync.ts
    ├── use-network-status.ts
    ├── use-local-storage.ts
    └── index.ts
@@ -1665,12 +1703,14 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 **Issue**: Inconsistent error handling across React components
 
 **Current Problems**:
+
 - Some components handle errors gracefully
 - Others show raw errors or crash
 - No consistent error boundary pattern
 - Missing error reporting
 
 **Files affected**:
+
 - Various component files
 
 **Recommendation**:
@@ -1686,11 +1726,15 @@ The webapp package reveals significant opportunities for improvement in **CSS or
 5. **Handle network errors** gracefully
 
 **Example ErrorBoundary**:
+
 ```tsx
-class ErrorBoundary extends React.Component<{
-  fallback?: React.ReactNode;
-  onError?: (error: Error) => void;
-}, { hasError: boolean; error?: Error }> {
+class ErrorBoundary extends React.Component<
+  {
+    fallback?: React.ReactNode;
+    onError?: (error: Error) => void;
+  },
+  { hasError: boolean; error?: Error }
+> {
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
@@ -1719,6 +1763,7 @@ class ErrorBoundary extends React.Component<{
 **Issue**: Potential performance issues in React components
 
 **Current Problems**:
+
 - No performance profiling done
 - No memoization in many places
 - Large render methods
@@ -1742,6 +1787,7 @@ class ErrorBoundary extends React.Component<{
 **Issue**: Mixed state management approaches without clear guidelines
 
 **Current Problems**:
+
 - Local component state for simple cases
 - Context API for shared state
 - No clear pattern for complex state
@@ -1771,18 +1817,20 @@ class ErrorBoundary extends React.Component<{
 **tRPC Integration**: Using `@trpc/tanstack-react-query` adapter
 
 **Current Usage Patterns**:
+
 - Direct usage of `useQuery` and `useMutation` from `@tanstack/react-query`
 - tRPC integration via `trpc.plays.list.queryOptions()` pattern
 - Custom QueryClient setup with error handling
 - Background sync integration
 
 **Query Client Configuration** (from `app.tsx`):
+
 ```typescript
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
-        if (error instanceof TRPCClientError && error.data.code === 'NOT_FOUND') {
+        if (error instanceof TRPCClientError && error.data.code === "NOT_FOUND") {
           return false;
         }
         return failureCount < 4;
@@ -1798,6 +1846,7 @@ const queryClient = new QueryClient({
 **Issue**: Query client configuration could be more comprehensive
 
 **Current Problems**:
+
 - Only basic retry logic for NOT_FOUND errors
 - Generic staleTime (1 minute) for all queries
 - No global error handling
@@ -1805,6 +1854,7 @@ const queryClient = new QueryClient({
 - No offline support
 
 **Files affected**:
+
 - `apps/webapp/src/app.tsx`
 
 **Recommendation**:
@@ -1818,9 +1868,9 @@ const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors except specific cases
         if (error instanceof TRPCClientError) {
-          if (error.data.code === 'NOT_FOUND') return false;
-          if (error.data.code === 'UNAUTHORIZED') return false;
-          if (error.data.code === 'BAD_REQUEST') return false;
+          if (error.data.code === "NOT_FOUND") return false;
+          if (error.data.code === "UNAUTHORIZED") return false;
+          if (error.data.code === "BAD_REQUEST") return false;
         }
         // Retry on network errors and 5xx errors
         return failureCount < 3;
@@ -1834,7 +1884,7 @@ const queryClient = new QueryClient({
     mutations: {
       retry: (failureCount, error) => {
         // Don't retry mutations that failed due to validation
-        if (error instanceof TRPCClientError && error.data.code === 'BAD_REQUEST') {
+        if (error instanceof TRPCClientError && error.data.code === "BAD_REQUEST") {
           return false;
         }
         return failureCount < 2;
@@ -1857,12 +1907,14 @@ const queryClient = new QueryClient({
 **Issue**: Repetitive query patterns across the application
 
 **Current Problems**:
+
 - Same query options repeated in multiple components
 - No shared patterns for common queries
 - Inconsistent error handling across queries
 - No standardization for loading states
 
 **Files affected**:
+
 - Multiple component files using `useQuery` and `useMutation`
 
 **Recommendation**:
@@ -1873,12 +1925,12 @@ const queryClient = new QueryClient({
 // Custom hook for plays queries
 export function usePlaysQuery() {
   const trpc = useTRPC();
-  
+
   return useQuery({
     ...trpc.plays.list.queryOptions(),
     // Custom error handling
     onError: (error) => {
-      console.error('Failed to load plays:', error);
+      console.error("Failed to load plays:", error);
       // Show user-friendly error message
     },
     // Custom placeholder data for better UX
@@ -1890,30 +1942,30 @@ export function usePlaysQuery() {
 export function useUpdatePlayMutation() {
   const queryClient = useQueryClient();
   const trpc = useTRPC();
-  
+
   return useMutation({
     ...trpc.plays.update.mutationOptions(),
     onMutate: async (newPlay) => {
       // Cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: ['plays'] });
-      
+      await queryClient.cancelQueries({ queryKey: ["plays"] });
+
       // Snapshot previous data
-      const previousPlays = queryClient.getQueryData(['plays']);
-      
+      const previousPlays = queryClient.getQueryData(["plays"]);
+
       // Optimistically update
-      queryClient.setQueryData(['plays'], (old) => {
+      queryClient.setQueryData(["plays"], (old) => {
         // Update logic
       });
-      
+
       return { previousPlays };
     },
     onError: (err, newPlay, context) => {
       // Rollback on error
-      queryClient.setQueryData(['plays'], context?.previousPlays);
+      queryClient.setQueryData(["plays"], context?.previousPlays);
     },
     onSettled: () => {
       // Refetch after mutation
-      queryClient.invalidateQueries({ queryKey: ['plays'] });
+      queryClient.invalidateQueries({ queryKey: ["plays"] });
     },
   });
 }
@@ -1931,12 +1983,14 @@ export function useUpdatePlayMutation() {
 **Issue**: Inconsistent caching and cache invalidation patterns
 
 **Current Problems**:
+
 - Some queries manually refetch after mutations
 - No consistent cache invalidation strategy
 - Potential stale data issues
 - No shared cache keys strategy
 
 **Files affected**:
+
 - Multiple component files with query/mutation usage
 
 **Recommendation**:
@@ -1956,9 +2010,9 @@ export function useUpdatePlayMutation() {
 ```typescript
 // Query key factory
 export const playKeys = {
-  all: ['plays'] as const,
-  lists: () => [...playKeys.all, 'list'] as const,
-  detail: (id: string) => [...playKeys.all, 'detail', id] as const,
+  all: ["plays"] as const,
+  lists: () => [...playKeys.all, "list"] as const,
+  detail: (id: string) => [...playKeys.all, "detail", id] as const,
   // ...
 };
 
@@ -1977,12 +2031,14 @@ export function invalidatePlayQueries(queryClient: QueryClient) {
 **Issue**: Inconsistent handling of loading and error states
 
 **Current Problems**:
+
 - Different loading patterns in different components
 - Error handling varies by component
 - No consistent user experience for data loading
 - Some components don't handle all query states
 
 **Files affected**:
+
 - Multiple component files using queries
 
 **Recommendation**:
@@ -2001,11 +2057,9 @@ export function invalidatePlayQueries(queryClient: QueryClient) {
 
 ```typescript
 // Custom hook for better query state handling
-export function useQueryStates<TData, TError>(
-  query: UseQueryResult<TData, TError>
-) {
+export function useQueryStates<TData, TError>(query: UseQueryResult<TData, TError>) {
   const { data, error, isLoading, isError, isSuccess, isFetching } = query;
-  
+
   return {
     data,
     error,
@@ -2019,7 +2073,7 @@ export function useQueryStates<TData, TError>(
     isIdle: !isLoading && !isFetching && !isError && !isSuccess,
     // Error helpers
     errorMessage: error?.message,
-    isNetworkError: error instanceof Error && 'fetch' in error,
+    isNetworkError: error instanceof Error && "fetch" in error,
   };
 }
 ```
@@ -2035,6 +2089,7 @@ export function useQueryStates<TData, TError>(
 **Issue**: No query prefetching or preloading for better user experience
 
 **Current Problems**:
+
 - No prefetching on hover or for next pages
 - No preloading of critical data
 - Potential delays when navigating
@@ -2055,7 +2110,7 @@ export function useQueryStates<TData, TError>(
 
 ```typescript
 // Prefetch on route hover
-<Link 
+<Link
   to={`/plays/${playId}`}
   onMouseEnter={() => {
     queryClient.prefetchQuery(
@@ -2085,6 +2140,7 @@ const loader = async ({ params }: LoaderArgs) => {
 **Issue**: No visibility into query performance and usage
 
 **Current Problems**:
+
 - No tracking of query execution times
 - No monitoring of query errors
 - No analytics on query usage patterns
@@ -2117,8 +2173,9 @@ const loader = async ({ params }: LoaderArgs) => {
 ### Current State Analysis
 
 **Accessibility Audit Results**:
+
 - **No ARIA attributes** found in initial scan
-- **No role attributes** found in initial scan  
+- **No role attributes** found in initial scan
 - **Minimal semantic HTML** usage
 - **Keyboard navigation** partially implemented (ToggleButton has keyboard support)
 - **Focus management** inconsistently implemented
@@ -2130,12 +2187,14 @@ const loader = async ({ params }: LoaderArgs) => {
 **Issue**: Missing ARIA attributes for accessibility
 
 **Current Problems**:
+
 - No `aria-label`, `aria-describedby`, `aria-live` regions
 - No proper roles for interactive elements (`role="button"`, etc.)
 - No state attributes (`aria-expanded`, `aria-pressed`, etc.)
 - No landmark roles for page structure
 
 **Files affected**:
+
 - All React component files
 
 **Recommendation**:
@@ -2144,19 +2203,19 @@ const loader = async ({ params }: LoaderArgs) => {
 
 ```tsx
 // Button with ARIA
-<button 
+<button
   aria-label="Save changes"
   aria-describedby="save-help"
   aria-pressed={isPressed}
   aria-disabled={isDisabled}
 >
   Save
-</button>
+</button>;
 
 // Toggle button with proper ARIA
 export function ToggleButton(props: ToggleButtonProps) {
   const [toggled, setToggled] = useState(props.value);
-  
+
   return (
     <label
       className={styles.switch}
@@ -2201,12 +2260,14 @@ export function ToggleButton(props: ToggleButtonProps) {
 **Issue**: Inconsistent keyboard support
 
 **Current Problems**:
+
 - Only some components have keyboard handlers (ToggleButton)
 - No consistent focus management
 - No visible focus indicators in some places
 - Missing keyboard shortcuts for common actions
 
 **Files affected**:
+
 - All interactive component files
 
 **Recommendation**:
@@ -2233,25 +2294,26 @@ export function ToggleButton(props: ToggleButtonProps) {
    - Custom focus styles for all interactive elements
 
 **Example keyboard improvements**:
+
 ```tsx
 // Enhanced ToggleButton with better keyboard support
 export function ToggleButton(props: ToggleButtonProps) {
   const [toggled, setToggled] = useState(props.value);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  
+
   const handleClick = () => {
     const newValue = !toggled;
     setToggled(newValue);
     props.onToggle(newValue);
   };
-  
+
   const handleKeyDown: KeyboardEventHandler = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       handleClick();
     }
   };
-  
+
   return (
     <button
       ref={buttonRef}
@@ -2279,6 +2341,7 @@ export function ToggleButton(props: ToggleButtonProps) {
 **Issue**: Overuse of div elements instead of semantic HTML
 
 **Current Problems**:
+
 - Navigation built with divs instead of `<nav>`
 - Lists built with divs instead of `<ul>`/`<ol>`/`<li>`
 - Buttons built with divs instead of `<button>`
@@ -2286,6 +2349,7 @@ export function ToggleButton(props: ToggleButtonProps) {
 - Headings hierarchy not consistently used
 
 **Files affected**:
+
 - All component files, especially layout and list components
 
 **Recommendation**:
@@ -2330,6 +2394,7 @@ export function ToggleButton(props: ToggleButtonProps) {
 **Issue**: Missing focus management for dynamic content and navigation
 
 **Current Problems**:
+
 - Focus not returned to trigger after modal close
 - Focus not moved to newly revealed content
 - No focus trap for modals
@@ -2344,20 +2409,20 @@ export function ToggleButton(props: ToggleButtonProps) {
 export function useFocusTrap(ref: RefObject<HTMLElement>, active: boolean) {
   useEffect(() => {
     if (!active) return;
-    
+
     const element = ref.current;
     if (!element) return;
-    
+
     const focusableElements = element.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     const handleTabKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-      
+      if (e.key !== "Tab") return;
+
       if (e.shiftKey && document.activeElement === firstElement) {
         e.preventDefault();
         lastElement?.focus();
@@ -2366,28 +2431,28 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, active: boolean) {
         firstElement?.focus();
       }
     };
-    
-    element.addEventListener('keydown', handleTabKey);
+
+    element.addEventListener("keydown", handleTabKey);
     firstElement?.focus();
-    
-    return () => element.removeEventListener('keydown', handleTabKey);
+
+    return () => element.removeEventListener("keydown", handleTabKey);
   }, [active, ref]);
 }
 
 // Focus restoration utility
 export function useRestoreFocus() {
   const lastFocusedRef = useRef<Element | null>(null);
-  
+
   const saveFocus = useCallback(() => {
     lastFocusedRef.current = document.activeElement;
   }, []);
-  
+
   const restoreFocus = useCallback(() => {
     if (lastFocusedRef.current instanceof HTMLElement) {
       lastFocusedRef.current.focus();
     }
   }, []);
-  
+
   return { saveFocus, restoreFocus };
 }
 ```
@@ -2405,6 +2470,7 @@ export function useRestoreFocus() {
 **Issue**: Color contrast may not meet accessibility standards
 
 **Current Problems**:
+
 - No systematic color contrast verification
 - Some color combinations may not meet WCAG standards
 - No dark mode support
@@ -2454,6 +2520,7 @@ export function useRestoreFocus() {
 **Issue**: Missing screen reader-specific features
 
 **Current Problems**:
+
 - No screen reader-only content
 - No proper labeling for icons
 - No context for interactive elements
@@ -2495,17 +2562,15 @@ export function useRestoreFocus() {
 
 ```tsx
 // Announcement component for screen readers
-export function Announce({ message, politeness = 'polite' }: {
+export function Announce({
+  message,
+  politeness = "polite",
+}: {
   message: string;
-  politeness?: 'polite' | 'assertive';
+  politeness?: "polite" | "assertive";
 }) {
   return (
-    <div 
-      role="status" 
-      aria-live={politeness}
-      aria-atomic="true"
-      className="sr-only"
-    >
+    <div role="status" aria-live={politeness} aria-atomic="true" className="sr-only">
       {message}
     </div>
   );
@@ -2518,11 +2583,7 @@ export function Announce({ message, politeness = 'polite' }: {
 // Properly labeled form input
 <label htmlFor="email">
   Email Address
-  <input 
-    id="email" 
-    type="email"
-    aria-describedby="email-help email-error"
-  />
+  <input id="email" type="email" aria-describedby="email-help email-error" />
   <span id="email-help" className="sr-only">
     Enter your email address
   </span>
@@ -2541,6 +2602,7 @@ export function Announce({ message, politeness = 'polite' }: {
 **Issue**: No accessibility testing in place
 
 **Current Problems**:
+
 - No automated accessibility checks
 - No manual accessibility testing process
 - No accessibility audit tools integrated
@@ -2556,9 +2618,7 @@ export function Announce({ message, politeness = 'polite' }: {
 
 ```json
 {
-  "extends": [
-    "plugin:jsx-a11y/recommended"
-  ],
+  "extends": ["plugin:jsx-a11y/recommended"],
   "rules": {
     "jsx-a11y/alt-text": "error",
     "jsx-a11y/anchor-is-valid": "error",
@@ -2760,27 +2820,27 @@ export function Announce({ message, politeness = 'polite' }: {
 
 # 📈 Metrics and Success Criteria
 
-| Metric                   | Current    | Target        | Improvement |
-| ------------------------ | ---------- | ------------- | ----------- |
-| Security vulnerabilities | 4 critical | 0             | 100%        |
-| Test coverage            | Low        | 80%+          | Significant |
-| Build time               | ~N/A       | < 5 min       | Optimized   |
-| Docker image size        | ~N/A       | < 500MB       | Optimized   |
-| API response time        | ~N/A       | < 200ms (p95) | Improved    |
-| Error rate               | ~N/A       | < 0.1%        | Reduced     |
-| **Webapp Metrics**       |            |               |             |
-| CSS consistency          | Low        | 100%          | Standardized|
-| Component reusability    | Low        | 70%+          | Improved    |
-| Accessibility score      | Unknown    | 90%+ (Lighthouse) | Major improvement |
-| Query performance        | Unknown    | < 100ms avg  | Optimized   |
-| Shared component usage   | ~12        | 50+           | Expanded    |
-| Design system adoption   | 0%         | 100%          | Complete    |
-| **Critical Features**    |            |               |             |
-| Data persistence          | ❌ Missing  | 100% Working  | **BLOCKER** |
-| Server write endpoints   | ❌ Missing  | 100% Complete | **BLOCKER** |
-| Real-time collaboration  | ❌ Missing  | Full support  | **BLOCKER** |
-| Staging feature           | ❌ Placeholder | Full implementation | **BLOCKER** |
-| Version control           | ❌ Missing  | Full system   | **HIGH**   |
+| Metric                   | Current        | Target              | Improvement       |
+| ------------------------ | -------------- | ------------------- | ----------------- |
+| Security vulnerabilities | 4 critical     | 0                   | 100%              |
+| Test coverage            | Low            | 80%+                | Significant       |
+| Build time               | ~N/A           | < 5 min             | Optimized         |
+| Docker image size        | ~N/A           | < 500MB             | Optimized         |
+| API response time        | ~N/A           | < 200ms (p95)       | Improved          |
+| Error rate               | ~N/A           | < 0.1%              | Reduced           |
+| **Webapp Metrics**       |                |                     |                   |
+| CSS consistency          | Low            | 100%                | Standardized      |
+| Component reusability    | Low            | 70%+                | Improved          |
+| Accessibility score      | Unknown        | 90%+ (Lighthouse)   | Major improvement |
+| Query performance        | Unknown        | < 100ms avg         | Optimized         |
+| Shared component usage   | ~12            | 50+                 | Expanded          |
+| Design system adoption   | 0%             | 100%                | Complete          |
+| **Critical Features**    |                |                     |                   |
+| Data persistence         | ❌ Missing     | 100% Working        | **BLOCKER**       |
+| Server write endpoints   | ❌ Missing     | 100% Complete       | **BLOCKER**       |
+| Real-time collaboration  | ❌ Missing     | Full support        | **BLOCKER**       |
+| Staging feature          | ❌ Placeholder | Full implementation | **BLOCKER**       |
+| Version control          | ❌ Missing     | Full system         | **HIGH**          |
 
 ---
 
@@ -2834,24 +2894,28 @@ _This analysis provides a comprehensive roadmap for improving the marivo reposit
 ## Immediate Actions (Can start today)
 
 ### For CSS Improvements:
+
 1. **Create CSS variables** in `app.css` for all colors
 2. **Audit and replace** hardcoded colors with CSS variables
 3. **Standardize spacing** using CSS custom properties
 4. **Add Stylelint** to package.json devDependencies
 
 ### For Shared Components:
+
 1. **Create a Button component** in `src/components/`
 2. **Create a LoadingSpinner component** for consistent loading states
 3. **Create an ErrorDisplay component** for consistent error handling
 4. **Move reusable patterns** from features to shared components
 
 ### For Tanstack React Query:
+
 1. **Optimize QueryClient configuration** in `app.tsx`
 2. **Create custom query hooks** for plays queries
 3. **Add proper error handling** to all existing queries
 4. **Implement query caching strategy**
 
 ### For Accessibility:
+
 1. **Run automated accessibility audit** with Lighthouse or axe
 2. **Add `eslint-plugin-jsx-a11y`** to ESLint config
 3. **Add basic ARIA attributes** to all interactive components
@@ -2914,6 +2978,7 @@ After deep analysis of the codebase, I've identified **several critical missing 
 **Issue**: User edits to scripts are completely lost on page refresh or navigation
 
 **Analysis Findings**:
+
 - The `ScriptEditionContext` provides `saveChanges`, `saveChangesAsNewVersion`, and `saveChangesAsSharedDraft` methods
 - However, these only **update local state** via the reducer - **no API calls are made to persist changes to the server**
 - The `script-state.ts` reducer's `SAVE_CHANGES` case only updates the local `lineContents` map
@@ -2921,6 +2986,7 @@ After deep analysis of the codebase, I've identified **several critical missing 
 - Users can spend hours editing scripts and lose everything with a single page refresh
 
 **Files affected**:
+
 - `apps/webapp/src/features/script/script-edition.context.tsx` (missing server calls)
 - `apps/webapp/src/features/script/script-state.ts` (local-only operations)
 - `apps/api/src/domains/script/` (missing mutation endpoints)
@@ -2943,6 +3009,7 @@ After deep analysis of the codebase, I've identified **several critical missing 
    - Add conflict resolution for offline changes
 
 3. **Complete Sync Architecture**:
+
 ```typescript
 // Client-side sync manager
 export class ScriptSyncManager {
@@ -2954,14 +3021,14 @@ export class ScriptSyncManager {
   constructor(private apiClient: ScriptApiClient) {
     // Load from localStorage on init
     this.localChanges = this.loadLocalChanges();
-    
+
     // Auto-save locally every 30 seconds
     this.syncInterval = setInterval(() => this.saveLocally(), 30000);
-    
+
     // Listen for online/offline events
     window.addEventListener('online', () => this.handleOnline());
     window.addEventListener('offline', () => this.handleOffline());
-    
+
     // Sync immediately when online
     this.handleOnline();
   }
@@ -2982,9 +3049,9 @@ export class ScriptSyncManager {
 
   async function syncAllChanges() {
     if (this.isSyncing || !this.isOnline) return;
-    
+
     this.isSyncing = true;
-    
+
     while (this.localChanges.length > 0) {
       const change = this.localChanges[0];
       try {
@@ -2996,13 +3063,14 @@ export class ScriptSyncManager {
         break; // Stop on error, will retry later
       }
     }
-    
+
     this.isSyncing = false;
   }
 }
 ```
 
 **Success Criteria**:
+
 - [ ] Local changes persist across page refreshes
 - [ ] Changes sync to server when online
 - [ ] Offline changes queue and sync when connection restored
@@ -3015,17 +3083,19 @@ export class ScriptSyncManager {
 **Issue**: The API only has read operations for scripts, no write endpoints
 
 **Analysis Findings**:
+
 - `script.trpc-routes.ts` only has `latestChanges` query endpoint
 - `script.repository.ts` only has `getLatestScriptChanges` method
 - **No mutation endpoints** for:
   - Creating new lines
-  - Updating existing lines  
+  - Updating existing lines
   - Saving new versions
   - Deleting lines or content
   - Managing characters
   - Updating script metadata
 
 **Files affected**:
+
 - `apps/api/src/domains/script/script.trpc-routes.ts` (missing mutations)
 - `apps/api/src/domains/script/` (missing use cases and repositories)
 
@@ -3034,6 +3104,7 @@ export class ScriptSyncManager {
 **Recommendation**:
 
 1. **Add Required Mutation Endpoints**:
+
 ```typescript
 // In script.trpc-routes.ts
 export default router({
@@ -3041,25 +3112,25 @@ export default router({
     .input(LatestScriptChangesUseCaseInputSchema)
     .output(LatestScriptChangesUseCaseOutputSchema)
     .query(handleUseCase(providers.LatestScriptChangesUseCase)),
-  
+
   // NEW: Save individual line changes
   saveLineContent: publicProcedure
     .input(SaveLineContentUseCaseInputSchema)
     .output(SaveLineContentUseCaseOutputSchema)
     .mutation(handleUseCase(providers.SaveLineContentUseCase)),
-    
+
   // NEW: Batch save multiple changes
   batchSaveChanges: publicProcedure
     .input(BatchSaveChangesUseCaseInputSchema)
     .output(BatchSaveChangesUseCaseOutputSchema)
     .mutation(handleUseCase(providers.BatchSaveChangesUseCase)),
-    
+
   // NEW: Create new line
   createLine: publicProcedure
     .input(CreateLineUseCaseInputSchema)
     .output(CreateLineUseCaseOutputSchema)
     .mutation(handleUseCase(providers.CreateLineUseCase)),
-    
+
   // NEW: Delete line
   deleteLine: publicProcedure
     .input(DeleteLineUseCaseInputSchema)
@@ -3088,6 +3159,7 @@ export default router({
 **Issue**: Staging Directions tab contains only placeholder divs
 
 **Analysis Findings**:
+
 ```tsx
 // From staging-directions-tab.component.tsx
 function StagingDirectionsTab() {
@@ -3095,11 +3167,11 @@ function StagingDirectionsTab() {
     <div className={styles.container}>
       <Tabs
         tabs={[
-          { name: 'Characters', ContentComponent: <div>CharactersList</div> },
-          { name: 'Props', ContentComponent: <div>PropsList</div> },
-          { name: 'Costumes', ContentComponent: <div>CostumesList</div> },
-          { name: 'Lights', ContentComponent: <div>LightsList</div> },
-          { name: 'Sounds', ContentComponent: <div>SoundsList</div> },
+          { name: "Characters", ContentComponent: <div>CharactersList</div> },
+          { name: "Props", ContentComponent: <div>PropsList</div> },
+          { name: "Costumes", ContentComponent: <div>CostumesList</div> },
+          { name: "Lights", ContentComponent: <div>LightsList</div> },
+          { name: "Sounds", ContentComponent: <div>SoundsList</div> },
         ]}
       />
     </div>
@@ -3113,6 +3185,7 @@ function StagingDirectionsTab() {
 - Permission system references `stagingNotesRead` but no backend implementation
 
 **Files affected**:
+
 - `apps/webapp/src/features/staging-directions/staging-directions-tab.component.tsx`
 
 **Impact**: **HIGH** - Feature promised but not delivered, misleading to users
@@ -3142,6 +3215,7 @@ function StagingDirectionsTab() {
 **Issue**: Planning feature appears to have partial implementation
 
 **Analysis Findings**:
+
 - `planning-tab.component.tsx` has two tabs: Rehearsals/Meetings and Availabilities
 - `meetings-planning.component.tsx` and `availabilities-planning.component.tsx` exist
 - But **no data persistence** - likely same issue as script editing
@@ -3150,6 +3224,7 @@ function StagingDirectionsTab() {
 - Missing conflict detection
 
 **Files affected**:
+
 - `apps/webapp/src/features/planning/` (all files)
 
 **Impact**: **HIGH** - Feature appears functional but likely doesn't persist data
@@ -3174,6 +3249,7 @@ function StagingDirectionsTab() {
 **Issue**: Blocking feature has minimal implementation
 
 **Analysis Findings**:
+
 - `blocking-tab.component.tsx` exists but only shows a `<div className={styles.blockingPanel}></div>`
 - Uses Script component in read-only mode (`isEditable={false}`)
 - **No actual blocking visualization** or tools
@@ -3181,6 +3257,7 @@ function StagingDirectionsTab() {
 - Permission system references `blockingRead` but no real functionality
 
 **Files affected**:
+
 - `apps/webapp/src/features/blocking/blocking-tab.component.tsx`
 - `apps/webapp/src/features/blocking/` (all files)
 
@@ -3208,6 +3285,7 @@ function StagingDirectionsTab() {
 **Issue**: No collaborative editing capabilities for multi-user scripts
 
 **Analysis Findings**:
+
 - **No WebSocket implementation** anywhere in the codebase
 - **No real-time updates** when other users edit scripts
 - **No presence indicators** to show who else is viewing/editing
@@ -3216,6 +3294,7 @@ function StagingDirectionsTab() {
 - tRPC uses HTTP, not WebSockets
 
 **Files affected**:
+
 - All webapp and API files (missing collaboration infrastructure)
 
 **Impact**: **HIGH** - Cannot support multi-user workflows, which is essential for theater productions
@@ -3242,10 +3321,11 @@ function StagingDirectionsTab() {
    - Version history and diffs
 
 **Example Implementation**:
+
 ```typescript
 // Server-side WebSocket setup
-import { WebSocketServer } from 'ws';
-import { Server } from 'http';
+import { WebSocketServer } from "ws";
+import { Server } from "http";
 
 const wss = new WebSocketServer({ server: httpServer });
 
@@ -3258,18 +3338,18 @@ interface Client {
 
 const clients = new Map<string, Client>();
 
-wss.on('connection', (ws, req) => {
+wss.on("connection", (ws, req) => {
   const url = new URL(req.url!, `http://${req.headers.host}`);
-  const playId = url.searchParams.get('playId');
-  const userId = url.searchParams.get('userId');
-  
+  const playId = url.searchParams.get("playId");
+  const userId = url.searchParams.get("userId");
+
   if (!playId || !userId) {
-    ws.close(1008, 'Missing playId or userId');
+    ws.close(1008, "Missing playId or userId");
     return;
   }
-  
+
   clients.set(ws.id, { ws, userId, playId, cursorPosition: null });
-  
+
   // Broadcast to room
   const broadcast = (message: CollaborationMessage, excludeId?: string) => {
     clients.forEach((client, id) => {
@@ -3278,21 +3358,21 @@ wss.on('connection', (ws, req) => {
       }
     });
   };
-  
-  ws.on('message', (data) => {
+
+  ws.on("message", (data) => {
     const message = JSON.parse(data.toString()) as CollaborationMessage;
-    
+
     switch (message.type) {
-      case 'CURSOR_MOVE':
+      case "CURSOR_MOVE":
         updateClientCursor(ws.id, message.position);
         broadcast(message, ws.id);
         break;
-      case 'CHANGE':
+      case "CHANGE":
         // Apply change to database
         applyChangeToDatabase(message.change);
         broadcast(message, ws.id);
         break;
-      case 'COMMENT':
+      case "COMMENT":
         // Save comment to database
         saveComment(message.comment);
         broadcast(message, ws.id);
@@ -3309,6 +3389,7 @@ wss.on('connection', (ws, req) => {
 **Issue**: No mechanism to handle concurrent edits from multiple users
 
 **Analysis Findings**:
+
 - Even if persistence worked, **no conflict resolution** exists
 - **Last-write-wins** approach would lose user data
 - **No versioning system** for scripts
@@ -3343,15 +3424,16 @@ wss.on('connection', (ws, req) => {
 **Issue**: Permission system includes features that don't exist or aren't implemented
 
 **Analysis Findings**:
+
 - `permission-protected.component.tsx` defines mapping:
   ```typescript
   const PATH_TO_PERM: Record<PlaySubPath, PlayPermission> = {
-    script: 'scriptRead',        // ✅ Implemented
-    'staging-notes': 'stagingNotesRead',  // ❌ Feature incomplete
-    blocking: 'blockingRead',    // ❌ Feature incomplete  
-    memorize: 'memorizeRead',    // ⚠️ Partial implementation
-    planning: 'planningRead',    // ⚠️ Partial implementation
-    settings: 'settingsRead',    // ✅ Implemented
+    script: "scriptRead", // ✅ Implemented
+    "staging-notes": "stagingNotesRead", // ❌ Feature incomplete
+    blocking: "blockingRead", // ❌ Feature incomplete
+    memorize: "memorizeRead", // ⚠️ Partial implementation
+    planning: "planningRead", // ⚠️ Partial implementation
+    settings: "settingsRead", // ✅ Implemented
   };
   ```
 - **Blocking and Staging features** are essentially placeholders but have permission checks
@@ -3359,6 +3441,7 @@ wss.on('connection', (ws, req) => {
 - **No fine-grained permissions** (e.g., per-line editing)
 
 **Files affected**:
+
 - `apps/webapp/src/features/play-admin/permission-protected.component.tsx`
 - `apps/api/src/domains/plays/` (permission handling)
 
@@ -3388,6 +3471,7 @@ wss.on('connection', (ws, req) => {
 **Issue**: Only basic read permissions, no role system
 
 **Analysis Findings**:
+
 - Permissions appear to be **binary** (can read or cannot read)
 - **No roles** defined (admin, editor, viewer, etc.)
 - **No hierarchical permissions** (owner vs member vs guest)
@@ -3406,23 +3490,24 @@ wss.on('connection', (ws, req) => {
    - Guest (limited access)
 
 2. **Implement Role-Based Permissions**:
+
 ```typescript
 // Role definitions
 const ROLES = {
-  OWNER: 'owner',
-  ADMIN: 'admin', 
-  EDITOR: 'editor',
-  VIEWER: 'viewer',
-  GUEST: 'guest'
+  OWNER: "owner",
+  ADMIN: "admin",
+  EDITOR: "editor",
+  VIEWER: "viewer",
+  GUEST: "guest",
 } as const;
 
 // Permission matrix
 const PERMISSIONS = {
-  [ROLES.OWNER]: ['*'],
-  [ROLES.ADMIN]: ['manage_users', 'edit_settings', 'edit_content', 'delete_content'],
-  [ROLES.EDITOR]: ['edit_content', 'create_content'],
-  [ROLES.VIEWER]: ['read_content'],
-  [ROLES.GUEST]: ['read_content']
+  [ROLES.OWNER]: ["*"],
+  [ROLES.ADMIN]: ["manage_users", "edit_settings", "edit_content", "delete_content"],
+  [ROLES.EDITOR]: ["edit_content", "create_content"],
+  [ROLES.VIEWER]: ["read_content"],
+  [ROLES.GUEST]: ["read_content"],
 };
 
 // Role assignment
@@ -3448,6 +3533,7 @@ interface PlayMember {
 **Issue**: No version control or history for script changes
 
 **Analysis Findings**:
+
 - UI has `saveChangesAsNewVersion` but this only creates local state
 - **No server-side versioning** - versions not persisted
 - **No version comparison/diff** functionality
@@ -3456,6 +3542,7 @@ interface PlayMember {
 - **No branching/merging** for versions
 
 **Files affected**:
+
 - Script editing and version management features
 
 **Impact**: **HIGH** - Cannot track changes over time, no audit trail
@@ -3486,6 +3573,7 @@ interface PlayMember {
 **Issue**: No way to import existing scripts or export to standard formats
 
 **Analysis Findings**:
+
 - **Script import feature exists** in play-admin (`init-import-script`, `upload-file-for-script-import`)
 - But **no export functionality** for existing scripts
 - **No standard format support** (Final Draft, Celtx, Fountain, etc.)
@@ -3509,6 +3597,7 @@ interface PlayMember {
    - Add import templates and guides
 
 3. **File Format Conversion**:
+
 ```typescript
 // Export service
 class ScriptExportService {
@@ -3516,24 +3605,24 @@ class ScriptExportService {
     // Use PDF generation library
     return this.pdfGenerator.generate(script);
   }
-  
+
   async exportToFountain(script: Script): Promise<string> {
     // Convert to Fountain format
-    let fountain = '# ' + script.title + '\n\n';
-    
+    let fountain = "# " + script.title + "\n\n";
+
     for (const line of script.lines) {
-      if (line.type === 'heading') {
-        fountain += line.headingLevel + '. ' + line.text + '\n\n';
-      } else if (line.type === 'chartext') {
-        fountain += line.character + '\n' + line.text + '\n\n';
+      if (line.type === "heading") {
+        fountain += line.headingLevel + ". " + line.text + "\n\n";
+      } else if (line.type === "chartext") {
+        fountain += line.character + "\n" + line.text + "\n\n";
       } else {
-        fountain += line.text + '\n\n';
+        fountain += line.text + "\n\n";
       }
     }
-    
+
     return fountain;
   }
-  
+
   async exportToJSON(script: Script): Promise<string> {
     return JSON.stringify(script, null, 2);
   }
@@ -3547,6 +3636,7 @@ class ScriptExportService {
 **Issue**: No PWA features or offline capability
 
 **Analysis Findings**:
+
 - **No service worker** registered
 - **No manifest file** for PWA installation
 - **No offline caching** strategy
@@ -3555,6 +3645,7 @@ class ScriptExportService {
 - **No app-like experience** on mobile devices
 
 **Files affected**:
+
 - Missing `src/main.tsx` service worker registration
 - Missing `public/manifest.json`
 - Missing service worker files
@@ -3569,6 +3660,7 @@ class ScriptExportService {
    - Implement background sync for offline changes
 
 2. **Add PWA Manifest**:
+
 ```json
 {
   "name": "Marivo",
@@ -3605,6 +3697,7 @@ class ScriptExportService {
 **Issue**: No comprehensive search capabilities
 
 **Analysis Findings**:
+
 - **Search panel exists** (`script-search-panel.component.tsx`)
 - But appears to be **local-only** - no server-side search
 - **No full-text search** across all scripts
@@ -3639,6 +3732,7 @@ class ScriptExportService {
 **Issue**: Characters appear to be managed but no dedicated system
 
 **Analysis Findings**:
+
 - Characters are **hardcoded** in script data (`characters: { [id: string]: string }`)
 - **No character database** or management UI
 - **No character profiles** (descriptions, notes, etc.)
@@ -3671,19 +3765,19 @@ class ScriptExportService {
 
 ## 🎯 Feature Completion Matrix
 
-| Feature | Status | Priority | Dependencies |
-|---------|--------|----------|--------------|
-| **Script Editing** | ⚠️ Partial | Critical | API persistence, local storage |
-| **Script Persistence** | ❌ Missing | Critical | API endpoints, local sync |
-| **Real-time Collaboration** | ❌ Missing | High | WebSocket server, conflict resolution |
-| **Versioning/History** | ❌ Missing | High | Database schema, diff algorithms |
-| **Import/Export** | ⚠️ Partial | Medium | File format parsers |
-| **Search** | ⚠️ Basic | Medium | Full-text indexing |
-| **Character Management** | ❌ Missing | Medium | Database schema, UI |
-| **Staging Directions** | ❌ Placeholder | High | Complete implementation |
-| **Blocking** | ❌ Placeholder | Medium | Visual layout system |
-| **Planning** | ⚠️ Partial | Medium | Database schema, calendar integration |
-| **PWA/Offline** | ❌ Missing | Medium | Service worker, manifest |
+| Feature                     | Status         | Priority | Dependencies                          |
+| --------------------------- | -------------- | -------- | ------------------------------------- |
+| **Script Editing**          | ⚠️ Partial     | Critical | API persistence, local storage        |
+| **Script Persistence**      | ❌ Missing     | Critical | API endpoints, local sync             |
+| **Real-time Collaboration** | ❌ Missing     | High     | WebSocket server, conflict resolution |
+| **Versioning/History**      | ❌ Missing     | High     | Database schema, diff algorithms      |
+| **Import/Export**           | ⚠️ Partial     | Medium   | File format parsers                   |
+| **Search**                  | ⚠️ Basic       | Medium   | Full-text indexing                    |
+| **Character Management**    | ❌ Missing     | Medium   | Database schema, UI                   |
+| **Staging Directions**      | ❌ Placeholder | High     | Complete implementation               |
+| **Blocking**                | ❌ Placeholder | Medium   | Visual layout system                  |
+| **Planning**                | ⚠️ Partial     | Medium   | Database schema, calendar integration |
+| **PWA/Offline**             | ❌ Missing     | Medium   | Service worker, manifest              |
 
 ---
 
@@ -3708,26 +3802,31 @@ class ScriptExportService {
 ## 🎯 Immediate Action Plan: Feature Completion
 
 ### Phase 1: Data Safety (Week 1-2) - CRITICAL
+
 1. ✅ **Fix data persistence** - Add localStorage + server sync
 2. ✅ **Create API write endpoints** for scripts
 3. ✅ **Implement conflict resolution** (basic version checking)
 
 ### Phase 2: Core Features (Week 3-4) - HIGH
+
 1. ✅ **Implement versioning system**
 2. ✅ **Add export functionality** (PDF, JSON)
 3. ✅ **Complete character management**
 
-### Phase 3: Collaboration (Week 5-6) - HIGH  
+### Phase 3: Collaboration (Week 5-6) - HIGH
+
 1. ✅ **Add real-time WebSocket infrastructure**
 2. ✅ **Implement presence tracking**
 3. ✅ **Add live collaboration UI**
 
 ### Phase 4: Feature Completion (Week 7-8) - MEDIUM
+
 1. ✅ **Complete Staging Directions feature**
 2. ✅ **Enhance Blocking feature**
 3. ✅ **Finish Planning feature**
 
 ### Phase 5: Polish (Week 9+) - MEDIUM
+
 1. ✅ **Add PWA support**
 2. ✅ **Enhance search functionality**
 3. ✅ **Add role-based permissions**
@@ -3745,18 +3844,21 @@ _This missing features analysis identifies **14 critical gaps** in the current i
 **STOP DEVELOPMENT AND FIX THESE FIRST**:
 
 ### 1. Data Loss Prevention (URGENT)
+
 - **Problem**: Users lose all work on page refresh
 - **Solution**: Implement localStorage persistence + server sync immediately
 - **Effort**: 2-3 days
 - **Impact**: Application becomes usable
 
-### 2. Server API Completion (URGENT) 
+### 2. Server API Completion (URGENT)
+
 - **Problem**: No way to save script changes to database
 - **Solution**: Add write endpoints for script data to API
 - **Effort**: 3-5 days
 - **Impact**: Data persistence becomes permanent
 
 ### 3. Feature Honesty (HIGH)
+
 - **Problem**: Placeholder features misleading users
 - **Solution**: Either implement or remove placeholder features
 - **Effort**: Varies by feature
@@ -3768,5 +3870,4 @@ _This missing features analysis identifies **14 critical gaps** in the current i
 
 ---
 
-*This analysis now provides the most comprehensive improvement roadmap for the marivo repository, covering infrastructure, code quality, webapp enhancements, and critical missing features that must be addressed for production readiness.*
-
+_This analysis now provides the most comprehensive improvement roadmap for the marivo repository, covering infrastructure, code quality, webapp enhancements, and critical missing features that must be addressed for production readiness._

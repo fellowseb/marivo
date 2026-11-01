@@ -1,9 +1,9 @@
 import { useAuth, useUser } from "@clerk/react";
-import { Fragment, type ReactNode } from 'react';
-import { NavLink, useNavigate } from 'react-router';
-import styles from './header.module.css';
-import Button from '../components/button.component';
-import Icon from '../components/icon.component';
+import { Fragment, type ReactNode } from "react";
+import { NavLink, useNavigate } from "react-router";
+import styles from "./header.module.css";
+import Button from "../components/button.component";
+import Icon from "../components/icon.component";
 
 interface HeaderBreadcrumbsProps {
   crumbs: ReactNode[];
@@ -37,7 +37,7 @@ function Header(props: HeaderProps) {
   const navigate = useNavigate();
   const handleSignout = async () => {
     await auth.signOut();
-    navigate('/');
+    navigate("/");
   };
   return (
     <header className={styles.header}>
@@ -48,7 +48,7 @@ function Header(props: HeaderProps) {
         <div className={styles.breadcrumbs}>{props.pageBreadcrumbs}</div>
         <NavLink className={styles.user} to="/my-account">
           <Icon value="user" mode="primary" size="medium" />
-          {user.user?.username ?? ''}
+          {user.user?.username ?? ""}
         </NavLink>
         <div className={styles.userActionsMenu}>
           <Button icon="help" />
@@ -61,9 +61,7 @@ function Header(props: HeaderProps) {
       {props.Menu ? (
         <div className={styles.mainMenu}>
           {props.Menu}
-          {props.Toolbar ? (
-            <div className={styles.toolbar}>{props.Toolbar}</div>
-          ) : null}
+          {props.Toolbar ? <div className={styles.toolbar}>{props.Toolbar}</div> : null}
         </div>
       ) : null}
     </header>

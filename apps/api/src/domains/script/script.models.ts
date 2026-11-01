@@ -1,8 +1,8 @@
 export interface LineDiff {
   id: string;
-  lineType: 'chartext' | 'freetext' | 'heading';
+  lineType: "chartext" | "freetext" | "heading";
   change: {
-    type: 'line_create';
+    type: "line_create";
   };
   lastModifiedDate: Date;
 }
@@ -11,30 +11,30 @@ export interface LineContentDiff {
   id: string;
   lineId: string;
   lastModifiedDate: Date;
-  type: 'saved_version' | 'shared_draft';
+  type: "saved_version" | "shared_draft";
   version: number;
   authorUsername: string;
   change:
     | {
-        type: 'content_create_update';
+        type: "content_create_update";
         content:
           | {
-              lineType: 'chartext';
+              lineType: "chartext";
               text: string;
               characters: string[];
             }
           | {
-              lineType: 'heading';
+              lineType: "heading";
               text: string;
               headingLevel: number;
             }
           | {
-              lineType: 'freetext';
+              lineType: "freetext";
               text: string;
             };
       }
     | {
-        type: 'content_delete';
+        type: "content_delete";
       };
 }
 
