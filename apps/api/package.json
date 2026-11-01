@@ -29,7 +29,7 @@
     "@types/cors": "^2.8.19",
     "bullmq": "^5.76.8",
     "cors": "^2.8.6",
-    "csv-parse": "^6.2.1",
+    "csv-parse": "^7.0.0",
     "csv-stringify": "^6.7.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
