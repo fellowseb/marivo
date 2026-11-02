@@ -1,3 +1,9 @@
-node_modules
-dist
-dev
+**/node_modules
+**/dist
+**/dev
+**/garage
+**/garage.toml
+**/pgsql
+**/fixtures.sql
+**/.env*
+.git

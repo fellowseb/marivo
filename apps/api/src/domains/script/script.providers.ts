@@ -6,6 +6,7 @@ import { LatestScriptChangesUseCase } from "./latest-script-changes.use-case.ts"
 import { SaveLineContentUseCase } from "./save-line-content.use-case.ts";
 import { CreateLineUseCase } from "./create-line.use-case.ts";
 import { DeleteLineUseCase } from "./delete-line.use-case.ts";
+import { DeleteLineContentUseCase } from "./delete-line-content.use-case.ts";
 import { ScriptRepository } from "./script.repository.ts";
 
 export const providers = {
@@ -46,4 +47,12 @@ export const providers = {
       return new DeleteLineUseCase(scriptRepository, userPlaysRepository);
     },
   } as Provider<DeleteLineUseCase>,
+  DeleteLineContentUseCase: {
+    instantiate({ req, sql }) {
+      const userService = new UserContextService(req);
+      const scriptRepository = new ScriptRepository(sql, userService);
+      const userPlaysRepository = new UserPlaysRepository(sql, userService);
+      return new DeleteLineContentUseCase(scriptRepository, userPlaysRepository);
+    },
+  } as Provider<DeleteLineContentUseCase>,
 };

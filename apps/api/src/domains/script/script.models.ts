@@ -7,11 +7,13 @@ export interface LineDiff {
   lastModifiedDate: Date;
 }
 
+export type LineContentType = "saved_version" | "shared_draft" | "draft";
+
 export interface LineContentDiff {
   id: string;
   lineId: string;
   lastModifiedDate: Date;
-  type: "saved_version" | "shared_draft";
+  type: LineContentType;
   version: number;
   authorUsername: string;
   change:

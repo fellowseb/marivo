@@ -32,7 +32,7 @@ CREATE TABLE users (
 
 CREATE TYPE line_type AS ENUM ('heading', 'freetext', 'chartext');
 
-CREATE TYPE line_contents_type AS ENUM ('saved_version', 'shared_draft');
+CREATE TYPE line_contents_type AS ENUM ('saved_version', 'shared_draft', 'draft');
 
 CREATE TABLE scripts (
     id                      integer         PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

@@ -7,13 +7,17 @@ import type { PlayNotFound, UserPlaysRepository } from "../plays/user-plays.repo
 export const SaveLineContentUseCaseInputSchema = z.object({
   uri: z.uuid(),
   lineId: z.uuidv4(),
+  // Optional client-generated id. When provided, the server upserts the row
+  // with this id so polling clients see the same id as the optimistic local
+  // update (prevents duplicate entries).
+  contentId: z.uuidv4().optional(),
   content: z.object({
     lineType: z.enum(["heading", "chartext", "freetext"]),
     text: z.string(),
     characters: z.array(z.uuidv4()).optional(),
     headingLevel: z.number().min(0).optional(),
   }),
-  contentType: z.enum(["saved_version", "shared_draft"]),
+  contentType: z.enum(["saved_version", "shared_draft", "draft"]),
   version: z.number().min(0).nullable().optional(),
 });
 
@@ -45,6 +49,7 @@ export class SaveLineContentUseCase implements UseCase<{
         return await this.scriptRepository.saveLineContent({
           scriptId,
           lineId: params.lineId,
+          contentId: params.contentId,
           content: params.content,
           contentType: params.contentType,
           version: params.version ?? null,

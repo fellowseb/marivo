@@ -147,6 +147,10 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
   console.log("#DEBUG script state action", action.type);
   switch (action.type) {
     case "PROCESS_LATEST_CHANGES_PAYLOAD": {
+      // Ignore stale/out-of-order poll responses: never move backwards in time
+      if (action.payload.lastModifiedDate.getTime() < state.remoteLastModifiedDate.getTime()) {
+        return state;
+      }
       const lineToContents = new Map(state.lineToContents);
       const [lines, lineContents] = action.payload.diffs.reduce(
         ([accLines, accLineContents], curr) => {
@@ -173,27 +177,31 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
               };
               console.warn("Unexpected case");
             }
-            if (curr.type === "shared_draft") {
-              m.sharedDrafts.push(curr.id);
-            } else if (curr.type === "saved_version") {
-              if (!curr.version) {
-                console.warn("Unexpected empty version");
-              }
-              m.versions[curr.version ?? 1] = curr.id;
-            }
-            lineToContents.set(curr.lineId, m);
             if (curr.change.type === "content_delete") {
-              accLineContents.set(curr.id, {
-                id: curr.id,
-                lineId: curr.lineId,
-                version: curr.version,
-                lastModifiedDate: curr.lastModifiedDate,
-                type: curr.type,
-                deleted: true,
-                authorUsername: curr.authorUsername,
-              } satisfies LineContent);
+              // Soft-deleted on the server: drop the content and every reference to it
+              // so it is never selected as display content (it has no text).
+              if (curr.type === "draft") {
+                // Only clear the draft slot if the delete is not older than the
+                // current local draft (avoids wiping fresh local edits)
+                const existing = accLineContents.get(curr.lineId);
+                if (
+                  !existing ||
+                  existing.lastModifiedDate.getTime() <= curr.lastModifiedDate.getTime()
+                ) {
+                  accLineContents.delete(curr.lineId);
+                }
+              } else {
+                accLineContents.delete(curr.id);
+                if (curr.type === "shared_draft") {
+                  m.sharedDrafts = m.sharedDrafts.filter((contentId) => contentId !== curr.id);
+                } else if (curr.version) {
+                  m.versions[curr.version] = "";
+                } else {
+                  m.versions = m.versions.filter((contentId) => contentId !== curr.id);
+                }
+              }
             } else if (curr.change.type === "content_create_update") {
-              accLineContents.set(curr.id, {
+              const content = {
                 id: curr.id,
                 lineId: curr.lineId,
                 type: curr.type,
@@ -201,19 +209,41 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 lastModifiedDate: curr.lastModifiedDate,
                 authorUsername: curr.authorUsername,
                 ...curr.change.content,
-              } satisfies LineContent);
+              } satisfies LineContent;
+              if (curr.type === "shared_draft") {
+                // Idempotent: the same diff can be delivered twice (replayed poll)
+                if (!m.sharedDrafts.includes(curr.id)) {
+                  m.sharedDrafts.push(curr.id);
+                }
+                accLineContents.set(curr.id, content);
+              } else if (curr.type === "saved_version") {
+                if (!curr.version) {
+                  console.warn("Unexpected empty version");
+                }
+                m.versions[curr.version ?? 1] = curr.id;
+                accLineContents.set(curr.id, content);
+              } else {
+                // Draft rows are per-user on the server (row id is a uuid);
+                // they live in the draft slot keyed by line id. Never let an
+                // older server row clobber a newer local draft.
+                const existing = accLineContents.get(curr.lineId);
+                if (
+                  !existing ||
+                  existing.lastModifiedDate.getTime() <= curr.lastModifiedDate.getTime()
+                ) {
+                  accLineContents.set(curr.lineId, { ...content, id: curr.lineId });
+                }
+              }
             } else {
               assertUnreachable(curr.change);
             }
+            lineToContents.set(curr.lineId, m);
           }
           return [accLines, accLineContents];
         },
         [new Map(state.lines), new Map(state.lineContents)],
       );
-      const remoteLastModifiedDate =
-        state.remoteLastModifiedDate.getTime() !== action.payload.lastModifiedDate.getTime()
-          ? action.payload.lastModifiedDate
-          : state.remoteLastModifiedDate;
+      const remoteLastModifiedDate = action.payload.lastModifiedDate;
       // TODO: compare linesOrder
       // TODO: compare characters
       // TODO: recompute checksum

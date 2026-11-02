@@ -81,6 +81,28 @@ describe("SaveLineContentUseCase", () => {
     expect(result.isFailure()).toBe(true);
   });
 
+  it("passes client-provided contentId to the repository", async () => {
+    const uri = "550e8400-e29b-41d4-a716-446655440000";
+    const contentId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(1));
+    scriptRepository.saveLineContent.mockResolvedValue(
+      Result.ok({ contentId, lastModifiedDate: new Date() }),
+    );
+
+    const result = await useCase.execute({
+      uri,
+      lineId: "line-1",
+      contentId,
+      content: { lineType: "freetext", text: "draft text" },
+      contentType: "shared_draft",
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(scriptRepository.saveLineContent).toHaveBeenCalledWith(
+      expect.objectContaining({ contentId }),
+    );
+  });
+
   it("passes characters for chartext lines", async () => {
     const uri = "550e8400-e29b-41d4-a716-446655440000";
     userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(1));

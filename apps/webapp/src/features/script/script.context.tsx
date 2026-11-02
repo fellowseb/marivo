@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useIsMutating, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import {
   createContext,
   useContext,
@@ -6,6 +6,7 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
   type PropsWithChildren,
 } from "react";
 import { useTRPC } from "../../trpc";
@@ -34,7 +35,10 @@ export interface ScriptContextProps {
 
 const initialState = {
   lastModifiedDate: new Date(),
-  remoteLastModifiedDate: new Date(),
+  // Epoch: the provider always does a full load on mount, which sets the real
+  // server date. Starting at epoch ensures the stale-payload guard in the
+  // reducer never drops the initial full load.
+  remoteLastModifiedDate: new Date(0),
   lines: new Map(),
   lineContents: new Map(),
   linesOrder: [],
@@ -95,6 +99,40 @@ export function ScriptContextProvider(props: PropsWithChildren<ScriptContextProp
       from: props.from,
     }),
   );
+  // Poll for server changes every 10s so versions saved by other clients appear.
+  // `since` advances to the newest server date we have seen, so each tick only
+  // fetches fresh diffs instead of replaying everything since the full load.
+  const [lastPollDate, setLastPollDate] = useState<Date | null>(null);
+  const since = useMemo(() => {
+    const dates = [lastPollDate, query.data?.lastModifiedDate].filter(
+      (d): d is Date => d instanceof Date,
+    );
+    return dates.length ? new Date(Math.max(...dates.map((d) => d.getTime()))) : new Date(0);
+  }, [lastPollDate, query.data?.lastModifiedDate]);
+  // Pause polling while a script mutation is in flight: a poll response that
+  // reflects the server state from *before* the mutation committed would
+  // otherwise overwrite the local optimistic update (race condition).
+  const pendingScriptMutations = useIsMutating({
+    predicate: (mutation) => {
+      const path = mutation.options.mutationKey?.[0];
+      return Array.isArray(path) && path[0] === "script";
+    },
+  });
+  const pollQuery = useQuery({
+    ...trpc.script.latestChanges.queryOptions({
+      since,
+      uri: props.uri,
+      from: props.from,
+    }),
+    refetchInterval: 10_000,
+    enabled: pendingScriptMutations === 0,
+  });
+  useEffect(() => {
+    if (pollQuery.data) {
+      setLastPollDate(pollQuery.data.lastModifiedDate);
+      dispatch({ type: "PROCESS_LATEST_CHANGES_PAYLOAD", payload: pollQuery.data });
+    }
+  }, [pollQuery.data]);
   // Reset state when uri or from changes (navigation between plays)
   useEffect(() => {
     // Save previous state before resetting
