@@ -47,6 +47,16 @@ export function ScriptEditionContextProvider(
   const { pushUndoRedo } = useScriptUndoRedo();
   const [insertedLineId, setInsertedLineId] = useState<string | null>(null);
   const saveLineContentMutation = useMutation(trpc.script.saveLineContent.mutationOptions());
+  const deleteLineMutation = useMutation(trpc.script.deleteLine.mutationOptions());
+
+  function buildContentPayload(content: LineContent) {
+    return {
+      lineType: content.lineType,
+      text: "text" in content ? content.text : "",
+      ...(content.lineType === "chartext" ? { characters: content.characters } : {}),
+      ...(content.lineType === "heading" ? { headingLevel: content.headingLevel } : {}),
+    } as const;
+  }
   const insertHeading = useCallback(
     (pos: number, level: number) => {
       if (!context) {
@@ -282,7 +292,11 @@ export function ScriptEditionContextProvider(
       type: "REMOVE_LINES",
       ids,
     });
-  }, []);
+    // Persist deletions to server
+    for (const id of ids) {
+      deleteLineMutation.mutate({ uri: props.uri, lineId: id });
+    }
+  }, [props.uri, deleteLineMutation]);
   const discardChanges = useCallback(
     (id: string) => {
       if (!context) {
@@ -357,7 +371,18 @@ export function ScriptEditionContextProvider(
       contentId,
     } as const as ScriptAction;
     context.dispatch(action);
-  }, []);
+    // Persist to server as new saved version
+    const content = context.lineContents.get(id);
+    if (content && content.type === "draft") {
+      saveLineContentMutation.mutate({
+        uri: props.uri,
+        lineId: id,
+        content: buildContentPayload(content),
+        contentType: "saved_version",
+        version: null,
+      });
+    }
+  }, [context, props.uri, saveLineContentMutation]);
   const saveChangesAsSharedDraft = useCallback((id: string) => {
     if (!context) {
       const error = new Error("Unexpected undefined script context");
@@ -371,7 +396,18 @@ export function ScriptEditionContextProvider(
       contentId,
     } as const as ScriptAction;
     context.dispatch(action);
-  }, []);
+    // Persist to server as shared draft
+    const content = context.lineContents.get(id);
+    if (content && content.type === "draft") {
+      saveLineContentMutation.mutate({
+        uri: props.uri,
+        lineId: id,
+        content: buildContentPayload(content),
+        contentType: "shared_draft",
+        version: null,
+      });
+    }
+  }, [context, props.uri, saveLineContentMutation]);
   const deleteSharedDraft = useCallback((id: string, contentId: string) => {
     if (!context) {
       const error = new Error("Unexpected undefined script context");
