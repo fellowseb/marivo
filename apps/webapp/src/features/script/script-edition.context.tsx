@@ -370,9 +370,10 @@ export function ScriptEditionContextProvider(
       id,
       contentId,
     } as const as ScriptAction;
+    // Capture the draft content BEFORE dispatch (reducer moves it to a new version id)
+    const content = context.lineContents.get(id);
     context.dispatch(action);
     // Persist to server as new saved version
-    const content = context.lineContents.get(id);
     if (content && content.type === "draft") {
       saveLineContentMutation.mutate({
         uri: props.uri,
@@ -395,9 +396,10 @@ export function ScriptEditionContextProvider(
       id,
       contentId,
     } as const as ScriptAction;
+    // Capture the draft content BEFORE dispatch (reducer moves it to a new draft id)
+    const content = context.lineContents.get(id);
     context.dispatch(action);
     // Persist to server as shared draft
-    const content = context.lineContents.get(id);
     if (content && content.type === "draft") {
       saveLineContentMutation.mutate({
         uri: props.uri,
