@@ -41,7 +41,7 @@
   "devDependencies": {
     "@testcontainers/postgresql": "^12.2.1",
     "@types/express": "^5.0.6",
-    "@types/node": "^24.12.4",
+    "@types/node": "^26.0.0",
     "@types/supertest": "^7.0.0",
     "globals": "^17.0.0",
     "supertest": "^7.1.4",
