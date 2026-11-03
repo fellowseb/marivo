@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Sql } from "postgres";
+import { Readable } from "node:stream";
 import { v4 as uuidv4 } from "uuid";
 import {
   setupTestDatabase,
@@ -108,5 +109,271 @@ describe("ScriptRepository (integration with real Postgres)", () => {
       version: 1,
     });
     expect(result.isFailure()).toBe(true);
+  });
+
+  it("saveLineContent with contentId upserts the same row instead of duplicating", async () => {
+    const lineId = uuidv4();
+    await sql`
+      INSERT INTO lines (id, script_id, type) VALUES (${lineId}, ${scriptId}, 'freetext')
+    `;
+    const contentId = uuidv4();
+
+    const first = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      contentId,
+      content: { lineType: "freetext", text: "first" },
+      contentType: "shared_draft",
+      version: null,
+    });
+    const second = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      contentId,
+      content: { lineType: "freetext", text: "second" },
+      contentType: "shared_draft",
+      version: null,
+    });
+
+    expect(first.isOk()).toBe(true);
+    expect(second.isOk()).toBe(true);
+    expect(second.dataOrThrow().contentId).toBe(contentId);
+
+    const rows = await sql`
+      SELECT id, text, deleted FROM lines_contents
+      WHERE script_id = ${scriptId} AND line_id = ${lineId} AND type = 'shared_draft'
+    `;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.text).toBe("second");
+    expect(rows[0]?.deleted).toBe(false);
+  });
+
+  it("saveLineContent shared_draft without contentId updates the line's current draft", async () => {
+    const lineId = uuidv4();
+    await sql`
+      INSERT INTO lines (id, script_id, type) VALUES (${lineId}, ${scriptId}, 'freetext')
+    `;
+
+    const first = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "edit 1" },
+      contentType: "shared_draft",
+      version: null,
+    });
+    const second = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "edit 2" },
+      contentType: "shared_draft",
+      version: null,
+    });
+
+    expect(first.isOk()).toBe(true);
+    expect(second.isOk()).toBe(true);
+    // Same row updated in place: no accumulation of draft rows per edit
+    expect(second.dataOrThrow().contentId).toBe(first.dataOrThrow().contentId);
+
+    const rows = await sql`
+      SELECT id, text FROM lines_contents
+      WHERE script_id = ${scriptId} AND line_id = ${lineId}
+        AND type = 'shared_draft' AND deleted = false
+    `;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.text).toBe("edit 2");
+  });
+
+  it("saveLineContent draft upserts one draft row per line and user", async () => {
+    const lineId = uuidv4();
+    await sql`
+      INSERT INTO lines (id, script_id, type) VALUES (${lineId}, ${scriptId}, 'freetext')
+    `;
+
+    const first = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "draft edit 1" },
+      contentType: "draft",
+      version: null,
+    });
+    const second = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "draft edit 2" },
+      contentType: "draft",
+      version: null,
+    });
+
+    expect(first.isOk()).toBe(true);
+    expect(second.isOk()).toBe(true);
+    expect(second.dataOrThrow().contentId).toBe(first.dataOrThrow().contentId);
+
+    const rows = await sql`
+      SELECT id, type, text FROM lines_contents
+      WHERE script_id = ${scriptId} AND line_id = ${lineId} AND deleted = false
+    `;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.type).toBe("draft");
+    expect(rows[0]?.text).toBe("draft edit 2");
+  });
+
+  it("drafts are private: each user has their own draft row and only sees their own", async () => {
+    const lineId = uuidv4();
+    await sql`
+      INSERT INTO lines (id, script_id, type) VALUES (${lineId}, ${scriptId}, 'freetext')
+    `;
+    const [user2] = await sql<{ id: number }[]>`
+      INSERT INTO users (clerk_id, username, full_name, primary_email)
+      VALUES ('test_clerk_id_2', 'testuser2', 'Test User 2', 'test2@example.com')
+      RETURNING id
+    `;
+    const repo2 = new ScriptRepository(sql, mockUserService(user2.id));
+
+    const r1 = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "user1 draft" },
+      contentType: "draft",
+      version: null,
+    });
+    const r2 = await repo2.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "user2 draft" },
+      contentType: "draft",
+      version: null,
+    });
+    expect(r1.isOk()).toBe(true);
+    expect(r2.isOk()).toBe(true);
+    expect(r1.dataOrThrow().contentId).not.toBe(r2.dataOrThrow().contentId);
+
+    const rows = await sql`
+      SELECT id FROM lines_contents
+      WHERE script_id = ${scriptId} AND line_id = ${lineId}
+        AND type = 'draft' AND deleted = false
+    `;
+    expect(rows).toHaveLength(2);
+
+    const changes1 = await repo.getLatestScriptChanges({ id: scriptId, since: new Date(0) });
+    const draftDiffs1 = changes1
+      .dataOrThrow()
+      .diffs.filter((d) => !("lineType" in d) && d.type === "draft" && d.lineId === lineId);
+    expect(draftDiffs1).toHaveLength(1);
+    expect(draftDiffs1[0]?.id).toBe(r1.dataOrThrow().contentId);
+
+    const changes2 = await repo2.getLatestScriptChanges({ id: scriptId, since: new Date(0) });
+    const draftDiffs2 = changes2
+      .dataOrThrow()
+      .diffs.filter((d) => !("lineType" in d) && d.type === "draft" && d.lineId === lineId);
+    expect(draftDiffs2).toHaveLength(1);
+    expect(draftDiffs2[0]?.id).toBe(r2.dataOrThrow().contentId);
+    expect(draftDiffs2[0]?.id).not.toBe(draftDiffs1[0]?.id);
+  });
+
+  it("saving a shared draft retires the author's draft row", async () => {
+    const lineId = uuidv4();
+    await sql`
+      INSERT INTO lines (id, script_id, type) VALUES (${lineId}, ${scriptId}, 'freetext')
+    `;
+
+    // Simulate an edit auto-saved as the per-user draft
+    const draft = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "work in progress" },
+      contentType: "draft",
+      version: null,
+    });
+    expect(draft.isOk()).toBe(true);
+
+    // Committing as a shared draft must soft-delete the draft row
+    const saved = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "shared version" },
+      contentType: "shared_draft",
+      version: null,
+    });
+    expect(saved.isOk()).toBe(true);
+
+    const [draftRow] = await sql`
+      SELECT deleted FROM lines_contents
+      WHERE id = ${draft.dataOrThrow().contentId}
+    `;
+    expect(draftRow.deleted).toBe(true);
+
+    // The re-sync diff must contain a content_delete for the draft row
+    const changes = await repo.getLatestScriptChanges({ id: scriptId, since: new Date(0) });
+    const draftDelete = changes
+      .dataOrThrow()
+      .diffs.find(
+        (d) => !("lineType" in d) && d.id === draft.dataOrThrow().contentId && d.change.type === "content_delete",
+      );
+    expect(draftDelete).toBeDefined();
+  });
+
+  it("createScriptFromStream resolves character tokens and drops unknown placeholders", async () => {
+    const hamletId = uuidv4();
+    const csv = [
+      "heading|{}|1|Act I",
+      `chartext|{{${hamletId},CHARACTER_02}}||"To be or not to be"`,
+      "freetext|||A stage note",
+      "",
+    ].join("\n");
+
+    const scriptId = await repo.createScriptFromStream({
+      characters: { [hamletId]: "HAMLET" },
+      linesStream: Readable.from([csv]),
+      linesContentsStream: Readable.from([csv]),
+    });
+
+    const contents = await sql<{ line_type: string; characters: string[] | null }[]>`
+      SELECT line_type, characters FROM lines_contents
+      WHERE script_id = ${scriptId} ORDER BY line_type
+    `;
+    expect(contents).toHaveLength(3);
+    const cue = contents.find((row) => row.line_type === "chartext");
+    // The unknown CHARACTER_02 placeholder must not reach the uuid[] column
+    expect(cue?.characters).toEqual([hamletId]);
+
+    const [script] = await sql<{ characters: Record<string, string>; lines_order: string[] }[]>`
+      SELECT characters, lines_order FROM scripts WHERE id = ${scriptId}
+    `;
+    expect(script.characters).toEqual({ [hamletId]: "HAMLET" });
+    expect(script.lines_order).toHaveLength(3);
+  });
+
+  it("saveLineContent saved_version without contentId still creates a new version", async () => {
+    const lineId = uuidv4();
+    await sql`
+      INSERT INTO lines (id, script_id, type) VALUES (${lineId}, ${scriptId}, 'freetext')
+    `;
+
+    const first = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "v1" },
+      contentType: "saved_version",
+      version: null,
+    });
+    const second = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "v2" },
+      contentType: "saved_version",
+      version: null,
+    });
+
+    expect(first.isOk()).toBe(true);
+    expect(second.isOk()).toBe(true);
+    expect(second.dataOrThrow().contentId).not.toBe(first.dataOrThrow().contentId);
+
+    const rows = await sql<{ version: number }[]>`
+      SELECT version FROM lines_contents
+      WHERE script_id = ${scriptId} AND line_id = ${lineId}
+        AND type = 'saved_version' AND deleted = false
+      ORDER BY version
+    `;
+    expect(rows.map((r) => r.version)).toEqual([1, 2]);
   });
 });

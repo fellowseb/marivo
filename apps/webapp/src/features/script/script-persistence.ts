@@ -90,7 +90,10 @@ function deserializeState(persisted: PersistedScriptState): ScriptState | null {
     };
     return {
       lastModifiedDate: s.lastModifiedDate,
-      remoteLastModifiedDate: s.remoteLastModifiedDate,
+      // Reset to epoch: the provider always performs a full load on mount,
+      // which sets the real server date. This prevents a persisted value from
+      // making the reducer's stale-payload guard drop the initial full load.
+      remoteLastModifiedDate: new Date(0),
       lines: s.lines as ScriptState["lines"],
       lineContents: s.lineContents as ScriptState["lineContents"],
       lineToContents: s.lineToContents as ScriptState["lineToContents"],

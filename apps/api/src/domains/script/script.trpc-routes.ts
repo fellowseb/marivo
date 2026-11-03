@@ -17,6 +17,10 @@ import {
   DeleteLineUseCaseInputSchema,
   DeleteLineUseCaseOutputSchema,
 } from "./delete-line.use-case.ts";
+import {
+  DeleteLineContentUseCaseInputSchema,
+  DeleteLineContentUseCaseOutputSchema,
+} from "./delete-line-content.use-case.ts";
 
 export default router({
   latestChanges: publicProcedure
@@ -35,4 +39,8 @@ export default router({
     .input(DeleteLineUseCaseInputSchema)
     .output(DeleteLineUseCaseOutputSchema)
     .mutation(handleUseCase(providers.DeleteLineUseCase)),
+  deleteLineContent: publicProcedure
+    .input(DeleteLineContentUseCaseInputSchema)
+    .output(DeleteLineContentUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.DeleteLineContentUseCase)),
 });

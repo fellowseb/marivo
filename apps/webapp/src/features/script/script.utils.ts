@@ -85,8 +85,10 @@ export function getLineContentForDisplayWithInfo(
   if (contents) {
     const { versions, sharedDrafts } = contents;
     const presentVersions = versions.filter(Boolean).reverse().slice();
-    if (!content && presentVersions.length) {
-      const latestVersionContent = lineContents.get(presentVersions[0] ?? "");
+    if (!content) {
+      const latestVersionContent = presentVersions
+        .map((contentId) => lineContents.get(contentId))
+        .find((versionContent) => versionContent && !versionContent.deleted);
       if (latestVersionContent) {
         content = latestVersionContent;
       }

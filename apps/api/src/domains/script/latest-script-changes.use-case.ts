@@ -22,7 +22,11 @@ export const LatestScriptChangesUseCaseOutputSchema = z.object({
         id: z.uuidv4(),
         lineId: z.uuidv4(),
         lastModifiedDate: z.date(),
-        type: z.union([z.literal("saved_version"), z.literal("shared_draft")]),
+        type: z.union([
+          z.literal("saved_version"),
+          z.literal("shared_draft"),
+          z.literal("draft"),
+        ]),
         version: z.number().min(0).nullable(),
         authorUsername: z.string().nullable(),
         change: z.union([

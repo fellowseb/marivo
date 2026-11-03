@@ -5,6 +5,13 @@ export type ScriptImportStatus =
   | "done"
   | "error";
 
+export interface ScriptImportCharacter {
+  id: string;
+  name: string;
+  description: string;
+  genre: string;
+}
+
 export type ScriptImport =
   | {
       id: string;
@@ -17,7 +24,7 @@ export type ScriptImport =
         title: string;
         author: string;
         language: string;
-        characters: string[];
+        characters: ScriptImportCharacter[];
         number_of_roles: number;
         number_of_male_roles: number;
         number_of_female_roles: number;

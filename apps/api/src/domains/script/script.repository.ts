@@ -3,12 +3,12 @@ import { Transform } from "node:stream";
 import { parse } from "csv-parse";
 import { stringify } from "csv-stringify";
 import { v4 as uuidv4 } from "uuid";
-import { type TransactionSql } from "postgres";
+import { type Sql, type TransactionSql } from "postgres";
 import { Result } from "@marivo/utils";
 import { UserContextService } from "../../shared/use-case.ts";
 import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
 import { AppError } from "../../shared/error.ts";
-import { type ScriptDiff } from "./script.models.ts";
+import { type LineContentType, type ScriptDiff } from "./script.models.ts";
 
 interface ScriptRow {
   id: number;
@@ -26,7 +26,7 @@ interface LineRow {
 
 interface LineContentRow {
   id: string;
-  type: "saved_version" | "shared_draft";
+  type: LineContentType;
   line_id: string;
   line_type: "chartext" | "heading" | "freetext";
   deleted: boolean;
@@ -89,7 +89,9 @@ export class ScriptRepository extends UserRepositoryBase {
       FROM lines_contents l
         LEFT JOIN users u ON u.id = l.author_id
       WHERE script_id = ${scriptRow.id}
-        AND last_modified_date > ${params.since}`;
+        AND last_modified_date > ${params.since}
+        -- Drafts are private: only their author receives them
+        AND (l.type != 'draft' OR l.author_id = ${this.userId()})`;
     return Result.ok({
       checksum: scriptRow.checksum,
       diffs: [
@@ -188,12 +190,31 @@ export class ScriptRepository extends UserRepositoryBase {
       },
     });
 
+    // Map CSV character tokens (uuids, or names) to known character ids.
+    // Unknown placeholders (e.g. CHARACTER_02) are dropped instead of crashing
+    // the COPY on the uuid[] column.
+    const characterIds = Object.keys(params.characters);
+    const nameToId = new Map(
+      Object.entries(params.characters).map(([id, name]) => [name, id] as const),
+    );
+    const resolveCharacterIds = (raw: string | undefined): string => {
+      const inner = (raw ?? "").replace(/^\{+|\}+$/g, "");
+      const tokens = inner
+        .split(",")
+        .map((token) => token.trim())
+        .filter(Boolean);
+      const ids = tokens
+        .map((token) => nameToId.get(token) ?? (characterIds.includes(token) ? token : undefined))
+        .filter((id): id is string => id !== undefined);
+      return ids.length ? `{${ids.join(",")}}` : "{}";
+    };
+
     let count = 0;
     const addLineColumnsTransform2 = new Transform({
       objectMode: true,
       transform(row: string[], _encoding, callback) {
         const lineType = row[0];
-        const characters = lineType === "chartext" ? row[1] : "{}";
+        const characters = lineType === "chartext" ? resolveCharacterIds(row[1]) : "{}";
         const headingLevel = lineType === "heading" ? parseInt(row[2] as string, 10) : 5;
         const id = uuidv4();
         callback(null, [
@@ -282,13 +303,14 @@ export class ScriptRepository extends UserRepositoryBase {
   async saveLineContent(params: {
     scriptId: number;
     lineId: string;
+    contentId?: string | undefined;
     content: {
       lineType: "heading" | "chartext" | "freetext";
       text: string;
       characters?: string[] | undefined;
       headingLevel?: number | undefined;
     };
-    contentType: "saved_version" | "shared_draft";
+    contentType: LineContentType;
     version: number | null;
   }): Promise<Result<{ contentId: string; lastModifiedDate: Date }, ScriptNotFound>> {
     const [scriptRow] = await this.sql<ScriptRow[]>`
@@ -296,9 +318,186 @@ export class ScriptRepository extends UserRepositoryBase {
     if (!scriptRow) {
       return Result.failure(new ScriptNotFound());
     }
-    const contentId = uuidv4();
     const now = new Date();
     const { lineType, text, characters, headingLevel } = params.content;
+    // Auto-increment version for saved_version: find max existing version for this line
+    let version = params.version;
+    if (params.contentType === "saved_version" && (version === null || version === undefined)) {
+      const [row] = await this.sql<{ max: number | null }[]>`
+        SELECT MAX(version)::int AS max FROM lines_contents
+        WHERE script_id = ${params.scriptId} AND line_id = ${params.lineId} AND type = 'saved_version'
+      `;
+      version = (row?.max ?? 0) + 1;
+    }
+    const effectiveVersion = version ?? 1;
+    const charactersValue = lineType === "chartext" ? this.sql.json(characters ?? []) : null;
+    const headingLevelValue = lineType === "heading" ? (headingLevel ?? 0) : null;
+
+    if (params.contentType !== "draft") {
+      // Committing the draft as a saved version / shared draft retires the
+      // author's per-user draft row, so it does not reappear on other clients
+      // (or on this one after re-sync) as the current draft.
+      await this.sql`
+        UPDATE lines_contents
+        SET deleted = true, last_modified_date = ${now}
+        WHERE script_id = ${params.scriptId}
+          AND line_id = ${params.lineId}
+          AND type = 'draft'
+          AND author_id = ${this.userId()}
+          AND deleted = false`;
+    }
+
+    let contentId = params.contentId;
+    if (params.contentType === "draft") {
+      // Drafts are per-user: one draft row per (line, author), upserted in
+      // place with a server-generated id. The client-provided contentId is
+      // ignored for drafts.
+      const updated = await this.sql<{ id: string }[]>`
+        UPDATE lines_contents SET
+          line_type = ${lineType},
+          characters = ${charactersValue},
+          heading_level = ${headingLevelValue},
+          text = ${text},
+          version = ${effectiveVersion},
+          deleted = false,
+          last_modified_date = ${now},
+          author_id = ${this.userId()}
+        WHERE id = (
+          SELECT id FROM lines_contents
+          WHERE script_id = ${params.scriptId}
+            AND line_id = ${params.lineId}
+            AND type = 'draft'
+            AND author_id = ${this.userId()}
+            AND deleted = false
+          ORDER BY last_modified_date DESC
+          LIMIT 1
+        )
+        RETURNING id`;
+      if (updated.length > 0 && updated[0]) {
+        contentId = updated[0].id;
+      } else {
+        contentId = await this.insertLineContent({
+          scriptId: params.scriptId,
+          lineId: params.lineId,
+          contentId: uuidv4(),
+          lineType,
+          charactersValue,
+          headingLevelValue,
+          text,
+          contentType: params.contentType,
+          version: effectiveVersion,
+          now,
+        });
+      }
+    } else if (contentId) {
+      // Upsert by id: update the row in place if it exists (even soft-deleted),
+      // otherwise insert with the client-provided id. This keeps the server id
+      // identical to the optimistic local id, so polling clients never see
+      // duplicate entries.
+      const updated = await this.sql<{ id: string }[]>`
+        UPDATE lines_contents SET
+          line_type = ${lineType},
+          characters = ${charactersValue},
+          heading_level = ${headingLevelValue},
+          text = ${text},
+          type = ${params.contentType},
+          version = ${effectiveVersion},
+          deleted = false,
+          last_modified_date = ${now},
+          author_id = ${this.userId()}
+        WHERE id = ${contentId} AND script_id = ${params.scriptId}
+        RETURNING id`;
+      if (updated.length === 0) {
+        contentId = await this.insertLineContent({
+          scriptId: params.scriptId,
+          lineId: params.lineId,
+          contentId,
+          lineType,
+          charactersValue,
+          headingLevelValue,
+          text,
+          contentType: params.contentType,
+          version: effectiveVersion,
+          now,
+        });
+      }
+    } else if (params.contentType === "shared_draft") {
+      // A shared draft without explicit id is an edit of the line's current
+      // shared draft: upsert the latest non-deleted row instead of inserting
+      // a new one on every edit.
+      const updated = await this.sql<{ id: string }[]>`
+        UPDATE lines_contents SET
+          line_type = ${lineType},
+          characters = ${charactersValue},
+          heading_level = ${headingLevelValue},
+          text = ${text},
+          version = ${effectiveVersion},
+          deleted = false,
+          last_modified_date = ${now},
+          author_id = ${this.userId()}
+        WHERE id = (
+          SELECT id FROM lines_contents
+          WHERE script_id = ${params.scriptId}
+            AND line_id = ${params.lineId}
+            AND type = ${params.contentType}
+            AND deleted = false
+          ORDER BY last_modified_date DESC
+          LIMIT 1
+        )
+        RETURNING id`;
+      if (updated.length > 0 && updated[0]) {
+        contentId = updated[0].id;
+      } else {
+        contentId = await this.insertLineContent({
+          scriptId: params.scriptId,
+          lineId: params.lineId,
+          contentId: uuidv4(),
+          lineType,
+          charactersValue,
+          headingLevelValue,
+          text,
+          contentType: params.contentType,
+          version: effectiveVersion,
+          now,
+        });
+      }
+    } else {
+      contentId = await this.insertLineContent({
+        scriptId: params.scriptId,
+        lineId: params.lineId,
+        contentId: uuidv4(),
+        lineType,
+        charactersValue,
+        headingLevelValue,
+        text,
+        contentType: params.contentType,
+        version: effectiveVersion,
+        now,
+      });
+    }
+    // Update script last_modified_date
+    await this.sql`
+      UPDATE scripts
+      SET last_modified_date = ${now}
+      WHERE id = ${params.scriptId}`;
+    return Result.ok({
+      contentId,
+      lastModifiedDate: new Date(now),
+    });
+  }
+
+  private async insertLineContent(params: {
+    scriptId: number;
+    lineId: string;
+    contentId: string;
+    lineType: "heading" | "chartext" | "freetext";
+    charactersValue: ReturnType<Sql["json"]> | null;
+    headingLevelValue: number | null;
+    text: string;
+    contentType: LineContentType;
+    version: number;
+    now: Date;
+  }): Promise<string> {
     await this.sql`
       INSERT INTO lines_contents (
         script_id,
@@ -316,26 +515,18 @@ export class ScriptRepository extends UserRepositoryBase {
       ) VALUES (
         ${params.scriptId},
         ${params.lineId},
-        ${lineType},
-        ${lineType === "chartext" ? this.sql.json(characters ?? []) : null},
-        ${lineType === "heading" ? (headingLevel ?? 0) : null},
-        ${text},
-        ${contentId},
+        ${params.lineType},
+        ${params.charactersValue},
+        ${params.headingLevelValue},
+        ${params.text},
+        ${params.contentId},
         ${params.contentType},
         'pending',
-        ${params.version ?? 1},
-        ${now},
+        ${params.version},
+        ${params.now},
         ${this.userId()}
       )`;
-    // Update script last_modified_date
-    await this.sql`
-      UPDATE scripts
-      SET last_modified_date = ${now}
-      WHERE id = ${params.scriptId}`;
-    return Result.ok({
-      contentId,
-      lastModifiedDate: new Date(now),
-    });
+    return params.contentId;
   }
 
   async createLine(params: {
@@ -361,6 +552,27 @@ export class ScriptRepository extends UserRepositoryBase {
       SET lines_order = ${newOrder}::uuid[], last_modified_date = ${now}
       WHERE id = ${params.scriptId}`;
     return Result.ok({ lastModifiedDate: new Date(now) });
+  }
+
+  async deleteLineContent(params: {
+    scriptId: number;
+    lineId: string;
+    contentId: string;
+  }): Promise<Result<{ lastModifiedDate: Date }, ScriptNotFound>> {
+    const [scriptRow] = await this.sql<ScriptRow[]>`
+      SELECT id FROM scripts WHERE id = ${params.scriptId}`;
+    if (!scriptRow) {
+      return Result.failure(new ScriptNotFound());
+    }
+    const now = new Date();
+    // Soft-delete: mark as deleted so other clients see content_delete
+    await this.sql`
+      UPDATE lines_contents
+      SET deleted = true, last_modified_date = ${now}
+      WHERE script_id = ${params.scriptId} AND line_id = ${params.lineId} AND id = ${params.contentId}`;
+    await this.sql`
+      UPDATE scripts SET last_modified_date = ${now} WHERE id = ${params.scriptId}`;
+    return Result.ok({ lastModifiedDate: now });
   }
 
   async deleteLine(params: {
