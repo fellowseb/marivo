@@ -35,6 +35,18 @@ export async function setupTestDatabase(): Promise<Sql> {
   return sql;
 }
 
+/** Connection settings of the shared test container, as env vars. */
+export function testDatabaseEnv() {
+  if (!container) throw new Error("Test database not started");
+  return {
+    POSTGRES_HOST: container.getHost(),
+    POSTGRES_PORT: String(container.getPort()),
+    POSTGRES_DB: container.getDatabase(),
+    POSTGRES_USERNAME: container.getUsername(),
+    POSTGRES_PASSWORD: container.getPassword(),
+  };
+}
+
 export async function teardownTestDatabase(): Promise<void> {
   if (sql) await sql.end();
   if (container) await container.stop();
