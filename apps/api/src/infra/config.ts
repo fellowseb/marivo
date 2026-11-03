@@ -33,6 +33,9 @@ export const configSchema = z.object({
   worker: z.object({
     apiKey: z.string(),
   }),
+  logging: z.object({
+    level: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]),
+  }),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;
@@ -61,6 +64,7 @@ export const ENV_VAR_MAP: Record<string, string> = {
   "garage.adminUrl": "GARAGE_ADMIN_URL",
   "garage.adminToken": "GARAGE_ADMIN_TOKEN",
   "worker.apiKey": "WORKER_API_KEY",
+  "logging.level": "LOG_LEVEL",
 };
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

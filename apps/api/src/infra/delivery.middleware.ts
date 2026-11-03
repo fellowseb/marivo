@@ -1,4 +1,5 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { getLogger } from "./logger.ts";
 
 const REQUEST_ID_HEADER = "x-marivo-request-id";
 
@@ -12,7 +13,7 @@ export function deliveryMiddleware(): RequestHandler {
         req.context = context;
         res.setHeader(REQUEST_ID_HEADER, requestId);
       } else {
-        console.warn(`Invalid format found for ${REQUEST_ID_HEADER} header`);
+        getLogger().warn({ header: REQUEST_ID_HEADER }, "invalid request id header format");
       }
     }
     next();

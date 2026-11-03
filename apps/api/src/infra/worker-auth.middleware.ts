@@ -1,5 +1,6 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { getConfig, type AppConfig } from "./config.ts";
+import { getLogger } from "./logger.ts";
 
 /**
  * Authenticate worker requests using a shared API key.
@@ -10,7 +11,7 @@ export function workerAuthMiddleware(config: AppConfig = getConfig()): RequestHa
   return function (req: Request, res: Response, next: NextFunction) {
     const expectedKey = config.worker.apiKey;
     if (!expectedKey) {
-      console.error("WORKER_API_KEY is not set - refusing all worker requests");
+      getLogger().error("WORKER_API_KEY is not set - refusing all worker requests");
       res.status(500).json({ error: "Server misconfiguration" });
       return;
     }

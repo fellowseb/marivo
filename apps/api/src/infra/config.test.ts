@@ -19,6 +19,18 @@ describe("loadConfig", () => {
     expect(config.redis).toEqual({ host: "redis", port: 6379 });
   });
 
+  it("defaults logging.level to info and lets LOG_LEVEL override it", () => {
+    const config = loadConfig({ env: {}, nodeEnv: "nonexistent-env", configDir: realConfigDir });
+    expect(config.logging.level).toBe("info");
+
+    const overridden = loadConfig({
+      env: { LOG_LEVEL: "debug" },
+      nodeEnv: "nonexistent-env",
+      configDir: realConfigDir,
+    });
+    expect(overridden.logging.level).toBe("debug");
+  });
+
   it("env vars override JSON values, coerced to the JSON type", () => {
     const config = loadConfig({
       env: {

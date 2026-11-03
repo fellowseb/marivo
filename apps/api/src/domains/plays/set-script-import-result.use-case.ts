@@ -10,6 +10,7 @@ import type { ScriptRepository } from "../script/script.repository.ts";
 import type { ScriptImportNotFound, ScriptImportsRepository } from "./script-imports.repository.ts";
 import type { InternalServerError } from "../../shared/error.ts";
 import type { Storage } from "../../infra/storage.ts";
+import { getLogger } from "../../infra/logger.ts";
 import { Languages, type Language } from "./script-imports.models.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
 
@@ -73,7 +74,7 @@ export class SetScriptImportResultUseCase extends AuthenticatedUseCase<{
       const dirPath = path.dirname(tempFilePath);
       await fs.mkdir(dirPath, { recursive: true });
       const tempWriteStream = createWriteStream(tempFilePath);
-      console.log("Downloading ", `${importId}/result-lines.csv`);
+      getLogger().info({ importId, key: `${importId}/result-lines.csv` }, "downloading import result");
       const downloadStream = await this.storageService.download(
         "marivo-imports",
         `${importId}/result-lines.csv`,
@@ -147,7 +148,7 @@ export class SetScriptImportResultUseCase extends AuthenticatedUseCase<{
         },
       });
     } else {
-      console.log("error", result.error);
+      getLogger().error({ importId, error: result.error }, "script import failed");
       await this.scriptImportsRepository.setScriptImportFailure({
         importId,
         error: result.error,
