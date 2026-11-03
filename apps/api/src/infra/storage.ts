@@ -1,17 +1,18 @@
 import { InternalServerError } from "../shared/error.ts";
-import process from "node:process";
+import { getConfig } from "./config.ts";
 import { GetObjectCommand, HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "node:stream";
 
 export class Storage {
   constructor() {
+    const { garage } = getConfig();
     this.client = new S3Client({
       region: "garage",
-      endpoint: process.env.GARAGE_ENDPOINT ?? "",
+      endpoint: garage.endpoint,
       credentials: {
-        accessKeyId: process.env.GARAGE_ACCESS_KEY ?? "",
-        secretAccessKey: process.env.GARAGE_SECRET_KEY ?? "",
+        accessKeyId: garage.accessKey,
+        secretAccessKey: garage.secretKey,
       },
       forcePathStyle: true,
     });

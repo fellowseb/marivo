@@ -1,11 +1,12 @@
 import trpcServer from "./trpc-server.ts";
+import { getConfig } from "./infra/config.ts";
 import { initStorage } from "./infra/storage.ts";
 import { initDatabase } from "./infra/db.ts";
 import { initMessageBroker } from "./infra/message-broker.ts";
 
 function listen() {
   try {
-    const trpcPort = process.env.TRPC_PORT ?? 3001;
+    const trpcPort = getConfig().server.port;
     trpcServer().listen(trpcPort, () => {
       console.log(`tRPC API server istening on ${trpcPort}`);
     });

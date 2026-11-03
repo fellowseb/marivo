@@ -1,4 +1,5 @@
 import { InternalServerError } from "../shared/error.ts";
+import { getConfig } from "./config.ts";
 import { Queue } from "bullmq";
 
 type MarivoJob = "process-script-text-files";
@@ -7,10 +8,11 @@ let instance: MessageBroker;
 
 export class MessageBroker {
   constructor() {
+    const { redis } = getConfig();
     this.jobsQueue = new Queue("marivo-jobs", {
       connection: {
-        host: process.env.REDIS_HOST ?? "redis",
-        port: Number.parseInt(process.env.REDIS_PORT ?? "6379"),
+        host: redis.host,
+        port: redis.port,
       },
     });
   }
