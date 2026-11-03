@@ -8,6 +8,7 @@ on:
       - 'apps/api/**'
       - 'apps/worker/**'
       - 'compose.yaml'
+      - 'compose.e2e.yaml'
       - 'scripts/e2e-env.sh'
       - '.github/workflows/e2e.yml'
   workflow_dispatch:
@@ -46,7 +47,9 @@ jobs:
           CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }} \
           MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY || '' }} \
           bash scripts/e2e-env.sh
-      - run: docker compose up -d --build postgres redis garage api worker
+      # compose.e2e.yaml adds the mistral-mock service and points the worker at
+      # it (MISTRAL_API_BASE) so imports are parsed by a stub, not the real LLM
+      - run: docker compose -f compose.yaml -f compose.e2e.yaml up -d --build postgres redis garage api worker mistral-mock
       - name: Wait for API readiness
         run: |
           for i in $(seq 1 60); do

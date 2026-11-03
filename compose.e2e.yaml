@@ -1,0 +1,29 @@
+# E2E-only compose overrides. Use with:
+#   docker compose -f compose.yaml -f compose.e2e.yaml up -d --build
+# Adds a mock Mistral API (apps/worker/e2e/mistral_mock_server.py) on the compose
+# network and points the worker at it via MISTRAL_API_BASE, so E2E runs never
+# call the real LLM.
+services:
+  worker:
+    environment:
+      MISTRAL_API_BASE: http://mistral-mock:8787
+  mistral-mock:
+    build:
+      context: ./apps/worker
+    entrypoint: ["python3", "-u", "/app/e2e/mistral_mock_server.py"]
+    volumes:
+      - ./apps/worker:/app
+    networks:
+      - network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8787/v1/models/mock')",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 2s
