@@ -22,8 +22,12 @@ export class MessageBroker {
 
   async publish(queueName: MarivoJob, message: unknown) {
     await this.jobsQueue.add(queueName, message, {
-      attempts: 1,
-      removeOnFail: true,
+      // Retry transient failures (API/storage/LLM hiccups) with exponential
+      // backoff; keep recent completed/failed jobs in Redis for tracking.
+      attempts: 3,
+      backoff: { type: "exponential", delay: 5000 },
+      removeOnComplete: 100,
+      removeOnFail: 100,
     });
   }
 
