@@ -1,4 +1,5 @@
 import type { ScriptState } from "./script-state";
+import { logger } from "../../lib/logger";
 
 const STORAGE_KEY_PREFIX = "marivo:script-state:";
 const STORAGE_VERSION = 1;
@@ -104,7 +105,7 @@ function deserializeState(persisted: PersistedScriptState): ScriptState | null {
       outline: s.outline,
     };
   } catch (e) {
-    console.warn("Failed to deserialize persisted script state:", e);
+    logger.warn("failed to deserialize persisted script state", { error: e });
     return null;
   }
 }
@@ -115,7 +116,7 @@ export function saveScriptState(state: ScriptState, uri: string, from: string): 
     const persisted = serializeState(state, uri, from);
     localStorage.setItem(key, JSON.stringify(persisted));
   } catch (e) {
-    console.warn("Failed to save script state to localStorage:", e);
+    logger.warn("failed to save script state to localStorage", { error: e });
   }
 }
 
@@ -128,7 +129,7 @@ export function loadScriptState(uri: string, from: string): ScriptState | null {
     if (persisted.uri !== uri || persisted.from !== from) return null;
     return deserializeState(persisted);
   } catch (e) {
-    console.warn("Failed to load script state from localStorage:", e);
+    logger.warn("failed to load script state from localStorage", { error: e });
     return null;
   }
 }
@@ -138,7 +139,7 @@ export function clearScriptState(uri: string, from: string): void {
     const key = `${STORAGE_KEY_PREFIX}${uri}:${from}`;
     localStorage.removeItem(key);
   } catch (e) {
-    console.warn("Failed to clear script state from localStorage:", e);
+    logger.warn("failed to clear script state from localStorage", { error: e });
   }
 }
 
@@ -153,6 +154,6 @@ export function clearAllScriptStates(): void {
     }
     keysToRemove.forEach((key) => localStorage.removeItem(key));
   } catch (e) {
-    console.warn("Failed to clear all script states:", e);
+    logger.warn("failed to clear all script states", { error: e });
   }
 }

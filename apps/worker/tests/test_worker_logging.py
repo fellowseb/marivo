@@ -14,6 +14,7 @@ def test_json_formatter_emits_structured_fields():
 
     out = json.loads(JsonFormatter().format(record))
 
+    assert out["service"] == "marivo-worker"
     assert out["level"] == "ERROR"
     assert out["logger"] == "worker.jobs"
     assert out["message"] == "job failed"

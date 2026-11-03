@@ -1,5 +1,6 @@
 import { InternalServerError } from "../shared/error.ts";
 import { getConfig, type AppConfig } from "./config.ts";
+import { getLogger } from "./logger.ts";
 import { allowBucketKey, createGarageKey, getBucketIdByAlias } from "./garage-admin.ts";
 import {
   CreateBucketCommand,
@@ -62,7 +63,7 @@ export class Storage {
    * Upload a file to storage.
    */
   async upload(bucket: "marivo-imports", path: string, body: ReadableStream) {
-    console.log(`[storage] uploading to ${bucket} ${path}`);
+    getLogger().info({ bucket, path }, "storage upload started");
     const upload = new Upload({
       client: this.client,
       params: {
@@ -72,7 +73,7 @@ export class Storage {
       },
     });
     await upload.done();
-    console.log(`[storage] upload done !`);
+    getLogger().debug({ bucket, path }, "storage upload done");
   }
 
   async download(bucket: "marivo-imports", path: string) {

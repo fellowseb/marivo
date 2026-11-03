@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getDatabase } from "./db.ts";
+import { getLogger } from "./logger.ts";
 
 export interface HealthCheckDeps {
   checkDb: () => Promise<boolean>;
@@ -61,8 +62,9 @@ export async function waitForDependencies(
     if (db && redis && storage) {
       return true;
     }
-    console.warn(
-      `[health] dependency check attempt ${attempt}/${retries} failed: db=${db} redis=${redis} storage=${storage}`,
+    getLogger().warn(
+      { attempt, retries, db, redis, storage },
+      "dependency check attempt failed",
     );
     if (attempt < retries) {
       await sleep(delayMs);

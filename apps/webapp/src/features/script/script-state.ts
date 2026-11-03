@@ -9,6 +9,7 @@ import type {
   LineEditableContent,
 } from "./script.models";
 import { buildScriptOutline, isLineEditableContentSameAsPrevious } from "./script.utils";
+import { logger } from "../../lib/logger";
 
 export interface LineContents {
   sharedDrafts: string[];
@@ -144,7 +145,7 @@ export type ScriptAction =
     };
 
 export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
-  console.log("#DEBUG script state action", action.type);
+  logger.debug("script state action", { action: action.type });
   switch (action.type) {
     case "PROCESS_LATEST_CHANGES_PAYLOAD": {
       // Ignore stale/out-of-order poll responses: never move backwards in time
@@ -178,7 +179,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 sharedDrafts: [],
                 versions: [],
               };
-              console.warn("Unexpected case");
+              logger.warn("unexpected case");
             }
             if (curr.change.type === "content_delete") {
               // Soft-deleted on the server: drop the content and every reference to it
@@ -221,7 +222,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 accLineContents.set(curr.id, content);
               } else if (curr.type === "saved_version") {
                 if (!curr.version) {
-                  console.warn("Unexpected empty version");
+                  logger.warn("unexpected empty version");
                 }
                 m.versions[curr.version ?? 1] = curr.id;
                 accLineContents.set(curr.id, content);
@@ -418,7 +419,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       // Get latest version
       const contents = state.lineToContents.get(id);
       if (!contents) {
-        console.error("Unexpected: line id not found, unable to edit");
+        logger.error("line id not found, unable to edit", { lineId: id });
         return state;
       }
       const versions = contents.versions.slice().reverse().filter(Boolean);
@@ -514,7 +515,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       const lineContents = new Map(state.lineContents);
       const existingLineContent = lineContents.get(id);
       if (!existingLineContent || existingLineContent.type !== "draft") {
-        console.warn("Unexpected line type");
+        logger.warn("unexpected line type");
         return state;
       }
       lineContents.set(id, {
@@ -542,7 +543,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       const lineContents = new Map(state.lineContents);
       const existingLineContent = lineContents.get(id);
       if (!existingLineContent || existingLineContent.type !== "draft") {
-        console.warn("Unexpected line type");
+        logger.warn("unexpected line type");
         return state;
       }
       lineContents.set(id, {
@@ -620,7 +621,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
       const { id, contentId } = action;
       const content = state.lineContents.get(id);
       if (!content) {
-        console.warn("Unexpected state during SAVE_CHANGES_AS_SHARED_DRAFT");
+        logger.warn("unexpected state during SAVE_CHANGES_AS_SHARED_DRAFT");
         return state;
       }
       const lineContents = new Map(state.lineContents);
@@ -655,7 +656,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
               ?.version ?? 0) + 1
           : 1;
       if (!content) {
-        console.warn("Unexpected state during SAVE_CHANGES_AS_NEW_VERSION");
+        logger.warn("unexpected state during SAVE_CHANGES_AS_NEW_VERSION");
         return state;
       }
       const lineContents = new Map(state.lineContents);
@@ -691,7 +692,7 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
           ? state.lineContents.get(contents.versions.slice().reverse().find(Boolean) ?? "")
           : undefined;
       if (!content || !versionnedContent) {
-        console.warn("Unexpected state during SAVE_CHANGES");
+        logger.warn("unexpected state during SAVE_CHANGES");
         return state;
       }
       const lineContents = new Map(state.lineContents);

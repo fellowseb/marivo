@@ -4,15 +4,16 @@ import { initStorage, getStorage } from "./infra/storage.ts";
 import { initDatabase } from "./infra/db.ts";
 import { initMessageBroker, getMessageBroker } from "./infra/message-broker.ts";
 import { checkDatabase, waitForDependencies } from "./infra/health.ts";
+import { getLogger } from "./infra/logger.ts";
 
 function listen() {
   try {
     const trpcPort = getConfig().server.port;
     trpcServer().listen(trpcPort, () => {
-      console.log(`tRPC API server istening on ${trpcPort}`);
+      getLogger().info({ port: trpcPort }, "tRPC API server listening");
     });
   } catch (err) {
-    console.error("Listen failed", err);
+    getLogger().error({ err }, "listen failed");
   }
 }
 
@@ -34,13 +35,13 @@ async function init() {
       checkStorage: () => getStorage().ping(),
     });
     if (!ready) {
-      console.error("[health] dependencies not ready after retries, exiting");
+      getLogger().error("dependencies not ready after retries, exiting");
       process.exit(1);
     }
     // Start listening
     listen();
   } catch (err) {
-    console.error("Ini failed", err);
+    getLogger().error({ err }, "init failed");
   }
 }
 

@@ -13,6 +13,7 @@ import type { LineContent, LineEditableContent } from "./script.models";
 import { useScriptUndoRedo } from "./script-undo-redo.context";
 import { type ScriptAction } from "./script-state";
 import { useScriptContext } from "./script.context";
+import { logger } from "../../lib/logger";
 
 export interface ScriptEditionContext {
   insertedLineId: string | null;
@@ -78,7 +79,7 @@ export function ScriptEditionContextProvider(
     (pos: number, level: number) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const id = uuidV4();
@@ -113,7 +114,7 @@ export function ScriptEditionContextProvider(
     (pos: number, characterId: string) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const id = uuidV4();
@@ -146,7 +147,7 @@ export function ScriptEditionContextProvider(
     (pos: number, init: string) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const id = uuidV4();
@@ -179,7 +180,7 @@ export function ScriptEditionContextProvider(
     (content: LineContent, text?: string, deleted?: boolean) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const lastModifiedDate = new Date(Date.now());
@@ -219,7 +220,7 @@ export function ScriptEditionContextProvider(
     (id: string, text: string) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const lastModifiedDate = new Date(Date.now());
@@ -259,7 +260,7 @@ export function ScriptEditionContextProvider(
     (id: string, content: LineEditableContent) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const lastModifiedDate = new Date(Date.now());
@@ -318,7 +319,7 @@ export function ScriptEditionContextProvider(
   const removeLines = useCallback((ids: string[]) => {
     if (!context) {
       const error = new Error("Unexpected undefined script context");
-      console.warn(error);
+      logger.warn("unexpected error in script edition", { error });
       throw error;
     }
     context.dispatch({
@@ -334,7 +335,7 @@ export function ScriptEditionContextProvider(
     (id: string) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const lastModifiedDate = new Date(Date.now());
@@ -364,7 +365,7 @@ export function ScriptEditionContextProvider(
     (id: string) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const action = {
@@ -405,7 +406,7 @@ export function ScriptEditionContextProvider(
   const saveChangesAsNewVersion = useCallback((id: string) => {
     if (!context) {
       const error = new Error("Unexpected undefined script context");
-      console.warn(error);
+      logger.warn("unexpected error in script edition", { error });
       throw error;
     }
     const contentId = uuidV4();
@@ -433,7 +434,7 @@ export function ScriptEditionContextProvider(
   const saveChangesAsSharedDraft = useCallback((id: string) => {
     if (!context) {
       const error = new Error("Unexpected undefined script context");
-      console.warn(error);
+      logger.warn("unexpected error in script edition", { error });
       throw error;
     }
     const contentId = uuidV4();
@@ -460,7 +461,7 @@ export function ScriptEditionContextProvider(
   const deleteSharedDraft = useCallback((id: string, contentId: string) => {
     if (!context) {
       const error = new Error("Unexpected undefined script context");
-      console.warn(error);
+      logger.warn("unexpected error in script edition", { error });
       throw error;
     }
     const action = {
@@ -474,7 +475,7 @@ export function ScriptEditionContextProvider(
   }, [context, props.uri, deleteLineContentMutation]);
   const deletePreviousVersion = useCallback((id: string, contentId: string) => {
     if (!context) {
-      console.warn("Unexpected undefined script context");
+      logger.warn("unexpected undefined script context");
       return;
     }
     const action = {
@@ -489,7 +490,7 @@ export function ScriptEditionContextProvider(
   const applySharedDraftAsNewVersion = useCallback((id: string, sharedDraft: LineContent) => {
     if (!context) {
       const error = new Error("Unexpected undefined script context");
-      console.warn(error);
+      logger.warn("unexpected error in script edition", { error });
       throw error;
     }
     const contentId = uuidV4();
@@ -516,7 +517,7 @@ export function ScriptEditionContextProvider(
     (id: string, previousVersion: LineContent) => {
       if (!context) {
         const error = new Error("Unexpected undefined script context");
-        console.warn(error);
+        logger.warn("unexpected error in script edition", { error });
         throw error;
       }
       const contentId = uuidV4();

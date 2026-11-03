@@ -1,5 +1,7 @@
+import { type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import PageNotFound from "./components/page-not-found.component";
+import ErrorBoundary, { ErrorFallback } from "./components/error-boundary.component";
 import AuthLayout from "./layouts/auth-layout";
 import MainLayout from "./layouts/main-layout";
 import PlaysPage, { PlaysPageBreadcrumbs } from "./features/play-admin/plays-page.component";
@@ -25,6 +27,11 @@ import ScriptImportsPage, {
 } from "./features/play-admin/script-imports-page.component";
 import { CollectionMetadataContextProvider } from "./features/play-admin/collection-metadata.context";
 
+/** Contain a page-level crash inside its route, keeping the surrounding layout alive. */
+function withErrorBoundary(page: ReactNode) {
+  return <ErrorBoundary fallback={<ErrorFallback />}>{page}</ErrorBoundary>;
+}
+
 function AppRoutes() {
   const breadcrumbs = (
     <Routes>
@@ -41,23 +48,32 @@ function AppRoutes() {
     <AuthGuard>
       <CollectionMetadataContextProvider>
         <Routes>
-          <Route path="*" element={<MainLayout breadcrumbs={breadcrumbs} />}>
-            <Route path="plays" element={<PlaysPage />} />
-            <Route path="plays/new" element={<NewPlayPage />} />
-            <Route path="plays/new/empty" element={<NewEmptyScript />} />
-            <Route path="plays/new/import" element={<ImportScript />} />
-            <Route path="plays/new/from-collection" element={<FromCollection />} />
-            <Route path="plays/imports" element={<ScriptImportsPage />} />
-            <Route path="my-account/security?" element={<UserAccountPage />} />
+          <Route
+            path="*"
+            element={withErrorBoundary(<MainLayout breadcrumbs={breadcrumbs} />)}
+          >
+            <Route path="plays" element={withErrorBoundary(<PlaysPage />)} />
+            <Route path="plays/new" element={withErrorBoundary(<NewPlayPage />)} />
+            <Route path="plays/new/empty" element={withErrorBoundary(<NewEmptyScript />)} />
+            <Route path="plays/new/import" element={withErrorBoundary(<ImportScript />)} />
+            <Route
+              path="plays/new/from-collection"
+              element={withErrorBoundary(<FromCollection />)}
+            />
+            <Route path="plays/imports" element={withErrorBoundary(<ScriptImportsPage />)} />
+            <Route
+              path="my-account/security?"
+              element={withErrorBoundary(<UserAccountPage />)}
+            />
             <Route path="signin" element={<Navigate to="/plays" replace />} />
             <Route path="signup" element={<Navigate to="/plays" replace />} />
             <Route index element={<Navigate to="plays" replace />}></Route>
             <Route path="*" element={<PageNotFound />} />
           </Route>
-          <Route element={<PlayPage />} path={`${PLAY_ROUTE_BASE}/*`} />
-          <Route path="*" element={<AuthLayout />}>
-            <Route path="signin/*" element={<Signin />} />
-            <Route path="signup/*" element={<Signup />} />
+          <Route element={withErrorBoundary(<PlayPage />)} path={`${PLAY_ROUTE_BASE}/*`} />
+          <Route path="*" element={withErrorBoundary(<AuthLayout />)}>
+            <Route path="signin/*" element={withErrorBoundary(<Signin />)} />
+            <Route path="signup/*" element={withErrorBoundary(<Signup />)} />
             <Route path="*" element={<Navigate to="/signin" replace />}></Route>
           </Route>
         </Routes>

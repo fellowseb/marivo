@@ -30,10 +30,11 @@ load_dotenv()
 
 DEFAULT_MODEL = "mistral-large-latest"
 
+logger = logging.getLogger("worker.parser")
+
 
 class MistralParser:
     def __init__(self):
-        logging.basicConfig(level=logging.DEBUG)
         self.model = os.getenv('MISTRAL_MODEL', DEFAULT_MODEL)
         self.http_client = httpx.Client(timeout=None)
         self.client = Mistral(
@@ -48,7 +49,10 @@ class MistralParser:
         )
         model_info = self.client.models.retrieve(
             model_id=self.model)
-        print(model_info.max_context_length)  # → te dit la limite en to
+        logger.debug(
+            "model max context length",
+            extra={"model": self.model, "max_context_length": model_info.max_context_length},
+        )
 
     def parse_script(self, script_text, theatrical_genres, theatrical_periods):
         try:
@@ -86,7 +90,11 @@ class MistralParser:
                 csv_match = re.search(r'```csv\n(.*?)```',
                                       response_text, re.DOTALL)
                 if json_match is None or csv_match is None:
-                    print("Error: Unexpected response format from Mistral")
+                    logger.error(
+                        "unexpected response format from Mistral: missing json/csv block",
+                        extra={"chunk_num": chunk_count},
+                    )
+                    raise ValueError("Unexpected response format from Mistral")
 
                 metadata = json.loads(json_match.group(1))
                 csv_data = csv_match.group(1)
@@ -106,18 +114,18 @@ class MistralParser:
             return all_metadata, all_csv_data
         except errors.MistralError as e:
             # The base class for HTTP error responses
-            print(e.message)
-            print(e.status_code)
-            print(e.body)
-            print(e.headers)
-            print(e.raw_response)
-
-            # Depending on the method different errors may be thrown
-            if isinstance(e, errors.HTTPValidationError):
-                print(e.data.detail)  # Optional[List[models.ValidationError]]
-        except Exception as err:
-            print("Mistral failed: {}".format(err))
-            raise err
+            logger.error(
+                "Mistral API error",
+                exc_info=True,
+                extra={
+                    "status_code": getattr(e, "status_code", None),
+                    "body": getattr(e, "body", None),
+                },
+            )
+            raise
+        except Exception:
+            logger.exception("Mistral call failed")
+            raise
 
 
 def chunk_script(text, max_tokens=1000):

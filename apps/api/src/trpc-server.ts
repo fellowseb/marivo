@@ -5,6 +5,7 @@ import { clerkMiddleware } from "@clerk/express";
 import { createContext, router } from "./trpc.ts";
 import { deliveryMiddleware } from "./infra/delivery.middleware.ts";
 import { workerAuthMiddleware } from "./infra/worker-auth.middleware.ts";
+import { getLogger } from "./infra/logger.ts";
 import { checkDatabase, createHealthRouter } from "./infra/health.ts";
 import { getMessageBroker } from "./infra/message-broker.ts";
 import { getStorage } from "./infra/storage.ts";
@@ -55,7 +56,7 @@ export default function trpcServer(): express.Application {
       createContext,
       onError: (opts) => {
         const { error, type, path } = opts;
-        console.error(error, type, path);
+        getLogger().error({ err: error, type, path }, "tRPC error");
       },
     }),
   );
@@ -76,7 +77,7 @@ export default function trpcServer(): express.Application {
       createContext,
       onError: (opts) => {
         const { error, type, path } = opts;
-        console.error(error, type, path);
+        getLogger().error({ err: error, type, path }, "tRPC error");
       },
     }),
   );
