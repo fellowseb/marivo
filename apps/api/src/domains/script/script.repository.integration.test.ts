@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Sql } from "postgres";
+import { Readable } from "node:stream";
 import { v4 as uuidv4 } from "uuid";
 import {
   setupTestDatabase,
@@ -309,6 +310,37 @@ describe("ScriptRepository (integration with real Postgres)", () => {
         (d) => !("lineType" in d) && d.id === draft.dataOrThrow().contentId && d.change.type === "content_delete",
       );
     expect(draftDelete).toBeDefined();
+  });
+
+  it("createScriptFromStream resolves character tokens and drops unknown placeholders", async () => {
+    const hamletId = uuidv4();
+    const csv = [
+      "heading|{}|1|Act I",
+      `chartext|{{${hamletId},CHARACTER_02}}||"To be or not to be"`,
+      "freetext|||A stage note",
+      "",
+    ].join("\n");
+
+    const scriptId = await repo.createScriptFromStream({
+      characters: { [hamletId]: "HAMLET" },
+      linesStream: Readable.from([csv]),
+      linesContentsStream: Readable.from([csv]),
+    });
+
+    const contents = await sql<{ line_type: string; characters: string[] | null }[]>`
+      SELECT line_type, characters FROM lines_contents
+      WHERE script_id = ${scriptId} ORDER BY line_type
+    `;
+    expect(contents).toHaveLength(3);
+    const cue = contents.find((row) => row.line_type === "chartext");
+    // The unknown CHARACTER_02 placeholder must not reach the uuid[] column
+    expect(cue?.characters).toEqual([hamletId]);
+
+    const [script] = await sql<{ characters: Record<string, string>; lines_order: string[] }[]>`
+      SELECT characters, lines_order FROM scripts WHERE id = ${scriptId}
+    `;
+    expect(script.characters).toEqual({ [hamletId]: "HAMLET" });
+    expect(script.lines_order).toHaveLength(3);
   });
 
   it("saveLineContent saved_version without contentId still creates a new version", async () => {

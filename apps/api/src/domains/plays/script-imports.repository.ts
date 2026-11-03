@@ -6,6 +6,7 @@ import type {
   Files,
   Language,
   ScriptImport,
+  ScriptImportCharacter,
   ScriptImportForProcessing,
   ScriptImportStatus,
 } from "./script-imports.models.ts";
@@ -22,8 +23,7 @@ interface GetScriptImportsRecordValues {
   result_metadata_title: string;
   result_metadata_author: string;
   result_metadata_language: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result_metadata_characters: any[];
+  result_metadata_characters: ScriptImportCharacter[];
   result_metadata_number_of_roles: number;
   result_metadata_number_of_male_roles: number;
   result_metadata_number_of_female_roles: number;
@@ -304,8 +304,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
       numberOfMaleRoles: number;
       numberOfFemaleRoles: number;
       suggestions?: Record<string, string>;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      characters: any[];
+      characters: ScriptImportCharacter[];
     };
   }): Promise<void> {
     await this.sql`

@@ -24,7 +24,14 @@ export const ImportScriptStatusUseCaseOutputSchema = z.discriminatedUnion("statu
       title: z.string(),
       author: z.string(),
       language: z.string(),
-      characters: z.array(z.string()),
+      characters: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          description: z.string(),
+          genre: z.string(),
+        }),
+      ),
       number_of_roles: z.number(),
       number_of_male_roles: z.number(),
       number_of_female_roles: z.number(),

@@ -190,12 +190,31 @@ export class ScriptRepository extends UserRepositoryBase {
       },
     });
 
+    // Map CSV character tokens (uuids, or names) to known character ids.
+    // Unknown placeholders (e.g. CHARACTER_02) are dropped instead of crashing
+    // the COPY on the uuid[] column.
+    const characterIds = Object.keys(params.characters);
+    const nameToId = new Map(
+      Object.entries(params.characters).map(([id, name]) => [name, id] as const),
+    );
+    const resolveCharacterIds = (raw: string | undefined): string => {
+      const inner = (raw ?? "").replace(/^\{+|\}+$/g, "");
+      const tokens = inner
+        .split(",")
+        .map((token) => token.trim())
+        .filter(Boolean);
+      const ids = tokens
+        .map((token) => nameToId.get(token) ?? (characterIds.includes(token) ? token : undefined))
+        .filter((id): id is string => id !== undefined);
+      return ids.length ? `{${ids.join(",")}}` : "{}";
+    };
+
     let count = 0;
     const addLineColumnsTransform2 = new Transform({
       objectMode: true,
       transform(row: string[], _encoding, callback) {
         const lineType = row[0];
-        const characters = lineType === "chartext" ? row[1] : "{}";
+        const characters = lineType === "chartext" ? resolveCharacterIds(row[1]) : "{}";
         const headingLevel = lineType === "heading" ? parseInt(row[2] as string, 10) : 5;
         const id = uuidv4();
         callback(null, [
