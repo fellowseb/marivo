@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
+      target: dev
     ports:
       - 3001:3001
     depends_on:
@@ -36,6 +37,7 @@ services:
       - network
     build:
       context: ./apps/worker
+      target: dev
     ports:
       - 8081:8081
     depends_on:
