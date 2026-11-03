@@ -1,3 +1,4 @@
+import { InternalServerError } from "../../shared/error.ts";
 import { Record } from "../../shared/record.ts";
 import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
 import type { UserInvite } from "./invites.models.ts";
@@ -52,11 +53,11 @@ export class UserInvitesRepository extends UserRepositoryBase {
         RETURNING play_id, role_id;
     `;
     if (!res) {
-      throw new Error("Unexpected empty query result");
+      throw new InternalServerError("Unexpected empty query result");
     }
     const resRow = res[0];
     if (!resRow) {
-      throw new Error("Unexpected undefined query result row");
+      throw new InternalServerError("Unexpected undefined query result row");
     }
     return {
       playId: resRow.play_id,

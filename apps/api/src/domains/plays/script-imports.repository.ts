@@ -1,6 +1,6 @@
 import { Result } from "@marivo/utils";
 import { Record as DbRecord } from "../../shared/record.ts";
-import { AppError } from "../../shared/error.ts";
+import { AppError, InternalServerError } from "../../shared/error.ts";
 import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
 import type {
   Files,
@@ -141,12 +141,12 @@ export class ScriptImportsRepository extends UserRepositoryBase {
         ) FOR UPDATE;
     `;
     if (!record) {
-      throw new Error("Unexpected importId not found on file uploaded");
+      throw new InternalServerError("Unexpected importId not found on file uploaded");
     }
     const { files } = record;
     const fileInfo = files[params.fileId];
     if (!fileInfo) {
-      throw new Error("Attempt to upload unknown file id " + params.fileId);
+      throw new InternalServerError("Attempt to upload unknown file id " + params.fileId);
     }
     const filesUpdated = {
       ...files,
@@ -179,12 +179,12 @@ export class ScriptImportsRepository extends UserRepositoryBase {
     `;
     const record = records[0];
     if (!record) {
-      throw new Error("Unexpected importId not found on file uploaded");
+      throw new InternalServerError("Unexpected importId not found on file uploaded");
     }
     const { files } = record;
     const fileInfo = files[params.fileId];
     if (!fileInfo) {
-      throw new Error("Attempt to fetch unknown file id");
+      throw new InternalServerError("Attempt to fetch unknown file id");
     }
     const filesUpdated = {
       ...files,

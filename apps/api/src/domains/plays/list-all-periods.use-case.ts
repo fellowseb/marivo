@@ -15,10 +15,11 @@ export class ListAllPeriodsUseCase implements UseCase<{ success: ListAllPeriodsU
   }
 
   async execute() {
-    const periods = (await this.repository.findAllPeriods())
-      .dataOrThrow()
-      .map((record) => record.get("key"));
-    return Result.ok({ periods });
+    const result = await this.repository.findAllPeriods();
+    if (result.isFailure()) {
+      return Result.failure(result.errorOrThrow());
+    }
+    return Result.ok({ periods: result.dataOrThrow().map((record) => record.get("key")) });
   }
 
   private repository: PlaysCollectionRepository;

@@ -3,7 +3,7 @@ import { Result } from "@marivo/utils";
 import { Record } from "../../shared/record.ts";
 import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
 import type { UserPlay } from "./plays.models.ts";
-import { AppError } from "../../shared/error.ts";
+import { AppError, InternalServerError } from "../../shared/error.ts";
 
 interface GetAllPlaysRecordValues {
   id: number;
@@ -113,7 +113,7 @@ export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
       if (dbPermissions) {
         const result = PERMISSIONS_SCHEMA.safeParse(dbPermissions);
         if (!result.success) {
-          throw new Error("Invalid permissions object in database");
+          throw new InternalServerError("Invalid permissions object in database");
         }
         permissionsResolved = Object.keys(PERMISSIONS_DEFAULTS).reduce(
           (acc, key) => ({
@@ -256,7 +256,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
       ) RETURNING id;
     `;
     if (playRow === undefined) {
-      throw new Error("Unexpected empty row on createPlay");
+      throw new InternalServerError("Unexpected empty row on createPlay");
     }
     const { id: createdPlayId } = playRow;
     await this.sql`

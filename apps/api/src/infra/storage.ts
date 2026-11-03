@@ -1,3 +1,4 @@
+import { InternalServerError } from "../shared/error.ts";
 import process from "node:process";
 import { GetObjectCommand, HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
@@ -41,7 +42,7 @@ export class Storage {
       }),
     );
     if (!response.Body) {
-      throw new Error("Response has no body");
+      throw new InternalServerError("Response has no body");
     }
     const readable = Readable.fromWeb(response.Body.transformToWebStream(), {
       encoding: "utf8",
@@ -79,7 +80,7 @@ export async function initStorage() {
 
 export function getStorage() {
   if (!instance) {
-    throw new Error("Storage not initialized");
+    throw new InternalServerError("Storage not initialized");
   }
   return instance;
 }

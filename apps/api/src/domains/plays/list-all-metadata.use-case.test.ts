@@ -26,10 +26,12 @@ describe("ListAllGenresUseCase", () => {
     expect(result.dataOrThrow()).toEqual({ genres: ["drama", "comedy"] });
   });
 
-  it("fails when the repository fails", async () => {
+  it("propagates repository failures as Result.failure", async () => {
     repository.findAllGenres.mockResolvedValue(Result.failure(new Error("db down") as never));
 
-    await expect(useCase.execute()).rejects.toThrow();
+    const result = await useCase.execute();
+
+    expect(result.isFailure()).toBe(true);
   });
 });
 
@@ -55,9 +57,11 @@ describe("ListAllPeriodsUseCase", () => {
     expect(result.dataOrThrow()).toEqual({ periods: ["renaissance", "modern"] });
   });
 
-  it("fails when the repository fails", async () => {
+  it("propagates repository failures as Result.failure", async () => {
     repository.findAllPeriods.mockResolvedValue(Result.failure(new Error("db down") as never));
 
-    await expect(useCase.execute()).rejects.toThrow();
+    const result = await useCase.execute();
+
+    expect(result.isFailure()).toBe(true);
   });
 });

@@ -1,6 +1,7 @@
 import type { IncomingHttpHeaders } from "node:http";
 import { Result } from "@marivo/utils";
 import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
+import { AppError } from "../../shared/error.ts";
 import type { ScriptImportsRepository } from "./script-imports.repository.ts";
 import type { Storage } from "../../infra/storage.ts";
 import type { MessageBroker } from "../../infra/message-broker.ts";
@@ -8,9 +9,17 @@ import type { MessageBroker } from "../../infra/message-broker.ts";
 const HEADER_X_MARIVO_IMPORT_ID = "x-marivo-import-id";
 const HEADER_X_MARIVO_IMPORT_FILE_ID = "x-marivo-import-file-id";
 
+export class MissingHeaderError extends AppError {
+  constructor(header: string) {
+    super(`Expected ${header} header`, "BAD_REQUEST");
+  }
+}
+
 type UploadFileForScriptImportUseCaseInput = ReadableStream;
 
-export class UploadFileForScriptImportUseCase extends AuthenticatedUseCase<{}> {
+export class UploadFileForScriptImportUseCase extends AuthenticatedUseCase<{
+  failure: MissingHeaderError;
+}> {
   constructor(
     userContext: UserContextService,
     scriptImportsRepository: ScriptImportsRepository,
@@ -26,11 +35,11 @@ export class UploadFileForScriptImportUseCase extends AuthenticatedUseCase<{}> {
   async execute(input: UploadFileForScriptImportUseCaseInput, headers: IncomingHttpHeaders) {
     const importId = headers[HEADER_X_MARIVO_IMPORT_ID];
     if (typeof importId !== "string") {
-      throw new Error(`Expected ${HEADER_X_MARIVO_IMPORT_ID} header`);
+      return Result.failure(new MissingHeaderError(HEADER_X_MARIVO_IMPORT_ID));
     }
     const fileId = headers[HEADER_X_MARIVO_IMPORT_FILE_ID];
     if (typeof fileId !== "string") {
-      throw new Error(`Expected ${HEADER_X_MARIVO_IMPORT_FILE_ID} header`);
+      return Result.failure(new MissingHeaderError(HEADER_X_MARIVO_IMPORT_FILE_ID));
     }
     const path = `${importId}/${fileId}`;
     const stream = input;
