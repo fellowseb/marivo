@@ -1,29 +1,48 @@
-FROM node:26-alpine
+# syntax=docker/dockerfile:1
+# Multi-stage Dockerfile for the API.
+#   dev        (default via compose): full deps + source, root user, runs the
+#              watch-mode dev script; compose volume mounts overlay the source
+#   production: prod deps only, non-root user, plain node on the TS source
+#              (Node 26 strips types; packages resolve from source since #172)
+FROM node:26-alpine AS base
 
 # Install pnpm (corepack is no longer bundled with Node 26 images)
 RUN npm install -g pnpm@12.15.0
 
-# Set working directory
 WORKDIR /app
 
+# Workspace manifests first so this layer caches across source changes
+FROM base AS deps
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/api/package.json apps/api/package.json
 COPY packages/config-typescript/package.json packages/config-typescript/package.json
 COPY packages/utils/package.json packages/utils/package.json
-
-# Install dependencies (including workspaces)
 RUN pnpm install --frozen-lockfile
 
-# Copy the rest of the monorepo (but only what's needed)
+FROM base AS deps-prod
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY packages/config-typescript/package.json packages/config-typescript/package.json
+COPY packages/utils/package.json packages/utils/package.json
+RUN pnpm install --frozen-lockfile --prod
+
+FROM deps AS dev
 COPY apps/api/ apps/api/
 COPY packages/ packages/
-
-# Build the API (if needed)
 WORKDIR /app/apps/api
-RUN pnpm build  # Or "pnpm run build" if using a script
-
-# Switch back to root for runtime (optional)
+RUN pnpm build
 WORKDIR /app
-
-# Start the API
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["pnpm", "--filter", "api", "dev"]
+
+FROM deps-prod AS production
+COPY apps/api/ apps/api/
+COPY packages/ packages/
+RUN addgroup -S app && adduser -S app -G app && chown -R app:app /app
+USER app
+WORKDIR /app
+ENV NODE_ENV=production
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "apps/api/src/index.ts"]

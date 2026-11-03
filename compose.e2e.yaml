@@ -10,6 +10,7 @@ services:
   mistral-mock:
     build:
       context: ./apps/worker
+      target: dev
     entrypoint: ["python3", "-u", "/app/e2e/mistral_mock_server.py"]
     volumes:
       - ./apps/worker:/app
