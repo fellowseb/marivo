@@ -29,6 +29,17 @@ jobs:
           node-version: 26
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Check e2e environment secrets
+        env:
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+        run: |
+          if [ -z "$CLERK_PUBLISHABLE_KEY" ] || [ -z "$CLERK_SECRET_KEY" ]; then
+            echo "::error::The 'e2e' GitHub environment is missing CLERK_PUBLISHABLE_KEY/CLERK_SECRET_KEY."
+            echo "Create the 'e2e' environment (Settings > Environments > New environment) and add both secrets"
+            echo "from a dedicated CI Clerk instance (Clerk dashboard > API keys)."
+            exit 1
+          fi
       # Generate gitignored env files + garage.toml for the compose stack
       - run: |
           CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }} \

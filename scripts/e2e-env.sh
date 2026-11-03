@@ -3,8 +3,12 @@
 # full stack for E2E tests in CI. Secrets come from the workflow environment.
 set -euo pipefail
 
-: "${CLERK_PUBLISHABLE_KEY:?set CLERK_PUBLISHABLE_KEY}"
-: "${CLERK_SECRET_KEY:?set CLERK_SECRET_KEY}"
+if [ -z "${CLERK_PUBLISHABLE_KEY:-}" ] || [ -z "${CLERK_SECRET_KEY:-}" ]; then
+  echo "ERROR: CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY must be set." >&2
+  echo "Create a GitHub 'e2e' environment (Settings > Environments) with these secrets" >&2
+  echo "from a dedicated CI Clerk instance (clerk.com dashboard > API keys)." >&2
+  exit 1
+fi
 
 RPC_SECRET=$(openssl rand -hex 32)
 ADMIN_TOKEN=$(openssl rand -hex 32)
