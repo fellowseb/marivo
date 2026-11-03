@@ -20,8 +20,10 @@ permissions:
     skills: true
   '@trpc/tanstack-react-query':
     skills: true
+  # optional native dep of ssh2: its node-gyp build fails on node:*-alpine
+  # images (no toolchain) and is not needed (pure-JS fallback)
   cpu-features:
-    build: true
+    build: false
   msgpackr-extract:
     build: true
   pnpm:
