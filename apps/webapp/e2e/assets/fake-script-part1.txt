@@ -1,0 +1,5 @@
+THE E2E MOCK PLAY
+A fake script in three parts, imported during E2E tests.
+
+ACT I
+
