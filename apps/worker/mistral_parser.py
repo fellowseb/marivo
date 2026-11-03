@@ -37,7 +37,10 @@ class MistralParser:
         self.model = os.getenv('MISTRAL_MODEL', DEFAULT_MODEL)
         self.http_client = httpx.Client(timeout=None)
         self.client = Mistral(
-            api_key=os.getenv('MISTRAL_API_KEY'),
+            # `or None`: an empty key would produce an illegal "Bearer " header
+            # (httpx LocalProtocolError); None lets the SDK skip the header,
+            # which is what mock/custom endpoints (MISTRAL_API_BASE) expect
+            api_key=os.getenv('MISTRAL_API_KEY') or None,
             # Optional override, e.g. a mock LLM endpoint in E2E tests
             server_url=os.getenv('MISTRAL_API_BASE') or None,
             debug_logger=logging.getLogger("mistralai.client"),

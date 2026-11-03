@@ -39,3 +39,14 @@ def test_parser_against_mock_server(mock_server):
     assert csv_data.startswith('heading||1|"Act I"')
     assert 'chartext|{{' in csv_data
     assert '"Hello from the mock."' in csv_data
+
+
+def test_empty_api_key_does_not_crash_against_mock(mock_server, monkeypatch):
+    """An empty MISTRAL_API_KEY must not produce an illegal 'Bearer ' header
+    (httpx LocalProtocolError) when a custom MISTRAL_API_BASE (mock) is used."""
+    monkeypatch.setenv("MISTRAL_API_KEY", "")
+    from mistral_parser import MistralParser
+
+    parser = MistralParser()
+    metadata, _csv = parser.parse_script("ACT I\n\nALICE. Hello.", "comedy", "contemporary")
+    assert metadata["title"] == FAKE_METADATA["title"]
