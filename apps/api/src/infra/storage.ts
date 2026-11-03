@@ -1,6 +1,8 @@
 import { InternalServerError } from "../shared/error.ts";
-import { getConfig } from "./config.ts";
+import { getConfig, type AppConfig } from "./config.ts";
+import { createGarageKey } from "./garage-admin.ts";
 import {
+  CreateBucketCommand,
   GetObjectCommand,
   HeadBucketCommand,
   PutObjectCommand,
@@ -10,20 +12,40 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "node:stream";
 
+export const IMPORTS_BUCKET = "marivo-imports";
+
+export interface StorageDeps {
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  /** Injectable for tests */
+  client?: S3Client | undefined;
+}
+
+function isNotFound(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    ((err as { name?: string }).name === "NotFound" ||
+      (err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode === 404)
+  );
+}
+
 export class Storage {
-  constructor() {
-    const { garage } = getConfig();
-    this.client = new S3Client({
-      region: "garage",
-      endpoint: garage.endpoint,
-      credentials: {
-        accessKeyId: garage.accessKey,
-        secretAccessKey: garage.secretKey,
-      },
-      forcePathStyle: true,
-      // Avoid default CRC32 checksum headers: they break presigned PUT urls
-      requestChecksumCalculation: "WHEN_REQUIRED",
-    });
+  constructor(deps: StorageDeps) {
+    this.client =
+      deps.client ??
+      new S3Client({
+        region: "garage",
+        endpoint: deps.endpoint,
+        credentials: {
+          accessKeyId: deps.accessKeyId,
+          secretAccessKey: deps.secretAccessKey,
+        },
+        forcePathStyle: true,
+        // Avoid default CRC32 checksum headers: they break presigned PUT urls
+        requestChecksumCalculation: "WHEN_REQUIRED",
+      });
   }
 
   /**
@@ -60,20 +82,18 @@ export class Storage {
     return readable;
   }
 
-  async initBucket(bucketName: string) {
+  /**
+   * Ensure the bucket exists, creating it over S3 when missing. Works with a
+   * first-boot provisioned key (which has createBucket permission).
+   */
+  async ensureBucket(bucketName: string) {
     try {
-      await this.client.send(
-        new HeadBucketCommand({
-          Bucket: bucketName,
-        }),
-      );
+      await this.client.send(new HeadBucketCommand({ Bucket: bucketName }));
     } catch (err) {
-      console.error(err);
-      // this.client.send(
-      //   new CreateBucketCommand({
-      //     Bucket: bucketName,
-      //   }),
-      // );
+      if (!isNotFound(err)) {
+        throw err;
+      }
+      await this.client.send(new CreateBucketCommand({ Bucket: bucketName }));
     }
   }
 
@@ -98,7 +118,7 @@ export class Storage {
   /** Readiness probe: can we reach the S3-compatible storage? */
   async ping(): Promise<boolean> {
     try {
-      await this.client.send(new HeadBucketCommand({ Bucket: "marivo-imports" }));
+      await this.client.send(new HeadBucketCommand({ Bucket: IMPORTS_BUCKET }));
       return true;
     } catch {
       return false;
@@ -110,9 +130,32 @@ export class Storage {
 
 let instance: Storage;
 
-export async function initStorage() {
-  instance = new Storage();
-  await instance.initBucket("marivo-imports");
+export async function initStorage(config: AppConfig = getConfig(), client?: S3Client) {
+  const { garage } = config;
+  let accessKeyId = garage.accessKey;
+  let secretAccessKey = garage.secretKey;
+  // First boot on a fresh instance: provision a key via the admin API
+  if (!accessKeyId || !secretAccessKey) {
+    if (!garage.adminToken) {
+      throw new InternalServerError(
+        "Garage access key not configured and GARAGE_ADMIN_TOKEN is missing (cannot auto-provision)",
+      );
+    }
+    const key = await createGarageKey(
+      garage.adminUrl,
+      garage.adminToken,
+      `marivo-api-${new Date().toISOString()}`,
+    );
+    accessKeyId = key.accessKeyId;
+    secretAccessKey = key.secretAccessKey;
+  }
+  instance = new Storage({
+    endpoint: garage.endpoint,
+    accessKeyId,
+    secretAccessKey,
+    client,
+  });
+  await instance.ensureBucket(IMPORTS_BUCKET);
 }
 
 export function getStorage() {

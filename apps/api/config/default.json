@@ -22,7 +22,9 @@
   "garage": {
     "endpoint": "http://garage:3900",
     "accessKey": "",
-    "secretKey": ""
+    "secretKey": "",
+    "adminUrl": "http://garage:3903",
+    "adminToken": ""
   },
   "worker": {
     "apiKey": ""
