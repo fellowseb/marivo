@@ -7,9 +7,10 @@
     "build": "vite build",
     "dev": "vite --host 0.0.0.0 --port 5173 --clearScreen false",
     "check-types": "tsc --noEmit",
-    "lint": "oxlint src/ --deny-warnings",
+    "lint": "oxlint src/ e2e/ playwright.config.ts --deny-warnings",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@marivo/typescript-config": "workspace:*",
+    "@playwright/test": "^1.64.1",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

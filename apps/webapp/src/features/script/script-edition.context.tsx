@@ -62,6 +62,9 @@ export function ScriptEditionContextProvider(
   const deleteLineContentMutation = useMutation(
     trpc.script.deleteLineContent.mutationOptions({ onSettled: invalidateLatestChanges }),
   );
+  const createLineMutation = useMutation(
+    trpc.script.createLine.mutationOptions({ onSettled: invalidateLatestChanges }),
+  );
 
   function buildContentPayload(content: LineContent) {
     return {
@@ -88,6 +91,9 @@ export function ScriptEditionContextProvider(
         level,
       } as const satisfies ScriptAction;
       context.dispatch(action);
+      // Persist the line server-side so saving its content doesn't hit the
+      // lines_contents -> lines foreign key
+      createLineMutation.mutate({ uri: props.uri, lineId: id, lineType: "heading", position: pos });
       const undoAction = {
         type: "UNDO_INSERT_HEADING_LINE",
         id,
@@ -101,7 +107,7 @@ export function ScriptEditionContextProvider(
       });
       setInsertedLineId(id);
     },
-    [context?.lastModifiedDate],
+    [context?.lastModifiedDate, props.uri, createLineMutation],
   );
   const insertCueLine = useCallback(
     (pos: number, characterId: string) => {
@@ -120,6 +126,7 @@ export function ScriptEditionContextProvider(
         characterId,
       } as const satisfies ScriptAction;
       context.dispatch(action);
+      createLineMutation.mutate({ uri: props.uri, lineId: id, lineType: "chartext", position: pos });
       const undoAction = {
         type: "UNDO_INSERT_CUE_LINE",
         id,
@@ -133,7 +140,7 @@ export function ScriptEditionContextProvider(
       });
       setInsertedLineId(id);
     },
-    [context?.characters, context?.lastModifiedDate],
+    [context?.characters, context?.lastModifiedDate, props.uri, createLineMutation],
   );
   const insertFreetextLine = useCallback(
     (pos: number, init: string) => {
@@ -152,6 +159,7 @@ export function ScriptEditionContextProvider(
         init,
       } as const;
       context.dispatch(action);
+      createLineMutation.mutate({ uri: props.uri, lineId: id, lineType: "freetext", position: pos });
       const undoAction = {
         type: "UNDO_INSERT_FREETEXT_LINE",
         id,
@@ -165,7 +173,7 @@ export function ScriptEditionContextProvider(
       });
       setInsertedLineId(id);
     },
-    [context?.lastModifiedDate],
+    [context?.lastModifiedDate, props.uri, createLineMutation],
   );
   const initDraft = useCallback(
     (content: LineContent, text?: string, deleted?: boolean) => {

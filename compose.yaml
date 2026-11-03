@@ -98,7 +98,9 @@ services:
       - "3903:3903"
     restart: unless-stopped
     env_file: "./.env.development.docker"
-    command: /garage server --single-node --default-bucket
+    # no --default-bucket/--default-access-key: the api provisions its own
+    # key + bucket on first boot via the admin API (see #166)
+    command: /garage server --single-node
     volumes:
       - ./apps/api/dev/garage.toml:/etc/garage.toml
       - ./apps/api/dev/garage/meta:/var/lib/garage/meta

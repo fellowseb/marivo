@@ -280,6 +280,22 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
     expect(next.lineContents.get("line-1")?.text).toBe("newer local edit");
   });
 
+  it("line_create does not clobber existing local refs for the line", () => {
+    const state = makeState();
+    const next = reducer(state, latestChangesAction([
+      {
+        id: "line-1",
+        lineType: "freetext",
+        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+        change: { type: "line_create" },
+      },
+    ]));
+
+    // versions/sharedDrafts populated locally before the server echo arrives
+    expect(next.lineToContents.get("line-1")?.versions.filter(Boolean)).toEqual(["c1", "c2"]);
+    expect(next.lineToContents.get("line-1")?.sharedDrafts).toEqual(["d1"]);
+  });
+
   it("content_delete on a draft clears the draft slot for that line", () => {
     const state = makeState();
     state.lineContents.set("line-1", {

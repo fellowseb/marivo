@@ -89,7 +89,11 @@ describe("initStorage first-boot provisioning", () => {
 });
 
 describe("Storage.ensureBucket", () => {
-  it("rethrows non-404 errors without creating", async () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("rethrows non-404/403 errors without creating", async () => {
     const { client, send } = fakeS3Client(
       Object.assign(new Error("boom"), { $metadata: { httpStatusCode: 500 } }),
     );
@@ -101,5 +105,31 @@ describe("Storage.ensureBucket", () => {
     });
     await expect(storage.ensureBucket(IMPORTS_BUCKET)).rejects.toThrow("boom");
     expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it("grants access via the admin API on 403 (existing bucket, new key)", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(async (url: string) => {
+        calls.push(url);
+        if (url.includes("GetBucketInfo")) {
+          return { ok: true, status: 200, json: async () => ({ id: "bid-9" }), text: async () => "" };
+        }
+        return { ok: true, status: 200, json: async () => ({}), text: async () => "" };
+      }),
+    );
+    const { client } = fakeS3Client(
+      Object.assign(new Error("forbidden"), { name: "Forbidden", $metadata: { httpStatusCode: 403 } }),
+    );
+    const storage = new Storage({
+      endpoint: "http://x",
+      accessKeyId: "GKnew",
+      secretAccessKey: "s",
+      client,
+    });
+    await storage.ensureBucket(IMPORTS_BUCKET, { adminUrl: "http://admin", adminToken: "tok" });
+    expect(calls.some((u) => u.includes("GetBucketInfo?globalAlias=marivo-imports"))).toBe(true);
+    expect(calls.some((u) => u.endsWith("/v2/AllowBucketKey"))).toBe(true);
   });
 });
