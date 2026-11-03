@@ -15,10 +15,11 @@ export class ListAllGenresUseCase implements UseCase<{ success: ListAllGenresUse
   }
 
   async execute() {
-    const genres = (await this.repository.findAllGenres())
-      .dataOrThrow()
-      .map((record) => record.get("key"));
-    return Result.ok({ genres });
+    const result = await this.repository.findAllGenres();
+    if (result.isFailure()) {
+      return Result.failure(result.errorOrThrow());
+    }
+    return Result.ok({ genres: result.dataOrThrow().map((record) => record.get("key")) });
   }
 
   private repository: PlaysCollectionRepository;

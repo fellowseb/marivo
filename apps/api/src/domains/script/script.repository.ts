@@ -7,7 +7,7 @@ import { type Sql, type TransactionSql } from "postgres";
 import { Result } from "@marivo/utils";
 import { UserContextService } from "../../shared/use-case.ts";
 import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
-import { AppError } from "../../shared/error.ts";
+import { AppError, InternalServerError } from "../../shared/error.ts";
 import { type LineContentType, type ScriptDiff } from "./script.models.ts";
 
 interface ScriptRow {
@@ -163,7 +163,7 @@ export class ScriptRepository extends UserRepositoryBase {
       ) RETURNING id;
     `;
     if (!scriptRow) {
-      throw new Error("Failed to create script");
+      throw new InternalServerError("Failed to create script");
     }
     const parser = parse({ columns: false, delimiter: "|" }); // Parse as arrays (not objects)
     const stringifier = stringify({
@@ -295,7 +295,7 @@ export class ScriptRepository extends UserRepositoryBase {
       ) RETURNING id;
     `;
     if (!scriptRow) {
-      throw new Error("Failed to create script");
+      throw new InternalServerError("Failed to create script");
     }
     return scriptRow.id;
   }

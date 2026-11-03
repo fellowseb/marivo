@@ -20,14 +20,23 @@ export class GetMetadataUseCase extends AuthenticatedUseCase<{
   }
 
   async execute() {
-    const genres = (await this.repository.findAllGenres())
-      .dataOrThrow()
-      .map((record) => record.get("key"));
-    const periods = (await this.repository.findAllPeriods())
-      .dataOrThrow()
-      .map((record) => record.get("key"));
-    const count = (await this.repository.countAll()).dataOrThrow();
-    return Result.ok({ genres, periods, count });
+    const genresResult = await this.repository.findAllGenres();
+    if (genresResult.isFailure()) {
+      return Result.failure(genresResult.errorOrThrow());
+    }
+    const periodsResult = await this.repository.findAllPeriods();
+    if (periodsResult.isFailure()) {
+      return Result.failure(periodsResult.errorOrThrow());
+    }
+    const countResult = await this.repository.countAll();
+    if (countResult.isFailure()) {
+      return Result.failure(countResult.errorOrThrow());
+    }
+    return Result.ok({
+      genres: genresResult.dataOrThrow().map((record) => record.get("key")),
+      periods: periodsResult.dataOrThrow().map((record) => record.get("key")),
+      count: countResult.dataOrThrow(),
+    });
   }
 
   private repository: PlaysCollectionRepository;

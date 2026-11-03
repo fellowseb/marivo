@@ -8,6 +8,7 @@ import { Result } from "@marivo/utils";
 import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
 import type { ScriptRepository } from "../script/script.repository.ts";
 import type { ScriptImportNotFound, ScriptImportsRepository } from "./script-imports.repository.ts";
+import type { InternalServerError } from "../../shared/error.ts";
 import type { Storage } from "../../infra/storage.ts";
 import { Languages, type Language } from "./script-imports.models.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
@@ -61,7 +62,7 @@ export class SetScriptImportResultUseCase extends AuthenticatedUseCase<{
 
   async execute(
     input: SetScriptImportResultUseCaseInput,
-  ): Promise<Result<undefined, ScriptImportNotFound>> {
+  ): Promise<Result<undefined, ScriptImportNotFound | InternalServerError>> {
     const { importId, result } = input;
     const res = await this.scriptImportsRepository.getScriptImportStatus(importId);
     if (res.isFailure()) {
@@ -105,9 +106,11 @@ export class SetScriptImportResultUseCase extends AuthenticatedUseCase<{
       const suggestions: Record<string, string> = {};
       let validatedGenre = undefined;
       if (metadata.genre) {
-        const allGenres = (await this.playsCollectionRepository.findAllGenres())
-          .dataOrThrow()
-          .map((record) => record.get("key"));
+        const allGenresResult = await this.playsCollectionRepository.findAllGenres();
+        if (allGenresResult.isFailure()) {
+          return Result.failure(allGenresResult.errorOrThrow());
+        }
+        const allGenres = allGenresResult.dataOrThrow().map((record) => record.get("key"));
         if (allGenres.includes(metadata.genre)) {
           validatedGenre = metadata.genre;
         } else {
@@ -116,9 +119,11 @@ export class SetScriptImportResultUseCase extends AuthenticatedUseCase<{
       }
       let validatedPeriod = undefined;
       if (metadata.period) {
-        const allPeriods = (await this.playsCollectionRepository.findAllPeriods())
-          .dataOrThrow()
-          .map((record) => record.get("key"));
+        const allPeriodsResult = await this.playsCollectionRepository.findAllPeriods();
+        if (allPeriodsResult.isFailure()) {
+          return Result.failure(allPeriodsResult.errorOrThrow());
+        }
+        const allPeriods = allPeriodsResult.dataOrThrow().map((record) => record.get("key"));
         if (allPeriods.includes(metadata.period)) {
           validatedPeriod = metadata.period;
         } else {

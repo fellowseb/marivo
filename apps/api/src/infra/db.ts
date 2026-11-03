@@ -1,3 +1,4 @@
+import { InternalServerError } from "../shared/error.ts";
 import postgres from "postgres";
 
 let sql: ReturnType<typeof postgres>;
@@ -19,7 +20,7 @@ export function initDatabase() {
 
 export function getDatabase() {
   if (!sql) {
-    throw new Error("Database not initialized");
+    throw new InternalServerError("Database not initialized");
   }
   return sql;
 }

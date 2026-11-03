@@ -1,3 +1,4 @@
+import { InternalServerError } from "../shared/error.ts";
 import { Queue } from "bullmq";
 
 type MarivoJob = "process-script-text-files";
@@ -30,7 +31,7 @@ export function initMessageBroker() {
 
 export function getMessageBroker() {
   if (!instance) {
-    throw new Error("MessageBroker not initialized");
+    throw new InternalServerError("MessageBroker not initialized");
   }
   return instance;
 }
