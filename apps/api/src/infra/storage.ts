@@ -1,6 +1,12 @@
 import { InternalServerError } from "../shared/error.ts";
 import { getConfig } from "./config.ts";
-import { GetObjectCommand, HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  HeadBucketCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "node:stream";
 
@@ -15,6 +21,8 @@ export class Storage {
         secretAccessKey: garage.secretKey,
       },
       forcePathStyle: true,
+      // Avoid default CRC32 checksum headers: they break presigned PUT urls
+      requestChecksumCalculation: "WHEN_REQUIRED",
     });
   }
 
@@ -67,6 +75,24 @@ export class Storage {
       //   }),
       // );
     }
+  }
+
+  /** Presigned GET url (e.g. for the worker to download an import file). */
+  presignDownload(bucket: string, key: string, expiresInSeconds = 900): Promise<string> {
+    return getSignedUrl(
+      this.client,
+      new GetObjectCommand({ Bucket: bucket, Key: key }),
+      { expiresIn: expiresInSeconds },
+    );
+  }
+
+  /** Presigned PUT url (e.g. for the worker to upload a result file). */
+  presignUpload(bucket: string, key: string, expiresInSeconds = 900): Promise<string> {
+    return getSignedUrl(
+      this.client,
+      new PutObjectCommand({ Bucket: bucket, Key: key }),
+      { expiresIn: expiresInSeconds },
+    );
   }
 
   /** Readiness probe: can we reach the S3-compatible storage? */

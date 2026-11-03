@@ -12,6 +12,7 @@ import { userMiddleware } from "./domains/auth/user.middleware.ts";
 import playsRoutes from "./domains/plays/plays.trpc-routes.ts";
 import playsCollectionRoutes from "./domains/plays/plays-collection.trpc-routes.ts";
 import playsWorkerRoutes from "./domains/plays/plays-worker.trpc-routes.ts";
+import storageRoutes from "./domains/storage/storage.trpc-routes.ts";
 import scriptRoutes from "./domains/script/script.trpc-routes.ts";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
@@ -24,6 +25,7 @@ const appRouter = router({
 const workerRouter = router({
   plays: playsWorkerRoutes,
   playsCollection: playsCollectionRoutes,
+  storage: storageRoutes,
 });
 
 export type AppRouter = typeof appRouter;

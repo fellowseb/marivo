@@ -2,7 +2,7 @@ from bullmq import Job
 import os
 from dotenv import load_dotenv
 import tempfile
-from s3_client import GarageClient
+from storage_client import StorageClient
 from mistral_parser import MistralParser
 from trpc_client import TRPCClient
 import json
@@ -10,12 +10,12 @@ import json
 load_dotenv()
 
 # Initialisation des clients
-garage = GarageClient()
 parser = MistralParser()
 
 
 def process_script_text_files(job: Job):
     client = TRPCClient(os.getenv("API_URL"), use_superjson=True, api_key=os.getenv("WORKER_API_KEY"))
+    storage = StorageClient(client)
     temp_dir = tempfile.TemporaryDirectory()
     try:
         print("Starting process_script_text_files job")
@@ -29,7 +29,7 @@ def process_script_text_files(job: Job):
 
         for key in files:
             local_path = os.path.join(temp_dir.name, key)
-            garage.download_file(
+            storage.download_file(
                 'marivo-imports',
                 os.path.join(import_id, key),
                 local_path
@@ -56,7 +56,7 @@ def process_script_text_files(job: Job):
         )
         with open(result_lines_csv_local, "w") as f:
             f.write(csv_data)
-        garage.upload_result(
+        storage.upload_result(
             'marivo-imports',
             result_lines_csv_local,
             result_lines_csv
@@ -67,7 +67,7 @@ def process_script_text_files(job: Job):
         )
         with open(result_metadata_local, "w") as f:
             f.write(json.dumps(metadata))
-        garage.upload_result(
+        storage.upload_result(
             'marivo-imports',
             result_metadata_local,
             result_metadata
