@@ -23,3 +23,7 @@ package-lock.json
 playwright-report/
 playwright-results/
 test-results/
+
+# E2E run logs (CI tee output)
+e2e-run.log
+e2e-logs/

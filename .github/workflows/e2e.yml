@@ -61,15 +61,36 @@ jobs:
           docker compose logs api
           exit 1
       - run: pnpm --filter @marivo/webapp exec playwright install --with-deps chromium
-      - run: pnpm --filter @marivo/webapp test:e2e
+      # tee so the whole run (including [WebServer] vite/frontend output) is
+      # kept as a downloadable artifact, not just the job log. GitHub's
+      # default bash shell has pipefail, so the step still fails on test errors.
+      - run: pnpm --filter @marivo/webapp test:e2e 2>&1 | tee apps/webapp/e2e-run.log
         env:
           # A fresh Clerk user is created per run and deleted afterwards;
           # only the CI instance keys are needed as secrets
           E2E_CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           E2E_BASE_URL: http://localhost:5173
-      - name: Dump container logs on e2e failure
+      # Always collect logs as artifacts (success and failure): container logs
+      # (api/worker/mistral-mock/postgres/redis/garage) + the full e2e run log
+      # which includes the frontend (vite) output. Browser console messages
+      # are captured inside playwright traces (see playwright-report on failure).
+      - name: Collect container logs
+        if: always()
+        run: |
+          mkdir -p e2e-logs
+          docker compose -f compose.yaml -f compose.e2e.yaml logs --no-color --timestamps \
+            postgres redis garage api worker mistral-mock > e2e-logs/containers.log
+      - name: Short container log tail on failure (inline, for quick reading)
         if: failure()
-        run: docker compose -f compose.yaml -f compose.e2e.yaml logs --tail 300 api worker mistral-mock
+        run: docker compose -f compose.yaml -f compose.e2e.yaml logs --tail 100 api worker mistral-mock
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: e2e-logs
+          path: |
+            e2e-logs/containers.log
+            apps/webapp/e2e-run.log
+          retention-days: 7
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: failure()
         with:
