@@ -5,6 +5,9 @@ import { clerkMiddleware } from "@clerk/express";
 import { createContext, router } from "./trpc.ts";
 import { deliveryMiddleware } from "./infra/delivery.middleware.ts";
 import { workerAuthMiddleware } from "./infra/worker-auth.middleware.ts";
+import { checkDatabase, createHealthRouter } from "./infra/health.ts";
+import { getMessageBroker } from "./infra/message-broker.ts";
+import { getStorage } from "./infra/storage.ts";
 import { userMiddleware } from "./domains/auth/user.middleware.ts";
 import playsRoutes from "./domains/plays/plays.trpc-routes.ts";
 import playsCollectionRoutes from "./domains/plays/plays-collection.trpc-routes.ts";
@@ -29,6 +32,13 @@ export type AppRouterOutput = inferRouterOutputs<AppRouter>;
 
 export default function trpcServer(): express.Application {
   const app = express();
+  app.use(
+    createHealthRouter({
+      checkDb: checkDatabase,
+      checkRedis: () => getMessageBroker().ping(),
+      checkStorage: () => getStorage().ping(),
+    }),
+  );
   app.use(
     "/worker",
     // Read requestId from request header

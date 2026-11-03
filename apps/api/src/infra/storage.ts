@@ -69,6 +69,16 @@ export class Storage {
     }
   }
 
+  /** Readiness probe: can we reach the S3-compatible storage? */
+  async ping(): Promise<boolean> {
+    try {
+      await this.client.send(new HeadBucketCommand({ Bucket: "marivo-imports" }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private client: S3Client;
 }
 
