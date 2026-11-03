@@ -32,6 +32,45 @@ export async function checkDatabase(): Promise<boolean> {
   }
 }
 
+export interface WaitForDependenciesOptions {
+  retries?: number;
+  delayMs?: number;
+  timeoutMs?: number;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Boot-time readiness gate: retry the dependency checks for a bounded time
+ * and report whether everything came up. Callers typically exit non-zero
+ * when this returns false so the container restarts until deps are ready.
+ */
+export async function waitForDependencies(
+  deps: HealthCheckDeps,
+  options: WaitForDependenciesOptions = {},
+): Promise<boolean> {
+  const { retries = 5, delayMs = 3000, timeoutMs = 2000 } = options;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const [db, redis, storage] = await Promise.all([
+      withTimeout(deps.checkDb(), timeoutMs),
+      withTimeout(deps.checkRedis(), timeoutMs),
+      withTimeout(deps.checkStorage(), timeoutMs),
+    ]);
+    if (db && redis && storage) {
+      return true;
+    }
+    console.warn(
+      `[health] dependency check attempt ${attempt}/${retries} failed: db=${db} redis=${redis} storage=${storage}`,
+    );
+    if (attempt < retries) {
+      await sleep(delayMs);
+    }
+  }
+  return false;
+}
+
 /**
  * Liveness (`/health`) + readiness (`/health/ready`) probes.
  * Liveness only checks the process is up; readiness verifies the

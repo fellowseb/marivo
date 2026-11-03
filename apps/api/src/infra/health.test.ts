@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import express from "express";
 import request from "supertest";
-import { createHealthRouter, type HealthCheckDeps } from "./health.ts";
+import { createHealthRouter, waitForDependencies, type HealthCheckDeps } from "./health.ts";
 
 function makeApp(deps: HealthCheckDeps, timeoutMs = 2000) {
   const app = express();
@@ -55,5 +55,32 @@ describe("health router", () => {
     ).get("/health/ready");
     expect(res.status).toBe(503);
     expect(res.body.checks.db).toBe(false);
+  });
+});
+
+describe("waitForDependencies", () => {
+  it("returns true once all checks pass", async () => {
+    const ready = await waitForDependencies(allOk, { retries: 3, delayMs: 1, timeoutMs: 50 });
+    expect(ready).toBe(true);
+  });
+
+  it("retries until a failing check recovers", async () => {
+    let attempts = 0;
+    const deps: HealthCheckDeps = {
+      ...allOk,
+      checkDb: async () => {
+        attempts++;
+        return attempts >= 2;
+      },
+    };
+    const ready = await waitForDependencies(deps, { retries: 3, delayMs: 1, timeoutMs: 50 });
+    expect(ready).toBe(true);
+    expect(attempts).toBe(2);
+  });
+
+  it("returns false after exhausting retries", async () => {
+    const deps: HealthCheckDeps = { ...allOk, checkRedis: async () => false };
+    const ready = await waitForDependencies(deps, { retries: 2, delayMs: 1, timeoutMs: 50 });
+    expect(ready).toBe(false);
   });
 });

@@ -1,8 +1,9 @@
 import trpcServer from "./trpc-server.ts";
 import { getConfig } from "./infra/config.ts";
-import { initStorage } from "./infra/storage.ts";
+import { initStorage, getStorage } from "./infra/storage.ts";
 import { initDatabase } from "./infra/db.ts";
-import { initMessageBroker } from "./infra/message-broker.ts";
+import { initMessageBroker, getMessageBroker } from "./infra/message-broker.ts";
+import { checkDatabase, waitForDependencies } from "./infra/health.ts";
 
 function listen() {
   try {
@@ -25,7 +26,17 @@ async function init() {
     initDatabase();
     await initStorage();
     initMessageBroker();
-    // Set the region
+    // Boot-time readiness gate: retry dependency checks, then fail fast so
+    // the container restarts (restart: unless-stopped) until deps are up
+    const ready = await waitForDependencies({
+      checkDb: checkDatabase,
+      checkRedis: () => getMessageBroker().ping(),
+      checkStorage: () => getStorage().ping(),
+    });
+    if (!ready) {
+      console.error("[health] dependencies not ready after retries, exiting");
+      process.exit(1);
+    }
     // Start listening
     listen();
   } catch (err) {
