@@ -67,6 +67,9 @@ jobs:
           # only the CI instance keys are needed as secrets
           E2E_CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           E2E_BASE_URL: http://localhost:5173
+      - name: Dump container logs on e2e failure
+        if: failure()
+        run: docker compose -f compose.yaml -f compose.e2e.yaml logs --tail 300 api worker mistral-mock
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: failure()
         with:

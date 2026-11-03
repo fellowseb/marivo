@@ -83,7 +83,9 @@ API_URL=http://api:3001
 REDIS_HOST=redis
 REDIS_PORT=6379
 WORKER_API_KEY=$WORKER_API_KEY
-MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
+# The mock LLM (mistral-mock service) never checks the key, but the SDK
+# requires a non-empty one: default to a dummy when the secret is unset.
+MISTRAL_API_KEY=${MISTRAL_API_KEY:-e2e-mock-key}
 EOF
 
 # Webapp (vite) env
