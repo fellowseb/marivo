@@ -18,9 +18,8 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   webServer: {
-    // Build workspace deps first: vite resolves @marivo/utils via its dist/
-    // (turbo's ^build does this for pnpm dev, but not for a bare vite run)
-    command: 'pnpm --filter @marivo/utils build && pnpm dev',
+    // predev (turbo build of workspace deps) runs automatically before dev
+    command: 'pnpm dev',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

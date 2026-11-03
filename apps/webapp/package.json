@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0 --port 5173 --clearScreen false",
+    "predev": "turbo run build --filter=@marivo/webapp^...",
     "check-types": "tsc --noEmit",
     "lint": "oxlint src/ e2e/ playwright.config.ts --deny-warnings",
     "preview": "vite preview",
