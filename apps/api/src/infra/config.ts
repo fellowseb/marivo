@@ -27,6 +27,8 @@ export const configSchema = z.object({
     endpoint: z.string(),
     accessKey: z.string(),
     secretKey: z.string(),
+    adminUrl: z.string(),
+    adminToken: z.string(),
   }),
   worker: z.object({
     apiKey: z.string(),
@@ -56,6 +58,8 @@ export const ENV_VAR_MAP: Record<string, string> = {
   "garage.endpoint": "GARAGE_ENDPOINT",
   "garage.accessKey": "GARAGE_ACCESS_KEY",
   "garage.secretKey": "GARAGE_SECRET_KEY",
+  "garage.adminUrl": "GARAGE_ADMIN_URL",
+  "garage.adminToken": "GARAGE_ADMIN_TOKEN",
   "worker.apiKey": "WORKER_API_KEY",
 };
 
