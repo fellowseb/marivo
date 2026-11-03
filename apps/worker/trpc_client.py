@@ -1,8 +1,14 @@
-import requests
-from typing import TypedDict, Optional, Any, TypeVar
+import json
 from enum import Enum
+from typing import Any, Optional, TypedDict, TypeVar
 
-# --- Types ---
+import requests
+
+# Generic types for procedure input/output
+T = TypeVar("T")
+U = TypeVar("U")
+
+DEFAULT_TIMEOUT_SECONDS = 30
 
 
 class TRPCResponse(TypedDict):
@@ -21,25 +27,27 @@ class TRPCError(Exception):
         super().__init__(f"tRPC Error {code}: {message}")
 
 
-# Generic type for procedure input/output
-T = TypeVar("T")
-U = TypeVar("U")
-
-
 class TRPCMethod(str, Enum):
     QUERY = "query"
     MUTATION = "mutation"
 
-# --- Client Class ---
-
 
 class TRPCClient:
-    def __init__(self, base_url: str, use_superjson: bool = False, api_key: str | None = None):
+    def __init__(
+        self,
+        base_url: str,
+        use_superjson: bool = False,
+        api_key: str | None = None,
+        timeout: int = DEFAULT_TIMEOUT_SECONDS,
+    ):
         """
         Initialize the tRPC client.
 
         Args:
-            base_url: Base URL of the tRPC API (e.g., "http://localhost:3000/api/trpc").
+            base_url: Base URL of the API (e.g., "http://localhost:3001").
+            use_superjson: Whether responses use the superjson transformer.
+            api_key: Sent as the `x-marivo-worker-api-key` header.
+            timeout: Per-request timeout in seconds (queries and mutations).
         """
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
@@ -47,6 +55,7 @@ class TRPCClient:
         if api_key:
             self.session.headers.update({"x-marivo-worker-api-key": api_key})
         self.use_superjson = use_superjson
+        self.timeout = timeout
 
     def _request(
         self,
@@ -58,40 +67,43 @@ class TRPCClient:
         """
         Internal method to send a tRPC request.
 
-        Args:
-            procedure: Name of the tRPC procedure (e.g., "greet").
-            method: "query" or "mutation".
-            input_data: Input data for the procedure.
-            id: Request ID (default: 1).
-
-        Returns:
-            Parsed tRPC response.
-
-        Raises:
-            TRPCError: If the tRPC backend returns an error.
-            requests.RequestException: For HTTP/network errors.
+        Queries go over GET with the input URL-encoded in the `input` query
+        param (tRPC rejects POST on query procedures with 405); mutations go
+        over POST with a JSON body. Every request has a timeout.
         """
-        payload = {
-            "json": input_data if input_data else None,
-        }
-
         url = f"{self.base_url}/{procedure}"
         try:
             if method is TRPCMethod.QUERY:
-                response = self.session.get(url)
+                # tRPC query protocol: GET ?input={"json": ...}
+                params = (
+                    {"input": json.dumps({"json": input_data})}
+                    if input_data is not None
+                    else None
+                )
+                response = self.session.get(url, params=params, timeout=self.timeout)
             else:
-                response = self.session.post(url, json=payload)
-            response.raise_for_status()  # Raise HTTP errors
+                payload = {"json": input_data if input_data is not None else None}
+                response = self.session.post(url, json=payload, timeout=self.timeout)
+        except requests.Timeout as err:
+            raise TRPCError(f"Request to {procedure} timed out after {self.timeout}s", -32001) from err
+        except requests.RequestException as err:
+            raise TRPCError(f"Request to {procedure} failed: {err}", -32003) from err
 
+        # tRPC reports procedure errors as a JSON body with an `error` field,
+        # often with a non-200 HTTP status (e.g. 400 for validation errors).
+        # Parse the body first so those surface with the server's own code.
+        try:
             data = response.json()
-            if "error" in data:
-                error = data["error"]
-                raise TRPCError(error.get("message", "Unknown error"),
-                                error.get("code", -1))
-            return data
-        except Exception as err:
-            print("TRPC call failed: {}".format(err))
-            raise err
+        except ValueError:
+            data = None
+        if isinstance(data, dict) and data.get("error") is not None:
+            error = data["error"]
+            if self.use_superjson and isinstance(error.get("json"), dict):
+                error = error["json"]
+            raise TRPCError(error.get("message", "Unknown error"), error.get("code", -1))
+        if not response.ok:
+            raise TRPCError(f"HTTP {response.status_code} from {procedure}", -32002)
+        return data
 
     def query(self, procedure: str, input_data: Optional[dict] = None) -> Any:
         """
@@ -121,5 +133,4 @@ class TRPCClient:
         response = self._request(procedure, TRPCMethod.MUTATION, input_data)
         if response is not None:
             return response["result"]["data"]["json"] if self.use_superjson else response["result"]["data"]
-        else:
-            return None
+        return None
