@@ -1,6 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import type { Request, Response } from 'express';
 import { workerAuthMiddleware } from './worker-auth.middleware.ts';
+import { loadConfig } from './config.ts';
+
+function configWithApiKey(apiKey?: string) {
+  return loadConfig({ env: apiKey ? { WORKER_API_KEY: apiKey } : {}, nodeEnv: 'test' });
+}
 
 function makeReq(headers: Record<string, string> = {}): Request {
   return { headers } as unknown as Request;
@@ -23,19 +28,11 @@ function makeRes(): Response & { statusCode: number; body: unknown } {
 }
 
 describe('workerAuthMiddleware', () => {
-  beforeEach(() => {
-    process.env.WORKER_API_KEY = 'secret-key';
-  });
-
-  afterEach(() => {
-    delete process.env.WORKER_API_KEY;
-  });
-
   it('calls next when key matches', () => {
     const next = vi.fn();
     const req = makeReq({ 'x-marivo-worker-api-key': 'secret-key' });
     const res = makeRes();
-    workerAuthMiddleware()(req, res as unknown as Response, next);
+    workerAuthMiddleware(configWithApiKey('secret-key'))(req, res as unknown as Response, next);
     expect(next).toHaveBeenCalled();
     expect(res.statusCode).toBe(200);
   });
@@ -44,7 +41,7 @@ describe('workerAuthMiddleware', () => {
     const next = vi.fn();
     const req = makeReq();
     const res = makeRes();
-    workerAuthMiddleware()(req, res as unknown as Response, next);
+    workerAuthMiddleware(configWithApiKey('secret-key'))(req, res as unknown as Response, next);
     expect(next).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(401);
   });
@@ -53,17 +50,16 @@ describe('workerAuthMiddleware', () => {
     const next = vi.fn();
     const req = makeReq({ 'x-marivo-worker-api-key': 'wrong' });
     const res = makeRes();
-    workerAuthMiddleware()(req, res as unknown as Response, next);
+    workerAuthMiddleware(configWithApiKey('secret-key'))(req, res as unknown as Response, next);
     expect(next).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(401);
   });
 
   it('returns 500 when WORKER_API_KEY is not configured', () => {
-    delete process.env.WORKER_API_KEY;
     const next = vi.fn();
     const req = makeReq({ 'x-marivo-worker-api-key': 'anything' });
     const res = makeRes();
-    workerAuthMiddleware()(req, res as unknown as Response, next);
+    workerAuthMiddleware(configWithApiKey(undefined))(req, res as unknown as Response, next);
     expect(next).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(500);
   });

@@ -1,13 +1,14 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { getConfig, type AppConfig } from "./config.ts";
 
 /**
  * Authenticate worker requests using a shared API key.
  * The worker sends the key in the `x-marivo-worker-api-key` header.
- * The expected key is read from the WORKER_API_KEY env var.
+ * The expected key comes from config (worker.apiKey / WORKER_API_KEY env var).
  */
-export function workerAuthMiddleware(): RequestHandler {
+export function workerAuthMiddleware(config: AppConfig = getConfig()): RequestHandler {
   return function (req: Request, res: Response, next: NextFunction) {
-    const expectedKey = process.env.WORKER_API_KEY;
+    const expectedKey = config.worker.apiKey;
     if (!expectedKey) {
       console.error("WORKER_API_KEY is not set - refusing all worker requests");
       res.status(500).json({ error: "Server misconfiguration" });

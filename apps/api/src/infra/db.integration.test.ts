@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { setupTestDatabase, teardownTestDatabase, testDatabaseEnv } from "../test-utils/db.ts";
+import { loadConfig } from "./config.ts";
 import { getDatabase, initDatabase } from "./db.ts";
 
 describe("db infra (integration with real Postgres)", () => {
@@ -12,7 +13,12 @@ describe("db infra (integration with real Postgres)", () => {
   });
 
   it("initDatabase connects with explicit pool options and serves queries", async () => {
-    initDatabase({ ...testDatabaseEnv(), POSTGRES_POOL_MAX: "3" });
+    // Full chain: env vars -> JSON defaults -> validated config -> pool
+    const config = loadConfig({
+      env: { ...testDatabaseEnv(), POSTGRES_POOL_MAX: "3" },
+      nodeEnv: "test",
+    });
+    initDatabase(config);
     const sql = getDatabase();
 
     // Pool options are actually applied to the client
