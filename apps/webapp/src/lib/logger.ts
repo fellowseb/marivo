@@ -29,7 +29,7 @@ function emit(level: LogLevel, message: string, context?: Record<string, unknown
   if (LEVEL_PRIORITY[level] < currentThreshold()) {
     return;
   }
-  console[level]({ ts: new Date().toISOString(), level, message, ...context });
+  console[level]({ ts: new Date().toISOString(), service: "marivo-webapp", level, message, ...context });
 }
 
 export const logger = {
