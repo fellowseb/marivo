@@ -26,10 +26,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   render(): ReactNode {
     if (this.state.hasError) {
-      return this.props.fallback ?? <div>Something went wrong.</div>;
+      return this.props.fallback ?? <ErrorFallback />;
     }
     return this.props.children;
   }
+}
+
+/** Default full-area fallback shown when a boundary catches a render error. */
+export function ErrorFallback() {
+  return (
+    <div role="alert" style={{ padding: "2rem", textAlign: "center" }}>
+      <p>Something went wrong while rendering this page.</p>
+      <button type="button" onClick={() => window.location.reload()}>
+        Reload page
+      </button>
+    </div>
+  );
 }
 
 export default ErrorBoundary;

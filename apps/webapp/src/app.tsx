@@ -17,6 +17,7 @@ import Routes from './routes.tsx';
 import './app.css';
 import { TRPCProvider } from './trpc.ts';
 import { NotificationsContextProvider } from './components/notifications.context.tsx';
+import ErrorBoundary, { ErrorFallback } from './components/error-boundary.component';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -121,15 +122,18 @@ if (!API_URL) {
 function App() {
   return (
     <StrictMode>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-        <TrpcApiProvider apiUrl={API_URL}>
-          <NotificationsContextProvider>
-            <BrowserRouter>
-              <Routes />
-            </BrowserRouter>
-          </NotificationsContextProvider>
-        </TrpcApiProvider>
-      </ClerkProvider>
+      {/* Root boundary: also isolates infra providers (Clerk, tRPC, query client) */}
+      <ErrorBoundary fallback={<ErrorFallback />}>
+        <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+          <TrpcApiProvider apiUrl={API_URL}>
+            <NotificationsContextProvider>
+              <BrowserRouter>
+                <Routes />
+              </BrowserRouter>
+            </NotificationsContextProvider>
+          </TrpcApiProvider>
+        </ClerkProvider>
+      </ErrorBoundary>
     </StrictMode>
   );
 }
