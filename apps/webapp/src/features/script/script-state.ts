@@ -161,10 +161,13 @@ export function reducer(state: ScriptState, action: ScriptAction): ScriptState {
                 lastModifiedDate: curr.lastModifiedDate,
                 type: curr.lineType,
               } satisfies Line);
-              lineToContents.set(curr.id, {
-                sharedDrafts: [],
-                versions: [],
-              });
+              // Don't clobber local refs if the line was created locally first
+              if (!lineToContents.has(curr.id)) {
+                lineToContents.set(curr.id, {
+                  sharedDrafts: [],
+                  versions: [],
+                });
+              }
             } else {
               assertUnreachable(curr.change.type);
             }

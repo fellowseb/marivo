@@ -18,3 +18,8 @@ apps/api/dev/garage
 .github/ISSUES/
 .github/PRS/
 package-lock.json
+
+# Playwright
+playwright-report/
+playwright-results/
+test-results/

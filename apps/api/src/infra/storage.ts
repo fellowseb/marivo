@@ -1,6 +1,6 @@
 import { InternalServerError } from "../shared/error.ts";
 import { getConfig, type AppConfig } from "./config.ts";
-import { createGarageKey } from "./garage-admin.ts";
+import { allowBucketKey, createGarageKey, getBucketIdByAlias } from "./garage-admin.ts";
 import {
   CreateBucketCommand,
   GetObjectCommand,
@@ -31,8 +31,18 @@ function isNotFound(err: unknown): boolean {
   );
 }
 
+function isForbidden(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    ((err as { name?: string }).name === "Forbidden" ||
+      (err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode === 403)
+  );
+}
+
 export class Storage {
   constructor(deps: StorageDeps) {
+    this.accessKeyId = deps.accessKeyId;
     this.client =
       deps.client ??
       new S3Client({
@@ -83,18 +93,29 @@ export class Storage {
   }
 
   /**
-   * Ensure the bucket exists, creating it over S3 when missing. Works with a
-   * first-boot provisioned key (which has createBucket permission).
+   * Ensure the bucket exists and this key can access it: creates the bucket
+   * over S3 when missing (provisioned keys have createBucket permission), and
+   * grants access via the admin API when the bucket already exists but the
+   * key is not allowed on it (403).
    */
-  async ensureBucket(bucketName: string) {
+  async ensureBucket(
+    bucketName: string,
+    admin?: { adminUrl: string; adminToken: string },
+  ) {
     try {
       await this.client.send(new HeadBucketCommand({ Bucket: bucketName }));
+      return;
     } catch (err) {
-      if (!isNotFound(err)) {
+      if (isNotFound(err)) {
+        await this.client.send(new CreateBucketCommand({ Bucket: bucketName }));
+        return;
+      }
+      if (!isForbidden(err) || !admin?.adminToken) {
         throw err;
       }
-      await this.client.send(new CreateBucketCommand({ Bucket: bucketName }));
     }
+    const bucketId = await getBucketIdByAlias(admin.adminUrl, admin.adminToken, bucketName);
+    await allowBucketKey(admin.adminUrl, admin.adminToken, bucketId, this.accessKeyId);
   }
 
   /** Presigned GET url (e.g. for the worker to download an import file). */
@@ -126,6 +147,7 @@ export class Storage {
   }
 
   private client: S3Client;
+  private accessKeyId: string;
 }
 
 let instance: Storage;
@@ -155,7 +177,10 @@ export async function initStorage(config: AppConfig = getConfig(), client?: S3Cl
     secretAccessKey,
     client,
   });
-  await instance.ensureBucket(IMPORTS_BUCKET);
+  await instance.ensureBucket(IMPORTS_BUCKET, {
+    adminUrl: garage.adminUrl,
+    adminToken: garage.adminToken,
+  });
 }
 
 export function getStorage() {

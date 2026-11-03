@@ -30,6 +30,8 @@ export class MessageBroker {
   /** Readiness probe: can we reach Redis? */
   async ping(): Promise<boolean> {
     try {
+      // lazyConnect clients must be connected explicitly before commands
+      await this.healthClient.connect();
       return (await this.healthClient.ping()) === "PONG";
     } catch {
       return false;

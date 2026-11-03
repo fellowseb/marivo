@@ -343,6 +343,26 @@ describe("ScriptRepository (integration with real Postgres)", () => {
     expect(script.lines_order).toHaveLength(3);
   });
 
+  it("saveLineContent creates the line row when missing (FK safety net)", async () => {
+    const lineId = uuidv4();
+    // No INSERT INTO lines: the line does not exist server-side
+    const result = await repo.saveLineContent({
+      scriptId,
+      lineId,
+      content: { lineType: "freetext", text: "hello" },
+      contentType: "saved_version",
+      version: null,
+    });
+    expect(result.isOk()).toBe(true);
+
+    const [line] = await sql`SELECT id, type FROM lines WHERE id = ${lineId} AND script_id = ${scriptId}`;
+    expect(line.type).toBe("freetext");
+    const [script] = await sql<{ lines_order: string[] }[]>`
+      SELECT lines_order FROM scripts WHERE id = ${scriptId}
+    `;
+    expect(script.lines_order).toContain(lineId);
+  });
+
   it("saveLineContent saved_version without contentId still creates a new version", async () => {
     const lineId = uuidv4();
     await sql`

@@ -320,6 +320,19 @@ export class ScriptRepository extends UserRepositoryBase {
     }
     const now = new Date();
     const { lineType, text, characters, headingLevel } = params.content;
+    // Safety net: the line row must exist for the lines_contents FK. Clients
+    // are expected to call createLine on insert; this keeps saveLineContent
+    // working even if that call was missed.
+    await this.sql`
+      INSERT INTO lines (script_id, id, type, last_modified_date)
+      VALUES (${params.scriptId}, ${params.lineId}, ${lineType}, ${now})
+      ON CONFLICT (id, script_id) DO NOTHING`;
+    await this.sql`
+      UPDATE scripts
+      SET lines_order = array_append(COALESCE(lines_order, '{}'), ${params.lineId}::uuid),
+          last_modified_date = ${now}
+      WHERE id = ${params.scriptId}
+        AND NOT (${params.lineId}::uuid = ANY(COALESCE(lines_order, '{}')))`;
     // Auto-increment version for saved_version: find max existing version for this line
     let version = params.version;
     if (params.contentType === "saved_version" && (version === null || version === undefined)) {
