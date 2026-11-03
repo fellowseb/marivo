@@ -28,17 +28,23 @@ load_dotenv()
 # print(response)
 
 
+DEFAULT_MODEL = "mistral-large-latest"
+
+
 class MistralParser:
     def __init__(self):
         logging.basicConfig(level=logging.DEBUG)
+        self.model = os.getenv('MISTRAL_MODEL', DEFAULT_MODEL)
         self.http_client = httpx.Client(timeout=None)
         self.client = Mistral(
             api_key=os.getenv('MISTRAL_API_KEY'),
+            # Optional override, e.g. a mock LLM endpoint in E2E tests
+            server_url=os.getenv('MISTRAL_API_BASE') or None,
             debug_logger=logging.getLogger("mistralai.client"),
             client=self.http_client
         )
         model_info = self.client.models.retrieve(
-            model_id="mistral-large-latest")
+            model_id=self.model)
         print(model_info.max_context_length)  # → te dit la limite en to
 
     def parse_script(self, script_text, theatrical_genres, theatrical_periods):
@@ -54,7 +60,7 @@ class MistralParser:
             for chunk in chunks:
                 chunk_count += 1
                 response = self.client.chat.complete(
-                    model="mistral-large-latest",
+                    model=self.model,
                     messages=[{
                         "role": "user",
                         "content": prompt.format(
