@@ -1,8 +1,8 @@
 import classNames from "classnames";
 import { v4 as uuidv4 } from "uuid";
-import { Suspense, useEffect, useRef, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
-import { useMutation, useMutationState, useQuery } from "@tanstack/react-query";
+import { useMutation, useMutationState } from "@tanstack/react-query";
 import { useTRPC } from "../../trpc";
 import Button from "../../components/button.component";
 import Icon from "../../components/icon.component";
@@ -10,24 +10,12 @@ import FlowStep from "../../components/flow-step.component";
 import Admonition from "../../components/admonition.component";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import DotsLoader from "../../components/dots-loader.component";
-import PageNotFound from "../../components/page-not-found.component";
-import ErrorBoundary from "../../components/error-boundary.component";
 import styles from "./import-script.module.css";
 import { assertUnreachable } from "@marivo/utils";
-import Script from "../script/script.component";
-import { ScriptContextProvider, useScriptContext } from "../script/script.context";
-import { ToggleButton } from "../../components/toggle-button.component";
-import { CardsSelect } from "../../components/cards-select.component";
 import { ImportScriptContextProvider, useImportScriptContext } from "./import-script.context";
-import { useCollectionMetadataContext } from "./collection-metadata.context";
-import {
-  ScriptTabToolbarContextProvider,
-  useScriptTabToolbarContext,
-} from "../script-edition/script-tab-toolbar.context";
-import ScriptSearchPanel from "../script-edition/script-search-panel.component";
-import ScriptNavigatePanel from "../script-edition/script-navigate-panel.component";
-import ScriptCharactersPanel from "../script-edition/script-characters-panel.component";
 import { ImportScriptPreviewToolbar } from "./import-script-preview-toolbar";
+import { PreviewScriptStep } from "./preview-script-step.component";
+import { NamePlayStep } from "./name-play-step.component";
 
 type ScriptImportFile =
   | {
@@ -417,506 +405,21 @@ function ImportStep() {
   );
 }
 
-interface PreviewStepProps {
-  onReviewDone: () => void;
-  onBack: () => void;
-}
-
-function PreviewStep(props: PreviewStepProps) {
-  const previewScriptContext = useScriptContext();
-  const {
-    showSearchPanel,
-    showNavigatePanel,
-    showCharactersPanel,
-    setShowSearchPanel,
-    setShowNavigatePanel,
-    setShowCharactersPanel,
-  } = useScriptTabToolbarContext();
-  const showPanels = showSearchPanel || showNavigatePanel || showCharactersPanel;
-  const handleCloseSearchPanel = () => {
-    setShowSearchPanel(false);
-  };
-  const handleCloseNavigatePanel = () => {
-    setShowNavigatePanel(false);
-  };
-  const handleCloseCharactersPanel = () => {
-    setShowCharactersPanel(false);
-  };
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
-      <FlowStep
-        title="Create from an external source ▶  Preview script"
-        Actions={
-          <>
-            <Button icon="previous" onClick={props.onBack} />
-            <Button rightIcon="next" onClick={props.onReviewDone}>
-              Done
-            </Button>
-          </>
-        }
-        growVertically={true}
-      >
-        You can review the import result to make sure there isn't a massive issue before creating
-        the project.
-        <br /> (i.e. entire sections missing or in wrong order). You'll be able to modify the script
-        later.
-        <Script isEditable={false} scriptContext={previewScriptContext} />
-      </FlowStep>
-      {showPanels ? (
-        <div className={styles.panelsContainer}>
-          {showSearchPanel ? <ScriptSearchPanel onClose={handleCloseSearchPanel} /> : null}
-          {showNavigatePanel ? (
-            <ScriptNavigatePanel
-              onClose={handleCloseNavigatePanel}
-              outline={previewScriptContext?.outline ?? []}
-            />
-          ) : null}
-          {showCharactersPanel ? (
-            <ScriptCharactersPanel
-              onClose={handleCloseCharactersPanel}
-              characters={previewScriptContext?.characters ?? {}}
-            />
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-interface NameStepProps {
+/** NameStep variant for the import flow: creates the play from the import result. */
+function NameStepFromImport(props: {
   onBack: () => void;
   importId: string;
   metadata: ImportScriptMetadata;
-}
-
-function NameStep(props: NameStepProps) {
-  const titleInputRef = useRef<HTMLInputElement>(null);
-  const [createReady, setCreateReady] = useState(false);
-  const handleTitleChange = () => {
-    setCreateReady((titleInputRef.current?.value ?? "").length > 0);
-  };
+}) {
   const trpc = useTRPC();
-  const { mutate, isPending, isSuccess, data } = useMutation(
-    trpc.plays.createFromImport.mutationOptions(),
-  );
-  const navigate = useNavigate();
-  const handleCreate = () => {
-    const title = titleInputRef.current?.value ?? "New play";
-    mutate({ title, importId: props.importId });
-  };
-  const [createdUri, setCreatedUri] = useState<string | null>(null);
-  const queryOpts = trpc.plays.playDetails.queryOptions({
-    uri: createdUri ?? "",
-  });
-  queryOpts.enabled = !!createdUri;
-  const {
-    isSuccess: isQuerySuccess,
-    isPending: isQueryPending,
-    isEnabled: isQueryEnabled,
-  } = useQuery(queryOpts);
-  useEffect(() => {
-    if (isSuccess && data?.uri) {
-      setCreatedUri(data.uri);
-    }
-  }, [isSuccess, data?.uri]);
-  useEffect(() => {
-    if (isQuerySuccess) {
-      navigate({
-        pathname: `/plays/edit/${createdUri}`,
-      });
-    }
-  }, [isQuerySuccess, createdUri]);
-  const [addToCommonsLib, setAddToCommonsLib] = useState(false);
-  const { genres, periods } = useCollectionMetadataContext();
-  const handleToggleAddToCommons = () => {
-    setAddToCommonsLib((prev) => !prev);
-  };
-  const flowTitle = addToCommonsLib
-    ? "Create from an external source ▶ Add details to public play"
-    : "Create from an external source ▶ Name your new play";
+  const { mutateAsync } = useMutation(trpc.plays.createFromImport.mutationOptions());
   return (
-    <>
-      <Admonition type="info" title="Administator commands">
-        <ToggleButton
-          label="Add to commons library"
-          onToggle={handleToggleAddToCommons}
-          value={false}
-        />
-      </Admonition>
-      <FlowStep
-        title={flowTitle}
-        Actions={
-          <>
-            <Button icon="previous" onClick={props.onBack} />
-            <Button
-              disabled={!createReady}
-              icon={isPending || (isQueryPending && isQueryEnabled) ? "animatedWaiting" : "newPlay"}
-              onClick={handleCreate}
-            >
-              Create
-            </Button>
-          </>
-        }
-      >
-        {addToCommonsLib ? (
-          <>
-            <div className={styles.row}>
-              <label>Title</label>
-              <input
-                placeholder=""
-                ref={titleInputRef}
-                type="text"
-                size={60}
-                maxLength={100}
-                onChange={handleTitleChange}
-                value={props.metadata.title}
-              />
-            </div>
-            <div className={styles.row}>
-              <label>Author</label>
-              <input type="text" size={60} maxLength={100} value={props.metadata.author} />
-            </div>
-            <div className={styles.row}>
-              <label>Language</label>
-              <CardsSelect
-                value={props.metadata.language}
-                options={[
-                  {
-                    label: "FR",
-                    value: "fr",
-                  },
-                  {
-                    label: "EN",
-                    value: "en",
-                  },
-                ]}
-              />
-            </div>
-            <div className={styles.row}>
-              <label>Number of roles</label>
-              <CardsSelect
-                value={"" + props.metadata.number_of_roles}
-                options={[
-                  {
-                    label: "1",
-                    value: "1",
-                  },
-                  {
-                    label: "2",
-                    value: "2",
-                  },
-                  {
-                    label: "3",
-                    value: "3",
-                  },
-                  {
-                    label: "4",
-                    value: "4",
-                  },
-                  {
-                    label: "5",
-                    value: "5",
-                  },
-                  {
-                    label: "6",
-                    value: "6",
-                  },
-                  {
-                    label: "7",
-                    value: "7",
-                  },
-                  {
-                    label: "8",
-                    value: "8",
-                  },
-                  {
-                    label: "9",
-                    value: "9",
-                  },
-                  {
-                    label: "10",
-                    value: "10",
-                  },
-                  {
-                    label: "11",
-                    value: "11",
-                  },
-                  {
-                    label: "12",
-                    value: "12",
-                  },
-                  {
-                    label: "13",
-                    value: "13",
-                  },
-                  {
-                    label: "14",
-                    value: "14",
-                  },
-                  {
-                    label: "15",
-                    value: "15",
-                  },
-                  {
-                    label: "16",
-                    value: "16",
-                  },
-                  {
-                    label: "17",
-                    value: "17",
-                  },
-                  {
-                    label: "18",
-                    value: "18",
-                  },
-                  {
-                    label: "19",
-                    value: "19",
-                  },
-                  {
-                    label: "20",
-                    value: "20",
-                  },
-                ]}
-              />
-            </div>
-            <div className={styles.row}>
-              <label>Number of male roles</label>
-              <CardsSelect
-                value={String(props.metadata.number_of_male_roles)}
-                options={[
-                  {
-                    label: "1",
-                    value: "1",
-                  },
-                  {
-                    label: "2",
-                    value: "2",
-                  },
-                  {
-                    label: "3",
-                    value: "3",
-                  },
-                  {
-                    label: "4",
-                    value: "4",
-                  },
-                  {
-                    label: "5",
-                    value: "5",
-                  },
-                  {
-                    label: "6",
-                    value: "6",
-                  },
-                  {
-                    label: "7",
-                    value: "7",
-                  },
-                  {
-                    label: "8",
-                    value: "8",
-                  },
-                  {
-                    label: "9",
-                    value: "9",
-                  },
-                  {
-                    label: "10",
-                    value: "10",
-                  },
-                  {
-                    label: "11",
-                    value: "11",
-                  },
-                  {
-                    label: "12",
-                    value: "12",
-                  },
-                  {
-                    label: "13",
-                    value: "13",
-                  },
-                  {
-                    label: "14",
-                    value: "14",
-                  },
-                  {
-                    label: "15",
-                    value: "15",
-                  },
-                  {
-                    label: "16",
-                    value: "16",
-                  },
-                  {
-                    label: "17",
-                    value: "17",
-                  },
-                  {
-                    label: "18",
-                    value: "18",
-                  },
-                  {
-                    label: "19",
-                    value: "19",
-                  },
-                  {
-                    label: "20",
-                    value: "20",
-                  },
-                ]}
-              />
-            </div>
-            <div className={styles.row}>
-              <label>Number of female roles</label>
-              <CardsSelect
-                value={"" + props.metadata.number_of_female_roles}
-                options={[
-                  {
-                    label: "1",
-                    value: "1",
-                  },
-                  {
-                    label: "2",
-                    value: "2",
-                  },
-                  {
-                    label: "3",
-                    value: "3",
-                  },
-                  {
-                    label: "4",
-                    value: "4",
-                  },
-                  {
-                    label: "5",
-                    value: "5",
-                  },
-                  {
-                    label: "6",
-                    value: "6",
-                  },
-                  {
-                    label: "7",
-                    value: "7",
-                  },
-                  {
-                    label: "8",
-                    value: "8",
-                  },
-                  {
-                    label: "9",
-                    value: "9",
-                  },
-                  {
-                    label: "10",
-                    value: "10",
-                  },
-                  {
-                    label: "11",
-                    value: "11",
-                  },
-                  {
-                    label: "12",
-                    value: "12",
-                  },
-                  {
-                    label: "13",
-                    value: "13",
-                  },
-                  {
-                    label: "14",
-                    value: "14",
-                  },
-                  {
-                    label: "15",
-                    value: "15",
-                  },
-                  {
-                    label: "16",
-                    value: "16",
-                  },
-                  {
-                    label: "17",
-                    value: "17",
-                  },
-                  {
-                    label: "18",
-                    value: "18",
-                  },
-                  {
-                    label: "19",
-                    value: "19",
-                  },
-                  {
-                    label: "20",
-                    value: "20",
-                  },
-                ]}
-              />
-            </div>
-            <div className={styles.row}>
-              <label>Genre</label>
-              <CardsSelect
-                value={props.metadata.genre}
-                options={genres.map((genre) => ({
-                  label: genre,
-                  value: genre,
-                }))}
-              />
-            </div>
-            <div className={styles.row}>
-              <label>Period</label>
-              <CardsSelect
-                value={props.metadata.period}
-                options={periods.map((period) => ({
-                  label: period,
-                  value: period,
-                }))}
-              />
-            </div>
-            <div className={styles.row}>
-              <label>Synopsys</label>
-              <textarea rows={10} />
-            </div>
-          </>
-        ) : (
-          <>
-            Give a name to your project.
-            <Admonition type="info">
-              This name doesn't need to correspond to the title of the play. For instance you might
-              also want to indicate the name of the troupe or company, and maybe the year.
-              <br />
-              You'll be able to change it later on !
-            </Admonition>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "4px",
-                alignItems: "center",
-              }}
-            >
-              <label>Project name</label>
-              <input
-                placeholder="Othello - Shakespeare (Troupe Name / 2026)"
-                ref={titleInputRef}
-                type="text"
-                size={60}
-                maxLength={100}
-                onChange={handleTitleChange}
-              />
-            </div>
-          </>
-        )}
-      </FlowStep>
-    </>
+    <NamePlayStep
+      onBack={props.onBack}
+      metadata={props.metadata}
+      allowAddToCommons
+      createPlay={(title) => mutateAsync({ title, importId: props.importId })}
+    />
   );
 }
 
@@ -930,32 +433,22 @@ function ImportScriptFlow() {
       return <ImportStep />;
     case "preview":
       return (
-        <ErrorBoundary fallback={<PageNotFound />}>
-          <Suspense
-            fallback={
-              <div
-                style={{
-                  flex: "1",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <DotsLoader size="xlarge" />
-              </div>
-            }
-          >
-            <ScriptContextProvider uri={step.importId} from="import">
-              <ScriptTabToolbarContextProvider>
-                <ImportScriptPreviewToolbar />
-                <PreviewStep onBack={startOver} onReviewDone={reviewDone} />
-              </ScriptTabToolbarContextProvider>
-            </ScriptContextProvider>
-          </Suspense>
-        </ErrorBoundary>
+        <PreviewScriptStep
+          scriptUri={step.importId}
+          from="import"
+          toolbar={<ImportScriptPreviewToolbar />}
+          onBack={startOver}
+          onReviewDone={reviewDone}
+        />
       );
     case "name":
-      return <NameStep onBack={backToReview} importId={step.importId} metadata={step.metadata} />;
+      return (
+        <NameStepFromImport
+          onBack={backToReview}
+          importId={step.importId}
+          metadata={step.metadata}
+        />
+      );
     default:
       assertUnreachable(step);
   }
