@@ -15,6 +15,9 @@ services:
       - redis
     volumes:
       - ./apps/api:/app/apps/api
+      # shared workspace package source, so host edits to @marivo/utils are
+      # visible in the container (only src: never shadow node_modules)
+      - ./packages/utils/src:/app/packages/utils/src
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
       - ./package.json:/app/package.json
