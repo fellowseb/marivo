@@ -97,6 +97,13 @@ CREATE TABLE public_domain_plays (
     script_id               integer         REFERENCES scripts(id) NOT NULL
 );
 
+CREATE TABLE collection_bookmarks (
+    user_id                 integer         REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    play_uri                varchar(36)     REFERENCES public_domain_plays(uri) ON DELETE CASCADE NOT NULL,
+    created_date            timestamp(0)    NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, play_uri)
+);
+
 CREATE TABLE plays (
     id                      integer         PRIMARY KEY
                                             GENERATED ALWAYS AS IDENTITY,

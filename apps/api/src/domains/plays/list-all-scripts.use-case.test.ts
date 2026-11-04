@@ -21,53 +21,55 @@ describe("ListAllScriptsUseCase", () => {
     useCase = new ListAllScriptsUseCase(repository, userContext);
   });
 
-  it("maps collection records to the output shape", async () => {
+  it("maps collection records to the output shape with pagination info", async () => {
     repository.findAllScripts.mockResolvedValue(
-      Result.ok([
-        makeRecord({
-          uri: "99999999-9999-4999-8999-999999999999",
-          title: "The Fixture Play",
-          author: "Fixture Author",
-          lang: "en",
-          genre: "comedy",
-          period: "contemporary",
-          synopsis: "A synopsis",
-          number_of_roles: 2,
-          number_of_male_roles: 1,
-          number_of_female_roles: 1,
-          number_of_words: 5,
-          characters: { "11111111-1111-4111-8111-111111111111": "ALICE" },
-        }),
-      ] as never),
+      Result.ok({
+        records: [
+          makeRecord({
+            uri: "99999999-9999-4999-8999-999999999999",
+            title: "Le Jeu de l'amour et du hasard",
+            author: "Pierre de Marivaux",
+            lang: "fr",
+            genre: "comedy",
+            period: "xviiith",
+            synopsis: "A synopsis",
+            number_of_roles: 2,
+            number_of_male_roles: 1,
+            number_of_female_roles: 1,
+            number_of_words: 5,
+            characters: { "11111111-1111-4111-8111-111111111111": "ALICE" },
+            bookmarked: true,
+          }),
+        ],
+        total: 54,
+      } as never),
     );
 
-    const result = await useCase.execute();
+    const result = await useCase.execute({ filters: { author: "Marivaux" }, page: 2, pageSize: 20 });
 
     expect(result.isOk()).toBe(true);
-    expect(result.dataOrThrow()).toEqual({
-      scripts: [
-        {
-          uri: "99999999-9999-4999-8999-999999999999",
-          title: "The Fixture Play",
-          author: "Fixture Author",
-          lang: "en",
-          genre: "comedy",
-          period: "contemporary",
-          synopsis: "A synopsis",
-          numberOfRoles: 2,
-          numberOfMaleRoles: 1,
-          numberOfFemaleRoles: 1,
-          numberOfWords: 5,
-          characters: { "11111111-1111-4111-8111-111111111111": "ALICE" },
-        },
-      ],
+    expect(repository.findAllScripts).toHaveBeenCalledWith({
+      filters: { author: "Marivaux" },
+      page: 2,
+      pageSize: 20,
+    });
+    const output = result.dataOrThrow();
+    expect(output.total).toBe(54);
+    expect(output.page).toBe(2);
+    expect(output.pageSize).toBe(20);
+    expect(output.scripts[0]).toMatchObject({
+      uri: "99999999-9999-4999-8999-999999999999",
+      title: "Le Jeu de l'amour et du hasard",
+      author: "Pierre de Marivaux",
+      numberOfWords: 5,
+      bookmarked: true,
     });
   });
 
   it("propagates repository failures as Result.failure", async () => {
     repository.findAllScripts.mockResolvedValue(Result.failure(new Error("db down") as never));
 
-    const result = await useCase.execute();
+    const result = await useCase.execute({ page: 1, pageSize: 20 });
 
     expect(result.isFailure()).toBe(true);
   });
