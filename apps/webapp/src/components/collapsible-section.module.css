@@ -6,3 +6,14 @@
 .hidden {
   display: none;
 }
+
+.arrow {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 0.7em;
+  transition: transform 0.15s ease-in-out;
+}
+
+.arrowOpen {
+  transform: rotate(90deg);
+}

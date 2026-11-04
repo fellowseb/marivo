@@ -13,6 +13,7 @@ interface CardsSelectProps {
   options: CardsSelectOption[];
   multiple?: boolean;
   value?: string | string[];
+  onChange?: (values: string[]) => void;
 }
 
 export function CardsSelect(props: CardsSelectProps) {
@@ -27,6 +28,7 @@ export function CardsSelect(props: CardsSelectProps) {
       } else {
         newSet.add(value);
       }
+      props.onChange?.([...newSet]);
       return newSet;
     });
   };
