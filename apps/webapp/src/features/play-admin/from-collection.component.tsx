@@ -209,37 +209,41 @@ function CollectionDetails(props: {
   const characterNames = Object.values(script.characters);
   return (
     <div className={styles.details}>
-      <div className={styles.detailsTitle}>{script.title}</div>
-      <div className={styles.detailsAuthor}>{script.author}</div>
-      <DetailSection label="Synopsis">
-        {script.synopsis ? (
-          <p className={styles.synopsis}>{script.synopsis}</p>
-        ) : null}
-      </DetailSection>
-      <DetailSection label="Characters">
-        {characterNames.length > 0 ? (
-          <ul className={styles.characters}>
-            {characterNames.map((name) => (
-              <li key={name}>{name}</li>
-            ))}
-          </ul>
-        ) : null}
-      </DetailSection>
-      <DetailSection label="Distribution">
-        {script.numberOfRoles != null ? `${script.numberOfRoles} roles` : null}
-        {script.numberOfMaleRoles != null
-          ? ` · ${script.numberOfMaleRoles} male`
-          : ''}
-        {script.numberOfFemaleRoles != null
-          ? ` · ${script.numberOfFemaleRoles} female`
-          : ''}
-      </DetailSection>
-      <DetailSection label="Genre">{script.genre}</DetailSection>
-      <DetailSection label="Period">{script.period}</DetailSection>
-      <DetailSection label="Language">
-        {script.lang.toUpperCase()}
-      </DetailSection>
-      <DetailSection label="Other">{script.numberOfWords} words</DetailSection>
+      <div className={styles.detailsBody}>
+        <DetailSection label="">
+          <div className={styles.detailsTitle}>{script.title}</div>
+          <div className={styles.detailsAuthor}>{script.author}</div>
+        </DetailSection>
+        <DetailSection label="Synopsis">
+          {script.synopsis ? (
+            <p className={styles.synopsis}>{script.synopsis}</p>
+          ) : null}
+        </DetailSection>
+        <DetailSection label="Characters">
+          {characterNames.length > 0 ? (
+            <ul className={styles.characters}>
+              {characterNames.map((name) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+          ) : null}
+        </DetailSection>
+        <DetailSection label="Distribution">
+          {script.numberOfRoles != null ? `${script.numberOfRoles} roles` : null}
+          {script.numberOfMaleRoles != null
+            ? ` · ${script.numberOfMaleRoles} male`
+            : ''}
+          {script.numberOfFemaleRoles != null
+            ? ` · ${script.numberOfFemaleRoles} female`
+            : ''}
+        </DetailSection>
+        <DetailSection label="Genre">{script.genre}</DetailSection>
+        <DetailSection label="Period">{script.period}</DetailSection>
+        <DetailSection label="Language">
+          {script.lang.toUpperCase()}
+        </DetailSection>
+        <DetailSection label="Other">{script.numberOfWords} words</DetailSection>
+      </div>
       <div className={styles.detailsActions}>
         <Button
           icon="memorize"
@@ -248,7 +252,9 @@ function CollectionDetails(props: {
           onClick={props.onToggleBookmark}
           customClassNames={[styles.bookmarkButton]}
         />
-        <Button icon="close" ariaLabel="Close" onClick={props.onClose} />
+        <Button icon="close" ariaLabel="Close" onClick={props.onClose}>
+          Close
+        </Button>
       </div>
     </div>
   );
@@ -378,8 +384,8 @@ function PickStep(props: PickStepProps) {
           <div className={styles.filtersBar}>
             <Button
               icon="filter"
-              customClassNames={[styles.filtersToggle]}
               onClick={() => setFiltersHidden((prev) => !prev)}
+              rightIcon={filtersHidden ? 'chevronRightDouble' : 'chevronLeftDouble'}
             >
               {filtersHidden
                 ? enabledCount > 0

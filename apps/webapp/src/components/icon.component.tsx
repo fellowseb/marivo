@@ -10,6 +10,8 @@ const ICON_CLASSES = {
   blocking: iconsStyles.blocking,
   browseFiles: iconsStyles.browseFiles,
   characterLine: iconsStyles.characterLine,
+  chevronLeftDouble: iconsStyles.chevronLeftDouble,
+  chevronRightDouble: iconsStyles.chevronRightDouble,
   clear: iconsStyles.clear,
   close: iconsStyles.close,
   decline: iconsStyles.decline,
