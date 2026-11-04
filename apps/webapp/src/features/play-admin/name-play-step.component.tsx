@@ -64,6 +64,9 @@ export function NamePlayStep(props: NamePlayStepProps) {
   useEffect(() => {
     if (props.metadata) {
       setCommons({ ...props.metadata });
+      // the title input is pre-filled in commons mode: Create must be enabled
+      // without requiring an edit
+      setCreateReady(props.metadata.title.length > 0);
     }
   }, [props.metadata]);
 

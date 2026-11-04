@@ -83,8 +83,10 @@ describe('NamePlayStep', () => {
     const { createPlay } = renderStep({ allowAddToCommons: true, metadata });
     // toggle the commons section on
     fireEvent.click(screen.getByRole('checkbox'));
-    // the metadata form is shown, pre-filled and editable
+    // the metadata form is shown, pre-filled; Create is enabled without editing
     const titleInput = await screen.findByDisplayValue('Tartuffe');
+    const createButton = screen.getByRole('button', { name: 'Create' }) as HTMLButtonElement;
+    expect(createButton.disabled).toBe(false);
     fireEvent.change(titleInput, { target: { value: 'Tartuffe v2' } });
     const authorInput = screen.getByDisplayValue('Molière');
     fireEvent.change(authorInput, { target: { value: 'Jean-Baptiste Poquelin' } });
