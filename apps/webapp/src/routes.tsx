@@ -25,6 +25,10 @@ import FromCollection, {
 import ScriptImportsPage, {
   ScriptImportsPageBreadcrumbs,
 } from "./features/play-admin/script-imports-page.component";
+import CollectionPlayEditPage, {
+  CollectionPlayEditBreadcrumbs,
+  COLLECTION_EDIT_ROUTE,
+} from "./features/play-admin/collection-play-edit-page.component";
 import { CollectionMetadataContextProvider } from "./features/play-admin/collection-metadata.context";
 
 /** Contain a page-level crash inside its route, keeping the surrounding layout alive. */
@@ -41,6 +45,7 @@ function AppRoutes() {
       <Route path="/plays/new/empty" element={<NewEmptyScriptBreadcrumbs />} />
       <Route path="/plays/new/from-collection" element={<FromCollectionBreadcrumbs />} />
       <Route path="/plays/imports" element={<ScriptImportsPageBreadcrumbs />} />
+      <Route path="/collection/edit/:uri" element={<CollectionPlayEditBreadcrumbs />} />
       <Route path="/my-account" element={<UserAccountPageBreadcrumbs />} />
     </Routes>
   );
@@ -61,6 +66,10 @@ function AppRoutes() {
               element={withErrorBoundary(<FromCollection />)}
             />
             <Route path="plays/imports" element={withErrorBoundary(<ScriptImportsPage />)} />
+            <Route
+              path={COLLECTION_EDIT_ROUTE.replace(/^\//, "")}
+              element={withErrorBoundary(<CollectionPlayEditPage />)}
+            />
             <Route
               path="my-account/security?"
               element={withErrorBoundary(<UserAccountPage />)}

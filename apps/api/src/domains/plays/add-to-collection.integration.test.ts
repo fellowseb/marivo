@@ -3,21 +3,21 @@ import type { Sql } from "postgres";
 import type { Role } from "@marivo/utils";
 import { setupTestDatabase, teardownTestDatabase } from "../../test-utils/db.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
-import { UserPlaysRepository } from "./user-plays.repository.ts";
+import { ScriptImportsRepository } from "./script-imports.repository.ts";
 import { AddPlayToCollectionUseCase } from "./add-play-to-collection.use-case.ts";
 import { ListAllScriptsUseCase } from "./list-all-scripts.use-case.ts";
 import type { UserContextService } from "../../shared/use-case.ts";
 
 /**
- * Integration tests (real Postgres via testcontainers) for publishing a play
- * into the public domain collection: capability guard, insert, duplicate
- * rejection and visibility in the collection listing.
+ * Integration tests (real Postgres via testcontainers) for publishing an
+ * import's script into the public domain collection: capability guard, insert,
+ * duplicate rejection, import marked done, and visibility in the listing.
  */
 describe("playsCollection addToCollection (integration with real Postgres)", () => {
   let sql: Sql;
   let userId: number;
-  let playUri: string;
   let scriptId: number;
+  const importId = "10000000-0000-4000-8000-0000000000aa";
 
   function userContext(role?: Role): UserContextService {
     return { get: () => ({ userId, role }) } as unknown as UserContextService;
@@ -27,7 +27,7 @@ describe("playsCollection addToCollection (integration with real Postgres)", () 
     const ctx = userContext(role);
     return new AddPlayToCollectionUseCase(
       new PlaysCollectionRepository(sql, ctx),
-      new UserPlaysRepository(sql, ctx),
+      new ScriptImportsRepository(sql, ctx),
       ctx,
     );
   }
@@ -48,10 +48,9 @@ describe("playsCollection addToCollection (integration with real Postgres)", () 
       RETURNING id
     `;
     scriptId = script.id;
-    playUri = "10000000-0000-4000-8000-0000000000aa";
     await sql`
-      INSERT INTO plays (uri, title, created_date, creator_id, owner_id, last_modified_date, script_id)
-      VALUES (${playUri}, 'Tartuffe', now(), ${userId}, ${userId}, now(), ${scriptId})
+      INSERT INTO script_imports (id, status, files, result_script_id, user_id)
+      VALUES (${importId}, 'reviewing', '{}'::jsonb, ${scriptId}, ${userId})
     `;
   });
 
@@ -60,7 +59,7 @@ describe("playsCollection addToCollection (integration with real Postgres)", () 
   });
 
   const input = {
-    playUri: "10000000-0000-4000-8000-0000000000aa",
+    importId,
     title: "Tartuffe",
     author: "Molière",
     lang: "fr" as const,
@@ -83,7 +82,7 @@ describe("playsCollection addToCollection (integration with real Postgres)", () 
     expect(Number(row.count)).toBe(0);
   });
 
-  it("publishes the play into public_domain_plays and it appears in listAll (role: admin)", async () => {
+  it("publishes the import's script into public_domain_plays, marks the import done, and it appears in listAll (role: admin)", async () => {
     const result = await makeUseCase("admin").execute(input);
     expect(result.isOk()).toBe(true);
     const collectionUri = result.dataOrThrow().uri;
@@ -104,45 +103,35 @@ describe("playsCollection addToCollection (integration with real Postgres)", () 
     expect(row.genre).toBe("comedy");
     expect(row.script_id).toBe(scriptId);
 
+    // the import is consumed: no personal play, import marked done
+    const [playCount] = await sql<{ count: string }[]>`SELECT COUNT(*) AS count FROM plays`;
+    expect(Number(playCount.count)).toBe(0);
+    const [importRow] = await sql<{ status: string }[]>`
+      SELECT status FROM script_imports WHERE id = ${importId}
+    `;
+    expect(importRow.status).toBe("done");
+
     // visible in the collection listing
-    const listUseCase = new ListAllScriptsUseCase(new PlaysCollectionRepository(sql, userContext("admin")), userContext("admin"));
+    const ctx = userContext("admin");
+    const listUseCase = new ListAllScriptsUseCase(new PlaysCollectionRepository(sql, ctx), ctx);
     const list = await listUseCase.execute({ filters: {}, page: 1, pageSize: 20 });
     expect(list.isOk()).toBe(true);
     const scripts = list.dataOrThrow().scripts;
     expect(scripts.some((s) => s.uri === collectionUri && s.title === "Tartuffe")).toBe(true);
   });
 
-  it("also works for the collection-maintainer role", async () => {
-    const playUri2 = "10000000-0000-4000-8000-0000000000bb";
-    // the second play needs its own script
-    const [script2] = await sql<{ id: number }[]>`
-      INSERT INTO scripts (checksum) VALUES ('deadbeef2') RETURNING id
-    `;
-    await sql`
-      INSERT INTO plays (uri, title, created_date, creator_id, owner_id, last_modified_date, script_id)
-      VALUES (${playUri2}, 'Le Misanthrope', now(), ${userId}, ${userId}, now(), ${script2.id})
-    `;
-
-    const result = await makeUseCase("collection-maintainer").execute({
-      ...input,
-      playUri: playUri2,
-      title: "Le Misanthrope",
-    });
-    expect(result.isOk()).toBe(true);
-  });
-
   it("rejects publishing the same script twice", async () => {
-    const result = await makeUseCase("admin").execute(input);
+    const result = await makeUseCase("collection-maintainer").execute(input);
     expect(result.isFailure()).toBe(true);
     expect(result.errorOrThrow().code).toBe("BAD_REQUEST");
   });
 
-  it("rejects unknown play uris with NOT_FOUND", async () => {
+  it("rejects unknown import ids with the ScriptImportNotFound error", async () => {
     const result = await makeUseCase("admin").execute({
       ...input,
-      playUri: "10000000-0000-4000-8000-0000000000ff",
+      importId: "10000000-0000-4000-8000-0000000000ff",
     });
     expect(result.isFailure()).toBe(true);
-    expect(result.errorOrThrow().code).toBe("NOT_FOUND");
+    expect(result.errorOrThrow().code).toBe("BAD_REQUEST");
   });
 });

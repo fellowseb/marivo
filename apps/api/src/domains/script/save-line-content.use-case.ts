@@ -1,8 +1,14 @@
 import z from "zod";
 import { Result } from "@marivo/utils";
-import { type UseCase } from "../../shared/use-case.ts";
+import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
+import { ForbiddenError } from "../../shared/error.ts";
 import { ScriptNotFound, ScriptRepository } from "./script.repository.ts";
+import { resolveEditableScriptId } from "./resolve-editable-script.ts";
 import type { PlayNotFound, UserPlaysRepository } from "../plays/user-plays.repository.ts";
+import type {
+  CollectionPlayNotFound,
+  PlaysCollectionRepository,
+} from "../plays/plays-collection.repository.ts";
 
 export const SaveLineContentUseCaseInputSchema = z.object({
   uri: z.uuid(),
@@ -19,6 +25,7 @@ export const SaveLineContentUseCaseInputSchema = z.object({
   }),
   contentType: z.enum(["saved_version", "shared_draft", "draft"]),
   version: z.number().min(0).nullable().optional(),
+  from: z.enum(["play", "collection"]).default("play"),
 });
 
 export const SaveLineContentUseCaseOutputSchema = z.object({
@@ -29,21 +36,36 @@ export const SaveLineContentUseCaseOutputSchema = z.object({
 type SaveLineContentUseCaseInput = z.infer<typeof SaveLineContentUseCaseInputSchema>;
 type SaveLineContentUseCaseOutput = z.infer<typeof SaveLineContentUseCaseOutputSchema>;
 
-export class SaveLineContentUseCase implements UseCase<{
+export class SaveLineContentUseCase extends AuthenticatedUseCase<{
   params: SaveLineContentUseCaseInput;
   success: SaveLineContentUseCaseOutput;
+  failure: ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError;
 }> {
-  constructor(scriptRepository: ScriptRepository, userPlaysRepository: UserPlaysRepository) {
+  constructor(
+    scriptRepository: ScriptRepository,
+    userPlaysRepository: UserPlaysRepository,
+    playsCollectionRepository: PlaysCollectionRepository,
+    userContextService: UserContextService,
+  ) {
+    super(userContextService);
     this.scriptRepository = scriptRepository;
     this.userPlaysRepository = userPlaysRepository;
+    this.playsCollectionRepository = playsCollectionRepository;
   }
 
   async execute(
     params: SaveLineContentUseCaseInput,
-  ): Promise<Result<SaveLineContentUseCaseOutput, ScriptNotFound | PlayNotFound>> {
-    const scriptIdResult = await this.userPlaysRepository.getScriptId({
-      uri: params.uri,
-    });
+  ): Promise<
+    Result<SaveLineContentUseCaseOutput, ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError>
+  > {
+    const scriptIdResult = await resolveEditableScriptId(
+      { uri: params.uri, from: params.from },
+      {
+        userPlaysRepository: this.userPlaysRepository,
+        playsCollectionRepository: this.playsCollectionRepository,
+        userContext: this.getUserContext(),
+      },
+    );
     return scriptIdResult.match({
       success: async (scriptId) => {
         return await this.scriptRepository.saveLineContent({
@@ -63,4 +85,5 @@ export class SaveLineContentUseCase implements UseCase<{
 
   private scriptRepository: ScriptRepository;
   private userPlaysRepository: UserPlaysRepository;
+  private playsCollectionRepository: PlaysCollectionRepository;
 }

@@ -161,7 +161,7 @@ function PlayPage() {
                         path={PLAY_SUB_ROUTES_PATHS.script}
                         element={
                           <PermissionProtected>
-                            <ScriptEditionContextProvider uri={uri}>
+                            <ScriptEditionContextProvider uri={uri} from="play">
                               <ScriptTab />
                             </ScriptEditionContextProvider>
                           </PermissionProtected>

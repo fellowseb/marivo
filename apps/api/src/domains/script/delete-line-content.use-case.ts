@@ -1,13 +1,20 @@
 import z from "zod";
 import { Result } from "@marivo/utils";
-import { type UseCase } from "../../shared/use-case.ts";
+import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
+import { ForbiddenError } from "../../shared/error.ts";
 import { ScriptNotFound, ScriptRepository } from "./script.repository.ts";
+import { resolveEditableScriptId } from "./resolve-editable-script.ts";
 import type { PlayNotFound, UserPlaysRepository } from "../plays/user-plays.repository.ts";
+import type {
+  CollectionPlayNotFound,
+  PlaysCollectionRepository,
+} from "../plays/plays-collection.repository.ts";
 
 export const DeleteLineContentUseCaseInputSchema = z.object({
   uri: z.uuid(),
   lineId: z.uuidv4(),
   contentId: z.uuidv4(),
+  from: z.enum(["play", "collection"]).default("play"),
 });
 
 export const DeleteLineContentUseCaseOutputSchema = z.object({
@@ -17,27 +24,36 @@ export const DeleteLineContentUseCaseOutputSchema = z.object({
 type DeleteLineContentUseCaseInput = z.infer<typeof DeleteLineContentUseCaseInputSchema>;
 type DeleteLineContentUseCaseOutput = z.infer<typeof DeleteLineContentUseCaseOutputSchema>;
 
-export class DeleteLineContentUseCase
-  implements
-    UseCase<{
-      params: DeleteLineContentUseCaseInput;
-      success: DeleteLineContentUseCaseOutput;
-    }>
-{
+export class DeleteLineContentUseCase extends AuthenticatedUseCase<{
+  params: DeleteLineContentUseCaseInput;
+  success: DeleteLineContentUseCaseOutput;
+  failure: ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError;
+}> {
   constructor(
     scriptRepository: ScriptRepository,
     userPlaysRepository: UserPlaysRepository,
+    playsCollectionRepository: PlaysCollectionRepository,
+    userContextService: UserContextService,
   ) {
+    super(userContextService);
     this.scriptRepository = scriptRepository;
     this.userPlaysRepository = userPlaysRepository;
+    this.playsCollectionRepository = playsCollectionRepository;
   }
 
   async execute(
     params: DeleteLineContentUseCaseInput,
-  ): Promise<Result<DeleteLineContentUseCaseOutput, ScriptNotFound | PlayNotFound>> {
-    const scriptIdResult = await this.userPlaysRepository.getScriptId({
-      uri: params.uri,
-    });
+  ): Promise<
+    Result<DeleteLineContentUseCaseOutput, ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError>
+  > {
+    const scriptIdResult = await resolveEditableScriptId(
+      { uri: params.uri, from: params.from },
+      {
+        userPlaysRepository: this.userPlaysRepository,
+        playsCollectionRepository: this.playsCollectionRepository,
+        userContext: this.getUserContext(),
+      },
+    );
     return scriptIdResult.match({
       success: async (scriptId) => {
         return await this.scriptRepository.deleteLineContent({
@@ -54,4 +70,5 @@ export class DeleteLineContentUseCase
 
   private scriptRepository: ScriptRepository;
   private userPlaysRepository: UserPlaysRepository;
+  private playsCollectionRepository: PlaysCollectionRepository;
 }

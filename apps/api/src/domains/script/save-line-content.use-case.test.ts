@@ -3,11 +3,15 @@ import { Result } from "@marivo/utils";
 import { SaveLineContentUseCase } from "./save-line-content.use-case.ts";
 import { ScriptNotFound, type ScriptRepository } from "./script.repository.ts";
 import type { UserPlaysRepository } from "../plays/user-plays.repository.ts";
+import type { PlaysCollectionRepository } from "../plays/plays-collection.repository.ts";
+import type { UserContextService } from "../../shared/use-case.ts";
 import { PlayNotFound } from "../plays/user-plays.repository.ts";
 
 describe("SaveLineContentUseCase", () => {
   let scriptRepository: vi.Mocked<ScriptRepository>;
   let userPlaysRepository: vi.Mocked<UserPlaysRepository>;
+  let playsCollectionRepository: vi.Mocked<PlaysCollectionRepository>;
+  let userContext: UserContextService;
   let useCase: SaveLineContentUseCase;
 
   beforeEach(() => {
@@ -17,7 +21,11 @@ describe("SaveLineContentUseCase", () => {
     userPlaysRepository = {
       getScriptId: vi.fn(),
     } as unknown as vi.Mocked<UserPlaysRepository>;
-    useCase = new SaveLineContentUseCase(scriptRepository, userPlaysRepository);
+    playsCollectionRepository = {
+      getScriptIdByUri: vi.fn(),
+    } as unknown as vi.Mocked<PlaysCollectionRepository>;
+    userContext = { get: () => ({ userId: 1 }) } as unknown as UserContextService;
+    useCase = new SaveLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
   });
 
   it("saves line content when play exists", async () => {

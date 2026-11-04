@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router';
+import { useUser } from '@clerk/react';
+import { hasCapability, parseRole } from '@marivo/utils';
 import {
   keepPreviousData,
   useMutation,
@@ -204,6 +206,7 @@ function CollectionDetails(props: {
   onClose: () => void;
   onToggleBookmark: () => void;
   bookmarkPending: boolean;
+  onEdit?: (() => void) | undefined;
 }) {
   const { script } = props;
   const characterNames = Object.values(script.characters);
@@ -256,6 +259,11 @@ function CollectionDetails(props: {
           onClick={props.onToggleBookmark}
           customClassNames={[styles.bookmarkButton]}
         />
+        {props.onEdit ? (
+          <Button icon="script" ariaLabel="Edit in collection" onClick={props.onEdit}>
+            Edit
+          </Button>
+        ) : null}
         <Button icon="close" ariaLabel="Close" onClick={props.onClose}>
           Close
         </Button>
@@ -275,6 +283,9 @@ function PickStep(props: PickStepProps) {
   const trpc = useTRPC();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useUser();
+  const role = parseRole((user?.publicMetadata as { role?: unknown } | undefined)?.role);
+  const canEditCollectionPlay = hasCapability(role, 'edit_collection_play_script');
 
   const [filters, setFilters] = useState<FiltersState>(loadFilters);
   const [page, setPage] = useState(1);
@@ -601,6 +612,11 @@ function PickStep(props: PickStepProps) {
               bookmarkPending={bookmarkPending}
               onClose={() => handleSelect(null)}
               onToggleBookmark={() => toggleBookmark({ playUri: selected.uri })}
+              onEdit={
+                canEditCollectionPlay
+                  ? () => navigate(`/collection/edit/${selected.uri}`)
+                  : undefined
+              }
             />
           ) : null}
         </div>

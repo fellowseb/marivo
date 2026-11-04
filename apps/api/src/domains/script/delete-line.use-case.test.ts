@@ -7,6 +7,8 @@ import { PlayNotFound, type UserPlaysRepository } from "../plays/user-plays.repo
 describe("DeleteLineUseCase", () => {
   let scriptRepository: vi.Mocked<ScriptRepository>;
   let userPlaysRepository: vi.Mocked<UserPlaysRepository>;
+  let playsCollectionRepository: vi.Mocked<PlaysCollectionRepository>;
+  let userContext: UserContextService;
   let useCase: DeleteLineUseCase;
 
   beforeEach(() => {
@@ -16,7 +18,11 @@ describe("DeleteLineUseCase", () => {
     userPlaysRepository = {
       getScriptId: vi.fn(),
     } as unknown as vi.Mocked<UserPlaysRepository>;
-    useCase = new DeleteLineUseCase(scriptRepository, userPlaysRepository);
+    playsCollectionRepository = {
+      getScriptIdByUri: vi.fn(),
+    } as unknown as vi.Mocked<PlaysCollectionRepository>;
+    userContext = { get: () => ({ userId: 1 }) } as unknown as UserContextService;
+    useCase = new DeleteLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
   });
 
   it("deletes a line successfully", async () => {

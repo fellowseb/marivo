@@ -416,6 +416,9 @@ function NameStepFromImport(props: {
   const trpc = useTRPC();
   const { user } = useUser();
   const { mutateAsync } = useMutation(trpc.plays.createFromImport.mutationOptions());
+  const { mutateAsync: addToCollection } = useMutation(
+    trpc.playsCollection.addToCollection.mutationOptions(),
+  );
   const role = parseRole((user?.publicMetadata as { role?: unknown } | undefined)?.role);
   const canCreateCollectionPlay = hasCapability(role, "create_collection_play");
   return (
@@ -424,6 +427,7 @@ function NameStepFromImport(props: {
       metadata={props.metadata}
       allowAddToCommons={canCreateCollectionPlay}
       createPlay={(title) => mutateAsync({ title, importId: props.importId })}
+      publishToCollection={(input) => mutateAsync({ importId: props.importId, ...input })}
     />
   );
 }

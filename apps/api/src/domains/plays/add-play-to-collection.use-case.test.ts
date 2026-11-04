@@ -3,14 +3,14 @@ import { Result, type Role } from "@marivo/utils";
 import { AddPlayToCollectionUseCase } from "./add-play-to-collection.use-case.ts";
 import { PlayAlreadyInCollection } from "./plays-collection.repository.ts";
 import type { PlaysCollectionRepository } from "./plays-collection.repository.ts";
-import { PlayNotFound } from "./user-plays.repository.ts";
-import type { UserPlaysRepository } from "./user-plays.repository.ts";
+import { ScriptImportNotFound } from "./script-imports.repository.ts";
+import type { ScriptImportsRepository } from "./script-imports.repository.ts";
 import type { UserContextService } from "../../shared/use-case.ts";
 
-const PLAY_URI = "10000000-0000-4000-8000-000000000001";
+const IMPORT_ID = "10000000-0000-4000-8000-000000000001";
 
 const input = {
-  playUri: PLAY_URI,
+  importId: IMPORT_ID,
   title: "Tartuffe",
   author: "Molière",
   lang: "fr" as const,
@@ -28,24 +28,25 @@ function makeUserContext(role?: Role): UserContextService {
 
 describe("AddPlayToCollectionUseCase", () => {
   let collectionRepository: vi.Mocked<PlaysCollectionRepository>;
-  let playsRepository: vi.Mocked<UserPlaysRepository>;
+  let importsRepository: vi.Mocked<ScriptImportsRepository>;
 
   beforeEach(() => {
     collectionRepository = {
       existsByScriptId: vi.fn().mockResolvedValue(Result.ok(false)),
       addToCollection: vi.fn().mockResolvedValue(Result.ok({ uri: "20000000-0000-4000-8000-000000000002" })),
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
-    playsRepository = {
-      getScriptId: vi.fn().mockResolvedValue(Result.ok(42)),
-    } as unknown as vi.Mocked<UserPlaysRepository>;
+    importsRepository = {
+      getResultScriptId: vi.fn().mockResolvedValue(Result.ok(42)),
+      setScriptImportDone: vi.fn().mockResolvedValue(undefined),
+    } as unknown as vi.Mocked<ScriptImportsRepository>;
   });
 
   it.each(["admin", "collection-maintainer"] as const)(
-    "publishes the play's script into the collection (role: %s)",
+    "publishes the import's script into the collection and marks the import done (role: %s)",
     async (role) => {
       const useCase = new AddPlayToCollectionUseCase(
         collectionRepository,
-        playsRepository,
+        importsRepository,
         makeUserContext(role),
       );
 
@@ -53,7 +54,7 @@ describe("AddPlayToCollectionUseCase", () => {
 
       expect(result.isOk()).toBe(true);
       expect(result.dataOrThrow().uri).toMatch(/^[0-9a-f-]{36}$/);
-      expect(playsRepository.getScriptId).toHaveBeenCalledWith({ uri: PLAY_URI });
+      expect(importsRepository.getResultScriptId).toHaveBeenCalledWith({ id: IMPORT_ID });
       expect(collectionRepository.existsByScriptId).toHaveBeenCalledWith(42);
       expect(collectionRepository.addToCollection).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -66,13 +67,14 @@ describe("AddPlayToCollectionUseCase", () => {
           scriptId: 42,
         }),
       );
+      expect(importsRepository.setScriptImportDone).toHaveBeenCalledWith({ importId: IMPORT_ID });
     },
   );
 
   it("returns FORBIDDEN when the user has no role", async () => {
     const useCase = new AddPlayToCollectionUseCase(
       collectionRepository,
-      playsRepository,
+      importsRepository,
       makeUserContext(undefined),
     );
 
@@ -80,22 +82,24 @@ describe("AddPlayToCollectionUseCase", () => {
 
     expect(result.isFailure()).toBe(true);
     expect(result.errorOrThrow().code).toBe("FORBIDDEN");
-    expect(playsRepository.getScriptId).not.toHaveBeenCalled();
+    expect(importsRepository.getResultScriptId).not.toHaveBeenCalled();
     expect(collectionRepository.addToCollection).not.toHaveBeenCalled();
   });
 
-  it("returns NOT_FOUND when the play does not exist", async () => {
-    playsRepository.getScriptId.mockResolvedValue(Result.failure(new PlayNotFound(PLAY_URI)));
+  it("returns the ScriptImportNotFound error when the import does not exist", async () => {
+    importsRepository.getResultScriptId.mockResolvedValue(
+      Result.failure(new ScriptImportNotFound()),
+    );
     const useCase = new AddPlayToCollectionUseCase(
       collectionRepository,
-      playsRepository,
+      importsRepository,
       makeUserContext("admin"),
     );
 
     const result = await useCase.execute(input);
 
     expect(result.isFailure()).toBe(true);
-    expect(result.errorOrThrow().code).toBe("NOT_FOUND");
+    expect(result.errorOrThrow().code).toBe("BAD_REQUEST");
     expect(collectionRepository.addToCollection).not.toHaveBeenCalled();
   });
 
@@ -103,7 +107,7 @@ describe("AddPlayToCollectionUseCase", () => {
     collectionRepository.existsByScriptId.mockResolvedValue(Result.ok(true));
     const useCase = new AddPlayToCollectionUseCase(
       collectionRepository,
-      playsRepository,
+      importsRepository,
       makeUserContext("collection-maintainer"),
     );
 
@@ -113,5 +117,6 @@ describe("AddPlayToCollectionUseCase", () => {
     expect(result.errorOrThrow()).toBeInstanceOf(PlayAlreadyInCollection);
     expect(result.errorOrThrow().code).toBe("BAD_REQUEST");
     expect(collectionRepository.addToCollection).not.toHaveBeenCalled();
+    expect(importsRepository.setScriptImportDone).not.toHaveBeenCalled();
   });
 });

@@ -5,11 +5,12 @@ import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.
 import { ForbiddenError, InternalServerError } from "../../shared/error.ts";
 import type { PlaysCollectionRepository } from "./plays-collection.repository.ts";
 import { PlayAlreadyInCollection } from "./plays-collection.repository.ts";
-import type { UserPlaysRepository } from "./user-plays.repository.ts";
-import { PlayNotFound } from "./user-plays.repository.ts";
+import type { ScriptImportsRepository } from "./script-imports.repository.ts";
+import { ScriptImportNotFound } from "./script-imports.repository.ts";
 
 export const AddPlayToCollectionUseCaseInputSchema = z.object({
-  playUri: z.string().length(36),
+  /** The script import whose resulting script is published; no personal play is created. */
+  importId: z.string().length(36),
   title: z.string().min(1).max(100),
   author: z.string().min(1).max(64),
   lang: z.enum(["fr", "en"]),
@@ -31,16 +32,16 @@ type AddPlayToCollectionUseCaseOutput = z.infer<typeof AddPlayToCollectionUseCas
 export class AddPlayToCollectionUseCase extends AuthenticatedUseCase<{
   params: AddPlayToCollectionUseCaseInput;
   success: AddPlayToCollectionUseCaseOutput;
-  failure: ForbiddenError | PlayNotFound | PlayAlreadyInCollection | InternalServerError;
+  failure: ForbiddenError | ScriptImportNotFound | PlayAlreadyInCollection | InternalServerError;
 }> {
   constructor(
     collectionRepository: PlaysCollectionRepository,
-    playsRepository: UserPlaysRepository,
+    importsRepository: ScriptImportsRepository,
     userContextService: UserContextService,
   ) {
     super(userContextService);
     this.collectionRepository = collectionRepository;
-    this.playsRepository = playsRepository;
+    this.importsRepository = importsRepository;
   }
 
   async execute(input: AddPlayToCollectionUseCaseInput) {
@@ -49,7 +50,7 @@ export class AddPlayToCollectionUseCase extends AuthenticatedUseCase<{
         new ForbiddenError("Capability 'create_collection_play' is required"),
       );
     }
-    const scriptIdResult = await this.playsRepository.getScriptId({ uri: input.playUri });
+    const scriptIdResult = await this.importsRepository.getResultScriptId({ id: input.importId });
     if (scriptIdResult.isFailure()) {
       return Result.failure(scriptIdResult.errorOrThrow());
     }
@@ -78,11 +79,14 @@ export class AddPlayToCollectionUseCase extends AuthenticatedUseCase<{
     if (insertResult.isFailure()) {
       return Result.failure(insertResult.errorOrThrow());
     }
+    // no personal play is created in this flow: the import is consumed by the
+    // collection entry, so mark it done to remove it from ongoing imports
+    await this.importsRepository.setScriptImportDone({ importId: input.importId });
     return Result.ok({ uri: insertResult.dataOrThrow().uri });
   }
 
   private collectionRepository: PlaysCollectionRepository;
-  private playsRepository: UserPlaysRepository;
+  private importsRepository: ScriptImportsRepository;
 }
 
 export default AddPlayToCollectionUseCase;

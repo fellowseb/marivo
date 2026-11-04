@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
-import { NamePlayStep, type PlayMetadataDetails } from './name-play-step.component';
+import { NamePlayStep, type PlayMetadataDetails, type PublishToCollectionInput } from './name-play-step.component';
 
 const navigateMock = vi.fn();
 vi.mock('react-router', async (importOriginal) => {
@@ -10,15 +10,8 @@ vi.mock('react-router', async (importOriginal) => {
   return { ...actual, useNavigate: () => navigateMock };
 });
 
-const addToCollectionMock = vi.fn();
-
 vi.mock('../../trpc', () => ({
   useTRPC: () => ({
-    playsCollection: {
-      addToCollection: {
-        mutationOptions: () => ({ mutationKey: ['addToCollection'], mutationFn: addToCollectionMock }),
-      },
-    },
     plays: {
       playDetails: {
         queryOptions: (input: unknown) => ({
@@ -48,20 +41,26 @@ const metadata: PlayMetadataDetails = {
 function renderStep(props: Partial<Parameters<typeof NamePlayStep>[0]> = {}) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const createPlay = props.createPlay ?? vi.fn().mockResolvedValue({ uri: 'play-uri-123' });
+  const publishToCollection =
+    props.publishToCollection ?? vi.fn().mockResolvedValue({ uri: 'collection-uri-1' });
   render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <NamePlayStep onBack={() => undefined} createPlay={createPlay} {...props} createPlay={createPlay} />
+        <NamePlayStep
+          onBack={() => undefined}
+          {...props}
+          createPlay={createPlay}
+          publishToCollection={publishToCollection}
+        />
       </MemoryRouter>
     </QueryClientProvider>,
   );
-  return { createPlay };
+  return { createPlay, publishToCollection };
 }
 
 describe('NamePlayStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    addToCollectionMock.mockResolvedValue({ uri: 'collection-uri-1' });
   });
   afterEach(() => cleanup());
 
@@ -71,16 +70,16 @@ describe('NamePlayStep', () => {
   });
 
   it('creates the play without publishing when the toggle is off', async () => {
-    const { createPlay } = renderStep({ allowAddToCommons: true, metadata });
+    const { createPlay, publishToCollection } = renderStep({ allowAddToCommons: true, metadata });
     fireEvent.change(screen.getByPlaceholderText(/Othello/), { target: { value: 'My project' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ pathname: '/plays/edit/play-uri-123' }));
     expect(createPlay).toHaveBeenCalledWith('My project');
-    expect(addToCollectionMock).not.toHaveBeenCalled();
+    expect(publishToCollection).not.toHaveBeenCalled();
   });
 
-  it('in commons mode: editable metadata, create publishes to the collection then navigates', async () => {
-    const { createPlay } = renderStep({ allowAddToCommons: true, metadata });
+  it('in commons mode: editable metadata, create publishes to the collection (no personal play) and navigates to the collection editor', async () => {
+    const { createPlay, publishToCollection } = renderStep({ allowAddToCommons: true, metadata });
     // toggle the commons section on
     fireEvent.click(screen.getByRole('checkbox'));
     // the metadata form is shown, pre-filled; Create is enabled without editing
@@ -93,12 +92,14 @@ describe('NamePlayStep', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ pathname: '/plays/edit/play-uri-123' }));
-    expect(createPlay).toHaveBeenCalledWith('Tartuffe v2');
-    expect(addToCollectionMock).toHaveBeenCalledTimes(1);
-    expect(addToCollectionMock.mock.calls[0][0]).toEqual(
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith({ pathname: '/collection/edit/collection-uri-1' }),
+    );
+    // no personal play is created in commons mode
+    expect(createPlay).not.toHaveBeenCalled();
+    expect(publishToCollection).toHaveBeenCalledTimes(1);
+    expect(publishToCollection).toHaveBeenCalledWith(
       expect.objectContaining({
-        playUri: 'play-uri-123',
         title: 'Tartuffe v2',
         author: 'Jean-Baptiste Poquelin',
         lang: 'fr',
@@ -107,13 +108,13 @@ describe('NamePlayStep', () => {
         numberOfFemaleRoles: 3,
         genre: 'comedy',
         period: 'xviiith',
-      }),
+      } satisfies Partial<PublishToCollectionInput>),
     );
   });
 
   it('on publish failure shows an error, does not navigate, and Retry publishes again', async () => {
-    addToCollectionMock.mockRejectedValueOnce(new Error('FORBIDDEN'));
-    renderStep({ allowAddToCommons: true, metadata });
+    const { publishToCollection } = renderStep({ allowAddToCommons: true, metadata });
+    (publishToCollection as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('FORBIDDEN'));
     fireEvent.click(screen.getByRole('checkbox'));
     const titleInput = await screen.findByDisplayValue('Tartuffe');
     fireEvent.change(titleInput, { target: { value: 'Tartuffe edited' } });
@@ -122,14 +123,16 @@ describe('NamePlayStep', () => {
     // error shown, no navigation yet
     expect(await screen.findByRole('alert')).toBeTruthy();
     expect(navigateMock).not.toHaveBeenCalled();
-    expect(addToCollectionMock).toHaveBeenCalledTimes(1);
+    expect(publishToCollection).toHaveBeenCalledTimes(1);
 
-    // retry succeeds -> navigates
+    // retry succeeds -> navigates to the collection editor
     fireEvent.click(screen.getByRole('button', { name: 'Retry publish' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ pathname: '/plays/edit/play-uri-123' }));
-    expect(addToCollectionMock).toHaveBeenCalledTimes(2);
-    expect(addToCollectionMock.mock.calls[1][0]).toEqual(
-      expect.objectContaining({ playUri: 'play-uri-123', title: 'Tartuffe edited' }),
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith({ pathname: '/collection/edit/collection-uri-1' }),
+    );
+    expect(publishToCollection).toHaveBeenCalledTimes(2);
+    expect(publishToCollection).toHaveBeenLastCalledWith(
+      expect.objectContaining({ title: 'Tartuffe edited' }),
     );
   });
 });

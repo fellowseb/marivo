@@ -7,7 +7,7 @@ import { ListAllScriptsUseCase } from "./list-all-scripts.use-case.ts";
 import { ToggleBookmarkUseCase } from "./toggle-bookmark.use-case.ts";
 import { AddPlayToCollectionUseCase } from "./add-play-to-collection.use-case.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
-import { UserPlaysRepository } from "./user-plays.repository.ts";
+import { ScriptImportsRepository } from "./script-imports.repository.ts";
 
 export const providers = {
   GetMetadata: {
@@ -49,10 +49,10 @@ export const providers = {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
       const playsCollectionRepository = new PlaysCollectionRepository(sql, userContextService);
-      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      const importsRepository = new ScriptImportsRepository(sql, userContextService);
       return new AddPlayToCollectionUseCase(
         playsCollectionRepository,
-        playsRepository,
+        importsRepository,
         userContextService,
       );
     },

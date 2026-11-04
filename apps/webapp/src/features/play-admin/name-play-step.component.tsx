@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../../trpc";
 import { logger } from "../../lib/logger";
 import Button from "../../components/button.component";
@@ -23,6 +23,18 @@ export interface PlayMetadataDetails {
   suggestions?: Record<string, string>;
 }
 
+export interface PublishToCollectionInput {
+  title: string;
+  author: string;
+  lang: "fr" | "en";
+  numberOfRoles?: number;
+  numberOfMaleRoles?: number;
+  numberOfFemaleRoles?: number;
+  genre?: string;
+  period?: string;
+  synopsis?: string;
+}
+
 interface NamePlayStepProps {
   onBack: () => void;
   /** First breadcrumb segment of the flow, e.g. "Create from an external source". */
@@ -32,6 +44,11 @@ interface NamePlayStepProps {
   allowAddToCommons?: boolean;
   /** Creates the play and resolves with its uri. */
   createPlay: (title: string) => Promise<{ uri: string }>;
+  /**
+   * Commons mode only: publishes the imported script to the public collection
+   * (no personal play is created) and resolves with the collection entry uri.
+   */
+  publishToCollection?: (input: PublishToCollectionInput) => Promise<{ uri: string }>;
 }
 
 /**
@@ -47,17 +64,14 @@ export function NamePlayStep(props: NamePlayStepProps) {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [createReady, setCreateReady] = useState(false);
   const [pending, setPending] = useState(false);
-  const [createdUri, setCreatedUri] = useState<string | null>(null);
+  const [done, setDone] = useState<{ kind: "play" | "collection"; uri: string } | null>(null);
   const [publishError, setPublishError] = useState(false);
-  const [published, setPublished] = useState(false);
+  const [lastPublishInput, setLastPublishInput] = useState<PublishToCollectionInput | null>(null);
   const [addToCommonsLib, setAddToCommonsLib] = useState(false);
   const [commons, setCommons] = useState<PlayMetadataDetails | null>(null);
   const [synopsis, setSynopsis] = useState("");
   const trpc = useTRPC();
   const navigate = useNavigate();
-  const { mutateAsync: addToCollection } = useMutation(
-    trpc.playsCollection.addToCollection.mutationOptions(),
-  );
 
   const commonsMode = Boolean(props.allowAddToCommons && addToCommonsLib && props.metadata);
 
@@ -78,12 +92,11 @@ export function NamePlayStep(props: NamePlayStepProps) {
     }
   };
 
-  const publishToCollection = async (playUri: string) => {
+  const buildPublishInput = (): PublishToCollectionInput | null => {
     if (!commons) {
-      return;
+      return null;
     }
-    await addToCollection({
-      playUri,
+    return {
       title: commons.title,
       author: commons.author,
       lang: commons.language === "en" ? "en" : "fr",
@@ -93,46 +106,50 @@ export function NamePlayStep(props: NamePlayStepProps) {
       genre: commons.genre ? commons.genre : undefined,
       period: commons.period ? commons.period : undefined,
       synopsis: synopsis.trim() ? synopsis : undefined,
-    });
+    };
   };
 
   const handleCreate = async () => {
     const title = titleInputRef.current?.value ?? "New play";
     setPending(true);
     setPublishError(false);
-    let uri: string;
-    try {
-      const data = await props.createPlay(title);
-      uri = data.uri;
-      setCreatedUri(data.uri);
-    } catch (error) {
-      logger.error("failed to create play", { error });
-      setPending(false);
-      return;
-    }
-    if (commonsMode) {
+    if (commonsMode && props.publishToCollection) {
+      // commons mode: publish the imported script to the collection only,
+      // no personal play is created
+      const input = buildPublishInput();
+      if (!input) {
+        setPending(false);
+        return;
+      }
+      setLastPublishInput(input);
       try {
-        await publishToCollection(uri);
+        const res = await props.publishToCollection(input);
+        setDone({ kind: "collection", uri: res.uri });
       } catch (error) {
         logger.error("failed to publish play to the collection", { error });
         setPublishError(true);
         setPending(false);
-        return;
       }
+      return;
     }
-    setPublished(true);
-    setPending(false);
+    try {
+      const data = await props.createPlay(title);
+      setDone({ kind: "play", uri: data.uri });
+    } catch (error) {
+      logger.error("failed to create play", { error });
+      setPending(false);
+    }
   };
 
   const handleRetryPublish = async () => {
-    if (!createdUri) {
+    if (!lastPublishInput || !props.publishToCollection) {
       return;
     }
     setPending(true);
     setPublishError(false);
     try {
-      await publishToCollection(createdUri);
-      setPublished(true);
+      const res = await props.publishToCollection(lastPublishInput);
+      setDone({ kind: "collection", uri: res.uri });
     } catch (error) {
       logger.error("failed to publish play to the collection", { error });
       setPublishError(true);
@@ -142,17 +159,20 @@ export function NamePlayStep(props: NamePlayStepProps) {
   };
 
   const queryOpts = trpc.plays.playDetails.queryOptions({
-    uri: createdUri ?? "",
+    uri: done?.kind === "play" ? done.uri : "",
   });
-  queryOpts.enabled = !!createdUri;
+  queryOpts.enabled = done?.kind === "play";
   const { isSuccess: isQuerySuccess } = useQuery(queryOpts);
   useEffect(() => {
-    if (isQuerySuccess && createdUri && published) {
-      navigate({
-        pathname: `/plays/edit/${createdUri}`,
-      });
+    if (!done) {
+      return;
     }
-  }, [isQuerySuccess, createdUri, published, navigate]);
+    if (done.kind === "collection") {
+      navigate({ pathname: `/collection/edit/${done.uri}` });
+    } else if (isQuerySuccess) {
+      navigate({ pathname: `/plays/edit/${done.uri}` });
+    }
+  }, [done, isQuerySuccess, navigate]);
 
   const { genres, periods } = useCollectionMetadataContext();
   const handleToggleAddToCommons = () => {
@@ -189,7 +209,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
         Actions={
           <>
             <Button icon="previous" onClick={props.onBack} />
-            {publishError && createdUri ? (
+            {publishError && lastPublishInput ? (
               <Button icon="redo" disabled={pending} onClick={handleRetryPublish}>
                 Retry publish
               </Button>
