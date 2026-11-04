@@ -93,7 +93,15 @@ CREATE TABLE public_domain_plays (
     number_of_female_roles  integer         ,
     genre                   varchar(50)     REFERENCES theatrical_genres(key),
     period                  varchar(50)     REFERENCES theatrical_periods(key),
+    synopsis                text            ,
     script_id               integer         REFERENCES scripts(id) NOT NULL
+);
+
+CREATE TABLE collection_bookmarks (
+    user_id                 integer         REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    play_uri                varchar(36)     REFERENCES public_domain_plays(uri) ON DELETE CASCADE NOT NULL,
+    created_date            timestamp(0)    NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, play_uri)
 );
 
 CREATE TABLE plays (

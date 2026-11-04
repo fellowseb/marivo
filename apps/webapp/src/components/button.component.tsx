@@ -13,6 +13,8 @@ export interface ButtonProps {
   variant?: "standout" | "normal" | "discrete";
   ref?: RefObject<HTMLButtonElement | null>;
   autoFocus?: boolean;
+  /** Accessible name for icon-only buttons. */
+  ariaLabel?: string;
 }
 
 function Button(props: PropsWithChildren<ButtonProps>) {
@@ -35,6 +37,7 @@ function Button(props: PropsWithChildren<ButtonProps>) {
       })}
       onClick={props.onClick}
       disabled={props.disabled}
+      aria-label={props.ariaLabel}
     >
       {props.icon ? (
         <Icon

@@ -30,7 +30,7 @@ export interface ScriptContext {
 const ScriptContext = createContext<ScriptContext | null>(null);
 export interface ScriptContextProps {
   uri: string;
-  from: "play" | "import";
+  from: "play" | "import" | "collection";
 }
 
 const initialState = {

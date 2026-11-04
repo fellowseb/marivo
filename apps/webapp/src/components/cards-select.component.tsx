@@ -1,7 +1,7 @@
 import type { IconValue } from "./icon.component";
 import styles from "./cards-select.module.css";
 import Button from "./button.component";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CardsSelectOption {
   label: string;
@@ -13,12 +13,19 @@ interface CardsSelectProps {
   options: CardsSelectOption[];
   multiple?: boolean;
   value?: string | string[];
+  onChange?: (values: string[]) => void;
 }
 
 export function CardsSelect(props: CardsSelectProps) {
   const [selection, setSelection] = useState<Set<string>>(
     new Set(props.value ? (Array.isArray(props.value) ? props.value : [props.value]) : null),
   );
+  // Keep the visual selection in sync when the parent resets the value (e.g. Clear)
+  useEffect(() => {
+    setSelection(
+      new Set(props.value ? (Array.isArray(props.value) ? props.value : [props.value]) : null),
+    );
+  }, [props.value]);
   const handleSelect = (value: string) => () => {
     setSelection((prev) => {
       const newSet = new Set(props?.multiple ? prev.values() : []);
@@ -27,6 +34,7 @@ export function CardsSelect(props: CardsSelectProps) {
       } else {
         newSet.add(value);
       }
+      props.onChange?.([...newSet]);
       return newSet;
     });
   };

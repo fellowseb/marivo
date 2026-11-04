@@ -7,6 +7,8 @@ interface CollapsibleSectionProps {
   Header: ReactNode;
   HeaderExpanded?: ReactNode;
   collapsed?: boolean;
+  /** Render a rotating arrow next to the header (used by the collection filters). */
+  arrow?: boolean;
 }
 
 function CollapsibleSection(props: PropsWithChildren<CollapsibleSectionProps>) {
@@ -17,6 +19,14 @@ function CollapsibleSection(props: PropsWithChildren<CollapsibleSectionProps>) {
   return (
     <div className={styles.container}>
       <Button onClick={handleClickHeader} variant="discrete">
+        {props.arrow ? (
+          <span
+            className={classNames(styles.arrow, { [styles.arrowOpen]: !collapsed })}
+            aria-hidden="true"
+          >
+            ▶
+          </span>
+        ) : null}
         {collapsed ? props.Header : (props.HeaderExpanded ?? props.Header)}
       </Button>
       <div

@@ -193,3 +193,11 @@
 .import {
   mask-image: url("/src/assets/icons/stars-02.svg");
 }
+
+.chevronLeftDouble {
+  mask-image: url("/src/assets/chevron-left-double.svg");
+}
+
+.chevronRightDouble {
+  mask-image: url("/src/assets/chevron-right-double.svg");
+}

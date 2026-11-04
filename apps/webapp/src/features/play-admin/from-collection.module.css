@@ -1,7 +1,20 @@
 .container {
+  position: relative;
   display: flex;
   flex-direction: row;
   width: 100%;
+  align-items: stretch;
+  height: calc(100vh - 240px);
+  min-height: 320px;
+  overflow: hidden;
+}
+
+.filtersColumn {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+  gap: 10px;
 }
 
 .filters {
@@ -9,19 +22,227 @@
   flex-direction: column;
   gap: 4px;
   width: 320px;
+  flex: 1;
+  min-height: 0;
+  transition:
+    margin-left 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+}
+
+.filtersBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.filtersHidden {
+  margin-left: -324px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.filtersBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.filtersFooter {
+  margin-top: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+.filtersToggle {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 4px;
+  border: 1px solid #cebc96;
+  border-radius: 4px;
+  background: #e4d6bc;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.resultsColumn {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 2;
+  min-width: 0;
+  min-height: 0;
 }
 
 .results {
   display: flex;
-  flex-grow: 2;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filterSectionHeader {
+  display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filterSectionBody {
+  border: none;
+  margin: 0;
+  padding: 2px 0 2px 20px;
+  display: flex;
+  flex-direction: column;
   gap: 4px;
-  padding: 4px;
+}
+
+.filterSectionBody:disabled {
+  opacity: 0.45;
+}
+
+.filterSectionCollapsed {
+  display: none;
 }
 
 .separator {
   width: 1px;
+  align-self: stretch;
   background: #cebc96;
   margin-left: 4px;
   margin-right: 4px;
+}
+
+.authorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.authorHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f3ead6;
+  font-weight: 200;
+  font-size: 1.1em;
+  padding: 4px 6px;
+  border-bottom: 1px solid #cebc96;
+  font-style: italic;
+}
+
+.authorItems {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pagination {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+/* anchored to the (non-scrolling) container so it stays visible while the
+   results list scrolls underneath */
+.detailsOverlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 480px;
+  transform: translateX(100%);
+  transition: transform 0.18s ease-in-out;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.detailsOverlayOpen {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.details {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  background: #f3ead6;
+  border-left: 1px solid #cebc96;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.detailsBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detailsTitle {
+  font-weight: 700;
+  font-size: 1.6em;
+}
+
+.detailsAuthor {
+  opacity: 0.8;
+  font-size: 1.4em;
+}
+
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detailLabel {
+  font-weight: 600;
+  font-size: 1em;
+  text-transform: uppercase;
+}
+
+.detailsActions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.bookmarkButton {
+  background-color: #d63384;
+}
+
+.synopsis {
+  margin: 0;
+  font-size: 0.92em;
+}
+
+.characters {
+  margin: 0;
+  padding-left: 18px;
 }
