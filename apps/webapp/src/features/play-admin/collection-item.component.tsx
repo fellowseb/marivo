@@ -40,11 +40,11 @@ export function CollectionItem(props: CollectionItemProps) {
       <div className={styles.text}>
         <div className={styles.title}>
           {props.title}
-          <span className={styles.bookmark} role="img" aria-label="Bookmarked">
-            {props.bookmarked ? (
+          {props.bookmarked ? (
+            <span className={styles.bookmark} role="img" aria-label="Bookmarked">
               <Icon value="memorize" size="medium" mode="primary" />
-            ) : null}
-          </span>{' '}
+            </span>
+          ) : null}
         </div>
         <div className={styles.meta}>{meta}</div>
       </div>
