@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import {
   keepPreviousData,
@@ -275,7 +275,6 @@ function PickStep(props: PickStepProps) {
   const [filters, setFilters] = useState<FiltersState>(loadFilters);
   const [page, setPage] = useState(1);
   const [filtersHidden, setFiltersHidden] = useState(false);
-  const resultsRef = useRef<HTMLDivElement>(null);
 
   // Persist filter state so it is restored on the next visit
   useEffect(() => {
@@ -335,9 +334,6 @@ function PickStep(props: PickStepProps) {
   };
   const handleSelect = (uri: string | null) => {
     props.onSelect(uri);
-    // bring the details panel (anchored at the top of the results) into view
-    // (scrollTo is optional: jsdom does not implement it)
-    resultsRef.current?.scrollTo?.({ top: 0 });
   };
 
   // ESC closes the details pane (and unselects the script)
@@ -539,7 +535,7 @@ function PickStep(props: PickStepProps) {
         </div>
         <div className={styles.separator} />
         <div className={styles.resultsColumn}>
-          <div className={styles.results} ref={resultsRef}>
+          <div className={styles.results}>
             {isLoading ? <div>Loading collection…</div> : null}
             {isError ? <div>Failed to load the collection.</div> : null}
             {!isLoading && !isError && groups.length === 0 ? (
