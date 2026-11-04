@@ -168,7 +168,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 380px;
+  width: 480px;
   transform: translateX(100%);
   transition: transform 0.18s ease-in-out;
   z-index: 2;
