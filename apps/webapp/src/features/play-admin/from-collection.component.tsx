@@ -229,7 +229,9 @@ function CollectionDetails(props: {
           ) : null}
         </DetailSection>
         <DetailSection label="Distribution">
-          {script.numberOfRoles != null ? `${script.numberOfRoles} roles` : null}
+          {script.numberOfRoles != null
+            ? `${script.numberOfRoles} roles`
+            : null}
           {script.numberOfMaleRoles != null
             ? ` · ${script.numberOfMaleRoles} male`
             : ''}
@@ -242,7 +244,9 @@ function CollectionDetails(props: {
         <DetailSection label="Language">
           {script.lang.toUpperCase()}
         </DetailSection>
-        <DetailSection label="Other">{script.numberOfWords} words</DetailSection>
+        <DetailSection label="Other">
+          {script.numberOfWords} words
+        </DetailSection>
       </div>
       <div className={styles.detailsActions}>
         <Button
@@ -381,7 +385,9 @@ function PickStep(props: PickStepProps) {
             <Button
               icon="filter"
               onClick={() => setFiltersHidden((prev) => !prev)}
-              rightIcon={filtersHidden ? 'chevronRightDouble' : 'chevronLeftDouble'}
+              rightIcon={
+                filtersHidden ? 'chevronRightDouble' : 'chevronLeftDouble'
+              }
             >
               {filtersHidden
                 ? enabledCount > 0
@@ -555,6 +561,7 @@ function PickStep(props: PickStepProps) {
                       numberOfRoles={script.numberOfRoles}
                       numberOfMaleRoles={script.numberOfMaleRoles}
                       numberOfFemaleRoles={script.numberOfFemaleRoles}
+                      bookmarked={script.bookmarked}
                       selected={script.uri === props.selectedUri}
                       onSelect={() => handleSelect(script.uri)}
                     />

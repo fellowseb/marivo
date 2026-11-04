@@ -45,8 +45,12 @@ test('browse, filter and paginate the collection, bookmark, then create a play f
     // bookmark a script, then filter by bookmarked only
     await page.getByRole('button', { name: 'Clear filters' }).click();
     await expect(firstPlayItem(page)).toBeVisible();
+    // no heart icon before bookmarking
+    await expect(page.getByRole('img', { name: 'Bookmarked' })).toHaveCount(0);
     await firstPlayItem(page).click();
     await page.getByRole('button', { name: 'Bookmark', exact: true }).click();
+    // the bookmarked list item now shows a heart icon on its right
+    await expect(page.getByRole('img', { name: 'Bookmarked' })).toHaveCount(1);
     await page.getByRole('checkbox', { name: 'Bookmarked' }).check();
     await page.getByText('Only bookmarked').click();
     await expect(firstPlayItem(page)).toBeVisible();

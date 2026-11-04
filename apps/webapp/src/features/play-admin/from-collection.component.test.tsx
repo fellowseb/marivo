@@ -95,6 +95,8 @@ describe('FromCollection pick step', () => {
     expect(screen.getByText('William Shakespeare')).toBeTruthy();
     expect(screen.getByText('FR · comedy · xviiith · 2 male + 2 female')).toBeTruthy();
     expect(screen.getByText(/Page 1 \/ 3 · 54 scripts/)).toBeTruthy();
+    // only the bookmarked item (Hamlet) shows the heart icon on the right
+    expect(screen.getAllByRole('img', { name: 'Bookmarked' })).toHaveLength(1);
   });
 
   it('keeps Next disabled until a script is selected, then shows details; close unselects', async () => {
