@@ -25,6 +25,10 @@ import {
   CreatePlayFromImportUseCaseInputSchema,
   CreatePlayFromImportUseCaseOutputSchema,
 } from "./create-play-from-import.use-case.ts";
+import {
+  CreatePlayFromCollectionUseCaseInputSchema,
+  CreatePlayFromCollectionUseCaseOutputSchema,
+} from "./create-play-from-collection.use-case.ts";
 import { GetAllScriptImportsUseCaseOutputSchema } from "./get-all-script-imports.use-case.ts";
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
@@ -63,6 +67,10 @@ export default router({
     .input(CreatePlayFromImportUseCaseInputSchema)
     .output(CreatePlayFromImportUseCaseOutputSchema)
     .mutation(handleUseCase(providers.CreatePlayFromImportUseCase)),
+  createFromCollection: publicProcedure
+    .input(CreatePlayFromCollectionUseCaseInputSchema)
+    .output(CreatePlayFromCollectionUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.CreatePlayFromCollectionUseCase)),
   playDetails: publicProcedure
     .input(PlayDetailsUseCaseInputSchema)
     .use(resourceAuth(providers.PlayAccessChecker))

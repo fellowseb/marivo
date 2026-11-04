@@ -1,6 +1,7 @@
 import { type Provider } from "../../shared/provider.ts";
 import { UserContextService } from "../../shared/use-case.ts";
 import { ScriptImportsRepository } from "../plays/script-imports.repository.ts";
+import { PlaysCollectionRepository } from "../plays/plays-collection.repository.ts";
 import { UserPlaysRepository } from "../plays/user-plays.repository.ts";
 import { LatestScriptChangesUseCase } from "./latest-script-changes.use-case.ts";
 import { SaveLineContentUseCase } from "./save-line-content.use-case.ts";
@@ -16,10 +17,12 @@ export const providers = {
       const scriptRepository = new ScriptRepository(sql, userService);
       const userPlaysRepository = new UserPlaysRepository(sql, userService);
       const scriptImportsRepository = new ScriptImportsRepository(sql, userService);
+      const playsCollectionRepository = new PlaysCollectionRepository(sql, userService);
       return new LatestScriptChangesUseCase(
         scriptRepository,
         userPlaysRepository,
         scriptImportsRepository,
+        playsCollectionRepository,
       );
     },
   } as Provider<LatestScriptChangesUseCase>,

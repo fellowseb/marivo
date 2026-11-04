@@ -8,10 +8,14 @@ import type {
   ScriptImportNotFound,
   ScriptImportsRepository,
 } from "../plays/script-imports.repository.ts";
+import type {
+  CollectionPlayNotFound,
+  PlaysCollectionRepository,
+} from "../plays/plays-collection.repository.ts";
 
 export const LatestScriptChangesUseCaseInputSchema = z.object({
   uri: z.uuid(),
-  from: z.enum(["play", "import"]),
+  from: z.enum(["play", "import", "collection"]),
   since: z.date(),
 });
 
@@ -81,17 +85,21 @@ export class LatestScriptChangesUseCase implements UseCase<{
     scriptRepository: ScriptRepository,
     userPlaysRepository: UserPlaysRepository,
     scriptImportsRepository: ScriptImportsRepository,
+    playsCollectionRepository: PlaysCollectionRepository,
   ) {
     this.scriptRepository = scriptRepository;
     this.userPlaysRepository = userPlaysRepository;
     this.scriptImportsRepository = scriptImportsRepository;
+    this.playsCollectionRepository = playsCollectionRepository;
   }
 
   async execute(params: {
     uri: string;
-    from: "play" | "import";
+    from: "play" | "import" | "collection";
     since: Date;
-  }): Promise<Result<ScriptDiff, ScriptNotFound | PlayNotFound | ScriptImportNotFound>> {
+  }): Promise<
+    Result<ScriptDiff, ScriptNotFound | PlayNotFound | ScriptImportNotFound | CollectionPlayNotFound>
+  > {
     let scriptIdResult;
     if (params.from === "play") {
       scriptIdResult = await this.userPlaysRepository.getScriptId({
@@ -100,6 +108,10 @@ export class LatestScriptChangesUseCase implements UseCase<{
     } else if (params.from === "import") {
       scriptIdResult = await this.scriptImportsRepository.getResultScriptId({
         id: params.uri,
+      });
+    } else if (params.from === "collection") {
+      scriptIdResult = await this.playsCollectionRepository.getScriptIdByUri({
+        uri: params.uri,
       });
     } else {
       assertUnreachable(params.from);
@@ -120,4 +132,5 @@ export class LatestScriptChangesUseCase implements UseCase<{
   private scriptRepository: ScriptRepository;
   private userPlaysRepository: UserPlaysRepository;
   private scriptImportsRepository: ScriptImportsRepository;
+  private playsCollectionRepository: PlaysCollectionRepository;
 }

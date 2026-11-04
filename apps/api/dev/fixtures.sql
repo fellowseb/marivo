@@ -290,3 +290,108 @@ INSERT INTO invites (
 );
 
 
+
+-- A public-domain collection entry so the "from collection" flow has data
+INSERT INTO scripts (
+    checksum,
+    characters,
+    lines_order
+) VALUES (
+    '9f2c1a77e4b34d0aa1c2e5f60718293b',
+    '{"11111111-1111-4111-8111-111111111111": "ALICE", "22222222-2222-4222-8222-222222222222": "BOB"}'::jsonb,
+    ARRAY['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd']::uuid[]
+);
+
+INSERT INTO lines (
+    id,
+    script_id,
+    type
+) VALUES (
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    2,
+    'heading'
+);
+
+INSERT INTO lines_contents (
+    id,
+    script_id,
+    type,
+    line_id,
+    line_type,
+    heading_level,
+    text,
+    checksum,
+    version,
+    author_id
+) VALUES (
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    2,
+    'saved_version',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'heading',
+    1,
+    'The Fixture Play',
+    'cccccccccccccccccccccccccccccccc',
+    1,
+    1
+);
+
+INSERT INTO lines (
+    id,
+    script_id,
+    type
+) VALUES (
+    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    2,
+    'chartext'
+);
+
+INSERT INTO lines_contents (
+    id,
+    script_id,
+    type,
+    line_id,
+    line_type,
+    characters,
+    text,
+    checksum,
+    version,
+    author_id
+) VALUES (
+    'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+    2,
+    'saved_version',
+    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'chartext',
+    '{11111111-1111-4111-8111-111111111111}',
+    'Hello from the collection fixture.',
+    'ffffffffffffffffffffffffffffffff',
+    1,
+    1
+);
+
+INSERT INTO public_domain_plays (
+    uri,
+    title,
+    author,
+    lang,
+    number_of_roles,
+    number_of_male_roles,
+    number_of_female_roles,
+    genre,
+    period,
+    synopsis,
+    script_id
+) VALUES (
+    '99999999-9999-4999-8999-999999999999',
+    'The Fixture Play',
+    'Fixture Author',
+    'en',
+    2,
+    1,
+    1,
+    'comedy',
+    'contemporary',
+    'A small synopsis for the fixture play, used by the collection UI tests.',
+    2
+);
