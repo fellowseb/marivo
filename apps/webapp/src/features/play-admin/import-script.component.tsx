@@ -497,7 +497,7 @@ function NameStepFromImport(props: {
       metadata={props.metadata}
       allowAddToCommons={canCreateCollectionPlay}
       createPlay={(title) => mutateAsync({ title, importId: props.importId })}
-      publishToCollection={(input) => mutateAsync({ importId: props.importId, ...input })}
+      publishToCollection={(input) => addToCollection({ importId: props.importId, ...input })}
     />
   );
 }
