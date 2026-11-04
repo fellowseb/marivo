@@ -160,8 +160,13 @@ describe('ImportScript page feedback', () => {
     expect(await screen.findByText('Selected script files: 1')).toBeTruthy();
 
     // start the import: init + upload resolve, status poll reports processing
-    fireEvent.click(screen.getByRole('button', { name: 'Import', exact: true }));
+    const importButton = screen.getByRole('button', { name: 'Import', exact: true }) as HTMLButtonElement;
+    fireEvent.click(importButton);
+    // the button must stay disabled from click until the processing poll
+    // takes over (no flicker window where it re-enables)
+    expect(importButton.disabled).toBe(true);
     expect(await screen.findByText(/Processing files…/)).toBeTruthy();
+    expect(importButton.disabled).toBe(true);
     await waitFor(() => expect(initMock).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(uploadMock).toHaveBeenCalledTimes(1));
 

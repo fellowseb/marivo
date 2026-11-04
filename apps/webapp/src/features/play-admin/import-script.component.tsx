@@ -150,6 +150,7 @@ function ImportStep() {
   };
   const handleInitImport = () => {
     resetUpload();
+    setStarted(true);
     mutate({
       importId,
       files: files.map((f) => {
@@ -165,6 +166,21 @@ function ImportStep() {
     });
   };
   const [scriptLineHovered, setScriptLineHovered] = useState<number | null>(null);
+  // Stays true from clicking Import until the status poll reports processing
+  // (or an error): closes the gap where the Import button would re-enable
+  // between init success and the first poll.
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (step?.name === "import" && (step.processing || step.error)) {
+      setStarted(false);
+    }
+  }, [step]);
+  useEffect(() => {
+    if (initStatus === "error" || statusUpload === "error") {
+      setStarted(false);
+    }
+  }, [initStatus, statusUpload]);
 
   useEffect(() => {
     if (initStatus === "success") {
@@ -239,6 +255,7 @@ function ImportStep() {
     navigate("/plays/new");
   };
   const isPending =
+    started ||
     initStatus === "pending" ||
     statusUpload === "pending" ||
     (step?.name === "import" && step.processing);
