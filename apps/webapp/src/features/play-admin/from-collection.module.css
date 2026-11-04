@@ -45,7 +45,15 @@
   pointer-events: none;
 }
 
+.filtersBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
 .filtersFooter {
+  margin-top: auto;
   display: flex;
   flex-direction: row;
   justify-content: center;

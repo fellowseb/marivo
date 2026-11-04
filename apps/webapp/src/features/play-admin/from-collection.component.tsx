@@ -357,7 +357,9 @@ function PickStep(props: PickStepProps) {
   ];
 
   // number of enabled filter sections (ticked checkboxes)
-  const enabledCount = Object.values(filters.openSections).filter(Boolean).length;
+  const enabledCount = Object.values(filters.openSections).filter(
+    Boolean,
+  ).length;
 
   return (
     <FlowStep
@@ -373,17 +375,19 @@ function PickStep(props: PickStepProps) {
     >
       <div className={styles.container}>
         <div className={styles.filtersColumn}>
-          <Button
-            icon="filter"
-            customClassNames={[styles.filtersToggle]}
-            onClick={() => setFiltersHidden((prev) => !prev)}
-          >
-            {filtersHidden
-              ? enabledCount > 0
-                ? `(${enabledCount})`
-                : ''
-              : `Filter by${enabledCount > 0 ? ` (${enabledCount})` : ''}`}
-          </Button>
+          <div className={styles.filtersBar}>
+            <Button
+              icon="filter"
+              customClassNames={[styles.filtersToggle]}
+              onClick={() => setFiltersHidden((prev) => !prev)}
+            >
+              {filtersHidden
+                ? enabledCount > 0
+                  ? `(${enabledCount})`
+                  : ''
+                : `Filter by${enabledCount > 0 ? ` (${enabledCount})` : ''}`}
+            </Button>
+          </div>
           <div
             className={classNames(styles.filters, {
               [styles.filtersHidden]: filtersHidden,
@@ -514,13 +518,17 @@ function PickStep(props: PickStepProps) {
                 />
               </FilterSection>
             </div>
-            <div className={styles.filtersFooter}>
-              {enabledCount > 0 ? (
-                <Button variant="discrete" onClick={clearFilters}>
-                  Clear
-                </Button>
-              ) : null}
-            </div>
+          </div>
+          <div className={styles.filtersFooter}>
+            {enabledCount > 0 ? (
+              <Button
+                icon="clear"
+                ariaLabel="Clear filters"
+                onClick={clearFilters}
+              >
+                {filtersHidden ? null : 'Clear'}
+              </Button>
+            ) : null}
           </div>
         </div>
         <div className={styles.separator} />

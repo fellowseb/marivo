@@ -43,7 +43,7 @@ test('browse, filter and paginate the collection, bookmark, then create a play f
     await expect(page.getByText(/Page 1 \/ 1 · 18 scripts/)).toBeVisible();
 
     // bookmark a script, then filter by bookmarked only
-    await page.getByRole('button', { name: 'Clear' }).click();
+    await page.getByRole('button', { name: 'Clear filters' }).click();
     await expect(firstPlayItem(page)).toBeVisible();
     await firstPlayItem(page).click();
     await page.getByRole('button', { name: 'Bookmark', exact: true }).click();
@@ -54,7 +54,7 @@ test('browse, filter and paginate the collection, bookmark, then create a play f
     await expect(page.getByText(/Page 1 \/ 1 · 1 scripts/)).toBeVisible();
 
     // clear filters (the full list is back), the play stays selected: go to preview
-    await page.getByRole('button', { name: 'Clear' }).click();
+    await page.getByRole('button', { name: 'Clear filters' }).click();
     await expect(page.getByText(/Page 1 \/ 3 · 54 scripts/)).toBeVisible();
     await expect(page.getByText(/Un faux dévot/)).toBeVisible();
     const next = page.getByRole('button', { name: 'Next', exact: true });
