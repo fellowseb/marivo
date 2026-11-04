@@ -5,7 +5,9 @@ import { ListAllGenresUseCase } from "./list-all-genres.use-case.ts";
 import { ListAllPeriodsUseCase } from "./list-all-periods.use-case.ts";
 import { ListAllScriptsUseCase } from "./list-all-scripts.use-case.ts";
 import { ToggleBookmarkUseCase } from "./toggle-bookmark.use-case.ts";
+import { AddPlayToCollectionUseCase } from "./add-play-to-collection.use-case.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
+import { UserPlaysRepository } from "./user-plays.repository.ts";
 
 export const providers = {
   GetMetadata: {
@@ -43,4 +45,16 @@ export const providers = {
       return new ToggleBookmarkUseCase(playsCollectionRepository, userContextService);
     },
   } as Provider<ToggleBookmarkUseCase>,
+  AddToCollection: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsCollectionRepository = new PlaysCollectionRepository(sql, userContextService);
+      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      return new AddPlayToCollectionUseCase(
+        playsCollectionRepository,
+        playsRepository,
+        userContextService,
+      );
+    },
+  } as Provider<AddPlayToCollectionUseCase>,
 };

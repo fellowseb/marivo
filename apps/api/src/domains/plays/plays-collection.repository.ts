@@ -9,6 +9,12 @@ export class CollectionPlayNotFound extends AppError {
   }
 }
 
+export class PlayAlreadyInCollection extends AppError {
+  constructor() {
+    super("This play's script is already in the collection", "BAD_REQUEST");
+  }
+}
+
 interface TheatricalGenreRecordValues {
   key: string;
 }
@@ -210,5 +216,50 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
       return Result.failure(new CollectionPlayNotFound());
     }
     return Result.ok(record.script_id);
+  }
+
+  /** Whether a script is already published in the collection. */
+  async existsByScriptId(scriptId: number): Promise<Result<boolean, InternalServerError>> {
+    const records = await this.sql<{ exists: boolean }[]>`
+      SELECT EXISTS(SELECT 1 FROM public_domain_plays WHERE script_id = ${scriptId}) AS exists;
+    `;
+    const record = records[0];
+    if (!record) {
+      return Result.failure(new InternalServerError("Failed to check existsByScriptId"));
+    }
+    return Result.ok(record.exists);
+  }
+
+  /** Publish a play's script into the public domain collection; returns the new entry uri. */
+  async addToCollection(params: {
+    uri: string;
+    title: string;
+    author: string;
+    lang: string;
+    numberOfRoles?: number | undefined;
+    numberOfMaleRoles?: number | undefined;
+    numberOfFemaleRoles?: number | undefined;
+    genre?: string | undefined;
+    period?: string | undefined;
+    synopsis?: string | undefined;
+    scriptId: number;
+  }): Promise<Result<{ uri: string }, InternalServerError>> {
+    const records = await this.sql<{ uri: string }[]>`
+      INSERT INTO public_domain_plays (
+        uri, title, author, lang,
+        number_of_roles, number_of_male_roles, number_of_female_roles,
+        genre, period, synopsis, script_id
+      ) VALUES (
+        ${params.uri}, ${params.title}, ${params.author}, ${params.lang},
+        ${params.numberOfRoles ?? null}, ${params.numberOfMaleRoles ?? null}, ${params.numberOfFemaleRoles ?? null},
+        ${params.genre ?? null}, ${params.period ?? null}, ${params.synopsis ?? null}, ${params.scriptId}
+      )
+      RETURNING uri;
+    `;
+    const record = records[0];
+    if (!record) {
+      return Result.failure(new InternalServerError("Unexpected empty row on addToCollection"));
+    }
+    return Result.ok({ uri: record.uri });
   }
 }

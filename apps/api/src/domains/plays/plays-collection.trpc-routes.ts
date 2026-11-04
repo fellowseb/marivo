@@ -12,6 +12,10 @@ import {
   ToggleBookmarkUseCaseInputSchema,
   ToggleBookmarkUseCaseOutputSchema,
 } from "./toggle-bookmark.use-case.ts";
+import {
+  AddPlayToCollectionUseCaseInputSchema,
+  AddPlayToCollectionUseCaseOutputSchema,
+} from "./add-play-to-collection.use-case.ts";
 
 export default router({
   getMetadata: publicProcedure
@@ -25,6 +29,10 @@ export default router({
     .input(ToggleBookmarkUseCaseInputSchema)
     .output(ToggleBookmarkUseCaseOutputSchema)
     .mutation(handleUseCase(providers.ToggleBookmark)),
+  addToCollection: publicProcedure
+    .input(AddPlayToCollectionUseCaseInputSchema)
+    .output(AddPlayToCollectionUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.AddToCollection)),
   listAllGenres: publicProcedure
     .output(ListAllGenresUseCaseOutputSchema)
     .query(handleUseCase(providers.ListAllGenres)),

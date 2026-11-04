@@ -1,9 +1,11 @@
 import { getAuth } from "@clerk/express";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { parseRole, type Role } from "@marivo/utils";
 import { UnauthorizedError } from "../../shared/error.ts";
 
 interface Session {
   userDbId: number;
+  role: Role | undefined;
 }
 
 function parseJwtPayload(payload: CustomJwtSessionClaims): Session {
@@ -13,8 +15,10 @@ function parseJwtPayload(payload: CustomJwtSessionClaims): Session {
   if (typeof payload["userDbId"] !== "number") {
     throw new UnauthorizedError("Invalid session token: no userDbId");
   }
+  const metadata = payload.metadata as { role?: unknown } | undefined;
   return {
     userDbId: payload.userDbId,
+    role: parseRole(metadata?.role),
   };
 }
 
@@ -34,9 +38,12 @@ export function userMiddleware(): RequestHandler {
     if (!sessionClaims) {
       throw new UnauthorizedError("No session claims in inbound request");
     }
-    const { userDbId } = parseJwtPayload(sessionClaims);
+    const { userDbId, role } = parseJwtPayload(sessionClaims);
     const context = req.context ?? {};
     context.userId = userDbId;
+    if (role !== undefined) {
+      context.role = role;
+    }
     req.context = context;
     next();
   };

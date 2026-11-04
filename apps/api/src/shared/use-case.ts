@@ -1,10 +1,11 @@
 import type { IncomingHttpHeaders } from "node:http";
-import { type LegitAny, Result } from "@marivo/utils";
+import { type LegitAny, type Role, Result } from "@marivo/utils";
 import type { Request } from "express";
 import type { AppError } from "./error.ts";
 
 export interface AuthenticatedUserContext {
   userId: number;
+  role?: Role;
 }
 
 export class UserContextService {

@@ -7,6 +7,7 @@ declare global {
       context: {
         userId: number;
         requestId: string;
+        role?: import("@marivo/utils").Role;
       };
     }
   }

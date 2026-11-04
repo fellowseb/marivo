@@ -2,7 +2,9 @@ import classNames from "classnames";
 import { v4 as uuidv4 } from "uuid";
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
+import { useUser } from "@clerk/react";
 import { useMutation, useMutationState } from "@tanstack/react-query";
+import { hasCapability, parseRole } from "@marivo/utils";
 import { useTRPC } from "../../trpc";
 import Button from "../../components/button.component";
 import Icon from "../../components/icon.component";
@@ -412,12 +414,15 @@ function NameStepFromImport(props: {
   metadata: ImportScriptMetadata;
 }) {
   const trpc = useTRPC();
+  const { user } = useUser();
   const { mutateAsync } = useMutation(trpc.plays.createFromImport.mutationOptions());
+  const role = parseRole((user?.publicMetadata as { role?: unknown } | undefined)?.role);
+  const canCreateCollectionPlay = hasCapability(role, "create_collection_play");
   return (
     <NamePlayStep
       onBack={props.onBack}
       metadata={props.metadata}
-      allowAddToCommons
+      allowAddToCommons={canCreateCollectionPlay}
       createPlay={(title) => mutateAsync({ title, importId: props.importId })}
     />
   );
