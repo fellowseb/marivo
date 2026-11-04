@@ -123,9 +123,11 @@ describe('FromCollection pick step', () => {
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
     const fieldset = input.closest('fieldset') as HTMLFieldSetElement;
     expect(fieldset.disabled).toBe(true);
-    // expanding the section enables the filter
+    expect(fieldset.className).toContain('filterSectionCollapsed');
+    // expanding the section enables and shows the filter
     fireEvent.click(titleCheckbox);
     expect(fieldset.disabled).toBe(false);
+    expect(fieldset.className).not.toContain('filterSectionCollapsed');
     fireEvent.change(input, { target: { value: 'hamlet' } });
 
     // the query received the title filter

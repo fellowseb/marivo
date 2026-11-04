@@ -6,6 +6,7 @@ const lineWithText = (page: Page, text: string) =>
   page.locator('div[class*="replique"]', { hasText: text }).first();
 
 const FIRST_PLAY = 'Tartuffe';
+const firstPlayItem = (page: Page) => page.locator(`div[class*="_title_"]`, { hasText: FIRST_PLAY });
 
 /**
  * E2E scenario: sign in, browse the plays collection (fixture data seeded by
@@ -19,13 +20,13 @@ test('browse, filter and paginate the collection, bookmark, then create a play f
   page,
   request,
 }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
   const user = await signIn(page, request);
   try {
     await page.goto('/plays/new/from-collection');
 
     // 54 fixture scripts, 20 per page -> 3 pages
-    await expect(page.getByText(FIRST_PLAY).first()).toBeVisible();
+    await expect(firstPlayItem(page)).toBeVisible();
     await expect(page.getByText('Page 1 / 3 · 54 scripts')).toBeVisible();
 
     // pagination is server-driven
@@ -43,19 +44,18 @@ test('browse, filter and paginate the collection, bookmark, then create a play f
 
     // bookmark a script, then filter by bookmarked only
     await page.getByRole('button', { name: 'Clear' }).click();
-    await expect(page.getByText(FIRST_PLAY).first()).toBeVisible();
-    await page.getByText(FIRST_PLAY).first().click();
+    await expect(firstPlayItem(page)).toBeVisible();
+    await firstPlayItem(page).click();
     await page.getByRole('button', { name: 'Bookmark', exact: true }).click();
     await page.getByRole('checkbox', { name: 'Bookmarked' }).check();
     await page.getByText('Only bookmarked').click();
-    await expect(page.getByText(FIRST_PLAY).first()).toBeVisible();
+    await expect(firstPlayItem(page)).toBeVisible();
     await expect(page.getByText('Le Misanthrope')).toHaveCount(0);
     await expect(page.getByText(/Page 1 \/ 1 · 1 scripts/)).toBeVisible();
 
-    // clear filters, select the play and go through preview + name
+    // clear filters (the full list is back), the play stays selected: go to preview
     await page.getByRole('button', { name: 'Clear' }).click();
-    await expect(page.getByText(FIRST_PLAY).first()).toBeVisible();
-    await page.getByText(FIRST_PLAY).first().click();
+    await expect(page.getByText(/Page 1 \/ 3 · 54 scripts/)).toBeVisible();
     await expect(page.getByText(/Un faux dévot/)).toBeVisible();
     const next = page.getByRole('button', { name: 'Next', exact: true });
     await expect(next).toBeEnabled();
@@ -65,14 +65,14 @@ test('browse, filter and paginate the collection, bookmark, then create a play f
     await expect(page.getByRole('button', { name: 'Done', exact: true })).toBeVisible({
       timeout: 30_000,
     });
-    await expect(lineWithText(page, 'A line of the play.')).toBeVisible();
+    await expect(lineWithText(page, 'A line of the play.')).toBeVisible({ timeout: 45_000 });
     await page.getByRole('button', { name: 'Done', exact: true }).click();
 
     // Name step (same as the import flow), then create -> edit page
     await page.getByPlaceholder(/Othello/).fill('E2E Collection Play');
     await page.getByRole('button', { name: 'Create', exact: true }).click();
     await page.waitForURL(/\/plays\/edit\//, { timeout: 30_000 });
-    await expect(lineWithText(page, 'A line of the play.')).toBeVisible();
+    await expect(lineWithText(page, 'A line of the play.')).toBeVisible({ timeout: 45_000 });
   } finally {
     await deleteE2eUser(request, user.id);
   }

@@ -1,4 +1,5 @@
 .container {
+  position: relative;
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -84,6 +85,10 @@
   opacity: 0.45;
 }
 
+.filterSectionCollapsed {
+  display: none;
+}
+
 .separator {
   width: 1px;
   align-self: stretch;
@@ -123,6 +128,8 @@
   padding: 6px 0;
 }
 
+/* anchored to the (non-scrolling) container so it stays visible while the
+   results list scrolls underneath */
 .detailsOverlay {
   position: absolute;
   top: 0;
@@ -141,10 +148,8 @@
 }
 
 .details {
-  position: sticky;
-  top: 0;
   width: 100%;
-  height: calc(100vh - 240px);
+  height: 100%;
   overflow-y: auto;
   padding: 8px;
   display: flex;

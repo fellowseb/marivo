@@ -159,7 +159,12 @@ function FilterSection(props: {
         />
         <span>{props.label}</span>
       </label>
-      <fieldset className={styles.filterSectionBody} disabled={!open}>
+      <fieldset
+        className={classNames(styles.filterSectionBody, {
+          [styles.filterSectionCollapsed]: !open,
+        })}
+        disabled={!open}
+      >
         {props.children}
       </fieldset>
     </div>
@@ -430,20 +435,20 @@ function PickStep(props: PickStepProps) {
               Next page
             </Button>
           </div>
-          <div
-            className={classNames(styles.detailsOverlay, {
-              [styles.detailsOverlayOpen]: selected !== null,
-            })}
-          >
-            {selected ? (
-              <CollectionDetails
-                script={selected}
-                bookmarkPending={bookmarkPending}
-                onClose={() => handleSelect(null)}
-                onToggleBookmark={() => toggleBookmark({ playUri: selected.uri })}
-              />
-            ) : null}
-          </div>
+        </div>
+        <div
+          className={classNames(styles.detailsOverlay, {
+            [styles.detailsOverlayOpen]: selected !== null,
+          })}
+        >
+          {selected ? (
+            <CollectionDetails
+              script={selected}
+              bookmarkPending={bookmarkPending}
+              onClose={() => handleSelect(null)}
+              onToggleBookmark={() => toggleBookmark({ playUri: selected.uri })}
+            />
+          ) : null}
         </div>
       </div>
     </FlowStep>
