@@ -93,7 +93,7 @@ describe('FromCollection pick step', () => {
     expect(screen.getByText('Hamlet')).toBeTruthy();
     expect(screen.getByText('Pierre de Marivaux')).toBeTruthy();
     expect(screen.getByText('William Shakespeare')).toBeTruthy();
-    expect(screen.getByText(/FR · comedy · xviiith · 4 roles · 11 words/)).toBeTruthy();
+    expect(screen.getByText('FR · comedy · xviiith · 2 male + 2 female')).toBeTruthy();
     expect(screen.getByText(/Page 1 \/ 3 · 54 scripts/)).toBeTruthy();
   });
 

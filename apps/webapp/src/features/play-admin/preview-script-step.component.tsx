@@ -21,11 +21,17 @@ interface PreviewScriptStepProps {
   scriptUri: string;
   from: PreviewScriptFrom;
   toolbar?: ReactNode;
+  /** First breadcrumb segment of the flow, e.g. "Create from an external source". */
+  sourceLabel?: string;
   onReviewDone: () => void;
   onBack: () => void;
 }
 
-function PreviewStepInner(props: { onReviewDone: () => void; onBack: () => void }) {
+function PreviewStepInner(props: {
+  sourceLabel: string;
+  onReviewDone: () => void;
+  onBack: () => void;
+}) {
   const previewScriptContext = useScriptContext();
   const {
     showSearchPanel,
@@ -53,7 +59,7 @@ function PreviewStepInner(props: { onReviewDone: () => void; onBack: () => void 
       }}
     >
       <FlowStep
-        title="Create from an external source ▶  Preview script"
+        title={`${props.sourceLabel} ▶  Preview script`}
         Actions={
           <>
             <Button icon="previous" onClick={props.onBack} />
@@ -115,7 +121,11 @@ export function PreviewScriptStep(props: PreviewScriptStepProps) {
         <ScriptContextProvider uri={props.scriptUri} from={props.from}>
           <ScriptTabToolbarContextProvider>
             {props.toolbar}
-            <PreviewStepInner onBack={props.onBack} onReviewDone={props.onReviewDone} />
+            <PreviewStepInner
+              sourceLabel={props.sourceLabel ?? "Create from an external source"}
+              onBack={props.onBack}
+              onReviewDone={props.onReviewDone}
+            />
           </ScriptTabToolbarContextProvider>
         </ScriptContextProvider>
       </Suspense>

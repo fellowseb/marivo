@@ -171,6 +171,15 @@ function FilterSection(props: {
   );
 }
 
+function DetailSection(props: { label: string; children: ReactNode }) {
+  return (
+    <div className={styles.detailSection}>
+      <div className={styles.detailLabel}>{props.label}</div>
+      {props.children}
+    </div>
+  );
+}
+
 function CollectionDetails(props: {
   script: CollectionScript;
   onClose: () => void;
@@ -181,37 +190,39 @@ function CollectionDetails(props: {
   const characterNames = Object.values(script.characters);
   return (
     <div className={styles.details}>
-      <div className={styles.detailsHeader}>
-        <div className={styles.detailsTitle}>{script.title}</div>
-        <Button icon="close" onClick={props.onClose}>
-          Close
-        </Button>
-      </div>
-      <div className={styles.detailsMeta}>
-        {script.author} · {script.lang.toUpperCase()}
-        {script.genre ? ` · ${script.genre}` : ""}
-        {script.period ? ` · ${script.period}` : ""}
-        {script.numberOfRoles != null ? ` · ${script.numberOfRoles} roles` : ""}
-        {` · ${script.numberOfWords} words`}
-      </div>
-      {script.synopsis ? <p className={styles.synopsis}>{script.synopsis}</p> : null}
-      {characterNames.length > 0 ? (
-        <>
-          <div className={styles.detailsSubtitle}>Characters</div>
+      <div className={styles.detailsTitle}>{script.title}</div>
+      <div className={styles.detailsAuthor}>{script.author}</div>
+      <DetailSection label="Synopsis">
+        {script.synopsis ? <p className={styles.synopsis}>{script.synopsis}</p> : null}
+      </DetailSection>
+      <DetailSection label="Characters">
+        {characterNames.length > 0 ? (
           <ul className={styles.characters}>
             {characterNames.map((name) => (
               <li key={name}>{name}</li>
             ))}
           </ul>
-        </>
-      ) : null}
-      <Button
-        icon="memorize"
-        disabled={props.bookmarkPending}
-        onClick={props.onToggleBookmark}
-      >
-        {script.bookmarked ? "Bookmarked" : "Bookmark"}
-      </Button>
+        ) : null}
+      </DetailSection>
+      <DetailSection label="Distribution">
+        {script.numberOfRoles != null ? `${script.numberOfRoles} roles` : null}
+        {script.numberOfMaleRoles != null ? ` · ${script.numberOfMaleRoles} male` : ""}
+        {script.numberOfFemaleRoles != null ? ` · ${script.numberOfFemaleRoles} female` : ""}
+      </DetailSection>
+      <DetailSection label="Genre">{script.genre}</DetailSection>
+      <DetailSection label="Period">{script.period}</DetailSection>
+      <DetailSection label="Language">{script.lang.toUpperCase()}</DetailSection>
+      <DetailSection label="Other">{script.numberOfWords} words</DetailSection>
+      <div className={styles.detailsActions}>
+        <Button
+          icon="memorize"
+          ariaLabel={script.bookmarked ? "Remove bookmark" : "Bookmark"}
+          disabled={props.bookmarkPending}
+          onClick={props.onToggleBookmark}
+          customClassNames={[styles.bookmarkButton]}
+        />
+        <Button icon="close" ariaLabel="Close" onClick={props.onClose} />
+      </div>
     </div>
   );
 }
@@ -284,6 +295,16 @@ function PickStep(props: PickStepProps) {
     resultsRef.current?.scrollTo({ top: 0 });
   };
 
+  // ESC closes the details pane (and unselects the script)
+  useEffect(() => {
+    if (!props.selectedUri) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleSelect(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [props.selectedUri]);
+
   const handlePrevious = () => {
     navigate("/plays/new");
   };
@@ -313,6 +334,7 @@ function PickStep(props: PickStepProps) {
               Clear
             </Button>
           </div>
+          <div className={styles.filtersBody}>
           <FilterSection label="Title" sectionKey="title" openSections={filters.openSections} onToggleSection={toggleSection}>
             <input
               type="text"
@@ -385,37 +407,42 @@ function PickStep(props: PickStepProps) {
               onToggle={(value) => setFilter("bookmarkedOnly", value)}
             />
           </FilterSection>
+          </div>
         </div>
         <Button
           icon="filter"
+          ariaLabel={filtersHidden ? "Show filters" : "Hide filters"}
           customClassNames={[styles.filtersToggle]}
           onClick={() => setFiltersHidden((prev) => !prev)}
         />
         <div className={styles.separator} />
-        <div className={styles.results} ref={resultsRef}>
-          {isLoading ? <div>Loading collection…</div> : null}
-          {isError ? <div>Failed to load the collection.</div> : null}
-          {!isLoading && !isError && groups.length === 0 ? <div>No script matches the filters.</div> : null}
-          {groups.map(([author, scripts]) => (
-            <div key={author} className={styles.authorGroup}>
-              <div className={styles.authorHeader}>{author}</div>
-              <div className={styles.authorItems}>
-                {scripts.map((script) => (
-                  <CollectionItem
-                    key={script.uri}
-                    title={script.title}
-                    lang={script.lang}
-                    genre={script.genre}
-                    period={script.period}
-                    numberOfRoles={script.numberOfRoles}
-                    numberOfWords={script.numberOfWords}
-                    selected={script.uri === props.selectedUri}
-                    onSelect={() => handleSelect(script.uri)}
-                  />
-                ))}
+        <div className={styles.resultsColumn}>
+          <div className={styles.results} ref={resultsRef}>
+            {isLoading ? <div>Loading collection…</div> : null}
+            {isError ? <div>Failed to load the collection.</div> : null}
+            {!isLoading && !isError && groups.length === 0 ? <div>No script matches the filters.</div> : null}
+            {groups.map(([author, scripts]) => (
+              <div key={author} className={styles.authorGroup}>
+                <div className={styles.authorHeader}>{author}</div>
+                <div className={styles.authorItems}>
+                  {scripts.map((script) => (
+                    <CollectionItem
+                      key={script.uri}
+                      title={script.title}
+                      lang={script.lang}
+                      genre={script.genre}
+                      period={script.period}
+                      numberOfRoles={script.numberOfRoles}
+                      numberOfMaleRoles={script.numberOfMaleRoles}
+                      numberOfFemaleRoles={script.numberOfFemaleRoles}
+                      selected={script.uri === props.selectedUri}
+                      onSelect={() => handleSelect(script.uri)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
           <div className={styles.pagination}>
             <Button
               icon="previous"
@@ -470,6 +497,7 @@ function FromCollectionFlow() {
       <PreviewScriptStep
         scriptUri={selectedUri}
         from="collection"
+        sourceLabel="Pick from our scripts collection"
         toolbar={<ImportScriptPreviewToolbar />}
         onBack={() => setStep("pick")}
         onReviewDone={() => setStep("name")}
@@ -479,6 +507,7 @@ function FromCollectionFlow() {
   if (step === "name" && selectedUri) {
     return (
       <NamePlayStep
+        sourceLabel="Pick from our scripts collection"
         onBack={() => setStep("preview")}
         createPlay={(title) => createFromCollection({ title, collectionUri: selectedUri })}
       />

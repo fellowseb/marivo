@@ -25,6 +25,8 @@ export interface PlayMetadataDetails {
 
 interface NamePlayStepProps {
   onBack: () => void;
+  /** First breadcrumb segment of the flow, e.g. "Create from an external source". */
+  sourceLabel?: string;
   /** Pre-fill/details for the "add to commons" variant (import flow only). */
   metadata?: PlayMetadataDetails;
   allowAddToCommons?: boolean;
@@ -77,10 +79,11 @@ export function NamePlayStep(props: NamePlayStepProps) {
   const handleToggleAddToCommons = () => {
     setAddToCommonsLib((prev) => !prev);
   };
+  const sourceLabel = props.sourceLabel ?? "Create from an external source";
   const flowTitle =
     addToCommonsLib && props.allowAddToCommons
-      ? "Create from an external source ▶ Add details to public play"
-      : "Create from an external source ▶ Name your new play";
+      ? `${sourceLabel} ▶ Add details to public play`
+      : `${sourceLabel} ▶ Name your new play`;
 
   const roleOptions = Array.from({ length: 20 }, (_, i) => ({
     label: `${i + 1}`,

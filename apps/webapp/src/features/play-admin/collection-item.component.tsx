@@ -7,19 +7,20 @@ interface CollectionItemProps {
   genre: string | null;
   period: string | null;
   numberOfRoles: number | null;
-  numberOfWords: number;
+  numberOfMaleRoles: number | null;
+  numberOfFemaleRoles: number | null;
   selected: boolean;
   onSelect: () => void;
 }
 
 export function CollectionItem(props: CollectionItemProps) {
-  const meta = [
-    props.lang.toUpperCase(),
-    props.genre,
-    props.period,
-    props.numberOfRoles != null ? `${props.numberOfRoles} roles` : null,
-    `${props.numberOfWords} words`,
-  ]
+  const roles =
+    props.numberOfMaleRoles != null && props.numberOfFemaleRoles != null
+      ? `${props.numberOfMaleRoles} male + ${props.numberOfFemaleRoles} female`
+      : props.numberOfRoles != null
+        ? `${props.numberOfRoles} roles`
+        : null;
+  const meta = [props.lang.toUpperCase(), props.genre, props.period, roles]
     .filter(Boolean)
     .join(" · ");
   return (

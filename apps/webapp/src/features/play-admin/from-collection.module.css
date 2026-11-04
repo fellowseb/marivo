@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: row;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   align-items: stretch;
   height: calc(100vh - 240px);
   min-height: 320px;
@@ -15,10 +17,17 @@
   gap: 4px;
   width: 320px;
   flex-shrink: 0;
-  overflow-y: auto;
   transition:
     margin-left 0.2s ease-in-out,
     opacity 0.2s ease-in-out;
+}
+
+.filtersBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .filtersHidden {
@@ -45,16 +54,24 @@
   cursor: pointer;
 }
 
-.results {
-  position: relative;
+.resultsColumn {
   display: flex;
+  flex-direction: column;
   flex-grow: 2;
+  min-width: 0;
+  min-height: 0;
+}
+
+.results {
+  display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 8px;
   padding: 4px;
   overflow-y: auto;
   overflow-x: hidden;
   min-width: 0;
+  min-height: 0;
 }
 
 .filterSection {
@@ -75,7 +92,7 @@
 .filterSectionBody {
   border: none;
   margin: 0;
-  padding: 2px 0 2px 18px;
+  padding: 2px 0 2px 20px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -135,7 +152,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 320px;
+  width: 380px;
   transform: translateX(100%);
   transition: transform 0.18s ease-in-out;
   z-index: 2;
@@ -151,36 +168,49 @@
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  padding: 8px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   background: #f3ead6;
   border-left: 1px solid #cebc96;
   box-shadow: -4px 0 8px rgba(0, 0, 0, 0.15);
 }
 
-.detailsHeader {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 4px;
-}
-
 .detailsTitle {
   font-weight: 700;
-  font-size: 1.05em;
+  font-size: 1.1em;
 }
 
-.detailsMeta {
-  opacity: 0.75;
-  font-size: 0.9em;
+.detailsAuthor {
+  opacity: 0.8;
+  font-size: 0.95em;
 }
 
-.detailsSubtitle {
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detailLabel {
   font-weight: 600;
-  margin-top: 4px;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.detailsActions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.bookmarkButton {
+  color: #d63384;
 }
 
 .synopsis {
