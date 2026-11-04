@@ -65,6 +65,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
   const [createReady, setCreateReady] = useState(false);
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState<{ kind: "play" | "collection"; uri: string } | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [publishError, setPublishError] = useState(false);
   const [lastPublishInput, setLastPublishInput] = useState<PublishToCollectionInput | null>(null);
   const [addToCommonsLib, setAddToCommonsLib] = useState(false);
@@ -113,6 +114,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
     const title = titleInputRef.current?.value ?? "New play";
     setPending(true);
     setPublishError(false);
+    setCreateError(null);
     if (commonsMode && props.publishToCollection) {
       // commons mode: publish the imported script to the collection only,
       // no personal play is created
@@ -137,6 +139,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
       setDone({ kind: "play", uri: data.uri });
     } catch (error) {
       logger.error("failed to create play", { error });
+      setCreateError(error instanceof Error ? error.message : String(error));
       setPending(false);
     }
   };
@@ -224,10 +227,15 @@ export function NamePlayStep(props: NamePlayStepProps) {
           </>
         }
       >
+        {createError ? (
+          <div role="alert" style={{ color: "#b00020" }}>
+            Failed to create the play: {createError}
+          </div>
+        ) : null}
         {publishError ? (
           <div role="alert" style={{ color: "#b00020" }}>
-            The play was created but could not be added to the commons library. You can retry
-            publishing or go back.
+            The script could not be added to the commons library. You can retry publishing or go
+            back.
           </div>
         ) : null}
         {commonsMode && commons ? (

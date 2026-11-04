@@ -69,6 +69,16 @@ describe('NamePlayStep', () => {
     expect(screen.queryByText('Add to commons library')).toBeNull();
   });
 
+  it('shows an inline error and stays put when creation fails', async () => {
+    const createPlay = vi.fn().mockRejectedValue(new Error('Script import not found'));
+    renderStep({ createPlay });
+    fireEvent.change(screen.getByPlaceholderText(/Othello/), { target: { value: 'My project' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('Script import not found');
+    expect(navigateMock).not.toHaveBeenCalled();
+  });
+
   it('creates the play without publishing when the toggle is off', async () => {
     const { createPlay, publishToCollection } = renderStep({ allowAddToCommons: true, metadata });
     fireEvent.change(screen.getByPlaceholderText(/Othello/), { target: { value: 'My project' } });
