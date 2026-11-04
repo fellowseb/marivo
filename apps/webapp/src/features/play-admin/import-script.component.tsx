@@ -71,7 +71,7 @@ function ImportStep() {
   const navigate = useNavigate();
   const trpc = useTRPC();
   const { mutate, status: initStatus } = useMutation(trpc.plays.initImportScript.mutationOptions());
-  const { step, importId } = useImportScriptContext();
+  const { step, importId, startOver } = useImportScriptContext();
   const opts = trpc.plays.uploadFileForScriptImport.mutationOptions({
     meta: {
       test: true,
@@ -93,6 +93,9 @@ function ImportStep() {
   const inputFromDiskRef = useRef<HTMLInputElement>(null);
   const inputURLRef = useRef<HTMLInputElement>(null);
   const handleFileInputChange = () => {
+    if (isPending) {
+      return;
+    }
     setFiles((files) => {
       const fileListCount = inputFromDiskRef.current?.files?.length ?? 0;
       const f: ScriptImportFile[] = [];
@@ -181,6 +184,9 @@ function ImportStep() {
     setScriptLineHovered(null);
   };
   const handleURLButtonClick = () => {
+    if (isPending) {
+      return;
+    }
     setFiles((files) => {
       const url = inputURLRef.current?.value;
       if (!url) {
@@ -204,6 +210,10 @@ function ImportStep() {
     event.preventDefault();
   };
   const handleDrop = (event: DragEvent) => {
+    if (isPending) {
+      event.preventDefault();
+      return;
+    }
     if (event.dataTransfer.files) {
       const droppedFiles = event.dataTransfer.files;
       setFiles((files) => {
@@ -232,6 +242,9 @@ function ImportStep() {
     initStatus === "pending" ||
     statusUpload === "pending" ||
     (step?.name === "import" && step.processing);
+  const uploadsPending = uploadsState.filter((s) => s.status === "pending").length;
+  const uploadsDone = uploadsState.filter((s) => s.status === "success").length;
+  const importError = step?.name === "import" ? step.error : undefined;
   return (
     <FlowStep
       title="Create from an external source ▶  Import script"
@@ -256,6 +269,33 @@ function ImportStep() {
         <br />
         Known sources: libre-theatre.fr, wikisource.com.
       </Admonition>
+      {importError ? (
+        <div
+          role="alert"
+          style={{ color: "#b00020", display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <span>{importError}</span>
+          <Button icon="redo" onClick={startOver}>
+            Start over
+          </Button>
+        </div>
+      ) : null}
+      {initStatus === "error" ? (
+        <div role="alert" style={{ color: "#b00020" }}>
+          Failed to start the import. Your files are still selected — you can try again.
+        </div>
+      ) : null}
+      {step?.name === "import" && step.processing ? (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <DotsLoader size="medium" />
+          <span>Processing files… this can take a minute. You can stay on this page.</span>
+        </div>
+      ) : null}
+      {uploadsPending > 0 ? (
+        <div>
+          Uploading files… ({uploadsDone}/{files.length})
+        </div>
+      ) : null}
       <div
         style={{
           display: "flex",

@@ -54,7 +54,7 @@ describe("ImportScriptStatusUseCase", () => {
 
   it("non-reviewing status output validates", async () => {
     scriptImportsRepository.getScriptImportStatus.mockResolvedValue(
-      Result.ok({ id: IMPORT_ID, status: "processing_files" }),
+      Result.ok({ id: IMPORT_ID, status: "processing_files", error: null }),
     );
 
     const result = await useCase.execute({ importId: IMPORT_ID });
@@ -62,6 +62,19 @@ describe("ImportScriptStatusUseCase", () => {
     expect(result.isOk()).toBe(true);
     const parsed = ImportScriptStatusUseCaseOutputSchema.safeParse(result.dataOrThrow());
     expect(parsed.success).toBe(true);
+  });
+
+  it("error status carries the failure reason", async () => {
+    scriptImportsRepository.getScriptImportStatus.mockResolvedValue(
+      Result.ok({ id: IMPORT_ID, status: "error", error: "LLM request failed" }),
+    );
+
+    const result = await useCase.execute({ importId: IMPORT_ID });
+
+    expect(result.isOk()).toBe(true);
+    const parsed = ImportScriptStatusUseCaseOutputSchema.safeParse(result.dataOrThrow());
+    expect(parsed.success).toBe(true);
+    expect(parsed.data).toMatchObject({ status: "error", error: "LLM request failed" });
   });
 
   it("returns failure when import not found", async () => {

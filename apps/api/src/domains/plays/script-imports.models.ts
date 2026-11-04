@@ -16,6 +16,8 @@ export type ScriptImport =
   | {
       id: string;
       status: Exclude<ScriptImportStatus, "reviewing">;
+      /** Failure reason when status is "error". */
+      error: string | null;
     }
   | {
       id: string;

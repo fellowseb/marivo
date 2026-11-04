@@ -29,6 +29,8 @@ type Step =
       name: "import";
       importId: string;
       processing: boolean;
+      /** Failure reason shown on the import page (worker error or lost import). */
+      error?: string | undefined;
     }
   | { name: "preview"; importId: string; metadata: ImportScriptMetadata }
   | { name: "name"; importId: string; metadata: ImportScriptMetadata };
@@ -60,9 +62,9 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
   const statusQry = trpc.plays.importScriptStatus.queryOptions({
     importId,
   });
-  statusQry.enabled = () => {
-    return Boolean(importId && step?.name !== "import");
-  };
+  // Poll while the user is on the import step (or resuming): this is what
+  // drives the uploading -> processing -> reviewing/error transitions.
+  statusQry.enabled = Boolean(importId) && (step === undefined || step.name === "import");
   statusQry.refetchInterval = 5000;
   const { status: statusStatus, data: statusData } = useQuery(statusQry);
   useEffect(() => {
@@ -81,6 +83,14 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
                 processing: true,
               };
             }
+          });
+          break;
+        case "error":
+          setStep({
+            name: "import",
+            importId,
+            processing: false,
+            error: statusData.error ?? "The import failed.",
           });
           break;
         case "reviewing":
@@ -102,7 +112,19 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
           break;
       }
     }
-  }, [statusStatus, statusData]);
+  }, [statusStatus, statusData, importId]);
+  // The status query itself failed (e.g. the import row was deleted): surface
+  // it instead of spinning forever.
+  useEffect(() => {
+    if (statusStatus === "error" && (step === undefined || step.name === "import")) {
+      setStep({
+        name: "import",
+        importId,
+        processing: false,
+        error: "This import is no longer available. You can start over.",
+      });
+    }
+  }, [statusStatus, step, importId]);
   const startOver = useCallback(() => {
     const newImportId = uuidv4();
     setImportId(newImportId);

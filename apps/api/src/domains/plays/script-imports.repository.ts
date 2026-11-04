@@ -20,6 +20,7 @@ export class ScriptImportNotFound extends AppError {
 interface GetScriptImportsRecordValues {
   id: string;
   status: string;
+  error: string | null;
   result_metadata_title: string;
   result_metadata_author: string;
   result_metadata_language: string;
@@ -55,6 +56,7 @@ export class GetScriptImportsRecord extends DbRecord<GetScriptImportsRecordValue
       : {
           id: this.get("id"),
           status,
+          error: this.get("error"),
         };
   }
 }
@@ -217,6 +219,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
         SELECT
           id,
           status,
+          error,
           result_metadata_title,
           result_metadata_author,
           result_metadata_language,
@@ -260,6 +263,7 @@ export class ScriptImportsRepository extends UserRepositoryBase {
         SELECT
           id,
           status,
+          error,
           result_metadata_title,
           result_metadata_author,
           result_metadata_language,
