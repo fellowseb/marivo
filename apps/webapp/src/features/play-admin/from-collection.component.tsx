@@ -292,7 +292,8 @@ function PickStep(props: PickStepProps) {
   const handleSelect = (uri: string | null) => {
     props.onSelect(uri);
     // bring the details panel (anchored at the top of the results) into view
-    resultsRef.current?.scrollTo({ top: 0 });
+    // (scrollTo is optional: jsdom does not implement it)
+    resultsRef.current?.scrollTo?.({ top: 0 });
   };
 
   // ESC closes the details pane (and unselects the script)
