@@ -16,7 +16,10 @@ import {
   PlayDetailsUseCaseInputSchema,
   PlayDetailsUseCaseOutputSchema,
 } from "./play-details.use-case.ts";
-import { InitImportScriptUseCaseInputSchema } from "./init-import-script.use-case.ts";
+import {
+  InitImportScriptUseCaseInputSchema,
+  InitImportScriptUseCaseOutputSchema,
+} from "./init-import-script.use-case.ts";
 import {
   ImportScriptStatusUseCaseInputSchema,
   ImportScriptStatusUseCaseOutputSchema,
@@ -78,6 +81,7 @@ export default router({
     .query(handleUseCase(providers.PlayDetailsUseCase)),
   initImportScript: publicProcedure
     .input(InitImportScriptUseCaseInputSchema)
+    .output(InitImportScriptUseCaseOutputSchema)
     .mutation(handleUseCase(providers.InitImportScriptUseCase)),
   uploadFileForScriptImport: publicProcedure
     .input(octetInputParser)

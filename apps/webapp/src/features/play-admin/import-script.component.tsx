@@ -70,8 +70,16 @@ interface ImportScriptMetadata {
 function ImportStep() {
   const navigate = useNavigate();
   const trpc = useTRPC();
-  const { mutate, status: initStatus } = useMutation(trpc.plays.initImportScript.mutationOptions());
-  const { step, importId, startOver } = useImportScriptContext();
+  const { step, importId, setImportId, startOver } = useImportScriptContext();
+  const { mutate, status: initStatus } = useMutation(
+    trpc.plays.initImportScript.mutationOptions({
+      onSuccess: (data) => {
+        // the importId is server-generated: adopt it once, which starts the
+        // status poll; uploads then run under it
+        setImportId(data.importId);
+      },
+    }),
+  );
   const opts = trpc.plays.uploadFileForScriptImport.mutationOptions({
     meta: {
       test: true,
@@ -148,11 +156,14 @@ function ImportStep() {
       return newFiles;
     });
   };
+  // Files submitted with the last Import click; uploaded once the
+  // server-generated importId comes back.
+  const [submittedFiles, setSubmittedFiles] = useState<ScriptImportFile[] | null>(null);
   const handleInitImport = () => {
     resetUpload();
     setStarted(true);
+    setSubmittedFiles(files);
     mutate({
-      importId,
       files: files.map((f) => {
         return f.type === "url"
           ? f
@@ -182,17 +193,19 @@ function ImportStep() {
     }
   }, [initStatus, statusUpload]);
 
+  // Once the server-generated importId is adopted, upload the submitted files.
   useEffect(() => {
-    if (initStatus === "success") {
-      files.forEach((entry) => {
+    if (initStatus === "success" && importId && submittedFiles) {
+      submittedFiles.forEach((entry) => {
         if (entry.type === "file") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (entry.file as any).id = entry.id;
           mutateUpload(entry.file);
         }
       });
+      setSubmittedFiles(null);
     }
-  }, [initStatus]);
+  }, [initStatus, importId, submittedFiles]);
   const handleFileLineEnter = (i: number) => () => {
     setScriptLineHovered(i);
   };

@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import {
   createContext,
   useCallback,
@@ -37,7 +36,9 @@ type Step =
 
 interface ImportScriptContext {
   step: Step | undefined;
+  /** Empty on a fresh page until initImportScript returns the server-generated id. */
   importId: string;
+  setImportId: (importId: string) => void;
   startOver: () => void;
   reviewDone: () => void;
   backToReview: () => void;
@@ -49,13 +50,16 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
   const trpc = useTRPC();
   const [searchParams] = useSearchParams();
   const resumeImportId = searchParams.get("resume");
-  const [importId, setImportId] = useState(resumeImportId ?? uuidv4());
+  // Server-side generated: empty until initImportScript returns it (or when
+  // resuming an existing import via ?resume=). The status poll only runs once
+  // a real id exists, so a fresh page never polls a non-existent import.
+  const [importId, setImportId] = useState(resumeImportId ?? "");
   const [step, setStep] = useState<Step | undefined>(
     resumeImportId
       ? undefined
       : {
           name: "import",
-          importId,
+          importId: "",
           processing: false,
         },
   );
@@ -74,8 +78,10 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
         case "uploading_files":
           setStep((prev) => {
             if (
-              prev &&
-              (prev.name !== "import" || !prev.processing || prev.importId !== importId)
+              !prev ||
+              prev.name !== "import" ||
+              !prev.processing ||
+              prev.importId !== importId
             ) {
               return {
                 name: "import",
@@ -113,10 +119,12 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
       }
     }
   }, [statusStatus, statusData, importId]);
-  // The status query itself failed (e.g. the import row was deleted): surface
-  // it instead of spinning forever.
+  // The poll only runs once a server-generated (or resumed) importId exists,
+  // so a query failure here genuinely means the import is gone. The importId
+  // guard also prevents a stale cached error from re-appearing after Start over.
   useEffect(() => {
-    if (statusStatus === "error" && (step === undefined || step.name === "import")) {
+    const onImportStep = step === undefined || step.name === "import";
+    if (statusStatus === "error" && importId && onImportStep) {
       setStep({
         name: "import",
         importId,
@@ -126,11 +134,10 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
     }
   }, [statusStatus, step, importId]);
   const startOver = useCallback(() => {
-    const newImportId = uuidv4();
-    setImportId(newImportId);
+    setImportId("");
     setStep({
       name: "import",
-      importId: newImportId,
+      importId: "",
       processing: false,
     });
   }, []);
@@ -145,7 +152,7 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
         metadata: prev.metadata,
       };
     });
-  }, []);
+  }, [importId]);
   const backToReview = useCallback(() => {
     setStep((prev) => {
       if (prev?.name !== "name") {
@@ -157,17 +164,18 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
         metadata: prev.metadata,
       };
     });
-  }, []);
+  }, [importId]);
 
   const context = useMemo<ImportScriptContext>(
     () => ({
       step,
       importId,
+      setImportId,
       startOver,
       reviewDone,
       backToReview,
     }),
-    [step],
+    [step, importId, startOver, reviewDone, backToReview],
   );
   return (
     <ImportScriptContext.Provider value={context}>{props.children}</ImportScriptContext.Provider>

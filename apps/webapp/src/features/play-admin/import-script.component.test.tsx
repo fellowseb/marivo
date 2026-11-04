@@ -10,15 +10,25 @@ import {
 
 let statusValue: unknown;
 let statusShouldFail = false;
+let statusCalls = 0;
 let capturedImportId = '';
-const initMock = vi.fn().mockResolvedValue({});
+const SRV_IMPORT_ID = '20000000-0000-4000-8000-0000000000aa';
+const RESUME_ID = '10000000-0000-4000-8000-000000000001';
+const initMock = vi.fn().mockResolvedValue({ importId: SRV_IMPORT_ID });
 const uploadMock = vi.fn().mockResolvedValue({});
 
 vi.mock('../../trpc', () => ({
   useTRPC: () => ({
     plays: {
       initImportScript: {
-        mutationOptions: () => ({ mutationKey: ['initImportScript'], mutationFn: initMock }),
+        mutationOptions: (opts?: { onSuccess?: (data: { importId: string }) => void }) => ({
+          mutationKey: ['initImportScript'],
+          mutationFn: async () => {
+            const data = await initMock();
+            opts?.onSuccess?.(data);
+            return data;
+          },
+        }),
       },
       uploadFileForScriptImport: {
         mutationOptions: () => ({ mutationKey: ['uploadFileForScriptImport'], mutationFn: uploadMock }),
@@ -30,6 +40,7 @@ vi.mock('../../trpc', () => ({
           return {
             queryKey: ['importScriptStatus', input],
             queryFn: async () => {
+              statusCalls += 1;
               if (statusShouldFail) {
                 throw new Error('NOT_FOUND');
               }
@@ -43,11 +54,13 @@ vi.mock('../../trpc', () => ({
   }),
 }));
 
-function renderWithProviders(node: React.ReactNode) {
+function renderWithProviders(node: React.ReactNode, initialEntries?: string[]) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{node}</MemoryRouter>
+      <MemoryRouter initialEntries={initialEntries}>
+        {node}
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -85,9 +98,12 @@ describe('ImportScriptContext status transitions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     statusShouldFail = false;
+    statusCalls = 0;
     statusValue = { status: 'uploading_files', error: null };
   });
   afterEach(() => cleanup());
+
+  const resumeAt = (id: string) => [`/plays/new/import?resume=${id}`];
 
   it('marks the import step as processing while files are processed', async () => {
     statusValue = { status: 'processing_files', error: null };
@@ -95,6 +111,7 @@ describe('ImportScriptContext status transitions', () => {
       <ImportScriptContextProvider>
         <Probe />
       </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
     );
     await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"processing":true'));
   });
@@ -105,6 +122,7 @@ describe('ImportScriptContext status transitions', () => {
       <ImportScriptContextProvider>
         <Probe />
       </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
     );
     await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"'), {
       timeout: 9000,
@@ -117,6 +135,7 @@ describe('ImportScriptContext status transitions', () => {
       <ImportScriptContextProvider>
         <Probe />
       </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
     );
     await waitFor(
       () => expect(screen.getByTestId('probe').textContent).toContain('LLM request failed'),
@@ -124,18 +143,54 @@ describe('ImportScriptContext status transitions', () => {
     );
   });
 
-  it('surfaces an error when the import no longer exists (query failure)', async () => {
+  it('surfaces an error when a resumed import no longer exists (query failure)', async () => {
     statusShouldFail = true;
     renderWithProviders(
       <ImportScriptContextProvider>
         <Probe />
       </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
     );
     await waitFor(
       () => expect(screen.getByTestId('probe').textContent).toContain('no longer available'),
       { timeout: 9000 },
     );
   });
+
+  it('does NOT poll at all on a fresh page before init (importId is server-generated)', async () => {
+    statusShouldFail = true;
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+    );
+    // let several would-be poll ticks pass: the query is disabled (no id yet)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    expect(statusCalls).toBe(0);
+    expect(screen.getByTestId('probe').textContent).not.toContain('no longer available');
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+  });
+
+  it(
+    'shows the gone-error once the import existed and then disappeared',
+    { timeout: 30000 },
+    async () => {
+    statusValue = { status: 'processing_files', error: null };
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+    );
+    await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"processing":true'));
+    // the row disappears server-side: polls start failing
+    statusShouldFail = true;
+    await waitFor(
+      () => expect(screen.getByTestId('probe').textContent).toContain('no longer available'),
+      { timeout: 9000 },
+    );
+    },
+  );
 });
 
 describe('ImportScript page feedback', () => {
