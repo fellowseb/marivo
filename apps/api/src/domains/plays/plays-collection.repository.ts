@@ -46,7 +46,9 @@ export interface CollectionFilters {
   minRoles?: number;
   maxRoles?: number;
   minMaleRoles?: number;
+  maxMaleRoles?: number;
   minFemaleRoles?: number;
+  maxFemaleRoles?: number;
   bookmarkedOnly?: boolean;
 }
 
@@ -112,8 +114,14 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
     if (filters.minMaleRoles !== undefined) {
       conditions.push(this.sql`p.number_of_male_roles >= ${filters.minMaleRoles}`);
     }
+    if (filters.maxMaleRoles !== undefined) {
+      conditions.push(this.sql`p.number_of_male_roles <= ${filters.maxMaleRoles}`);
+    }
     if (filters.minFemaleRoles !== undefined) {
       conditions.push(this.sql`p.number_of_female_roles >= ${filters.minFemaleRoles}`);
+    }
+    if (filters.maxFemaleRoles !== undefined) {
+      conditions.push(this.sql`p.number_of_female_roles <= ${filters.maxFemaleRoles}`);
     }
     if (filters.bookmarkedOnly) {
       conditions.push(

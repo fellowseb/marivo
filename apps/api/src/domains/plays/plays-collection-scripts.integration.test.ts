@@ -29,9 +29,9 @@ describe("playsCollection listAll (integration with real Postgres)", () => {
     repository = new PlaysCollectionRepository(sql, userContext);
 
     const plays = [
-      { key: "hamlet", uri: "10000000-0000-4000-8000-000000000001", title: "Hamlet", author: "William Shakespeare", lang: "en", genre: "tragedy", period: "elizabethan", words: ["To be or not to be", "that is the question"] },
-      { key: "macbeth", uri: "10000000-0000-4000-8000-000000000002", title: "Macbeth", author: "William Shakespeare", lang: "en", genre: "tragedy", period: "elizabethan", words: ["Out damned spot"] },
-      { key: "jeu", uri: "10000000-0000-4000-8000-000000000003", title: "Le Jeu de l'amour et du hasard", author: "Pierre de Marivaux", lang: "fr", genre: "comedy", period: "contemporary", words: ["Un valet", "et sa maîtresse"] },
+      { key: "hamlet", uri: "10000000-0000-4000-8000-000000000001", title: "Hamlet", author: "William Shakespeare", lang: "en", genre: "tragedy", period: "elizabethan", words: ["To be or not to be", "that is the question"], male: 2, female: 1 },
+      { key: "macbeth", uri: "10000000-0000-4000-8000-000000000002", title: "Macbeth", author: "William Shakespeare", lang: "en", genre: "tragedy", period: "elizabethan", words: ["Out damned spot"], male: 3, female: 2 },
+      { key: "jeu", uri: "10000000-0000-4000-8000-000000000003", title: "Le Jeu de l'amour et du hasard", author: "Pierre de Marivaux", lang: "fr", genre: "comedy", period: "contemporary", words: ["Un valet", "et sa maîtresse"], male: 1, female: 1 },
     ];
     for (const play of plays) {
       const [script] = await sql<{ id: number }[]>`
@@ -58,7 +58,7 @@ describe("playsCollection listAll (integration with real Postgres)", () => {
       `;
       await sql`
         INSERT INTO public_domain_plays (uri, title, author, lang, number_of_roles, number_of_male_roles, number_of_female_roles, genre, period, synopsis, script_id)
-        VALUES (${play.uri}, ${play.title}, ${play.author}, ${play.lang}, 3, 2, 1, ${play.genre}, ${play.period}, ${"Synopsis of " + play.title}, ${script.id})
+        VALUES (${play.uri}, ${play.title}, ${play.author}, ${play.lang}, 3, ${play.male}, ${play.female}, ${play.genre}, ${play.period}, ${"Synopsis of " + play.title}, ${script.id})
       `;
       uris[play.key] = play.uri;
     }
@@ -128,6 +128,31 @@ describe("playsCollection listAll (integration with real Postgres)", () => {
       pageSize: 20,
     });
     expect(result.dataOrThrow().total).toBe(3);
+  });
+
+  it("filters by male/female role ranges (min and max)", async () => {
+    const exact2 = await repository.findAllScripts({
+      filters: { minMaleRoles: 2, maxMaleRoles: 2 },
+      page: 1,
+      pageSize: 20,
+    });
+    expect(exact2.dataOrThrow().total).toBe(1);
+    expect(exact2.dataOrThrow().records[0].get("title")).toBe("Hamlet");
+
+    const atLeast3 = await repository.findAllScripts({
+      filters: { minMaleRoles: 3 },
+      page: 1,
+      pageSize: 20,
+    });
+    expect(atLeast3.dataOrThrow().total).toBe(1);
+    expect(atLeast3.dataOrThrow().records[0].get("title")).toBe("Macbeth");
+
+    const female1 = await repository.findAllScripts({
+      filters: { minFemaleRoles: 1, maxFemaleRoles: 1 },
+      page: 1,
+      pageSize: 20,
+    });
+    expect(female1.dataOrThrow().total).toBe(2);
   });
 
   it("toggles a bookmark and filters by bookmarkedOnly", async () => {

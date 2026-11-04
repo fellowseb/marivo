@@ -146,6 +146,23 @@ describe('FromCollection pick step', () => {
     });
   });
 
+  it('unchecking a section disables its filter (not sent to the server) but keeps the value', async () => {
+    renderPick();
+    await screen.findByText('Hamlet');
+    const titleCheckbox = screen.getByRole('checkbox', { name: 'Title' });
+    fireEvent.click(titleCheckbox);
+    const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'hamlet' } });
+    let lastCall = listAllCalls.at(-1) as { filters: { title?: string } };
+    expect(lastCall.filters.title).toBe('hamlet');
+
+    // uncheck -> filter disabled: not sent anymore, value kept in the input
+    fireEvent.click(titleCheckbox);
+    lastCall = listAllCalls.at(-1) as { filters: { title?: string } };
+    expect(lastCall.filters.title).toBeUndefined();
+    expect(input.value).toBe('hamlet');
+  });
+
   it('persists the open/collapsed state of filter sections in localStorage', async () => {
     renderPick();
     await screen.findByText('Hamlet');
@@ -157,7 +174,7 @@ describe('FromCollection pick step', () => {
   it('restores filters from localStorage on mount', async () => {
     localStorage.setItem(
       'marivo:collection-filters',
-      JSON.stringify({ title: 'hamlet', author: '', languages: [], roles: [], maleRoles: [], femaleRoles: [], genres: ['tragedy'], periods: [], bookmarkedOnly: false }),
+      JSON.stringify({ title: 'hamlet', author: '', languages: [], roles: [], maleRoles: [], femaleRoles: [], genres: ['tragedy'], periods: [], bookmarkedOnly: false, openSections: { title: true, genres: true } }),
     );
     renderPick();
     await screen.findByText('Hamlet');

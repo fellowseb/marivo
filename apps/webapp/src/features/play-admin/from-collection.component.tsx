@@ -91,21 +91,28 @@ function rolesToRange(values: string[]): { min?: number; max?: number } {
   };
 }
 
+/**
+ * Build the server-side filter input. A filter whose section is collapsed
+ * (checkbox empty) is disabled: its value is kept locally but not sent.
+ */
 function toApiFilters(f: FiltersState) {
-  const roles = rolesToRange(f.roles);
-  const male = rolesToRange(f.maleRoles);
-  const female = rolesToRange(f.femaleRoles);
+  const open = (key: string) => f.openSections[key] ?? false;
+  const roles = open("roles") ? rolesToRange(f.roles) : {};
+  const male = open("maleRoles") ? rolesToRange(f.maleRoles) : {};
+  const female = open("femaleRoles") ? rolesToRange(f.femaleRoles) : {};
   return {
-    title: f.title || undefined,
-    author: f.author || undefined,
-    languages: f.languages.length ? f.languages : undefined,
-    genres: f.genres.length ? f.genres : undefined,
-    periods: f.periods.length ? f.periods : undefined,
+    title: open("title") && f.title ? f.title : undefined,
+    author: open("author") && f.author ? f.author : undefined,
+    languages: open("languages") && f.languages.length ? f.languages : undefined,
+    genres: open("genres") && f.genres.length ? f.genres : undefined,
+    periods: open("periods") && f.periods.length ? f.periods : undefined,
     minRoles: roles.min,
     maxRoles: roles.max,
     minMaleRoles: male.min,
+    maxMaleRoles: male.max,
     minFemaleRoles: female.min,
-    bookmarkedOnly: f.bookmarkedOnly || undefined,
+    maxFemaleRoles: female.max,
+    bookmarkedOnly: open("bookmarked") && f.bookmarkedOnly ? true : undefined,
   };
 }
 

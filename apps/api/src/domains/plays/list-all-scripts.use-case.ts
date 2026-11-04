@@ -16,7 +16,9 @@ export const CollectionFiltersSchema = z
     minRoles: z.number().int().min(0).optional(),
     maxRoles: z.number().int().min(0).optional(),
     minMaleRoles: z.number().int().min(0).optional(),
+    maxMaleRoles: z.number().int().min(0).optional(),
     minFemaleRoles: z.number().int().min(0).optional(),
+    maxFemaleRoles: z.number().int().min(0).optional(),
     bookmarkedOnly: z.boolean().optional(),
   })
   .optional();
