@@ -52,7 +52,36 @@
   gap: 8px;
   padding: 4px;
   overflow-y: auto;
+  overflow-x: hidden;
   min-width: 0;
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filterSectionHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filterSectionBody {
+  border: none;
+  margin: 0;
+  padding: 2px 0 2px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filterSectionBody:disabled {
+  opacity: 0.45;
 }
 
 .separator {
@@ -112,8 +141,10 @@
 }
 
 .details {
+  position: sticky;
+  top: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 240px);
   overflow-y: auto;
   padding: 8px;
   display: flex;

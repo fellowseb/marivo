@@ -117,8 +117,15 @@ describe('FromCollection pick step', () => {
   it('sends filters to the server and persists them in localStorage; Clear resets', async () => {
     renderPick();
     await screen.findByText("Le Jeu de l'amour et du hasard");
+    // the Title section is collapsed (checkbox empty, input disabled) by default
+    const titleCheckbox = screen.getByRole('checkbox', { name: 'Title' }) as HTMLInputElement;
+    expect(titleCheckbox.checked).toBe(false);
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-    expect(input).toBeTruthy();
+    const fieldset = input.closest('fieldset') as HTMLFieldSetElement;
+    expect(fieldset.disabled).toBe(true);
+    // expanding the section enables the filter
+    fireEvent.click(titleCheckbox);
+    expect(fieldset.disabled).toBe(false);
     fireEvent.change(input, { target: { value: 'hamlet' } });
 
     // the query received the title filter
@@ -135,6 +142,14 @@ describe('FromCollection pick step', () => {
     expect(JSON.parse(localStorage.getItem('marivo:collection-filters')!)).toMatchObject({
       title: '',
     });
+  });
+
+  it('persists the open/collapsed state of filter sections in localStorage', async () => {
+    renderPick();
+    await screen.findByText('Hamlet');
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Author' }));
+    const stored = JSON.parse(localStorage.getItem('marivo:collection-filters')!);
+    expect(stored.openSections).toEqual({ author: true });
   });
 
   it('restores filters from localStorage on mount', async () => {

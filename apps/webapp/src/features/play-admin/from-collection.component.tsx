@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../../trpc";
@@ -6,7 +6,6 @@ import { logger } from "../../lib/logger";
 import Button from "../../components/button.component";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import FlowStep from "../../components/flow-step.component";
-import CollapsibleSection from "../../components/collapsible-section.component";
 import { CardsSelect } from "../../components/cards-select.component";
 import { ToggleButton } from "../../components/toggle-button.component";
 import { useCollectionMetadataContext } from "./collection-metadata.context";
@@ -54,6 +53,8 @@ interface FiltersState {
   genres: string[];
   periods: string[];
   bookmarkedOnly: boolean;
+  /** which filter sections are expanded (ticked checkbox); persisted too */
+  openSections: Record<string, boolean>;
 }
 
 const EMPTY_FILTERS: FiltersState = {
@@ -66,6 +67,7 @@ const EMPTY_FILTERS: FiltersState = {
   genres: [],
   periods: [],
   bookmarkedOnly: false,
+  openSections: {},
 };
 
 function loadFilters(): FiltersState {
@@ -134,6 +136,36 @@ function groupByAuthor(scripts: CollectionScript[]): [string, CollectionScript[]
   return [...groups.entries()];
 }
 
+/**
+ * A filter section: a checkbox header (ticked = expanded = filter enabled,
+ * empty = collapsed = filter disabled). The open state lives in the
+ * persisted filters state.
+ */
+function FilterSection(props: {
+  label: string;
+  sectionKey: string;
+  openSections: Record<string, boolean>;
+  onToggleSection: (key: string, open: boolean) => void;
+  children: ReactNode;
+}) {
+  const open = props.openSections[props.sectionKey] ?? false;
+  return (
+    <div className={styles.filterSection}>
+      <label className={styles.filterSectionHeader}>
+        <input
+          type="checkbox"
+          checked={open}
+          onChange={(e) => props.onToggleSection(props.sectionKey, e.target.checked)}
+        />
+        <span>{props.label}</span>
+      </label>
+      <fieldset className={styles.filterSectionBody} disabled={!open}>
+        {props.children}
+      </fieldset>
+    </div>
+  );
+}
+
 function CollectionDetails(props: {
   script: CollectionScript;
   onClose: () => void;
@@ -194,6 +226,7 @@ function PickStep(props: PickStepProps) {
   const [filters, setFilters] = useState<FiltersState>(loadFilters);
   const [page, setPage] = useState(1);
   const [filtersHidden, setFiltersHidden] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   // Persist filter state so it is restored on the next visit
   useEffect(() => {
@@ -233,9 +266,17 @@ function PickStep(props: PickStepProps) {
   const setFilter = <K extends keyof FiltersState>(key: K, value: FiltersState[K]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
+  const toggleSection = (key: string, open: boolean) => {
+    setFilters((prev) => ({ ...prev, openSections: { ...prev.openSections, [key]: open } }));
+  };
   const clearFilters = () => {
     setFilters(EMPTY_FILTERS);
     setPage(1);
+  };
+  const handleSelect = (uri: string | null) => {
+    props.onSelect(uri);
+    // bring the details panel (anchored at the top of the results) into view
+    resultsRef.current?.scrollTo({ top: 0 });
   };
 
   const handlePrevious = () => {
@@ -263,29 +304,25 @@ function PickStep(props: PickStepProps) {
         <div className={classNames(styles.filters, { [styles.filtersHidden]: filtersHidden })}>
           <div className={styles.filtersHeader}>
             <strong>Filter by</strong>
-            <Button
-              icon="clear"
-              variant="discrete"
-              onClick={clearFilters}
-            >
+            <Button icon="clear" variant="discrete" onClick={clearFilters}>
               Clear
             </Button>
           </div>
-          <CollapsibleSection Header="Title" arrow collapsed>
+          <FilterSection label="Title" sectionKey="title" openSections={filters.openSections} onToggleSection={toggleSection}>
             <input
               type="text"
               value={filters.title}
               onChange={(e) => setFilter("title", e.target.value)}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Author" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Author" sectionKey="author" openSections={filters.openSections} onToggleSection={toggleSection}>
             <input
               type="text"
               value={filters.author}
               onChange={(e) => setFilter("author", e.target.value)}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Language" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Language" sectionKey="languages" openSections={filters.openSections} onToggleSection={toggleSection}>
             <CardsSelect
               multiple={true}
               value={filters.languages}
@@ -295,64 +332,62 @@ function PickStep(props: PickStepProps) {
                 { label: "EN", value: "en" },
               ]}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Number of roles" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Number of roles" sectionKey="roles" openSections={filters.openSections} onToggleSection={toggleSection}>
             <CardsSelect
               multiple={true}
               value={filters.roles}
               onChange={(values) => setFilter("roles", values)}
               options={roleOptions}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Number of male roles" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Number of male roles" sectionKey="maleRoles" openSections={filters.openSections} onToggleSection={toggleSection}>
             <CardsSelect
               multiple={true}
               value={filters.maleRoles}
               onChange={(values) => setFilter("maleRoles", values)}
               options={roleOptions}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Number of female roles" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Number of female roles" sectionKey="femaleRoles" openSections={filters.openSections} onToggleSection={toggleSection}>
             <CardsSelect
               multiple={true}
               value={filters.femaleRoles}
               onChange={(values) => setFilter("femaleRoles", values)}
               options={roleOptions}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Genre" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Genre" sectionKey="genres" openSections={filters.openSections} onToggleSection={toggleSection}>
             <CardsSelect
               multiple={true}
               value={filters.genres}
               onChange={(values) => setFilter("genres", values)}
               options={genres.map((genre) => ({ label: genre, value: genre }))}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Period" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Period" sectionKey="periods" openSections={filters.openSections} onToggleSection={toggleSection}>
             <CardsSelect
               multiple={true}
               value={filters.periods}
               onChange={(values) => setFilter("periods", values)}
               options={periods.map((period) => ({ label: period, value: period }))}
             />
-          </CollapsibleSection>
-          <CollapsibleSection Header="Bookmarked" arrow collapsed>
+          </FilterSection>
+          <FilterSection label="Bookmarked" sectionKey="bookmarked" openSections={filters.openSections} onToggleSection={toggleSection}>
             <ToggleButton
               label="Only bookmarked"
               value={filters.bookmarkedOnly}
               onToggle={(value) => setFilter("bookmarkedOnly", value)}
             />
-          </CollapsibleSection>
+          </FilterSection>
         </div>
-        <button
-          type="button"
-          className={styles.filtersToggle}
+        <Button
+          icon="filter"
+          customClassNames={[styles.filtersToggle]}
           onClick={() => setFiltersHidden((prev) => !prev)}
-        >
-          {filtersHidden ? "▶ Filters" : "◀ Hide filters"}
-        </button>
+        />
         <div className={styles.separator} />
-        <div className={styles.results}>
+        <div className={styles.results} ref={resultsRef}>
           {isLoading ? <div>Loading collection…</div> : null}
           {isError ? <div>Failed to load the collection.</div> : null}
           {!isLoading && !isError && groups.length === 0 ? <div>No script matches the filters.</div> : null}
@@ -370,7 +405,7 @@ function PickStep(props: PickStepProps) {
                     numberOfRoles={script.numberOfRoles}
                     numberOfWords={script.numberOfWords}
                     selected={script.uri === props.selectedUri}
-                    onSelect={() => props.onSelect(script.uri)}
+                    onSelect={() => handleSelect(script.uri)}
                   />
                 ))}
               </div>
@@ -404,7 +439,7 @@ function PickStep(props: PickStepProps) {
               <CollectionDetails
                 script={selected}
                 bookmarkPending={bookmarkPending}
-                onClose={() => props.onSelect(null)}
+                onClose={() => handleSelect(null)}
                 onToggleBookmark={() => toggleBookmark({ playUri: selected.uri })}
               />
             ) : null}
