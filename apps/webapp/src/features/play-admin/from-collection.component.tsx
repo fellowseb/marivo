@@ -1,20 +1,25 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { NavLink, useNavigate } from "react-router";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "../../trpc";
-import { logger } from "../../lib/logger";
-import Button from "../../components/button.component";
-import { HeaderBreadcrumbs } from "../../layouts/header.component";
-import FlowStep from "../../components/flow-step.component";
-import { CardsSelect } from "../../components/cards-select.component";
-import { ToggleButton } from "../../components/toggle-button.component";
-import { useCollectionMetadataContext } from "./collection-metadata.context";
-import { CollectionItem } from "./collection-item.component";
-import { PreviewScriptStep } from "./preview-script-step.component";
-import { NamePlayStep } from "./name-play-step.component";
-import { ImportScriptPreviewToolbar } from "./import-script-preview-toolbar";
-import styles from "./from-collection.module.css";
-import classNames from "classnames";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { NavLink, useNavigate } from 'react-router';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { useTRPC } from '../../trpc';
+import { logger } from '../../lib/logger';
+import Button from '../../components/button.component';
+import { HeaderBreadcrumbs } from '../../layouts/header.component';
+import FlowStep from '../../components/flow-step.component';
+import { CardsSelect } from '../../components/cards-select.component';
+import { ToggleButton } from '../../components/toggle-button.component';
+import { useCollectionMetadataContext } from './collection-metadata.context';
+import { CollectionItem } from './collection-item.component';
+import { PreviewScriptStep } from './preview-script-step.component';
+import { NamePlayStep } from './name-play-step.component';
+import { ImportScriptPreviewToolbar } from './import-script-preview-toolbar';
+import styles from './from-collection.module.css';
+import classNames from 'classnames';
 
 export function FromCollectionBreadcrumbs() {
   return (
@@ -23,14 +28,14 @@ export function FromCollectionBreadcrumbs() {
       crumbs={[
         <NavLink
           to={{
-            pathname: "/plays/new",
+            pathname: '/plays/new',
           }}
         >
           New play
         </NavLink>,
         <NavLink
           to={{
-            pathname: "/plays/new/from-collection",
+            pathname: '/plays/new/from-collection',
           }}
         >
           From collection
@@ -41,7 +46,7 @@ export function FromCollectionBreadcrumbs() {
 }
 
 const PAGE_SIZE = 20;
-const FILTERS_STORAGE_KEY = "marivo:collection-filters";
+const FILTERS_STORAGE_KEY = 'marivo:collection-filters';
 
 interface FiltersState {
   title: string;
@@ -58,8 +63,8 @@ interface FiltersState {
 }
 
 const EMPTY_FILTERS: FiltersState = {
-  title: "",
-  author: "",
+  title: '',
+  author: '',
   languages: [],
   roles: [],
   maleRoles: [],
@@ -76,7 +81,9 @@ function loadFilters(): FiltersState {
     if (!raw) return EMPTY_FILTERS;
     return { ...EMPTY_FILTERS, ...(JSON.parse(raw) as Partial<FiltersState>) };
   } catch (error) {
-    logger.warn("failed to load collection filters from localStorage", { error });
+    logger.warn('failed to load collection filters from localStorage', {
+      error,
+    });
     return EMPTY_FILTERS;
   }
 }
@@ -84,10 +91,10 @@ function loadFilters(): FiltersState {
 /** "1".."9" selectable values plus "10+"; maps to a min/max range. */
 function rolesToRange(values: string[]): { min?: number; max?: number } {
   if (!values.length) return {};
-  const nums = values.map((v) => (v === "10+" ? 10 : Number.parseInt(v, 10)));
+  const nums = values.map((v) => (v === '10+' ? 10 : Number.parseInt(v, 10)));
   return {
     min: Math.min(...nums),
-    max: values.includes("10+") ? undefined : Math.max(...nums),
+    max: values.includes('10+') ? undefined : Math.max(...nums),
   };
 }
 
@@ -97,22 +104,23 @@ function rolesToRange(values: string[]): { min?: number; max?: number } {
  */
 function toApiFilters(f: FiltersState) {
   const open = (key: string) => f.openSections[key] ?? false;
-  const roles = open("roles") ? rolesToRange(f.roles) : {};
-  const male = open("maleRoles") ? rolesToRange(f.maleRoles) : {};
-  const female = open("femaleRoles") ? rolesToRange(f.femaleRoles) : {};
+  const roles = open('roles') ? rolesToRange(f.roles) : {};
+  const male = open('maleRoles') ? rolesToRange(f.maleRoles) : {};
+  const female = open('femaleRoles') ? rolesToRange(f.femaleRoles) : {};
   return {
-    title: open("title") && f.title ? f.title : undefined,
-    author: open("author") && f.author ? f.author : undefined,
-    languages: open("languages") && f.languages.length ? f.languages : undefined,
-    genres: open("genres") && f.genres.length ? f.genres : undefined,
-    periods: open("periods") && f.periods.length ? f.periods : undefined,
+    title: open('title') && f.title ? f.title : undefined,
+    author: open('author') && f.author ? f.author : undefined,
+    languages:
+      open('languages') && f.languages.length ? f.languages : undefined,
+    genres: open('genres') && f.genres.length ? f.genres : undefined,
+    periods: open('periods') && f.periods.length ? f.periods : undefined,
     minRoles: roles.min,
     maxRoles: roles.max,
     minMaleRoles: male.min,
     maxMaleRoles: male.max,
     minFemaleRoles: female.min,
     maxFemaleRoles: female.max,
-    bookmarkedOnly: open("bookmarked") && f.bookmarkedOnly ? true : undefined,
+    bookmarkedOnly: open('bookmarked') && f.bookmarkedOnly ? true : undefined,
   };
 }
 
@@ -133,7 +141,9 @@ type CollectionScript = {
 };
 
 /** Group scripts under their author, keeping the API's author/title ordering. */
-function groupByAuthor(scripts: CollectionScript[]): [string, CollectionScript[]][] {
+function groupByAuthor(
+  scripts: CollectionScript[],
+): [string, CollectionScript[]][] {
   const groups = new Map<string, CollectionScript[]>();
   for (const script of scripts) {
     const list = groups.get(script.author) ?? [];
@@ -162,7 +172,9 @@ function FilterSection(props: {
         <input
           type="checkbox"
           checked={open}
-          onChange={(e) => props.onToggleSection(props.sectionKey, e.target.checked)}
+          onChange={(e) =>
+            props.onToggleSection(props.sectionKey, e.target.checked)
+          }
         />
         <span>{props.label}</span>
       </label>
@@ -200,7 +212,9 @@ function CollectionDetails(props: {
       <div className={styles.detailsTitle}>{script.title}</div>
       <div className={styles.detailsAuthor}>{script.author}</div>
       <DetailSection label="Synopsis">
-        {script.synopsis ? <p className={styles.synopsis}>{script.synopsis}</p> : null}
+        {script.synopsis ? (
+          <p className={styles.synopsis}>{script.synopsis}</p>
+        ) : null}
       </DetailSection>
       <DetailSection label="Characters">
         {characterNames.length > 0 ? (
@@ -213,17 +227,23 @@ function CollectionDetails(props: {
       </DetailSection>
       <DetailSection label="Distribution">
         {script.numberOfRoles != null ? `${script.numberOfRoles} roles` : null}
-        {script.numberOfMaleRoles != null ? ` · ${script.numberOfMaleRoles} male` : ""}
-        {script.numberOfFemaleRoles != null ? ` · ${script.numberOfFemaleRoles} female` : ""}
+        {script.numberOfMaleRoles != null
+          ? ` · ${script.numberOfMaleRoles} male`
+          : ''}
+        {script.numberOfFemaleRoles != null
+          ? ` · ${script.numberOfFemaleRoles} female`
+          : ''}
       </DetailSection>
       <DetailSection label="Genre">{script.genre}</DetailSection>
       <DetailSection label="Period">{script.period}</DetailSection>
-      <DetailSection label="Language">{script.lang.toUpperCase()}</DetailSection>
+      <DetailSection label="Language">
+        {script.lang.toUpperCase()}
+      </DetailSection>
       <DetailSection label="Other">{script.numberOfWords} words</DetailSection>
       <div className={styles.detailsActions}>
         <Button
           icon="memorize"
-          ariaLabel={script.bookmarked ? "Remove bookmark" : "Bookmark"}
+          ariaLabel={script.bookmarked ? 'Remove bookmark' : 'Bookmark'}
           disabled={props.bookmarkPending}
           onClick={props.onToggleBookmark}
           customClassNames={[styles.bookmarkButton]}
@@ -256,7 +276,9 @@ function PickStep(props: PickStepProps) {
     try {
       localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(filters));
     } catch (error) {
-      logger.warn("failed to save collection filters to localStorage", { error });
+      logger.warn('failed to save collection filters to localStorage', {
+        error,
+      });
     }
   }, [filters]);
 
@@ -277,20 +299,29 @@ function PickStep(props: PickStepProps) {
   const { mutate: toggleBookmark, isPending: bookmarkPending } = useMutation(
     trpc.playsCollection.toggleBookmark.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: trpc.playsCollection.listAll.queryKey() });
+        queryClient.invalidateQueries({
+          queryKey: trpc.playsCollection.listAll.queryKey(),
+        });
       },
     }),
   );
 
   const groups = useMemo(() => groupByAuthor(data?.scripts ?? []), [data]);
-  const selected = data?.scripts.find((s) => s.uri === props.selectedUri) ?? null;
+  const selected =
+    data?.scripts.find((s) => s.uri === props.selectedUri) ?? null;
   const totalPages = Math.max(1, Math.ceil((data?.total ?? 0) / PAGE_SIZE));
 
-  const setFilter = <K extends keyof FiltersState>(key: K, value: FiltersState[K]) => {
+  const setFilter = <K extends keyof FiltersState>(
+    key: K,
+    value: FiltersState[K],
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
   const toggleSection = (key: string, open: boolean) => {
-    setFilters((prev) => ({ ...prev, openSections: { ...prev.openSections, [key]: open } }));
+    setFilters((prev) => ({
+      ...prev,
+      openSections: { ...prev.openSections, [key]: open },
+    }));
   };
   const clearFilters = () => {
     setFilters(EMPTY_FILTERS);
@@ -307,20 +338,26 @@ function PickStep(props: PickStepProps) {
   useEffect(() => {
     if (!props.selectedUri) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleSelect(null);
+      if (e.key === 'Escape') handleSelect(null);
     };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [props.selectedUri]);
 
   const handlePrevious = () => {
-    navigate("/plays/new");
+    navigate('/plays/new');
   };
 
   const roleOptions = [
-    ...Array.from({ length: 9 }, (_, i) => ({ label: `${i + 1}`, value: `${i + 1}` })),
-    { label: "10+", value: "10+" },
+    ...Array.from({ length: 9 }, (_, i) => ({
+      label: `${i + 1}`,
+      value: `${i + 1}`,
+    })),
+    { label: '10+', value: '10+' },
   ];
+
+  // number of enabled filter sections (ticked checkboxes)
+  const enabledCount = Object.values(filters.openSections).filter(Boolean).length;
 
   return (
     <FlowStep
@@ -335,100 +372,165 @@ function PickStep(props: PickStepProps) {
       }
     >
       <div className={styles.container}>
-        <div className={classNames(styles.filters, { [styles.filtersHidden]: filtersHidden })}>
-          <div className={styles.filtersHeader}>
-            <strong>Filter by</strong>
-            <Button icon="clear" variant="discrete" onClick={clearFilters}>
-              Clear
-            </Button>
-          </div>
-          <div className={styles.filtersBody}>
-          <FilterSection label="Title" sectionKey="title" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <input
-              type="text"
-              value={filters.title}
-              onChange={(e) => setFilter("title", e.target.value)}
-            />
-          </FilterSection>
-          <FilterSection label="Author" sectionKey="author" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <input
-              type="text"
-              value={filters.author}
-              onChange={(e) => setFilter("author", e.target.value)}
-            />
-          </FilterSection>
-          <FilterSection label="Language" sectionKey="languages" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <CardsSelect
-              multiple={true}
-              value={filters.languages}
-              onChange={(values) => setFilter("languages", values)}
-              options={[
-                { label: "FR", value: "fr" },
-                { label: "EN", value: "en" },
-              ]}
-            />
-          </FilterSection>
-          <FilterSection label="Number of roles" sectionKey="roles" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <CardsSelect
-              multiple={true}
-              value={filters.roles}
-              onChange={(values) => setFilter("roles", values)}
-              options={roleOptions}
-            />
-          </FilterSection>
-          <FilterSection label="Number of male roles" sectionKey="maleRoles" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <CardsSelect
-              multiple={true}
-              value={filters.maleRoles}
-              onChange={(values) => setFilter("maleRoles", values)}
-              options={roleOptions}
-            />
-          </FilterSection>
-          <FilterSection label="Number of female roles" sectionKey="femaleRoles" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <CardsSelect
-              multiple={true}
-              value={filters.femaleRoles}
-              onChange={(values) => setFilter("femaleRoles", values)}
-              options={roleOptions}
-            />
-          </FilterSection>
-          <FilterSection label="Genre" sectionKey="genres" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <CardsSelect
-              multiple={true}
-              value={filters.genres}
-              onChange={(values) => setFilter("genres", values)}
-              options={genres.map((genre) => ({ label: genre, value: genre }))}
-            />
-          </FilterSection>
-          <FilterSection label="Period" sectionKey="periods" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <CardsSelect
-              multiple={true}
-              value={filters.periods}
-              onChange={(values) => setFilter("periods", values)}
-              options={periods.map((period) => ({ label: period, value: period }))}
-            />
-          </FilterSection>
-          <FilterSection label="Bookmarked" sectionKey="bookmarked" openSections={filters.openSections} onToggleSection={toggleSection}>
-            <ToggleButton
-              label="Only bookmarked"
-              value={filters.bookmarkedOnly}
-              onToggle={(value) => setFilter("bookmarkedOnly", value)}
-            />
-          </FilterSection>
+        <div className={styles.filtersColumn}>
+          <Button
+            icon="filter"
+            customClassNames={[styles.filtersToggle]}
+            onClick={() => setFiltersHidden((prev) => !prev)}
+          >
+            {filtersHidden
+              ? enabledCount > 0
+                ? `(${enabledCount})`
+                : ''
+              : `Filter by${enabledCount > 0 ? ` (${enabledCount})` : ''}`}
+          </Button>
+          <div
+            className={classNames(styles.filters, {
+              [styles.filtersHidden]: filtersHidden,
+            })}
+          >
+            <div className={styles.filtersBody}>
+              <FilterSection
+                label="Title"
+                sectionKey="title"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <input
+                  type="text"
+                  value={filters.title}
+                  onChange={(e) => setFilter('title', e.target.value)}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Author"
+                sectionKey="author"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <input
+                  type="text"
+                  value={filters.author}
+                  onChange={(e) => setFilter('author', e.target.value)}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Language"
+                sectionKey="languages"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <CardsSelect
+                  multiple={true}
+                  value={filters.languages}
+                  onChange={(values) => setFilter('languages', values)}
+                  options={[
+                    { label: 'FR', value: 'fr' },
+                    { label: 'EN', value: 'en' },
+                  ]}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Number of roles"
+                sectionKey="roles"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <CardsSelect
+                  multiple={true}
+                  value={filters.roles}
+                  onChange={(values) => setFilter('roles', values)}
+                  options={roleOptions}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Number of male roles"
+                sectionKey="maleRoles"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <CardsSelect
+                  multiple={true}
+                  value={filters.maleRoles}
+                  onChange={(values) => setFilter('maleRoles', values)}
+                  options={roleOptions}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Number of female roles"
+                sectionKey="femaleRoles"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <CardsSelect
+                  multiple={true}
+                  value={filters.femaleRoles}
+                  onChange={(values) => setFilter('femaleRoles', values)}
+                  options={roleOptions}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Genre"
+                sectionKey="genres"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <CardsSelect
+                  multiple={true}
+                  value={filters.genres}
+                  onChange={(values) => setFilter('genres', values)}
+                  options={genres.map((genre) => ({
+                    label: genre,
+                    value: genre,
+                  }))}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Period"
+                sectionKey="periods"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <CardsSelect
+                  multiple={true}
+                  value={filters.periods}
+                  onChange={(values) => setFilter('periods', values)}
+                  options={periods.map((period) => ({
+                    label: period,
+                    value: period,
+                  }))}
+                />
+              </FilterSection>
+              <FilterSection
+                label="Bookmarked"
+                sectionKey="bookmarked"
+                openSections={filters.openSections}
+                onToggleSection={toggleSection}
+              >
+                <ToggleButton
+                  label="Only bookmarked"
+                  value={filters.bookmarkedOnly}
+                  onToggle={(value) => setFilter('bookmarkedOnly', value)}
+                />
+              </FilterSection>
+            </div>
+            <div className={styles.filtersFooter}>
+              {enabledCount > 0 ? (
+                <Button variant="discrete" onClick={clearFilters}>
+                  Clear
+                </Button>
+              ) : null}
+            </div>
           </div>
         </div>
-        <Button
-          icon="filter"
-          ariaLabel={filtersHidden ? "Show filters" : "Hide filters"}
-          customClassNames={[styles.filtersToggle]}
-          onClick={() => setFiltersHidden((prev) => !prev)}
-        />
         <div className={styles.separator} />
         <div className={styles.resultsColumn}>
           <div className={styles.results} ref={resultsRef}>
             {isLoading ? <div>Loading collection…</div> : null}
             {isError ? <div>Failed to load the collection.</div> : null}
-            {!isLoading && !isError && groups.length === 0 ? <div>No script matches the filters.</div> : null}
+            {!isLoading && !isError && groups.length === 0 ? (
+              <div>No script matches the filters.</div>
+            ) : null}
             {groups.map(([author, scripts]) => (
               <div key={author} className={styles.authorGroup}>
                 <div className={styles.authorHeader}>{author}</div>
@@ -490,34 +592,36 @@ function PickStep(props: PickStepProps) {
   );
 }
 
-type Step = "pick" | "preview" | "name";
+type Step = 'pick' | 'preview' | 'name';
 
 function FromCollectionFlow() {
-  const [step, setStep] = useState<Step>("pick");
+  const [step, setStep] = useState<Step>('pick');
   const [selectedUri, setSelectedUri] = useState<string | null>(null);
   const trpc = useTRPC();
   const { mutateAsync: createFromCollection } = useMutation(
     trpc.plays.createFromCollection.mutationOptions(),
   );
 
-  if (step === "preview" && selectedUri) {
+  if (step === 'preview' && selectedUri) {
     return (
       <PreviewScriptStep
         scriptUri={selectedUri}
         from="collection"
         sourceLabel="Pick from our scripts collection"
         toolbar={<ImportScriptPreviewToolbar />}
-        onBack={() => setStep("pick")}
-        onReviewDone={() => setStep("name")}
+        onBack={() => setStep('pick')}
+        onReviewDone={() => setStep('name')}
       />
     );
   }
-  if (step === "name" && selectedUri) {
+  if (step === 'name' && selectedUri) {
     return (
       <NamePlayStep
         sourceLabel="Pick from our scripts collection"
-        onBack={() => setStep("preview")}
-        createPlay={(title) => createFromCollection({ title, collectionUri: selectedUri })}
+        onBack={() => setStep('preview')}
+        createPlay={(title) =>
+          createFromCollection({ title, collectionUri: selectedUri })
+        }
       />
     );
   }
@@ -525,7 +629,7 @@ function FromCollectionFlow() {
     <PickStep
       selectedUri={selectedUri}
       onSelect={setSelectedUri}
-      onNext={() => setStep("preview")}
+      onNext={() => setStep('preview')}
     />
   );
 }

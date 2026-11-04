@@ -163,6 +163,25 @@ describe('FromCollection pick step', () => {
     expect(input.value).toBe('hamlet');
   });
 
+  it('shows the enabled-filter count on the toggle and Clear only when > 0', async () => {
+    renderPick();
+    await screen.findByText('Hamlet');
+
+    // no section enabled: Clear hidden, toggle has no count
+    expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Filter by' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Title' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Author' }));
+    expect(screen.getByRole('button', { name: 'Filter by (2)' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Clear' })).toBeTruthy();
+
+    // Clear resets -> count back to 0, Clear disappears
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Filter by' })).toBeTruthy();
+  });
+
   it('persists the open/collapsed state of filter sections in localStorage', async () => {
     renderPick();
     await screen.findByText('Hamlet');

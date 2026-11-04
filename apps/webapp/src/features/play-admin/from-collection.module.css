@@ -11,12 +11,20 @@
   overflow: hidden;
 }
 
+.filtersColumn {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+}
+
 .filters {
   display: flex;
   flex-direction: column;
   gap: 4px;
   width: 320px;
-  flex-shrink: 0;
+  flex: 1;
+  min-height: 0;
   transition:
     margin-left 0.2s ease-in-out,
     opacity 0.2s ease-in-out;
@@ -26,6 +34,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
   overflow-y: auto;
   min-height: 0;
 }
@@ -36,11 +45,11 @@
   pointer-events: none;
 }
 
-.filtersHeader {
+.filtersFooter {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
 }
 
 .filtersToggle {
