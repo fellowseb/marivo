@@ -6,7 +6,7 @@ const lineWithText = (page: Page, text: string) =>
   page.locator('div[class*="replique"]', { hasText: text }).first();
 
 const FIRST_PLAY = 'Tartuffe';
-const firstPlayItem = (page: Page) => page.locator(`div[class*="_title_"]`, { hasText: FIRST_PLAY });
+const firstPlayItem = (page: Page) => page.locator(`[class*="_title_"]`, { hasText: FIRST_PLAY });
 
 /**
  * E2E scenario: sign in, browse the plays collection (fixture data seeded by

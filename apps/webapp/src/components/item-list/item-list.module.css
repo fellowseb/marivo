@@ -1,0 +1,102 @@
+.list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding: 20px 1px 20px 10px;
+  border: 1px solid var(--color-sand-dark);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-sand-a20);
+  flex: 1 1 0;
+  scrollbar-gutter: stable;
+}
+
+.item {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.link {
+  border: 1px solid var(--color-primary);
+  border-left: 10px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-linen);
+  color: var(--color-primary);
+  text-decoration: none;
+  margin: 0;
+  width: 100%;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.5s ease-out;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.link:hover {
+  background-color: var(--color-primary-a10);
+  border-left: 10px solid var(--color-primary);
+}
+
+.link:focus-visible {
+  outline: none;
+  border: 1px solid var(--color-gold);
+  border-left: 10px solid var(--color-gold);
+}
+
+.link.selected {
+  background-color: var(--color-primary-a13);
+  border-left: 10px solid var(--color-gold);
+}
+
+.link.disabled {
+  border-left: 10px solid var(--color-primary-a13);
+  cursor: default;
+}
+
+.link.disabled:hover {
+  background-color: var(--color-linen);
+  border-left: 10px solid var(--color-primary-a13);
+}
+
+.titleRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.title {
+  font-family: "Lobster Two", sans-serif;
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.trailing {
+  margin-left: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.details {
+  display: grid;
+  font-style: italic;
+  flex: 1;
+  grid-gap: 0 4px;
+  grid-template-columns: auto 1fr;
+}
+
+.detailsValues {
+  font-weight: bold;
+  text-align: left;
+}

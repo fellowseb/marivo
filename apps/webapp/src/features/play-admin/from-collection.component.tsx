@@ -21,6 +21,7 @@ import { PreviewScriptStep } from './preview-script-step.component';
 import { NamePlayStep } from './name-play-step.component';
 import { ImportScriptPreviewToolbar } from './import-script-preview-toolbar';
 import styles from './from-collection.module.css';
+import itemListStyles from '../../components/item-list/item-list.module.css';
 import classNames from 'classnames';
 
 export function FromCollectionBreadcrumbs() {
@@ -571,7 +572,7 @@ function PickStep(props: PickStepProps) {
         </div>
         <div className={styles.separator} />
         <div className={styles.resultsColumn}>
-          <div className={styles.results}>
+          <div className={classNames(styles.results, itemListStyles.list)}>
             {isLoading ? <div>Loading collection…</div> : null}
             {isError ? <div>Failed to load the collection.</div> : null}
             {!isLoading && !isError && groups.length === 0 ? (
@@ -580,7 +581,7 @@ function PickStep(props: PickStepProps) {
             {groups.map(([author, scripts]) => (
               <div key={author} className={styles.authorGroup}>
                 <div className={styles.authorHeader}>{author}</div>
-                <div className={styles.authorItems}>
+                <ul className={styles.authorItems}>
                   {scripts.map((script) => (
                     <CollectionItem
                       key={script.uri}
@@ -597,7 +598,7 @@ function PickStep(props: PickStepProps) {
                       onSelect={() => handleSelect(script.uri)}
                     />
                   ))}
-                </div>
+                </ul>
               </div>
             ))}
           </div>

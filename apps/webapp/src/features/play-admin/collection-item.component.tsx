@@ -1,5 +1,5 @@
-import classNames from 'classnames';
 import Icon from '../../components/icon.component';
+import { ItemListItem } from '../../components/item-list/item-list.component';
 import styles from './collection-item.module.css';
 
 interface CollectionItemProps {
@@ -27,29 +27,23 @@ export function CollectionItem(props: CollectionItemProps) {
     .filter(Boolean)
     .join(' · ');
   return (
-    <div
-      className={classNames(styles.container, {
-        [styles.selected]: props.selected,
-      })}
+    <ItemListItem
       onClick={props.onSelect}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') props.onSelect();
-      }}
-    >
-      <div className={styles.text}>
-        <div className={styles.title}>
+      selected={props.selected}
+      title={
+        <>
           {props.title}
           {props.archived ? <span className={styles.archivedBadge}>archived</span> : null}
-          {props.bookmarked ? (
-            <span className={styles.bookmark} role="img" aria-label="Bookmarked">
-              <Icon value="memorize" size="medium" mode="primary" />
-            </span>
-          ) : null}
-        </div>
-        <div className={styles.meta}>{meta}</div>
-      </div>
-    </div>
+        </>
+      }
+      trailing={
+        props.bookmarked ? (
+          <span className={styles.bookmark} role="img" aria-label="Bookmarked">
+            <Icon value="memorize" size="medium" mode="primary" />
+          </span>
+        ) : null
+      }
+      details={<span className={styles.meta}>{meta}</span>}
+    />
   );
 }

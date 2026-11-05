@@ -5,6 +5,7 @@ import classNames from "classnames";
 import { useTRPC } from "../../trpc";
 import styles from "./plays-list.module.css";
 import Skeleton from "../../components/skeleton.component";
+import { ItemList, ItemListItem } from "../../components/item-list/item-list.component";
 import PlaysFilters, { DEFAULT_FILTER_OPTIONS } from "./plays-filters.component";
 import { filterSortPlays, type PlayFilterSortOptions } from "./plays.lib";
 import { PlayInvites } from "./play-invites.component";
@@ -25,18 +26,11 @@ interface PlayListItemProps {
 function PlayListItem(props: PlayListItemProps) {
   const ownerStr = props.isOwner ? "You" : `${props.ownerFullName} (${props.ownerUsername})`;
   return (
-    <li
-      className={classNames({
-        [styles.play]: true,
-      })}
-    >
-      <NavLink
-        to={{
-          pathname: PLAY_ROUTE_BASE.replace(":uri", props.id),
-        }}
-      >
-        <span className={styles.playTitle}>{props.title}</span>
-        <div className={styles.playDetails}>
+    <ItemListItem
+      to={PLAY_ROUTE_BASE.replace(":uri", props.id)}
+      title={props.title}
+      details={
+        <>
           Owned by <span className={styles.playDetailsValues}>{ownerStr}</span>
           Créée le{" "}
           <span className={styles.playDetailsValues}>{props.creationDate.toLocaleString()}</span>
@@ -44,16 +38,17 @@ function PlayListItem(props: PlayListItemProps) {
           <span className={styles.playDetailsValues}>
             {props.lastModifiedDate ? props.lastModifiedDate.toLocaleString() : "—"}
           </span>
-        </div>
-        <div className={styles.playPoster}>
-          <div
-            className={classNames({
-              [styles.playPosterOverlay]: true,
-            })}
-          ></div>
-        </div>
-      </NavLink>
-    </li>
+        </>
+      }
+    >
+      <div className={styles.playPoster}>
+        <div
+          className={classNames({
+            [styles.playPosterOverlay]: true,
+          })}
+        ></div>
+      </div>
+    </ItemListItem>
   );
 }
 
@@ -101,7 +96,7 @@ function PlayList() {
   return (
     <>
       <PlaysFilters onFiltersChange={handleFiltersChange} filters={filters} />
-      <ul className={styles.plays}>
+      <ItemList>
         {invites.length ? (
           <PlayInvites invites={invites} respondedToInvite={handleRespondedToInvite} />
         ) : null}
@@ -157,7 +152,7 @@ function PlayList() {
             <DotsLoader />
           </div>
         ) : null}
-      </ul>
+      </ItemList>
     </>
   );
 }
