@@ -21,7 +21,8 @@ body {
   background-image: url("/loader.svg");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 35rem;
+  /* never wider than the section, so the spinner is never cropped on narrow viewports */
+  background-size: min(35rem, 100%);
 }
 
 .hidden {
