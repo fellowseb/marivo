@@ -6,6 +6,7 @@ import { useTRPC } from '../../trpc';
 import styles from './plays-list.module.css';
 import Skeleton from '../../components/skeleton.component';
 import Container from '../../components/container.component';
+import Flex from '../../components/flex.component';
 import {
   ItemList,
   ItemListItem,
@@ -108,71 +109,71 @@ function PlayList() {
     query.refetch();
   };
   return (
-    <>
+    <Flex direction="column" grow={1} gap="10px">
       <PlaysFilters onFiltersChange={handleFiltersChange} filters={filters} />
       <Container className={styles.playsListContainer}>
         <ItemList>
-        {invites.length ? (
-          <PlayInvites
-            invites={invites}
-            respondedToInvite={handleRespondedToInvite}
-          />
-        ) : null}
-        {query.isError ? (
-          <UnexpectedError error={query.error?.message} />
-        ) : query.isLoading ? (
-          <>
-            <li className={styles.playSkeleton}>
-              <Skeleton hideImage={true} />
-            </li>
-            <li className={styles.playSkeleton}>
-              <Skeleton hideImage={true} />
-            </li>
-            <li className={styles.playSkeleton}>
-              <Skeleton hideImage={true} />
-            </li>
-            <li className={styles.playSkeleton}>
-              <Skeleton hideImage={true} />
-            </li>
-          </>
-        ) : plays.length ? (
-          filteredPlays.length ? (
-            filteredPlays.map(
-              ({
-                uri,
-                isOwner,
-                title,
-                lastModifiedDate,
-                createdDate,
-                ownerUsername,
-                ownerFullName,
-              }) => (
-                <PlayListItem
-                  key={uri}
-                  id={uri}
-                  ownerUsername={ownerUsername}
-                  ownerFullName={ownerFullName}
-                  isOwner={isOwner}
-                  title={title}
-                  lastModifiedDate={lastModifiedDate}
-                  creationDate={createdDate}
-                />
-              ),
+          {invites.length ? (
+            <PlayInvites
+              invites={invites}
+              respondedToInvite={handleRespondedToInvite}
+            />
+          ) : null}
+          {query.isError ? (
+            <UnexpectedError error={query.error?.message} />
+          ) : query.isLoading ? (
+            <>
+              <li className={styles.playSkeleton}>
+                <Skeleton hideImage={true} />
+              </li>
+              <li className={styles.playSkeleton}>
+                <Skeleton hideImage={true} />
+              </li>
+              <li className={styles.playSkeleton}>
+                <Skeleton hideImage={true} />
+              </li>
+              <li className={styles.playSkeleton}>
+                <Skeleton hideImage={true} />
+              </li>
+            </>
+          ) : plays.length ? (
+            filteredPlays.length ? (
+              filteredPlays.map(
+                ({
+                  uri,
+                  isOwner,
+                  title,
+                  lastModifiedDate,
+                  createdDate,
+                  ownerUsername,
+                  ownerFullName,
+                }) => (
+                  <PlayListItem
+                    key={uri}
+                    id={uri}
+                    ownerUsername={ownerUsername}
+                    ownerFullName={ownerFullName}
+                    isOwner={isOwner}
+                    title={title}
+                    lastModifiedDate={lastModifiedDate}
+                    creationDate={createdDate}
+                  />
+                ),
+              )
+            ) : (
+              <NoFilteredPlays />
             )
           ) : (
-            <NoFilteredPlays />
-          )
-        ) : (
-          <NoPlays />
-        )}
-        {query.isRefetching ? (
-          <div className={styles.loaderContainer}>
-            <DotsLoader />
-          </div>
-        ) : null}
+            <NoPlays />
+          )}
+          {query.isRefetching ? (
+            <div className={styles.loaderContainer}>
+              <DotsLoader />
+            </div>
+          ) : null}
         </ItemList>
       </Container>
-    </>
+    </Flex>
   );
 }
 
