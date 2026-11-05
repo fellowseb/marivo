@@ -60,6 +60,7 @@ interface FiltersState {
   genres: string[];
   periods: string[];
   bookmarkedOnly: boolean;
+  archivedOnly: boolean;
   /** which filter sections are expanded (ticked checkbox); persisted too */
   openSections: Record<string, boolean>;
 }
@@ -74,6 +75,7 @@ const EMPTY_FILTERS: FiltersState = {
   genres: [],
   periods: [],
   bookmarkedOnly: false,
+  archivedOnly: false,
   openSections: {},
 };
 
@@ -123,6 +125,7 @@ function toApiFilters(f: FiltersState) {
     minFemaleRoles: female.min,
     maxFemaleRoles: female.max,
     bookmarkedOnly: open('bookmarked') && f.bookmarkedOnly ? true : undefined,
+    archivedOnly: open('archived') && f.archivedOnly ? true : undefined,
   };
 }
 
@@ -140,6 +143,7 @@ type CollectionScript = {
   numberOfWords: number;
   characters: Record<string, string>;
   bookmarked: boolean;
+  archived: boolean;
 };
 
 /** Group scripts under their author, keeping the API's author/title ordering. */
@@ -286,6 +290,7 @@ function PickStep(props: PickStepProps) {
   const { user } = useUser();
   const role = parseRole((user?.publicMetadata as { role?: unknown } | undefined)?.role);
   const canEditCollectionPlay = hasCapability(role, 'edit_collection_play_script');
+  const canSeeArchived = hasCapability(role, 'edit_collection_play_metadata');
 
   const [filters, setFilters] = useState<FiltersState>(loadFilters);
   const [page, setPage] = useState(1);
@@ -536,6 +541,20 @@ function PickStep(props: PickStepProps) {
                   onToggle={(value) => setFilter('bookmarkedOnly', value)}
                 />
               </FilterSection>
+              {canSeeArchived ? (
+                <FilterSection
+                  label="Archived"
+                  sectionKey="archived"
+                  openSections={filters.openSections}
+                  onToggleSection={toggleSection}
+                >
+                  <ToggleButton
+                    label="Only archived"
+                    value={filters.archivedOnly}
+                    onToggle={(value) => setFilter('archivedOnly', value)}
+                  />
+                </FilterSection>
+              ) : null}
             </div>
           </div>
           <div className={styles.filtersFooter}>
@@ -573,6 +592,7 @@ function PickStep(props: PickStepProps) {
                       numberOfMaleRoles={script.numberOfMaleRoles}
                       numberOfFemaleRoles={script.numberOfFemaleRoles}
                       bookmarked={script.bookmarked}
+                      archived={script.archived}
                       selected={script.uri === props.selectedUri}
                       onSelect={() => handleSelect(script.uri)}
                     />

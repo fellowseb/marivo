@@ -9,6 +9,7 @@ import Admonition from "../../components/admonition.component";
 import { ToggleButton } from "../../components/toggle-button.component";
 import { CardsSelect } from "../../components/cards-select.component";
 import { useCollectionMetadataContext } from "./collection-metadata.context";
+import { useNotifications } from "../../components/notifications.context";
 import styles from "./import-script.module.css";
 
 export interface PlayMetadataDetails {
@@ -73,6 +74,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
   const [synopsis, setSynopsis] = useState("");
   const trpc = useTRPC();
   const navigate = useNavigate();
+  const { showNotification } = useNotifications();
 
   const commonsMode = Boolean(props.allowAddToCommons && addToCommonsLib && props.metadata);
 
@@ -126,6 +128,11 @@ export function NamePlayStep(props: NamePlayStepProps) {
       setLastPublishInput(input);
       try {
         const res = await props.publishToCollection(input);
+        showNotification({
+          type: "info",
+          icon: "archive",
+          message: `"${input.title}" was added to the scripts collection as archived.`,
+        });
         setDone({ kind: "collection", uri: res.uri });
       } catch (error) {
         logger.error("failed to publish play to the collection", { error });
@@ -152,6 +159,11 @@ export function NamePlayStep(props: NamePlayStepProps) {
     setPublishError(false);
     try {
       const res = await props.publishToCollection(lastPublishInput);
+      showNotification({
+        type: "info",
+        icon: "archive",
+        message: `"${lastPublishInput.title}" was added to the scripts collection as archived.`,
+      });
       setDone({ kind: "collection", uri: res.uri });
     } catch (error) {
       logger.error("failed to publish play to the collection", { error });

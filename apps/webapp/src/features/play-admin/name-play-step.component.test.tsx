@@ -3,6 +3,10 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
 import { NamePlayStep, type PlayMetadataDetails, type PublishToCollectionInput } from './name-play-step.component';
+import {
+  NotificationsContextProvider,
+  useNotificationsDisplay,
+} from '../../components/notifications.context';
 
 const navigateMock = vi.fn();
 vi.mock('react-router', async (importOriginal) => {
@@ -46,16 +50,28 @@ function renderStep(props: Partial<Parameters<typeof NamePlayStep>[0]> = {}) {
   render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <NamePlayStep
-          onBack={() => undefined}
-          {...props}
-          createPlay={createPlay}
-          publishToCollection={publishToCollection}
-        />
+        <NotificationsContextProvider>
+          <NamePlayStep
+            onBack={() => undefined}
+            {...props}
+            createPlay={createPlay}
+            publishToCollection={publishToCollection}
+          />
+          <NotificationsProbe />
+        </NotificationsContextProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );
   return { createPlay, publishToCollection };
+}
+
+function NotificationsProbe() {
+  const { notifications } = useNotificationsDisplay();
+  return (
+    <div data-testid="notifications">
+      {notifications.map((n) => n.message).join('|')}
+    </div>
+  );
 }
 
 describe('NamePlayStep', () => {
@@ -105,6 +121,8 @@ describe('NamePlayStep', () => {
     await waitFor(() =>
       expect(navigateMock).toHaveBeenCalledWith({ pathname: '/collection/edit/collection-uri-1' }),
     );
+    // success notification mentions the archived landing
+    expect(screen.getByTestId('notifications').textContent).toContain('archived');
     // no personal play is created in commons mode
     expect(createPlay).not.toHaveBeenCalled();
     expect(publishToCollection).toHaveBeenCalledTimes(1);

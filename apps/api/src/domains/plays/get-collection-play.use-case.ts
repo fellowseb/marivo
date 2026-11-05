@@ -15,6 +15,14 @@ export const GetCollectionPlayUseCaseOutputSchema = z.object({
   uri: z.string().length(36),
   title: z.string(),
   author: z.string(),
+  lang: z.string(),
+  numberOfRoles: z.number().nullable(),
+  numberOfMaleRoles: z.number().nullable(),
+  numberOfFemaleRoles: z.number().nullable(),
+  genre: z.string().nullable(),
+  period: z.string().nullable(),
+  synopsis: z.string().nullable(),
+  archived: z.boolean(),
 });
 
 type GetCollectionPlayUseCaseInput = z.infer<typeof GetCollectionPlayUseCaseInputSchema>;

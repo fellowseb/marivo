@@ -94,6 +94,7 @@ CREATE TABLE public_domain_plays (
     genre                   varchar(50)     REFERENCES theatrical_genres(key),
     period                  varchar(50)     REFERENCES theatrical_periods(key),
     synopsis                text            ,
+    archived                boolean         NOT NULL DEFAULT false,
     script_id               integer         REFERENCES scripts(id) NOT NULL
 );
 

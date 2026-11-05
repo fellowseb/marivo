@@ -41,6 +41,7 @@ interface PublicDomainPlayRecordValues {
   number_of_words: number;
   characters: { [id: string]: string };
   bookmarked: boolean;
+  archived: boolean;
 }
 
 export interface CollectionFilters {
@@ -56,15 +57,33 @@ export interface CollectionFilters {
   minFemaleRoles?: number;
   maxFemaleRoles?: number;
   bookmarkedOnly?: boolean;
+  /** Only archived plays; requires includeArchived (capability-gated by the use case). */
+  archivedOnly?: boolean;
 }
 
 export interface CollectionPage {
   filters: CollectionFilters;
   page: number;
   pageSize: number;
+  /** Whether archived plays may be listed at all (capability-gated). */
+  includeArchived: boolean;
 }
 
 export class PublicDomainPlayRecord extends Record<PublicDomainPlayRecordValues> {}
+
+export interface CollectionPlayDetails {
+  uri: string;
+  title: string;
+  author: string;
+  lang: string;
+  numberOfRoles: number | null;
+  numberOfMaleRoles: number | null;
+  numberOfFemaleRoles: number | null;
+  genre: string | null;
+  period: string | null;
+  synopsis: string | null;
+  archived: boolean;
+}
 
 export class PlaysCollectionRepository extends UserRepositoryBase {
   async findAllGenres(): Promise<Result<TheatricalGenreRecord[], InternalServerError>> {
@@ -94,8 +113,13 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
   async findAllScripts(
     params: CollectionPage,
   ): Promise<Result<{ records: PublicDomainPlayRecord[]; total: number }, InternalServerError>> {
-    const { filters, page, pageSize } = params;
+    const { filters, page, pageSize, includeArchived } = params;
     const conditions = [];
+    if (!includeArchived) {
+      conditions.push(this.sql`p.archived = false`);
+    } else if (filters.archivedOnly) {
+      conditions.push(this.sql`p.archived = true`);
+    }
     if (filters.title) {
       conditions.push(this.sql`p.title ILIKE ${"%" + filters.title + "%"}`);
     }
@@ -167,7 +191,8 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
                0
              ) AS number_of_words,
              s.characters,
-             (b.play_uri IS NOT NULL) AS bookmarked
+             (b.play_uri IS NOT NULL) AS bookmarked,
+             p.archived
       FROM public_domain_plays p
       JOIN scripts s ON s.id = p.script_id
       LEFT JOIN collection_bookmarks b ON b.play_uri = p.uri AND b.user_id = ${this.userId()}
@@ -205,20 +230,108 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
     return Result.ok({ bookmarked: false });
   }
 
-  /** Basic details of a collection play (used e.g. for page titles). */
+  /** Full details of a collection play (used e.g. for page titles and the settings page). */
   async findByUri(params: {
     uri: string;
-  }): Promise<
-    Result<{ uri: string; title: string; author: string }, CollectionPlayNotFound | InternalServerError>
-  > {
-    const records = await this.sql<{ uri: string; title: string; author: string }[]>`
-      SELECT uri, title, author FROM public_domain_plays WHERE uri = ${params.uri};
+  }): Promise<Result<CollectionPlayDetails, CollectionPlayNotFound | InternalServerError>> {
+    const records = await this.sql<{
+      uri: string;
+      title: string;
+      author: string;
+      lang: string;
+      number_of_roles: number | null;
+      number_of_male_roles: number | null;
+      number_of_female_roles: number | null;
+      genre: string | null;
+      period: string | null;
+      synopsis: string | null;
+      archived: boolean;
+    }[]>`
+      SELECT uri, title, author, lang,
+             number_of_roles, number_of_male_roles, number_of_female_roles,
+             genre, period, synopsis, archived
+      FROM public_domain_plays WHERE uri = ${params.uri};
     `;
     const record = records[0];
     if (!record) {
       return Result.failure(new CollectionPlayNotFound());
     }
-    return Result.ok(record);
+    return Result.ok({
+      uri: record.uri,
+      title: record.title,
+      author: record.author,
+      lang: record.lang,
+      numberOfRoles: record.number_of_roles,
+      numberOfMaleRoles: record.number_of_male_roles,
+      numberOfFemaleRoles: record.number_of_female_roles,
+      genre: record.genre,
+      period: record.period,
+      synopsis: record.synopsis,
+      archived: record.archived,
+    });
+  }
+
+  /** Update the metadata of a collection play. */
+  async updateMetadata(params: {
+    uri: string;
+    title: string;
+    author: string;
+    lang: string;
+    numberOfRoles?: number | undefined;
+    numberOfMaleRoles?: number | undefined;
+    numberOfFemaleRoles?: number | undefined;
+    genre?: string | undefined;
+    period?: string | undefined;
+    synopsis?: string | undefined;
+  }): Promise<Result<undefined, CollectionPlayNotFound | InternalServerError>> {
+    const result = await this.sql<{ uri: string }[]>`
+      UPDATE public_domain_plays SET
+        title = ${params.title},
+        author = ${params.author},
+        lang = ${params.lang},
+        number_of_roles = ${params.numberOfRoles ?? null},
+        number_of_male_roles = ${params.numberOfMaleRoles ?? null},
+        number_of_female_roles = ${params.numberOfFemaleRoles ?? null},
+        genre = ${params.genre ?? null},
+        period = ${params.period ?? null},
+        synopsis = ${params.synopsis ?? null}
+      WHERE uri = ${params.uri}
+      RETURNING uri;
+    `;
+    if (result.length === 0) {
+      return Result.failure(new CollectionPlayNotFound());
+    }
+    return Result.ok(undefined);
+  }
+
+  /** Archive or unarchive a collection play. */
+  async setArchived(params: {
+    uri: string;
+    archived: boolean;
+  }): Promise<Result<undefined, CollectionPlayNotFound | InternalServerError>> {
+    const result = await this.sql<{ uri: string }[]>`
+      UPDATE public_domain_plays SET archived = ${params.archived}
+      WHERE uri = ${params.uri}
+      RETURNING uri;
+    `;
+    if (result.length === 0) {
+      return Result.failure(new CollectionPlayNotFound());
+    }
+    return Result.ok(undefined);
+  }
+
+  /** Delete a collection play (its script is left untouched). */
+  async deleteByUri(params: {
+    uri: string;
+  }): Promise<Result<undefined, CollectionPlayNotFound | InternalServerError>> {
+    const result = await this.sql<{ uri: string }[]>`
+      DELETE FROM public_domain_plays WHERE uri = ${params.uri}
+      RETURNING uri;
+    `;
+    if (result.length === 0) {
+      return Result.failure(new CollectionPlayNotFound());
+    }
+    return Result.ok(undefined);
   }
 
   async getScriptIdByUri(params: {
@@ -264,11 +377,12 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
       INSERT INTO public_domain_plays (
         uri, title, author, lang,
         number_of_roles, number_of_male_roles, number_of_female_roles,
-        genre, period, synopsis, script_id
+        genre, period, synopsis, archived, script_id
       ) VALUES (
         ${params.uri}, ${params.title}, ${params.author}, ${params.lang},
         ${params.numberOfRoles ?? null}, ${params.numberOfMaleRoles ?? null}, ${params.numberOfFemaleRoles ?? null},
-        ${params.genre ?? null}, ${params.period ?? null}, ${params.synopsis ?? null}, ${params.scriptId}
+        ${params.genre ?? null}, ${params.period ?? null}, ${params.synopsis ?? null},
+        true, ${params.scriptId}
       )
       RETURNING uri;
     `;

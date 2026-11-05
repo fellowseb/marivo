@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter } from 'react-router';
 import { CollectionPlayEditBreadcrumbs } from './collection-play-edit-page.component';
 
 vi.mock('../../trpc', () => ({
@@ -24,13 +24,8 @@ describe('CollectionPlayEditBreadcrumbs', () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/collection/edit/10000000-0000-4000-8000-000000000001']}>
-          <Routes>
-            <Route
-              path="/collection/edit/:uri"
-              element={<CollectionPlayEditBreadcrumbs />}
-            />
-          </Routes>
+        <MemoryRouter>
+          <CollectionPlayEditBreadcrumbs uri="10000000-0000-4000-8000-000000000001" />
         </MemoryRouter>
       </QueryClientProvider>,
     );

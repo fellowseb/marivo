@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { NavLink, Route, Routes, useParams } from "react-router";
+import { Navigate, NavLink, Route, Routes, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import ErrorBoundary from "../../components/error-boundary.component";
 import PageNotFound from "../../components/page-not-found.component";
@@ -15,20 +15,22 @@ import { ScriptUndoRedoContextProvider } from "../script/script-undo-redo.contex
 import { ScriptTabToolbarContextProvider } from "../script-edition/script-tab-toolbar.context";
 import { ScriptToolbar } from "../script-edition/script-tab-toolbar";
 import ScriptTab from "../script-edition/script-tab.component";
+import { CollectionPlaySettings } from "./collection-play-settings.component";
 
 export const COLLECTION_URI_PARAM = "uri";
-export const COLLECTION_EDIT_ROUTE = `/collection/edit/:${COLLECTION_URI_PARAM}`;
+export const COLLECTION_EDIT_ROUTE = `/collection/edit/:${COLLECTION_URI_PARAM}/*`;
 
-/** Single-tab menubar so the page shares the play page's header layout (menu + toolbar). */
+/** Menubar with the script and settings sub-tabs, like the play page (`../` = up from the sub-route). */
 const COLLECTION_EDIT_MENU: MenuBarDefinition = {
-  items: [{ label: "Script", icon: "script", path: "." }],
+  items: [
+    { label: "Script", icon: "script", path: "../script" },
+    { label: "Settings", icon: "settings", path: "../settings" },
+  ],
 };
 
-export function CollectionPlayEditBreadcrumbs() {
-  const params = useParams();
-  const uri = params[COLLECTION_URI_PARAM] ?? "";
+export function CollectionPlayEditBreadcrumbs(props: { uri: string }) {
   const trpc = useTRPC();
-  const detailsQuery = useQuery(trpc.playsCollection.getDetails.queryOptions({ uri }));
+  const detailsQuery = useQuery(trpc.playsCollection.getDetails.queryOptions({ uri: props.uri }));
   const title = detailsQuery.data?.title ?? "…";
   return (
     <HeaderBreadcrumbs
@@ -42,11 +44,11 @@ export function CollectionPlayEditBreadcrumbs() {
 }
 
 /**
- * Edit page for a public-domain collection play (`/collection/edit/:uri`).
- * Shares the play page's layout (breadcrumb tab, menubar, script toolbar and
- * script container) and reuses the script edition UI with `from="collection"`;
- * write mutations are authorized server-side via the `edit_collection_play_script`
- * capability.
+ * Edit page for a public-domain collection play (`/collection/edit/:uri`),
+ * with `script` (default) and `settings` sub-routes. Shares the play page's
+ * layout (breadcrumb tab, menubar, script toolbar and script container).
+ * Script writes are authorized server-side via the
+ * `edit_collection_play_script` capability.
  */
 export default function CollectionPlayEditPage() {
   const params = useParams();
@@ -72,21 +74,32 @@ export default function CollectionPlayEditPage() {
       >
         <ScriptTabToolbarContextProvider>
           <ScriptUndoRedoContextProvider>
-            <ScriptContextProvider uri={uri} from="collection">
-              <ScriptEditionContextProvider uri={uri} from="collection">
-                <MainLayoutBase
-                  breadcrumbs={
-                    <Routes>
-                      <Route path="*" element={<CollectionPlayEditBreadcrumbs />} />
-                    </Routes>
+            <MainLayoutBase
+              breadcrumbs={<CollectionPlayEditBreadcrumbs uri={uri} />}
+              Menu={<MenuBar definition={COLLECTION_EDIT_MENU} />}
+              Toolbar={
+                <Routes>
+                  <Route path="script" element={<ScriptToolbar />} />
+                  <Route path="*" element={null} />
+                </Routes>
+              }
+            >
+              <Routes>
+                <Route index element={<Navigate to="script" replace />} />
+                <Route
+                  path="script"
+                  element={
+                    <ScriptContextProvider uri={uri} from="collection">
+                      <ScriptEditionContextProvider uri={uri} from="collection">
+                        <ScriptTab />
+                      </ScriptEditionContextProvider>
+                    </ScriptContextProvider>
                   }
-                  Menu={<MenuBar definition={COLLECTION_EDIT_MENU} />}
-                  Toolbar={<ScriptToolbar />}
-                >
-                  <ScriptTab />
-                </MainLayoutBase>
-              </ScriptEditionContextProvider>
-            </ScriptContextProvider>
+                />
+                <Route path="settings" element={<CollectionPlaySettings uri={uri} />} />
+                <Route path="*" element={<PageNotFound />} />
+              </Routes>
+            </MainLayoutBase>
           </ScriptUndoRedoContextProvider>
         </ScriptTabToolbarContextProvider>
       </Suspense>
