@@ -26,7 +26,6 @@ import ScriptImportsPage, {
   ScriptImportsPageBreadcrumbs,
 } from "./features/play-admin/script-imports-page.component";
 import CollectionPlayEditPage, {
-  CollectionPlayEditBreadcrumbs,
   COLLECTION_EDIT_ROUTE,
 } from "./features/play-admin/collection-play-edit-page.component";
 import { CollectionMetadataContextProvider } from "./features/play-admin/collection-metadata.context";
@@ -45,7 +44,6 @@ function AppRoutes() {
       <Route path="/plays/new/empty" element={<NewEmptyScriptBreadcrumbs />} />
       <Route path="/plays/new/from-collection" element={<FromCollectionBreadcrumbs />} />
       <Route path="/plays/imports" element={<ScriptImportsPageBreadcrumbs />} />
-      <Route path="/collection/edit/:uri" element={<CollectionPlayEditBreadcrumbs />} />
       <Route path="/my-account" element={<UserAccountPageBreadcrumbs />} />
     </Routes>
   );
@@ -67,10 +65,6 @@ function AppRoutes() {
             />
             <Route path="plays/imports" element={withErrorBoundary(<ScriptImportsPage />)} />
             <Route
-              path={COLLECTION_EDIT_ROUTE.replace(/^\//, "")}
-              element={withErrorBoundary(<CollectionPlayEditPage />)}
-            />
-            <Route
               path="my-account/security?"
               element={withErrorBoundary(<UserAccountPage />)}
             />
@@ -80,6 +74,10 @@ function AppRoutes() {
             <Route path="*" element={<PageNotFound />} />
           </Route>
           <Route element={withErrorBoundary(<PlayPage />)} path={`${PLAY_ROUTE_BASE}/*`} />
+          <Route
+            element={withErrorBoundary(<CollectionPlayEditPage />)}
+            path={COLLECTION_EDIT_ROUTE}
+          />
           <Route path="*" element={withErrorBoundary(<AuthLayout />)}>
             <Route path="signin/*" element={withErrorBoundary(<Signin />)} />
             <Route path="signup/*" element={withErrorBoundary(<Signup />)} />

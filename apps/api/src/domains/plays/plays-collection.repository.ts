@@ -205,6 +205,22 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
     return Result.ok({ bookmarked: false });
   }
 
+  /** Basic details of a collection play (used e.g. for page titles). */
+  async findByUri(params: {
+    uri: string;
+  }): Promise<
+    Result<{ uri: string; title: string; author: string }, CollectionPlayNotFound | InternalServerError>
+  > {
+    const records = await this.sql<{ uri: string; title: string; author: string }[]>`
+      SELECT uri, title, author FROM public_domain_plays WHERE uri = ${params.uri};
+    `;
+    const record = records[0];
+    if (!record) {
+      return Result.failure(new CollectionPlayNotFound());
+    }
+    return Result.ok(record);
+  }
+
   async getScriptIdByUri(params: {
     uri: string;
   }): Promise<Result<number, CollectionPlayNotFound>> {

@@ -16,6 +16,10 @@ import {
   AddPlayToCollectionUseCaseInputSchema,
   AddPlayToCollectionUseCaseOutputSchema,
 } from "./add-play-to-collection.use-case.ts";
+import {
+  GetCollectionPlayUseCaseInputSchema,
+  GetCollectionPlayUseCaseOutputSchema,
+} from "./get-collection-play.use-case.ts";
 
 export default router({
   getMetadata: publicProcedure
@@ -33,6 +37,10 @@ export default router({
     .input(AddPlayToCollectionUseCaseInputSchema)
     .output(AddPlayToCollectionUseCaseOutputSchema)
     .mutation(handleUseCase(providers.AddToCollection)),
+  getDetails: publicProcedure
+    .input(GetCollectionPlayUseCaseInputSchema)
+    .output(GetCollectionPlayUseCaseOutputSchema)
+    .query(handleUseCase(providers.GetCollectionPlay)),
   listAllGenres: publicProcedure
     .output(ListAllGenresUseCaseOutputSchema)
     .query(handleUseCase(providers.ListAllGenres)),

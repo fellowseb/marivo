@@ -6,6 +6,7 @@ import { ListAllPeriodsUseCase } from "./list-all-periods.use-case.ts";
 import { ListAllScriptsUseCase } from "./list-all-scripts.use-case.ts";
 import { ToggleBookmarkUseCase } from "./toggle-bookmark.use-case.ts";
 import { AddPlayToCollectionUseCase } from "./add-play-to-collection.use-case.ts";
+import { GetCollectionPlayUseCase } from "./get-collection-play.use-case.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
 import { ScriptImportsRepository } from "./script-imports.repository.ts";
 
@@ -45,6 +46,13 @@ export const providers = {
       return new ToggleBookmarkUseCase(playsCollectionRepository, userContextService);
     },
   } as Provider<ToggleBookmarkUseCase>,
+  GetCollectionPlay: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsCollectionRepository = new PlaysCollectionRepository(sql, userContextService);
+      return new GetCollectionPlayUseCase(playsCollectionRepository, userContextService);
+    },
+  } as Provider<GetCollectionPlayUseCase>,
   AddToCollection: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);

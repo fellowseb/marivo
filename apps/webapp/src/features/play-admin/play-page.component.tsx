@@ -5,6 +5,7 @@ import PlayPageLayout from "../../layouts/play-page-layout.component";
 import DotsLoader from "../../components/dots-loader.component";
 import PageNotFound from "../../components/page-not-found.component";
 import ErrorBoundary from "../../components/error-boundary.component";
+import { TitleTab } from "../../components/title-tab.component";
 import ScriptTab from "../script-edition/script-tab.component";
 import MemorizeTab from "../lines-memorization/memorize-tab.component";
 import PlaySettingsTab from "../play-settings/play-settings-tab.component";
@@ -27,12 +28,7 @@ function PlayPageTitle() {
   }
   return play.match({
     success({ details }) {
-      return (
-        <div className={styles.playTitle}>
-          <div className={styles.playIcon}></div>
-          {details.title}
-        </div>
-      );
+      return <TitleTab title={details.title} />;
     },
     failure() {
       return <>{"?"}</>;

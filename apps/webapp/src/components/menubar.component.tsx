@@ -35,7 +35,8 @@ export interface MenuBarDefinition {
     label: string;
     icon: IconValue;
     path: string;
-    accessPermission: keyof AppRouterOutput["plays"]["playDetails"]["permissions"];
+    /** Play permission required to show the item; omit for non-play pages (always shown). */
+    accessPermission?: keyof AppRouterOutput["plays"]["playDetails"]["permissions"];
   }[];
 }
 
@@ -45,16 +46,14 @@ export interface MenuBarProps {
 
 export function MenuBar(props: MenuBarProps) {
   const playContext = usePlayContext();
-  if (!playContext?.isOk()) {
-    return null;
-  }
-  const { permissions } = playContext.dataOrThrow();
+  const permissions = playContext?.isOk() ? playContext.dataOrThrow().permissions : undefined;
   return (
     <nav className={styles.container}>
       {props.definition.items.map(({ icon, path, label, accessPermission }) => {
-        return permissions[accessPermission] ? (
-          <MenuBarItem key={path} icon={icon} path={path} label={label} />
-        ) : null;
+        if (accessPermission && (!permissions || !permissions[accessPermission])) {
+          return null;
+        }
+        return <MenuBarItem key={path} icon={icon} path={path} label={label} />;
       })}
     </nav>
   );
