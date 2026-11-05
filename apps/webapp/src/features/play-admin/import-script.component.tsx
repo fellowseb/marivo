@@ -358,7 +358,7 @@ function ImportStep() {
                   display: "flex",
                   alignItems: "center",
                   gap: "4px",
-                  background: "var(--color-primary-a13)",
+                  background: "var(--color-accent-a13)",
                   borderRadius: "10px",
                 }}
                 onMouseEnter={handleFileLineEnter(i)}
@@ -424,7 +424,7 @@ function ImportStep() {
             borderRadius: "10px",
             alignSelf: "stretch",
             justifyContent: "center",
-            background: dragOver ? "var(--color-primary-a13)" : "transparent",
+            background: dragOver ? "var(--color-accent-a13)" : "transparent",
             transition: "background 0.1s ease",
           }}
           onDragEnter={handleDragEnter}

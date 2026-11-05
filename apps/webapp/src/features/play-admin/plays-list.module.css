@@ -3,10 +3,10 @@
   margin: 0;
   min-width: 600px;
   min-height: 125px;
-  border: 1px solid var(--color-sand);
-  border-left: 10px solid var(--color-primary-a13);
+  border: 1px solid var(--color-bg);
+  border-left: 10px solid var(--color-accent-a13);
   border-radius: var(--radius-sm);
-  background-color: var(--color-linen);
+  background-color: var(--color-card);
   padding: 12px;
 }
 
@@ -19,7 +19,7 @@
   display: none;
   width: 100px;
   height: 100px;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   border-radius: var(--radius-sm);
 }
 
@@ -29,7 +29,7 @@
   mask: url("/src/assets/book-closed.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
-  background-color: var(--color-linen);
+  background-color: var(--color-card);
 }
 
 .playPosterOverlay.opening {
@@ -44,7 +44,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--color-gray-light);
+  color: var(--color-text-faint);
   flex: 1;
 }
 

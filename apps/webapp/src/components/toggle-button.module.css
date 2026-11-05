@@ -5,8 +5,8 @@
   --button-toggle-offset: calc((var(--button-height) - var(--toggle-diameter)) / 2);
   --toggle-shadow-offset: 10px;
   --toggle-wider: 3em;
-  --color-grey: var(--color-primary);
-  --color-green: lightseagreen;
+  --toggle-off-bg: var(--color-accent);
+  --toggle-on-bg: lightseagreen;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -17,7 +17,7 @@
   display: inline-block;
   width: var(--button-width);
   height: var(--button-height);
-  background-color: var(--color-grey);
+  background-color: var(--toggle-off-bg);
   border-radius: calc(var(--button-height) / 2);
   position: relative;
   transition: 0.1s all ease-in-out;
@@ -38,7 +38,7 @@
 }
 
 .switch input[type="checkbox"]:checked + .slider {
-  background-color: var(--color-green);
+  background-color: var(--toggle-on-bg);
 }
 
 .switch input[type="checkbox"]:checked + .slider::after {
@@ -64,6 +64,6 @@
 }
 
 .switch:focus-visible > .slider {
-  background-color: var(--color-gold) !important;
-  outline: 1px solid var(--color-cream);
+  background-color: var(--color-focus) !important;
+  outline: 1px solid var(--color-surface);
 }

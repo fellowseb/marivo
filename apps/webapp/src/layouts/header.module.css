@@ -7,7 +7,7 @@
   z-index: 1000;
   top: 0;
   left: 0;
-  border-bottom: 1px solid var(--color-sand-dark);
+  border-bottom: 1px solid var(--color-border-strong);
 }
 
 .headerInner {
@@ -18,7 +18,7 @@
   justify-content: space-between;
   align-self: stretch;
   align-items: center;
-  background-color: var(--color-brown-a20);
+  background-color: var(--color-text-secondary-a20);
   backdrop-filter: blur(20px);
   top: 0;
   transition: top 0.5s ease-out;
@@ -29,7 +29,7 @@
 .menuBurger {
   width: 20px;
   height: 20px;
-  background-color: var(--color-ink);
+  background-color: var(--color-text);
   mask-image: url("/src/assets/dots-vertical.svg");
   mask-repeat: no-repeat;
   mask-position: 0 0;
@@ -83,13 +83,13 @@
 }
 
 .breadcrumbArrow {
-  color: var(--color-brown-a20);
+  color: var(--color-text-secondary-a20);
   top: 1px;
   position: relative;
 }
 
 .pageTitle {
-  color: var(--color-primary);
+  color: var(--color-accent);
   font-family: "Lobster Two", sans-serif;
   font-size: var(--font-size-3xl);
   margin: 0;
@@ -124,38 +124,38 @@
 }
 
 .userAction:hover {
-  background-color: var(--color-primary-a80);
+  background-color: var(--color-accent-a80);
 }
 
 .userActionSettings {
   mask: url("/src/assets/user-circle.svg") no-repeat;
   mask-size: contain;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
 
 .userActionNotifications {
   mask: url("/src/assets/bell-O3.svg") no-repeat;
   mask-size: contain;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
 
 .userActionHelp {
   mask: url("/src/assets/help-circle.svg") no-repeat;
   mask-size: contain;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
 
 .userActionLogout {
   mask: url("/src/assets/log-out-02.svg") no-repeat;
   mask-size: contain;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
 
 .toolbar {
   display: flex;
   justify-content: center;
   padding: 4px;
-  background-color: var(--color-cream-deep);
+  background-color: var(--color-surface-deep);
 }
 
 .mainMenu {
@@ -163,6 +163,6 @@
   justify-content: space-between;
   align-items: center;
   height: 40px;
-  background-color: var(--color-cream-deep);
+  background-color: var(--color-surface-deep);
   backdrop-filter: blur(20px);
 }

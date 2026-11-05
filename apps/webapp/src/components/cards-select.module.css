@@ -10,22 +10,22 @@
   height: 60px;
   padding: 4px;
   border-radius: var(--radius-sm);
-  background: var(--color-ink-a07);
+  background: var(--color-text-a07);
   display: flex;
   align-items: center;
   justify-content: center;
   color: black;
-  border-color: var(--color-ink-a07);
+  border-color: var(--color-text-a07);
 }
 
 .optionNotSelected {
-  background: var(--color-ink-a07);
+  background: var(--color-text-a07);
   color: black;
-  border-color: var(--color-ink-a07);
+  border-color: var(--color-text-a07);
 }
 
 .optionSelected {
-  background: var(--color-sand);
+  background: var(--color-bg);
   color: black;
-  border-color: var(--color-ink-a07);
+  border-color: var(--color-text-a07);
 }

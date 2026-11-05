@@ -1,17 +1,22 @@
-import { useState } from "react";
-import { NavLink } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import classNames from "classnames";
-import { useTRPC } from "../../trpc";
-import styles from "./plays-list.module.css";
-import Skeleton from "../../components/skeleton.component";
-import { ItemList, ItemListItem } from "../../components/item-list/item-list.component";
-import PlaysFilters, { DEFAULT_FILTER_OPTIONS } from "./plays-filters.component";
-import { filterSortPlays, type PlayFilterSortOptions } from "./plays.lib";
-import { PlayInvites } from "./play-invites.component";
-import UnexpectedError from "../../components/unexpected-error.component";
-import DotsLoader from "../../components/dots-loader.component";
-import { PLAY_ROUTE_BASE } from "./play-page.component";
+import { useState } from 'react';
+import { NavLink } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { useTRPC } from '../../trpc';
+import styles from './plays-list.module.css';
+import Skeleton from '../../components/skeleton.component';
+import {
+  ItemList,
+  ItemListItem,
+} from '../../components/item-list/item-list.component';
+import PlaysFilters, {
+  DEFAULT_FILTER_OPTIONS,
+} from './plays-filters.component';
+import { filterSortPlays, type PlayFilterSortOptions } from './plays.lib';
+import { PlayInvites } from './play-invites.component';
+import UnexpectedError from '../../components/unexpected-error.component';
+import DotsLoader from '../../components/dots-loader.component';
+import { PLAY_ROUTE_BASE } from './play-page.component';
 
 interface PlayListItemProps {
   id: string;
@@ -24,19 +29,25 @@ interface PlayListItemProps {
 }
 
 function PlayListItem(props: PlayListItemProps) {
-  const ownerStr = props.isOwner ? "You" : `${props.ownerFullName} (${props.ownerUsername})`;
+  const ownerStr = props.isOwner
+    ? 'You'
+    : `${props.ownerFullName} (${props.ownerUsername})`;
   return (
     <ItemListItem
-      to={PLAY_ROUTE_BASE.replace(":uri", props.id)}
+      to={PLAY_ROUTE_BASE.replace(':uri', props.id)}
       title={props.title}
       details={
         <>
           Owned by <span className={styles.playDetailsValues}>{ownerStr}</span>
-          Créée le{" "}
-          <span className={styles.playDetailsValues}>{props.creationDate.toLocaleString()}</span>
-          Dernière modification le{" "}
+          Créée le{' '}
           <span className={styles.playDetailsValues}>
-            {props.lastModifiedDate ? props.lastModifiedDate.toLocaleString() : "—"}
+            {props.creationDate.toLocaleString()}
+          </span>
+          Dernière modification le{' '}
+          <span className={styles.playDetailsValues}>
+            {props.lastModifiedDate
+              ? props.lastModifiedDate.toLocaleString()
+              : '—'}
           </span>
         </>
       }
@@ -66,15 +77,15 @@ function NoPlays() {
       <p>You haven't joined any play yet !</p>
       <p>All received invites will be displayed on this page.</p>
       <p>
-        You can also{" "}
+        You can also{' '}
         <NavLink
           to={{
-            pathname: "new",
+            pathname: 'new',
           }}
         >
           create a new play yourself
         </NavLink>
-        {". "}
+        {'. '}
       </p>
     </div>
   );
@@ -83,7 +94,9 @@ function NoPlays() {
 function PlayList() {
   const trpc = useTRPC();
   const query = useQuery(trpc.plays.list.queryOptions());
-  const [filters, setFilters] = useState<PlayFilterSortOptions>(DEFAULT_FILTER_OPTIONS);
+  const [filters, setFilters] = useState<PlayFilterSortOptions>(
+    DEFAULT_FILTER_OPTIONS,
+  );
   const handleFiltersChange = (filters: PlayFilterSortOptions) => {
     setFilters(filters);
   };
@@ -98,7 +111,10 @@ function PlayList() {
       <PlaysFilters onFiltersChange={handleFiltersChange} filters={filters} />
       <ItemList>
         {invites.length ? (
-          <PlayInvites invites={invites} respondedToInvite={handleRespondedToInvite} />
+          <PlayInvites
+            invites={invites}
+            respondedToInvite={handleRespondedToInvite}
+          />
         ) : null}
         {query.isError ? (
           <UnexpectedError error={query.error?.message} />

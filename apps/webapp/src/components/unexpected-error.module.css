@@ -7,12 +7,12 @@
 .icon {
   width: 100px;
   height: 100px;
-  background-color: var(--color-primary-a47);
+  background-color: var(--color-accent-a47);
   mask-image: url("/src/assets/icons/alert-hexagon.svg");
   mask-repeat: no-repeat;
 }
 
 .message {
   max-width: 400px;
-  color: var(--color-primary-a47);
+  color: var(--color-accent-a47);
 }

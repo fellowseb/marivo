@@ -19,13 +19,13 @@
 }
 
 .primary {
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
 
 .secondary {
-  background-color: var(--color-gray-bg);
+  background-color: var(--color-surface-sunken);
 }
 
 .disabled {
-  background-color: var(--color-gray-light);
+  background-color: var(--color-text-faint);
 }

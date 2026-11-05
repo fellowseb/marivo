@@ -63,9 +63,9 @@
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 4px;
-  border: 1px solid var(--color-sand-dark);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
-  background: var(--color-sand);
+  background: var(--color-bg);
   padding: 4px 6px;
   cursor: pointer;
 }
@@ -100,7 +100,6 @@
   flex-direction: row;
   align-items: center;
   gap: 6px;
-  font-weight: 600;
   cursor: pointer;
 }
 
@@ -124,7 +123,7 @@
 .separator {
   width: 1px;
   align-self: stretch;
-  background: var(--color-sand-dark);
+  background: var(--color-border-strong);
   margin-left: 4px;
   margin-right: 4px;
 }
@@ -139,11 +138,11 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--color-cream-dark);
+  background: var(--color-surface-dark);
   font-weight: 200;
   font-size: 1.1em;
   padding: 4px 6px;
-  border-bottom: 1px solid var(--color-sand-dark);
+  border-bottom: 1px solid var(--color-border-strong);
   font-style: italic;
 }
 
@@ -188,8 +187,8 @@
   padding: 12px;
   display: flex;
   flex-direction: column;
-  background: var(--color-cream-dark);
-  border-left: 1px solid var(--color-sand-dark);
+  background: var(--color-surface-dark);
+  border-left: 1px solid var(--color-border-strong);
   box-shadow: var(--shadow-inset-left);
 }
 
@@ -234,7 +233,7 @@
 }
 
 .bookmarkButton {
-  background-color: var(--color-pink);
+  background-color: var(--color-bookmark);
 }
 
 .synopsis {

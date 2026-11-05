@@ -30,7 +30,7 @@ export function UserAccountPage() {
         appearance={{
           theme: "simple",
           variables: {
-            colorBackground: "var(--color-cream-deep)",
+            colorBackground: "var(--color-surface-deep)",
           },
         }}
       >

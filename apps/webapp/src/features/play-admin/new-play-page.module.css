@@ -11,8 +11,8 @@
   justify-content: stretch;
   gap: 1ch;
   padding: 1ch;
-  border: 1px solid var(--color-sand-dark);
-  background-color: var(--color-sand-a20);
+  border: 1px solid var(--color-border-strong);
+  background-color: var(--color-bg-a20);
   border-radius: var(--radius-sm);
   overflow-x: hidden;
 }
@@ -21,7 +21,7 @@
   flex: 1;
   padding: 2ch;
   border-radius: var(--radius-sm);
-  background-color: var(--color-sand-a60);
+  background-color: var(--color-bg-a60);
   position: relative;
   left: 0;
   width: 800px;

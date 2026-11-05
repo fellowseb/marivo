@@ -17,9 +17,9 @@
   align-items: flex-start;
   gap: 0.25rem;
   padding: var(--spacing-md);
-  border: 1px solid var(--color-sand-a40);
+  border: 1px solid var(--color-bg-a40);
   border-radius: var(--radius-lg);
-  background-color: var(--color-cream);
+  background-color: var(--color-surface);
   cursor: pointer;
   min-width: 10rem;
   flex: 1;
@@ -29,23 +29,23 @@
 }
 
 .themeCard:hover {
-  border-color: var(--color-primary-a47);
+  border-color: var(--color-accent-a47);
 }
 
 .themeCardSelected {
-  border-color: var(--color-primary);
-  background-color: var(--color-sand-a20);
+  border-color: var(--color-accent);
+  background-color: var(--color-bg-a20);
 }
 
 .themeName {
   font-size: var(--font-size-lg);
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-accent);
 }
 
 .themeDescription {
   font-size: var(--font-size-md);
-  color: var(--color-gray);
+  color: var(--color-text-muted);
 }
 
 .swatches {
@@ -58,12 +58,12 @@
   width: 1.25rem;
   height: 1.25rem;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--color-primary-a13);
+  border: 1px solid var(--color-accent-a13);
 }
 
 .modeToggle {
   display: inline-flex;
-  border: 1px solid var(--color-sand-a40);
+  border: 1px solid var(--color-bg-a40);
   border-radius: var(--radius-pill);
   padding: 0.25rem;
   gap: 0.25rem;
@@ -75,13 +75,13 @@
   border: none;
   border-radius: var(--radius-pill);
   background-color: transparent;
-  color: var(--color-primary);
+  color: var(--color-accent);
   font: inherit;
   font-size: var(--font-size-md);
   cursor: pointer;
 }
 
 .modeButtonSelected {
-  background-color: var(--color-primary);
-  color: var(--color-cream);
+  background-color: var(--color-accent);
+  color: var(--color-surface);
 }

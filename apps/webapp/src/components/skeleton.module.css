@@ -20,8 +20,8 @@
 
 .skeleton .lines > div {
   /* Define the colors as css custom props */
-  --_default-color: var(--color-primary-a13);
-  --_shimmer-color: var(--color-primary);
+  --_default-color: var(--color-accent-a13);
+  --_shimmer-color: var(--color-accent);
 
   /* Apply the animation that moves the background */
   animation: skeleton-shimmer 2s ease-out infinite;
@@ -43,8 +43,8 @@
 
 .skeleton .image {
   /* Define the colors as css custom props */
-  --_default-color: var(--color-primary-a13);
-  --_shimmer-color: var(--color-primary);
+  --_default-color: var(--color-accent-a13);
+  --_shimmer-color: var(--color-accent);
 
   /* Apply the animation that moves the background */
   animation: skeleton-shimmer 2s ease-out infinite;

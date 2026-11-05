@@ -4,7 +4,7 @@
 }
 
 .bookmark {
-  color: var(--color-pink);
+  color: var(--color-bookmark);
   display: flex;
   align-items: center;
 }
@@ -14,8 +14,8 @@
   font-family: Arimo, sans-serif;
   font-size: 0.6em;
   font-weight: 400;
-  color: var(--color-brown);
-  border: 1px solid var(--color-brown);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-text-secondary);
   border-radius: var(--radius-pill);
   padding: 0 6px;
 }
