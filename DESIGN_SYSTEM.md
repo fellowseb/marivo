@@ -10,7 +10,8 @@ Color tokens are **derived, not hand-specified**. Each theme defines only a hand
 
 - **Light themes** (`:root` = Sable, `[data-theme="foret"]`, `[data-theme="ocean"]`) only override the `--t-*` base hues; all `--color-*` tokens follow automatically.
 - **Dark mode** is a single `[data-mode="dark"]` block that remaps the semantic tokens once for every theme: surfaces become a brand-tinted near-black base (`#0c0f12` + brand) with elevation expressed as white overlays; text becomes a white alpha ramp (`0.87` / `0.6` / `0.45`, never pure white); accents are desaturated and lightened; status hues keep their hue but lighten. Never use pure `#000` for surfaces in dark mode.
-- To add a theme: add a `[data-theme="name"]` block setting only the `--t-*` hues, plus preview swatches. Dark mode comes for free.
+- To add a theme: add a `ThemePalette` entry in `packages/utils/src/themes.ts` (light + dark base hues), then regenerate the CSS blocks in `index.css` from it. Dark mode comes for free via the shared remap.
+- 30 themes ship out of the box (Sable, Forêt, Océan, Nord, Gruvbox, Solarized, Dracula, Catppuccin, Tokyo Night, One Dark, Ayu, Everforest, Rosé Pine, Kanagawa, Palenight, Horizon, Night Owl, Monokai, GitHub, Material, Lavender, Sunset, Forest Mist, Desert, Arctic, Cherry, Mint, Amber, Slate, Berry) — each with a light and a dark variant.
 - The token tables below show the **Sable light** render for reference; other themes/mode derive their values as described above.
 
 ## Color tokens

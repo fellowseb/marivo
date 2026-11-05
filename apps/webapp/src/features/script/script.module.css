@@ -3,7 +3,7 @@
   min-width: 21cm;
   min-height: 29.7cm;
   flex: 1;
-  background-color: var(--color-white);
+  background-color: var(--color-paper);
   white-space: pre-wrap;
   padding: 20px 70px;
   border: 2px solid var(--color-sand);

@@ -17,7 +17,10 @@ import Routes from './routes.tsx';
 import './app.css';
 import { TRPCProvider } from './trpc.ts';
 import { NotificationsContextProvider } from './components/notifications.context.tsx';
-import ErrorBoundary, { ErrorFallback } from './components/error-boundary.component';
+import ErrorBoundary, {
+  ErrorFallback,
+} from './components/error-boundary.component';
+import { ThemeProvider } from './features/theme/theme.context.tsx';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -127,11 +130,11 @@ function App() {
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
           <TrpcApiProvider apiUrl={API_URL}>
             <ThemeProvider>
-            <NotificationsContextProvider>
-              <BrowserRouter>
-                <Routes />
-              </BrowserRouter>
-            </NotificationsContextProvider>
+              <NotificationsContextProvider>
+                <BrowserRouter>
+                  <Routes />
+                </BrowserRouter>
+              </NotificationsContextProvider>
             </ThemeProvider>
           </TrpcApiProvider>
         </ClerkProvider>

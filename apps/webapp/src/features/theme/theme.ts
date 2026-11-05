@@ -6,6 +6,7 @@ import {
   parseThemeValue,
   THEME_MODES,
   THEME_NAMES,
+  THEME_PALETTES,
   type ThemeMode,
   type ThemeName,
   type ThemeValue,
@@ -19,23 +20,11 @@ export interface ThemeOption {
   description: string;
 }
 
-export const THEME_OPTIONS: ThemeOption[] = [
-  {
-    name: "sable",
-    label: "Sable",
-    description: "Warm parchment tones (default)",
-  },
-  {
-    name: "foret",
-    label: "Forêt",
-    description: "Deep woodland greens",
-  },
-  {
-    name: "ocean",
-    label: "Océan",
-    description: "Cool seaside blues",
-  },
-];
+export const THEME_OPTIONS: ThemeOption[] = THEME_PALETTES.map((palette) => ({
+  name: palette.name as ThemeName,
+  label: palette.label,
+  description: palette.description,
+}));
 
 export function getThemeOption(name: ThemeName): ThemeOption {
   const option = THEME_OPTIONS.find((candidate) => candidate.name === name);

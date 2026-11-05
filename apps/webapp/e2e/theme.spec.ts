@@ -29,7 +29,7 @@ test('switch theme and mode from the profile, persisted after reload', async ({
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'foret');
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'light');
 
-    await page.getByRole('radio', { name: 'Dark' }).click();
+    await page.getByRole('radio', { name: 'Dark', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'foret');
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 

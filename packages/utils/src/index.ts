@@ -20,7 +20,10 @@ export {
   getThemeName,
   getThemeMode,
   makeThemeValue,
+  THEME_PALETTES,
   type ThemeName,
   type ThemeMode,
   type ThemeValue,
+  type ThemePalette,
+  type ThemeHues,
 } from "./themes.ts";

@@ -15,12 +15,10 @@ describe("theme helpers", () => {
     document.documentElement.removeAttribute("data-mode");
   });
 
-  it("exposes the three named themes", () => {
-    expect(THEME_OPTIONS.map((option) => option.name)).toEqual([
-      "sable",
-      "foret",
-      "ocean",
-    ]);
+  it("exposes all 30 named themes", () => {
+    expect(THEME_OPTIONS).toHaveLength(30);
+    expect(THEME_OPTIONS[0].name).toBe("sable");
+    expect(THEME_OPTIONS.map((option) => option.name)).toContain("dracula");
   });
 
   it("applies a theme to the document element", () => {

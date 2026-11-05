@@ -1,12 +1,20 @@
-import { getThemeName, getThemeMode, makeThemeValue, THEME_MODES, type ThemeValue } from "@marivo/utils";
+import {
+  getThemeName,
+  getThemeMode,
+  makeThemeValue,
+  THEME_MODES,
+  THEME_NAMES,
+  type ThemeValue,
+} from "@marivo/utils";
 import { useTheme } from "./theme.context.tsx";
 import styles from "./theme-switcher.module.css";
 
-const THEME_SWATCHES: Record<string, string[]> = {
-  sable: ["var(--swatch-sable-1)", "var(--swatch-sable-2)", "var(--swatch-sable-3)"],
-  foret: ["var(--swatch-foret-1)", "var(--swatch-foret-2)", "var(--swatch-foret-3)"],
-  ocean: ["var(--swatch-ocean-1)", "var(--swatch-ocean-2)", "var(--swatch-ocean-3)"],
-};
+const THEME_SWATCHES: Record<string, string[]> = Object.fromEntries(
+  THEME_NAMES.map((name) => [
+    name,
+    [`var(--swatch-${name}-1)`, `var(--swatch-${name}-2)`, `var(--swatch-${name}-3)`],
+  ]),
+);
 
 export function ThemeSwitcher() {
   const { theme, setTheme, options } = useTheme();
