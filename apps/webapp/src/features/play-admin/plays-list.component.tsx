@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { useTRPC } from '../../trpc';
 import styles from './plays-list.module.css';
 import Skeleton from '../../components/skeleton.component';
+import Container from '../../components/container.component';
 import {
   ItemList,
   ItemListItem,
@@ -109,7 +110,8 @@ function PlayList() {
   return (
     <>
       <PlaysFilters onFiltersChange={handleFiltersChange} filters={filters} />
-      <ItemList>
+      <Container className={styles.playsListContainer}>
+        <ItemList>
         {invites.length ? (
           <PlayInvites
             invites={invites}
@@ -168,7 +170,8 @@ function PlayList() {
             <DotsLoader />
           </div>
         ) : null}
-      </ItemList>
+        </ItemList>
+      </Container>
     </>
   );
 }

@@ -1,3 +1,11 @@
+.playsListContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background-color: var(--color-bg-a20);
+}
+
 .playSkeleton {
   list-style: none;
   margin: 0;

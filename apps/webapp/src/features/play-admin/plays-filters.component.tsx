@@ -2,6 +2,7 @@ import { useRef } from "react";
 import styles from "./plays-filters.module.css";
 import type { PlayFilterSortOptions, PlaysOrdering } from "./plays.lib";
 import Button from "../../components/button.component";
+import Container from "../../components/container.component";
 import Icon from "../../components/icon.component";
 import classNames from "classnames";
 import CollapsibleSection from "../../components/collapsible-section.component";
@@ -65,7 +66,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
   };
 
   return (
-    <div className={styles.playFilters}>
+    <Container className={styles.playFilters}>
       <CollapsibleSection
         Header={<PlaysFiltersHeader collapsed={true} />}
         HeaderExpanded={<PlaysFiltersHeader collapsed={false} />}
@@ -124,7 +125,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
           </Button>
         </div>
       </CollapsibleSection>
-    </div>
+    </Container>
   );
 }
 
