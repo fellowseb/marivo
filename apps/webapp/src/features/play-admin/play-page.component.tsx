@@ -18,7 +18,6 @@ import { ScriptUndoRedoContextProvider } from "../script/script-undo-redo.contex
 import { ScriptTabToolbarContextProvider } from "../script-edition/script-tab-toolbar.context.tsx";
 import PermissionProtected, { checkPermission } from "./permission-protected.component";
 import { PlayContextProvider, usePlayContext, type PlayContextResult } from "./play.context";
-import styles from "./play-page.module.css";
 
 function PlayPageTitle() {
   const play = usePlayContext();
