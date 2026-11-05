@@ -16,6 +16,7 @@ export const ImportScriptStatusUseCaseOutputSchema = z.discriminatedUnion("statu
       z.literal("done"),
       z.literal("error"),
     ]),
+    error: z.string().nullable(),
   }),
   z.object({
     id: z.string().length(36),

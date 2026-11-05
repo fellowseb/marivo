@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router';
+import { useUser } from '@clerk/react';
+import { hasCapability, parseRole } from '@marivo/utils';
 import {
   keepPreviousData,
   useMutation,
@@ -58,6 +60,7 @@ interface FiltersState {
   genres: string[];
   periods: string[];
   bookmarkedOnly: boolean;
+  archivedOnly: boolean;
   /** which filter sections are expanded (ticked checkbox); persisted too */
   openSections: Record<string, boolean>;
 }
@@ -72,6 +75,7 @@ const EMPTY_FILTERS: FiltersState = {
   genres: [],
   periods: [],
   bookmarkedOnly: false,
+  archivedOnly: false,
   openSections: {},
 };
 
@@ -121,6 +125,7 @@ function toApiFilters(f: FiltersState) {
     minFemaleRoles: female.min,
     maxFemaleRoles: female.max,
     bookmarkedOnly: open('bookmarked') && f.bookmarkedOnly ? true : undefined,
+    archivedOnly: open('archived') && f.archivedOnly ? true : undefined,
   };
 }
 
@@ -138,6 +143,7 @@ type CollectionScript = {
   numberOfWords: number;
   characters: Record<string, string>;
   bookmarked: boolean;
+  archived: boolean;
 };
 
 /** Group scripts under their author, keeping the API's author/title ordering. */
@@ -204,6 +210,7 @@ function CollectionDetails(props: {
   onClose: () => void;
   onToggleBookmark: () => void;
   bookmarkPending: boolean;
+  onEdit?: (() => void) | undefined;
 }) {
   const { script } = props;
   const characterNames = Object.values(script.characters);
@@ -256,6 +263,11 @@ function CollectionDetails(props: {
           onClick={props.onToggleBookmark}
           customClassNames={[styles.bookmarkButton]}
         />
+        {props.onEdit ? (
+          <Button icon="script" ariaLabel="Edit in collection" onClick={props.onEdit}>
+            Edit
+          </Button>
+        ) : null}
         <Button icon="close" ariaLabel="Close" onClick={props.onClose}>
           Close
         </Button>
@@ -275,6 +287,10 @@ function PickStep(props: PickStepProps) {
   const trpc = useTRPC();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useUser();
+  const role = parseRole((user?.publicMetadata as { role?: unknown } | undefined)?.role);
+  const canEditCollectionPlay = hasCapability(role, 'edit_collection_play_script');
+  const canSeeArchived = hasCapability(role, 'edit_collection_play_metadata');
 
   const [filters, setFilters] = useState<FiltersState>(loadFilters);
   const [page, setPage] = useState(1);
@@ -525,6 +541,20 @@ function PickStep(props: PickStepProps) {
                   onToggle={(value) => setFilter('bookmarkedOnly', value)}
                 />
               </FilterSection>
+              {canSeeArchived ? (
+                <FilterSection
+                  label="Archived"
+                  sectionKey="archived"
+                  openSections={filters.openSections}
+                  onToggleSection={toggleSection}
+                >
+                  <ToggleButton
+                    label="Only archived"
+                    value={filters.archivedOnly}
+                    onToggle={(value) => setFilter('archivedOnly', value)}
+                  />
+                </FilterSection>
+              ) : null}
             </div>
           </div>
           <div className={styles.filtersFooter}>
@@ -562,6 +592,7 @@ function PickStep(props: PickStepProps) {
                       numberOfMaleRoles={script.numberOfMaleRoles}
                       numberOfFemaleRoles={script.numberOfFemaleRoles}
                       bookmarked={script.bookmarked}
+                      archived={script.archived}
                       selected={script.uri === props.selectedUri}
                       onSelect={() => handleSelect(script.uri)}
                     />
@@ -601,6 +632,11 @@ function PickStep(props: PickStepProps) {
               bookmarkPending={bookmarkPending}
               onClose={() => handleSelect(null)}
               onToggleBookmark={() => toggleBookmark({ playUri: selected.uri })}
+              onEdit={
+                canEditCollectionPlay
+                  ? () => navigate(`/collection/edit/${selected.uri}`)
+                  : undefined
+              }
             />
           ) : null}
         </div>

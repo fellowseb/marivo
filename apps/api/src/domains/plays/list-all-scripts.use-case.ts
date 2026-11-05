@@ -1,5 +1,5 @@
 import z from "zod";
-import { Result } from "@marivo/utils";
+import { hasCapability, Result } from "@marivo/utils";
 import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
 import type {
   CollectionPage,
@@ -20,6 +20,7 @@ export const CollectionFiltersSchema = z
     minFemaleRoles: z.number().int().min(0).optional(),
     maxFemaleRoles: z.number().int().min(0).optional(),
     bookmarkedOnly: z.boolean().optional(),
+    archivedOnly: z.boolean().optional(),
   })
   .optional();
 
@@ -43,6 +44,7 @@ export const CollectionScriptSchema = z.object({
   numberOfWords: z.number(),
   characters: z.record(z.string(), z.string()),
   bookmarked: z.boolean(),
+  archived: z.boolean(),
 });
 
 export const ListAllScriptsUseCaseOutputSchema = z.object({
@@ -65,10 +67,16 @@ export class ListAllScriptsUseCase extends AuthenticatedUseCase<{
   }
 
   async execute(input: ListAllScriptsUseCaseInput) {
+    // archived plays are only visible to users who can edit collection metadata
+    const includeArchived = hasCapability(
+      this.getUserContext().role,
+      "edit_collection_play_metadata",
+    );
     const result = await this.repository.findAllScripts({
       filters: input.filters ?? {},
       page: input.page,
       pageSize: input.pageSize,
+      includeArchived,
     } as CollectionPage);
     if (result.isFailure()) {
       return Result.failure(result.errorOrThrow());
@@ -89,6 +97,7 @@ export class ListAllScriptsUseCase extends AuthenticatedUseCase<{
         numberOfWords: record.get("number_of_words"),
         characters: record.get("characters"),
         bookmarked: record.get("bookmarked"),
+        archived: record.get("archived"),
       })),
       total,
       page: input.page,

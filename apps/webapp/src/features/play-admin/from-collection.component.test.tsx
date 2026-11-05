@@ -19,6 +19,7 @@ const scripts = [
     numberOfWords: 11,
     characters: { '11111111-1111-4111-8111-111111111111': 'HERO' },
     bookmarked: false,
+    archived: false,
   },
   {
     uri: '10000000-0000-4000-8000-000000000002',
@@ -34,6 +35,7 @@ const scripts = [
     numberOfWords: 42,
     characters: {},
     bookmarked: true,
+    archived: false,
   },
 ];
 
@@ -66,6 +68,11 @@ vi.mock('./collection-metadata.context', () => ({
     periods: ['xviiith', 'elizabethan'],
     count: 2,
   }),
+}));
+
+// no Clerk role by default: the "Edit in collection" button stays hidden
+vi.mock('@clerk/react', () => ({
+  useUser: () => ({ user: { publicMetadata: {} } }),
 }));
 
 function renderPick() {
@@ -114,6 +121,20 @@ describe('FromCollection pick step', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(screen.queryByText(/Un valet et sa maîtresse/)).toBeNull();
     expect(next.disabled).toBe(true);
+  });
+
+  it('hides the "Edit in collection" button for users without the edit_collection_play_script capability', async () => {
+    renderPick();
+    fireEvent.click(await screen.findByText("Le Jeu de l'amour et du hasard"));
+    expect(await screen.findByText(/Un valet et sa maîtresse/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Edit in collection' })).toBeNull();
+  });
+
+  it('hides the Archived filter for users without the edit_collection_play_metadata capability', async () => {
+    renderPick();
+    await screen.findByText('Hamlet');
+    expect(screen.queryByText('Archived')).toBeNull();
+    expect(screen.queryByText('Only archived')).toBeNull();
   });
 
   it('sends filters to the server and persists them in localStorage; Clear resets', async () => {

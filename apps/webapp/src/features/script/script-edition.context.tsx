@@ -38,6 +38,8 @@ const ScriptEditionContext = createContext<ScriptEditionContext | null>(null);
 
 export interface ScriptEditionContextProviderProps {
   uri: string;
+  /** Where the script lives: a personal play or the public collection. */
+  from: "play" | "collection";
 }
 
 export function ScriptEditionContextProvider(
@@ -94,7 +96,7 @@ export function ScriptEditionContextProvider(
       context.dispatch(action);
       // Persist the line server-side so saving its content doesn't hit the
       // lines_contents -> lines foreign key
-      createLineMutation.mutate({ uri: props.uri, lineId: id, lineType: "heading", position: pos });
+      createLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id, lineType: "heading", position: pos });
       const undoAction = {
         type: "UNDO_INSERT_HEADING_LINE",
         id,
@@ -127,7 +129,7 @@ export function ScriptEditionContextProvider(
         characterId,
       } as const satisfies ScriptAction;
       context.dispatch(action);
-      createLineMutation.mutate({ uri: props.uri, lineId: id, lineType: "chartext", position: pos });
+      createLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id, lineType: "chartext", position: pos });
       const undoAction = {
         type: "UNDO_INSERT_CUE_LINE",
         id,
@@ -160,7 +162,7 @@ export function ScriptEditionContextProvider(
         init,
       } as const;
       context.dispatch(action);
-      createLineMutation.mutate({ uri: props.uri, lineId: id, lineType: "freetext", position: pos });
+      createLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id, lineType: "freetext", position: pos });
       const undoAction = {
         type: "UNDO_INSERT_FREETEXT_LINE",
         id,
@@ -306,7 +308,7 @@ export function ScriptEditionContextProvider(
       // shared draft and is only visible to its author)
       const draftContent = { ...currLine, ...content, type: "draft" as const };
       saveLineContentMutation.mutate({
-        uri: props.uri,
+        uri: props.uri, from: props.from,
         lineId: id,
         content: buildContentPayload(draftContent as LineContent),
         contentType: "draft",
@@ -328,7 +330,7 @@ export function ScriptEditionContextProvider(
     });
     // Persist deletions to server
     for (const id of ids) {
-      deleteLineMutation.mutate({ uri: props.uri, lineId: id });
+      deleteLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id });
     }
   }, [props.uri, deleteLineMutation]);
   const discardChanges = useCallback(
@@ -387,7 +389,7 @@ export function ScriptEditionContextProvider(
           ? context.lineContents.get(latestVersionId)
           : undefined;
         saveLineContentMutation.mutate({
-          uri: props.uri,
+          uri: props.uri, from: props.from,
           lineId: id,
           content: {
             lineType: content.lineType,
@@ -422,7 +424,7 @@ export function ScriptEditionContextProvider(
     // id so the server row and the local entry share the same id
     if (content && content.type === "draft") {
       saveLineContentMutation.mutate({
-        uri: props.uri,
+        uri: props.uri, from: props.from,
         lineId: id,
         contentId,
         content: buildContentPayload(content),
@@ -449,7 +451,7 @@ export function ScriptEditionContextProvider(
     // Persist to server as shared draft, reusing the optimistic content id
     if (content && content.type === "draft") {
       saveLineContentMutation.mutate({
-        uri: props.uri,
+        uri: props.uri, from: props.from,
         lineId: id,
         contentId,
         content: buildContentPayload(content),
@@ -471,7 +473,7 @@ export function ScriptEditionContextProvider(
     } as const as ScriptAction;
     context.dispatch(action);
     // Persist deletion to server
-    deleteLineContentMutation.mutate({ uri: props.uri, lineId: id, contentId });
+    deleteLineContentMutation.mutate({ uri: props.uri, from: props.from, lineId: id, contentId });
   }, [context, props.uri, deleteLineContentMutation]);
   const deletePreviousVersion = useCallback((id: string, contentId: string) => {
     if (!context) {
@@ -485,7 +487,7 @@ export function ScriptEditionContextProvider(
     } as const as ScriptAction;
     context.dispatch(action);
     // Persist deletion to server
-    deleteLineContentMutation.mutate({ uri: props.uri, lineId: id, contentId });
+    deleteLineContentMutation.mutate({ uri: props.uri, from: props.from, lineId: id, contentId });
   }, [context, props.uri, deleteLineContentMutation]);
   const applySharedDraftAsNewVersion = useCallback((id: string, sharedDraft: LineContent) => {
     if (!context) {
@@ -505,7 +507,7 @@ export function ScriptEditionContextProvider(
     context.dispatch(action);
     // Persist to server as new saved version
     saveLineContentMutation.mutate({
-      uri: props.uri,
+      uri: props.uri, from: props.from,
       lineId: id,
       contentId,
       content: buildContentPayload(sharedDraft),
@@ -532,7 +534,7 @@ export function ScriptEditionContextProvider(
       context.dispatch(action);
       // Persist to server as new saved version
       saveLineContentMutation.mutate({
-        uri: props.uri,
+        uri: props.uri, from: props.from,
         lineId: id,
         contentId,
         content: buildContentPayload(previousVersion),

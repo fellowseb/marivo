@@ -2,7 +2,9 @@ import classNames from "classnames";
 import { v4 as uuidv4 } from "uuid";
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
+import { useUser } from "@clerk/react";
 import { useMutation, useMutationState } from "@tanstack/react-query";
+import { hasCapability, parseRole } from "@marivo/utils";
 import { useTRPC } from "../../trpc";
 import Button from "../../components/button.component";
 import Icon from "../../components/icon.component";
@@ -68,8 +70,16 @@ interface ImportScriptMetadata {
 function ImportStep() {
   const navigate = useNavigate();
   const trpc = useTRPC();
-  const { mutate, status: initStatus } = useMutation(trpc.plays.initImportScript.mutationOptions());
-  const { step, importId } = useImportScriptContext();
+  const { step, importId, setImportId, startOver } = useImportScriptContext();
+  const { mutate, status: initStatus } = useMutation(
+    trpc.plays.initImportScript.mutationOptions({
+      onSuccess: (data) => {
+        // the importId is server-generated: adopt it once, which starts the
+        // status poll; uploads then run under it
+        setImportId(data.importId);
+      },
+    }),
+  );
   const opts = trpc.plays.uploadFileForScriptImport.mutationOptions({
     meta: {
       test: true,
@@ -91,6 +101,9 @@ function ImportStep() {
   const inputFromDiskRef = useRef<HTMLInputElement>(null);
   const inputURLRef = useRef<HTMLInputElement>(null);
   const handleFileInputChange = () => {
+    if (isPending) {
+      return;
+    }
     setFiles((files) => {
       const fileListCount = inputFromDiskRef.current?.files?.length ?? 0;
       const f: ScriptImportFile[] = [];
@@ -143,10 +156,14 @@ function ImportStep() {
       return newFiles;
     });
   };
+  // Files submitted with the last Import click; uploaded once the
+  // server-generated importId comes back.
+  const [submittedFiles, setSubmittedFiles] = useState<ScriptImportFile[] | null>(null);
   const handleInitImport = () => {
     resetUpload();
+    setStarted(true);
+    setSubmittedFiles(files);
     mutate({
-      importId,
       files: files.map((f) => {
         return f.type === "url"
           ? f
@@ -160,18 +177,35 @@ function ImportStep() {
     });
   };
   const [scriptLineHovered, setScriptLineHovered] = useState<number | null>(null);
+  // Stays true from clicking Import until the status poll reports processing
+  // (or an error): closes the gap where the Import button would re-enable
+  // between init success and the first poll.
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (initStatus === "success") {
-      files.forEach((entry) => {
+    if (step?.name === "import" && (step.processing || step.error)) {
+      setStarted(false);
+    }
+  }, [step]);
+  useEffect(() => {
+    if (initStatus === "error" || statusUpload === "error") {
+      setStarted(false);
+    }
+  }, [initStatus, statusUpload]);
+
+  // Once the server-generated importId is adopted, upload the submitted files.
+  useEffect(() => {
+    if (initStatus === "success" && importId && submittedFiles) {
+      submittedFiles.forEach((entry) => {
         if (entry.type === "file") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (entry.file as any).id = entry.id;
           mutateUpload(entry.file);
         }
       });
+      setSubmittedFiles(null);
     }
-  }, [initStatus]);
+  }, [initStatus, importId, submittedFiles]);
   const handleFileLineEnter = (i: number) => () => {
     setScriptLineHovered(i);
   };
@@ -179,6 +213,9 @@ function ImportStep() {
     setScriptLineHovered(null);
   };
   const handleURLButtonClick = () => {
+    if (isPending) {
+      return;
+    }
     setFiles((files) => {
       const url = inputURLRef.current?.value;
       if (!url) {
@@ -202,6 +239,10 @@ function ImportStep() {
     event.preventDefault();
   };
   const handleDrop = (event: DragEvent) => {
+    if (isPending) {
+      event.preventDefault();
+      return;
+    }
     if (event.dataTransfer.files) {
       const droppedFiles = event.dataTransfer.files;
       setFiles((files) => {
@@ -227,9 +268,13 @@ function ImportStep() {
     navigate("/plays/new");
   };
   const isPending =
+    started ||
     initStatus === "pending" ||
     statusUpload === "pending" ||
     (step?.name === "import" && step.processing);
+  const uploadsPending = uploadsState.filter((s) => s.status === "pending").length;
+  const uploadsDone = uploadsState.filter((s) => s.status === "success").length;
+  const importError = step?.name === "import" ? step.error : undefined;
   return (
     <FlowStep
       title="Create from an external source ▶  Import script"
@@ -254,6 +299,33 @@ function ImportStep() {
         <br />
         Known sources: libre-theatre.fr, wikisource.com.
       </Admonition>
+      {importError ? (
+        <div
+          role="alert"
+          style={{ color: "#b00020", display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <span>{importError}</span>
+          <Button icon="redo" onClick={startOver}>
+            Start over
+          </Button>
+        </div>
+      ) : null}
+      {initStatus === "error" ? (
+        <div role="alert" style={{ color: "#b00020" }}>
+          Failed to start the import. Your files are still selected — you can try again.
+        </div>
+      ) : null}
+      {step?.name === "import" && step.processing ? (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <DotsLoader size="medium" />
+          <span>Processing files… this can take a minute. You can stay on this page.</span>
+        </div>
+      ) : null}
+      {uploadsPending > 0 ? (
+        <div>
+          Uploading files… ({uploadsDone}/{files.length})
+        </div>
+      ) : null}
       <div
         style={{
           display: "flex",
@@ -412,13 +484,20 @@ function NameStepFromImport(props: {
   metadata: ImportScriptMetadata;
 }) {
   const trpc = useTRPC();
+  const { user } = useUser();
   const { mutateAsync } = useMutation(trpc.plays.createFromImport.mutationOptions());
+  const { mutateAsync: addToCollection } = useMutation(
+    trpc.playsCollection.addToCollection.mutationOptions(),
+  );
+  const role = parseRole((user?.publicMetadata as { role?: unknown } | undefined)?.role);
+  const canCreateCollectionPlay = hasCapability(role, "create_collection_play");
   return (
     <NamePlayStep
       onBack={props.onBack}
       metadata={props.metadata}
-      allowAddToCommons
+      allowAddToCommons={canCreateCollectionPlay}
       createPlay={(title) => mutateAsync({ title, importId: props.importId })}
+      publishToCollection={(input) => addToCollection({ importId: props.importId, ...input })}
     />
   );
 }

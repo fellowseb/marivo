@@ -25,6 +25,9 @@ import FromCollection, {
 import ScriptImportsPage, {
   ScriptImportsPageBreadcrumbs,
 } from "./features/play-admin/script-imports-page.component";
+import CollectionPlayEditPage, {
+  COLLECTION_EDIT_ROUTE,
+} from "./features/play-admin/collection-play-edit-page.component";
 import { CollectionMetadataContextProvider } from "./features/play-admin/collection-metadata.context";
 
 /** Contain a page-level crash inside its route, keeping the surrounding layout alive. */
@@ -71,6 +74,10 @@ function AppRoutes() {
             <Route path="*" element={<PageNotFound />} />
           </Route>
           <Route element={withErrorBoundary(<PlayPage />)} path={`${PLAY_ROUTE_BASE}/*`} />
+          <Route
+            element={withErrorBoundary(<CollectionPlayEditPage />)}
+            path={COLLECTION_EDIT_ROUTE}
+          />
           <Route path="*" element={withErrorBoundary(<AuthLayout />)}>
             <Route path="signin/*" element={withErrorBoundary(<Signin />)} />
             <Route path="signup/*" element={withErrorBoundary(<Signup />)} />

@@ -11,6 +11,7 @@ interface CollectionItemProps {
   numberOfMaleRoles: number | null;
   numberOfFemaleRoles: number | null;
   bookmarked: boolean;
+  archived: boolean;
   selected: boolean;
   onSelect: () => void;
 }
@@ -40,6 +41,7 @@ export function CollectionItem(props: CollectionItemProps) {
       <div className={styles.text}>
         <div className={styles.title}>
           {props.title}
+          {props.archived ? <span className={styles.archivedBadge}>archived</span> : null}
           {props.bookmarked ? (
             <span className={styles.bookmark} role="img" aria-label="Bookmarked">
               <Icon value="memorize" size="medium" mode="primary" />

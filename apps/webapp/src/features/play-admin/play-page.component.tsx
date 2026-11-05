@@ -5,6 +5,7 @@ import PlayPageLayout from "../../layouts/play-page-layout.component";
 import DotsLoader from "../../components/dots-loader.component";
 import PageNotFound from "../../components/page-not-found.component";
 import ErrorBoundary from "../../components/error-boundary.component";
+import { TitleTab } from "../../components/title-tab.component";
 import ScriptTab from "../script-edition/script-tab.component";
 import MemorizeTab from "../lines-memorization/memorize-tab.component";
 import PlaySettingsTab from "../play-settings/play-settings-tab.component";
@@ -17,7 +18,6 @@ import { ScriptUndoRedoContextProvider } from "../script/script-undo-redo.contex
 import { ScriptTabToolbarContextProvider } from "../script-edition/script-tab-toolbar.context.tsx";
 import PermissionProtected, { checkPermission } from "./permission-protected.component";
 import { PlayContextProvider, usePlayContext, type PlayContextResult } from "./play.context";
-import styles from "./play-page.module.css";
 
 function PlayPageTitle() {
   const play = usePlayContext();
@@ -27,12 +27,7 @@ function PlayPageTitle() {
   }
   return play.match({
     success({ details }) {
-      return (
-        <div className={styles.playTitle}>
-          <div className={styles.playIcon}></div>
-          {details.title}
-        </div>
-      );
+      return <TitleTab title={details.title} />;
     },
     failure() {
       return <>{"?"}</>;
@@ -161,7 +156,7 @@ function PlayPage() {
                         path={PLAY_SUB_ROUTES_PATHS.script}
                         element={
                           <PermissionProtected>
-                            <ScriptEditionContextProvider uri={uri}>
+                            <ScriptEditionContextProvider uri={uri} from="play">
                               <ScriptTab />
                             </ScriptEditionContextProvider>
                           </PermissionProtected>

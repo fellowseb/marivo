@@ -34,34 +34,17 @@ test('import a script from 3 files (stubbed LLM), review it and open the play', 
     await expect(page.getByText('Selected script files: 3')).toBeVisible();
 
     // Start the import: init + file uploads; the last upload publishes the
-    // worker job (redis queue -> worker -> garage -> mock LLM). The button
-    // stays disabled while init/uploads are pending, so wait for it to
-    // re-enable before leaving the page (leaving early can cancel the uploads).
+    // worker job (redis queue -> worker -> garage -> mock LLM). The Import
+    // button stays disabled while init/uploads/processing are pending.
     const importButton = page.getByRole('button', { name: 'Import', exact: true });
     await importButton.click();
-    await expect(importButton).toBeEnabled({ timeout: 120_000 });
+    await expect(importButton).toBeDisabled();
 
-    // The imports page lists ongoing imports and shows "Resume" once the
-    // worker has stored a reviewable result. The page does not auto-poll,
-    // so click Refresh until the button appears.
-    await page.goto('/plays/imports');
-    const resume = page.getByRole('button', { name: 'Resume' }).first();
-    const refresh = page.getByRole('button', { name: 'Refresh' });
-    let resumed = false;
-    for (let attempt = 0; attempt < 40 && !resumed; attempt++) {
-      resumed = await resume.isVisible().catch(() => false);
-      if (!resumed) {
-        await refresh.click();
-        await page.waitForTimeout(3_000);
-      }
-    }
-    expect(resumed, 'import never reached the reviewing state').toBe(true);
-    await resume.click();
-    await page.waitForURL(/\/plays\/new\/import\?resume=/);
-
-    // Preview step: the parsed (mocked) lines are displayed
+    // The import page polls the status (processing feedback may be too fast
+    // to catch with the mock) and auto-advances to the preview step once the
+    // worker has stored a reviewable result.
     await expect(page.getByRole('button', { name: 'Done', exact: true })).toBeVisible({
-      timeout: 60_000,
+      timeout: 120_000,
     });
     await expect(lineWithText(page, 'Hello from the mock.')).toBeVisible();
     await page.getByRole('button', { name: 'Done', exact: true }).click();

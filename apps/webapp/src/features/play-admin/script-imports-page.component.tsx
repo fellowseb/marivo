@@ -13,6 +13,7 @@ import type { ImportStatus } from "./import-filters.component";
 interface ScriptImport {
   id: string;
   status: "uploading_files" | "processing_files" | "reviewing" | "done" | "error";
+  error: string | null;
 }
 
 function getStatusLabel(status: ScriptImport["status"]): string {
@@ -70,6 +71,11 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
             {statusLabel}
           </span>
         </div>
+        {imp.status === "error" && imp.error ? (
+          <div className={styles.scriptImportDetails} style={{ color: "#b00020" }}>
+            {imp.error}
+          </div>
+        ) : null}
         {isReviewing && (
           <div className={styles.scriptImportActions}>
             <NavLink to={`/plays/new/import?resume=${imp.id}`}>

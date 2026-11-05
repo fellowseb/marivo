@@ -39,6 +39,7 @@ describe("ListAllScriptsUseCase", () => {
             number_of_words: 5,
             characters: { "11111111-1111-4111-8111-111111111111": "ALICE" },
             bookmarked: true,
+            archived: false,
           }),
         ],
         total: 54,
@@ -52,6 +53,7 @@ describe("ListAllScriptsUseCase", () => {
       filters: { author: "Marivaux" },
       page: 2,
       pageSize: 20,
+      includeArchived: false,
     });
     const output = result.dataOrThrow();
     expect(output.total).toBe(54);
@@ -63,6 +65,24 @@ describe("ListAllScriptsUseCase", () => {
       author: "Pierre de Marivaux",
       numberOfWords: 5,
       bookmarked: true,
+      archived: false,
+    });
+  });
+
+  it("includes archived plays for users with the edit_collection_play_metadata capability", async () => {
+    const maintainerContext = {
+      get: () => ({ userId: 1, role: "collection-maintainer" as const }),
+    } as unknown as UserContextService;
+    const maintainerUseCase = new ListAllScriptsUseCase(repository, maintainerContext);
+    repository.findAllScripts.mockResolvedValue(Result.ok({ records: [], total: 0 }));
+
+    await maintainerUseCase.execute({ filters: { archivedOnly: true }, page: 1, pageSize: 20 });
+
+    expect(repository.findAllScripts).toHaveBeenCalledWith({
+      filters: { archivedOnly: true },
+      page: 1,
+      pageSize: 20,
+      includeArchived: true,
     });
   });
 

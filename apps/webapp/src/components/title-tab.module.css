@@ -1,0 +1,28 @@
+.icon {
+  width: 20px;
+  height: 20px;
+  background-color: #1f313c;
+  mask-image: url("/src/assets/book-open-01.svg");
+  mask-repeat: no-repeat;
+  mask-position: 0 0px;
+}
+
+.tab {
+  gap: 4px;
+  height: 38px;
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  color: #1f313c;
+  text-align: left;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: #ece2cc;
+  border-start-start-radius: 10px;
+  border-start-end-radius: 10px;
+  padding: 0 4px 0 4px;
+  position: relative;
+  top: 2px;
+}
