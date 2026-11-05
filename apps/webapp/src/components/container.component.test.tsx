@@ -23,4 +23,9 @@ describe("Container", () => {
     expect(box!.className).toContain("container");
     expect(box!.className).toContain("my-box");
   });
+
+  it("passes through inline style", () => {
+    const { container } = render(<Container style={{ flexGrow: 1 }}>x</Container>);
+    expect(container.querySelector("div")!.style.flexGrow).toBe("1");
+  });
 });
