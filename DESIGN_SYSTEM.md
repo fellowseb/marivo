@@ -144,7 +144,7 @@ The `:root` block in `index.css` is the **Sable light** theme (the historical de
 | **Forêt** | `foret-light` / `foret-dark` | Deep woodland greens |
 | **Océan** | `ocean-light` / `ocean-dark` | Cool seaside blues |
 
-Each override block redefines the full color token set. Status colors (danger/success/info/pink/sky) keep their hue across themes; brand tokens (primary, gold, sand, cream, linen, highlight, brown) shift per palette, and dark modes invert the lightness ramp (backgrounds become dark tints of the theme hue, primary text becomes a light tint).
+Each override block redefines the full color token set. Status colors (danger/success/info/pink/sky) keep their hue across themes; brand tokens (primary, gold, sand, cream, linen, highlight, brown) shift per palette, and dark modes invert the lightness ramp (backgrounds become dark tints of the theme hue, primary text becomes a light tint). `--color-white` and `--color-warm-white` are surface tokens (script paper, panels, toggle knob): they stay white in light themes but become a dark elevated surface in dark themes.
 
 Preview swatches for the theme picker are available as always-light tokens: `--swatch-sable-1..3`, `--swatch-foret-1..3`, `--swatch-ocean-1..3`.
 
