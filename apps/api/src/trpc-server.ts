@@ -15,12 +15,14 @@ import playsCollectionRoutes from "./domains/plays/plays-collection.trpc-routes.
 import playsWorkerRoutes from "./domains/plays/plays-worker.trpc-routes.ts";
 import storageRoutes from "./domains/storage/storage.trpc-routes.ts";
 import scriptRoutes from "./domains/script/script.trpc-routes.ts";
+import userPreferencesRoutes from "./domains/user-preferences/user-preferences.trpc-routes.ts";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 const appRouter = router({
   plays: playsRoutes,
   playsCollection: playsCollectionRoutes,
   script: scriptRoutes,
+  userPreferences: userPreferencesRoutes,
 });
 
 const workerRouter = router({

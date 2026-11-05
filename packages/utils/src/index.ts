@@ -10,3 +10,17 @@ export {
   type Role,
   type Capability,
 } from "./capabilities.ts";
+export {
+  THEME_NAMES,
+  THEME_MODES,
+  THEME_VALUES,
+  DEFAULT_THEME,
+  isThemeValue,
+  parseThemeValue,
+  getThemeName,
+  getThemeMode,
+  makeThemeValue,
+  type ThemeName,
+  type ThemeMode,
+  type ThemeValue,
+} from "./themes.ts";

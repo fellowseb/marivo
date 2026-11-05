@@ -126,11 +126,13 @@ function App() {
       <ErrorBoundary fallback={<ErrorFallback />}>
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
           <TrpcApiProvider apiUrl={API_URL}>
+            <ThemeProvider>
             <NotificationsContextProvider>
               <BrowserRouter>
                 <Routes />
               </BrowserRouter>
             </NotificationsContextProvider>
+            </ThemeProvider>
           </TrpcApiProvider>
         </ClerkProvider>
       </ErrorBoundary>

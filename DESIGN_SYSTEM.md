@@ -119,14 +119,37 @@ The base font family (`Arimo`) and weight are set on `body` in `index.css`.
 - Component-local custom properties (e.g. `--button-height`, `--toggle-diameter`) are allowed for component-internal calculations; they must derive their colors from the global tokens.
 - New colors should reuse an existing token when possible. If a genuinely new color is needed, add it to the `:root` block in `index.css` (the single source of truth) and document it here.
 
-## Theming (future work)
+## Theming
 
-Because every color goes through a CSS custom property, themes (e.g. a light/dark switch) can be introduced later by re-declaring the token values under a `[data-theme="..."]` selector — no component CSS will need to change:
+Every color goes through a CSS custom property, so themes are declared as token overrides on the document element — no component CSS changes. Two attributes drive theming:
 
-```css
-[data-theme="dark"] {
-  --color-cream: #14181c;
-  --color-primary: #e4d6bc;
-  /* ... */
-}
-```
+- `data-theme` — the palette: `sable` (default), `foret` or `ocean`
+- `data-mode` — the variant: `light` (default) or `dark`
+
+The `:root` block in `index.css` is the **Sable light** theme (the historical default). Five override blocks follow it:
+
+| Selector | Theme |
+| --- | --- |
+| `[data-theme="foret"]` | Forêt light |
+| `[data-theme="ocean"]` | Océan light |
+| `[data-mode="dark"]` | Sable dark |
+| `[data-theme="foret"][data-mode="dark"]` | Forêt dark |
+| `[data-theme="ocean"][data-mode="dark"]` | Océan dark |
+
+### The three themes
+
+| Theme | Value | Description |
+| --- | --- | --- |
+| **Sable** | `sable-light` / `sable-dark` | Warm parchment tones (default) |
+| **Forêt** | `foret-light` / `foret-dark` | Deep woodland greens |
+| **Océan** | `ocean-light` / `ocean-dark` | Cool seaside blues |
+
+Each override block redefines the full color token set. Status colors (danger/success/info/pink/sky) keep their hue across themes; brand tokens (primary, gold, sand, cream, linen, highlight, brown) shift per palette, and dark modes invert the lightness ramp (backgrounds become dark tints of the theme hue, primary text becomes a light tint).
+
+Preview swatches for the theme picker are available as always-light tokens: `--swatch-sable-1..3`, `--swatch-foret-1..3`, `--swatch-ocean-1..3`.
+
+### Where themes live
+
+- **Shared enum**: `packages/utils/src/themes.ts` (`THEME_VALUES`, `parseThemeValue`, etc.) — used by both the API (validation, persistence) and the webapp.
+- **Persistence**: per-user, stored in the `users.theme` column (default `sable-light`) through the `userPreferences.getTheme` / `userPreferences.setTheme` tRPC routes; cached in `localStorage` under `marivo-theme` and applied before first paint in `main.tsx` to avoid a flash of the default theme.
+- **Switcher**: `apps/webapp/src/features/theme/theme-switcher.component.tsx`, mounted as a custom page (`<UserProfile.Page label="Theme">`) inside Clerk's `<UserProfile>` on the account page. Clerk's own components pick up the active theme through the `var(--color-cream-deep)` background passed in its `appearance` prop.
