@@ -63,9 +63,9 @@
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 4px;
-  border: 1px solid #cebc96;
-  border-radius: 4px;
-  background: #e4d6bc;
+  border: 1px solid var(--color-sand-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-sand);
   padding: 4px 6px;
   cursor: pointer;
 }
@@ -124,7 +124,7 @@
 .separator {
   width: 1px;
   align-self: stretch;
-  background: #cebc96;
+  background: var(--color-sand-dark);
   margin-left: 4px;
   margin-right: 4px;
 }
@@ -139,11 +139,11 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #f3ead6;
+  background: var(--color-cream-dark);
   font-weight: 200;
   font-size: 1.1em;
   padding: 4px 6px;
-  border-bottom: 1px solid #cebc96;
+  border-bottom: 1px solid var(--color-sand-dark);
   font-style: italic;
 }
 
@@ -188,9 +188,9 @@
   padding: 12px;
   display: flex;
   flex-direction: column;
-  background: #f3ead6;
-  border-left: 1px solid #cebc96;
-  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.15);
+  background: var(--color-cream-dark);
+  border-left: 1px solid var(--color-sand-dark);
+  box-shadow: var(--shadow-inset-left);
 }
 
 .detailsBody {
@@ -234,7 +234,7 @@
 }
 
 .bookmarkButton {
-  background-color: #d63384;
+  background-color: var(--color-pink);
 }
 
 .synopsis {

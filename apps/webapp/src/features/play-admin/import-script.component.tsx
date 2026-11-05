@@ -302,7 +302,7 @@ function ImportStep() {
       {importError ? (
         <div
           role="alert"
-          style={{ color: "#b00020", display: "flex", alignItems: "center", gap: "8px" }}
+          style={{ color: "var(--color-error)", display: "flex", alignItems: "center", gap: "8px" }}
         >
           <span>{importError}</span>
           <Button icon="redo" onClick={startOver}>
@@ -311,7 +311,7 @@ function ImportStep() {
         </div>
       ) : null}
       {initStatus === "error" ? (
-        <div role="alert" style={{ color: "#b00020" }}>
+        <div role="alert" style={{ color: "var(--color-error)" }}>
           Failed to start the import. Your files are still selected — you can try again.
         </div>
       ) : null}
@@ -358,7 +358,7 @@ function ImportStep() {
                   display: "flex",
                   alignItems: "center",
                   gap: "4px",
-                  background: "#1f313C22",
+                  background: "var(--color-primary-a13)",
                   borderRadius: "10px",
                 }}
                 onMouseEnter={handleFileLineEnter(i)}
@@ -424,7 +424,7 @@ function ImportStep() {
             borderRadius: "10px",
             alignSelf: "stretch",
             justifyContent: "center",
-            background: dragOver ? "#1f313C22" : "transparent",
+            background: dragOver ? "var(--color-primary-a13)" : "transparent",
             transition: "background 0.1s ease",
           }}
           onDragEnter={handleDragEnter}

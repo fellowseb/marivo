@@ -7,7 +7,7 @@
   border: 2px solid var(--border-color);
   background-color: var(--bg-color);
   padding: 4px;
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
   display: flex;
   align-items: center;
   gap: 10px;

@@ -9,7 +9,7 @@
 }
 
 .desc {
-  color: #1f313c;
+  color: var(--color-primary);
   text-align: center;
 }
 

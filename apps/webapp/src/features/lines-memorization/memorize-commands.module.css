@@ -9,24 +9,24 @@
   padding: 10px;
   z-index: 200;
   margin-top: 50px;
-  border-radius: 4px;
-  border: 1px solid #e4d6bc;
-  box-shadow: 2px 2px 2px #e4d6bc;
-  background-color: #e8e4da;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-sand);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-linen);
 }
 
 .playContainer {
   flex: 1;
   display: flex;
   align-items: center;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   font-weight: bold;
 }
 
 .play {
   mask: url("/src/assets/play-circle.svg") no-repeat;
   mask-clip: contain;
-  background-color: #1f313c;
+  background-color: var(--color-primary);
   width: 4em;
   height: 4em;
 }
@@ -57,10 +57,10 @@
 }
 
 .optionsTitle {
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   margin: 0;
   margin-bottom: 20px;
-  background-color: #e4d6bc;
+  background-color: var(--color-sand);
   text-align: center;
   align-self: stretch;
   padding: 4px;

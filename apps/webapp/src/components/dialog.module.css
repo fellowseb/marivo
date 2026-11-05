@@ -1,8 +1,8 @@
 .dialog {
-  border: 10px solid #ffffff33;
+  border: 10px solid var(--color-white-a20);
   min-width: 400px;
-  border-radius: 4px;
-  background-color: #e4d6bc;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-sand);
   display: flex;
   flex-direction: column;
   align-items: center;

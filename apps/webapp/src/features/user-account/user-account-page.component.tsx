@@ -28,7 +28,7 @@ export function UserAccountPage() {
         appearance={{
           theme: "simple",
           variables: {
-            colorBackground: "#ece2cc",
+            colorBackground: "var(--color-cream-deep)",
           },
         }}
       />

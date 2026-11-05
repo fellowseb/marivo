@@ -19,9 +19,9 @@
   gap: 1ch;
   padding: 1ch;
   padding-top: 2ch;
-  border: 1px solid #cebc96;
-  background-color: #e4d6bc33;
-  border-radius: 4px;
+  border: 1px solid var(--color-sand-dark);
+  background-color: var(--color-sand-a20);
+  border-radius: var(--radius-sm);
   overflow-x: hidden;
 }
 

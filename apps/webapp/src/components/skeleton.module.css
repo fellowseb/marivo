@@ -15,13 +15,13 @@
 }
 
 .skeleton * {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-lg);
 }
 
 .skeleton .lines > div {
   /* Define the colors as css custom props */
-  --_default-color: #1f313c22;
-  --_shimmer-color: #1f313c;
+  --_default-color: var(--color-primary-a13);
+  --_shimmer-color: var(--color-primary);
 
   /* Apply the animation that moves the background */
   animation: skeleton-shimmer 2s ease-out infinite;
@@ -43,8 +43,8 @@
 
 .skeleton .image {
   /* Define the colors as css custom props */
-  --_default-color: #1f313c22;
-  --_shimmer-color: #1f313c;
+  --_default-color: var(--color-primary-a13);
+  --_shimmer-color: var(--color-primary);
 
   /* Apply the animation that moves the background */
   animation: skeleton-shimmer 2s ease-out infinite;

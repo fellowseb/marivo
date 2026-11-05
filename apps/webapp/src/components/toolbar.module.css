@@ -9,39 +9,39 @@
 .item {
   height: 26px;
   cursor: pointer;
-  color: #1f313c;
-  font-size: 0.8rem;
-  border-radius: 4px;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm);
   align-items: center;
-  border: 1px solid #e4d6bc;
-  border: 1px solid #7b520033;
+  border: 1px solid var(--color-sand);
+  border: 1px solid var(--color-brown-a20);
   display: flex;
   flex-direction: row;
   gap: 2px;
-  background-color: #7b520022;
+  background-color: var(--color-brown-a13);
   padding: 0;
   white-space: nowrap;
 }
 
 .item:hover {
-  background-color: #ffffff22;
+  background-color: var(--color-white-a13);
 }
 
 .item:focus-visible {
-  background-color: #e8ce7d;
+  background-color: var(--color-gold);
 }
 
 .item:disabled {
-  background-color: #cccccc66;
-  color: #999;
+  background-color: var(--color-gray-border-a40);
+  color: var(--color-gray-light);
 }
 
 .item:disabled .iconContainer {
-  background-color: #7b520022;
+  background-color: var(--color-brown-a13);
 }
 
 .iconContainer {
-  background-color: #7b520033;
+  background-color: var(--color-brown-a20);
   width: 20px;
   height: 100%;
   display: flex;

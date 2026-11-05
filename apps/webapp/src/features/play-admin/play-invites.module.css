@@ -9,10 +9,10 @@
 
 .invite {
   list-style: none;
-  border: 1px solid #e4d6bc;
-  border-left: 10px solid #60c5ea;
-  border-radius: 4px;
-  background-color: #60c5ea44;
+  border: 1px solid var(--color-sand);
+  border-left: 10px solid var(--color-sky);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-sky-a27);
   padding: 0px;
   display: flex;
   flex-direction: row;
@@ -57,7 +57,7 @@
 
 .playTitle {
   font-family: "Lobster Two", sans-serif;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   font-weight: bold;
   margin-bottom: 0.5rem;
 }

@@ -30,6 +30,6 @@
 .blockingPanel {
   flex: 2;
   background: white;
-  border: 1px solid #e4d6bc;
+  border: 1px solid var(--color-sand);
   width: 46vw;
 }

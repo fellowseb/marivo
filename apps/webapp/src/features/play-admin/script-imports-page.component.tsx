@@ -72,7 +72,7 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
           </span>
         </div>
         {imp.status === "error" && imp.error ? (
-          <div className={styles.scriptImportDetails} style={{ color: "#b00020" }}>
+          <div className={styles.scriptImportDetails} style={{ color: "var(--color-error)" }}>
             {imp.error}
           </div>
         ) : null}

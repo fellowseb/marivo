@@ -8,9 +8,9 @@
   overflow-x: hidden;
   box-sizing: border-box;
   padding: 20px 1px 20px 10px;
-  border: 1px solid #cebc96;
-  border-radius: 4px;
-  background-color: #e4d6bc33;
+  border: 1px solid var(--color-sand-dark);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-sand-a20);
   flex: 1 1 0;
   scrollbar-gutter: stable;
 }
@@ -28,20 +28,20 @@
   margin: 0;
   min-width: 600px;
   min-height: 125px;
-  border: 1px solid #e4d6bc;
-  border-left: 10px solid #1f313c22;
-  border-radius: 4px;
-  background-color: #e8e4da;
+  border: 1px solid var(--color-sand);
+  border-left: 10px solid var(--color-primary-a13);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-linen);
   padding: 12px;
 }
 
 .play > a {
-  border: 1px solid #1f313c;
-  border-left: 10px solid #1f313c;
-  border-radius: 4px;
-  background-color: #e8e4da;
-  background-color: #99999914;
-  color: #1f313c;
+  border: 1px solid var(--color-primary);
+  border-left: 10px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-linen);
+  background-color: var(--color-gray-light-a08);
+  color: var(--color-primary);
   text-decoration: none;
   margin: 0px;
   min-height: 100px;
@@ -53,30 +53,30 @@
 }
 
 .play.disabled > a {
-  border-left: 10px solid #1f313c22;
+  border-left: 10px solid var(--color-primary-a13);
 }
 
 .play.disabled > a:hover {
   cursor: default;
-  background-color: #e8e4da;
-  border-left: 10px solid #1f313c22;
+  background-color: var(--color-linen);
+  border-left: 10px solid var(--color-primary-a13);
 }
 
 .play.disabled .playPoster,
 .play.disabled:hover .playPoster {
-  background-color: #1f313c22;
+  background-color: var(--color-primary-a13);
 }
 
 .play > a:focus {
   text-decoration: none;
-  border: 1px solid #e8ce7d;
-  border-left: 10px solid #e8ce7d;
+  border: 1px solid var(--color-gold);
+  border-left: 10px solid var(--color-gold);
 }
 
 .play > a:hover {
   cursor: pointer;
-  background-color: #1f313c19;
-  border-left: 10px solid #1f313c;
+  background-color: var(--color-primary-a10);
+  border-left: 10px solid var(--color-primary);
 }
 
 .playTitle {
@@ -85,7 +85,7 @@
   align-items: center;
   gap: 4px;
   font-family: "Lobster Two", sans-serif;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
@@ -107,8 +107,8 @@
   display: none;
   width: 100px;
   height: 100px;
-  background-color: #1f313c;
-  border-radius: 4px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-sm);
 }
 
 .playPosterOverlay {
@@ -117,7 +117,7 @@
   mask: url("/src/assets/book-closed.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
-  background-color: #e8e4da;
+  background-color: var(--color-linen);
 }
 
 .playPosterOverlay.opening {
@@ -133,7 +133,7 @@
 }
 
 .play:hover .playPoster {
-  background-color: #1f313c;
+  background-color: var(--color-primary);
 }
 
 .play:hover .playPosterOverlay {
@@ -154,7 +154,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: var(--color-gray-light);
   flex: 1;
 }
 
