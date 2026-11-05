@@ -4,6 +4,15 @@ This document describes the design token layer for the webapp (`apps/webapp`). A
 
 A guard test (`apps/webapp/src/design-tokens.test.ts`) enforces this: it fails when a CSS file outside `index.css` contains a hardcoded hex color or references an undefined token.
 
+## Theming architecture
+
+Color tokens are **derived, not hand-specified**. Each theme defines only a handful of base hues (`--t-brand`, `--t-accent`, `--t-warm`, `--t-cream`, `--t-brown`, `--t-danger`, `--t-success`, `--t-info`, `--t-pink`, `--t-sky`); every `--color-*` token is computed from them with `color-mix(in oklch, …)` (OKLCH is perceptually uniform, unlike HSL lightness). Alpha variants are `color-mix(in oklch, var(--color-x) N%, transparent)`.
+
+- **Light themes** (`:root` = Sable, `[data-theme="foret"]`, `[data-theme="ocean"]`) only override the `--t-*` base hues; all `--color-*` tokens follow automatically.
+- **Dark mode** is a single `[data-mode="dark"]` block that remaps the semantic tokens once for every theme: surfaces become a brand-tinted near-black base (`#0c0f12` + brand) with elevation expressed as white overlays; text becomes a white alpha ramp (`0.87` / `0.6` / `0.45`, never pure white); accents are desaturated and lightened; status hues keep their hue but lighten. Never use pure `#000` for surfaces in dark mode.
+- To add a theme: add a `[data-theme="name"]` block setting only the `--t-*` hues, plus preview swatches. Dark mode comes for free.
+- The token tables below show the **Sable light** render for reference; other themes/mode derive their values as described above.
+
 ## Color tokens
 
 ### Primary
@@ -117,7 +126,8 @@ The base font family (`Arimo`) and weight are set on `body` in `index.css`.
 
 - Never hardcode hex colors, font sizes, radii, or shadows in `*.module.css` files or inline styles — use the tokens above.
 - Component-local custom properties (e.g. `--button-height`, `--toggle-diameter`) are allowed for component-internal calculations; they must derive their colors from the global tokens.
-- New colors should reuse an existing token when possible. If a genuinely new color is needed, add it to the `:root` block in `index.css` (the single source of truth) and document it here.
+- New colors should reuse an existing token when possible. If a genuinely new color is needed, add it as a `--t-*` base hue (preferred) or a derived `--color-*` token in the `:root` block of `index.css` (the single source of truth) and document it here.
+- New themes only set `--t-*` hues in a `[data-theme="name"]` block — do not re-specify `--color-*` per theme or per mode.
 
 ## Theming
 
