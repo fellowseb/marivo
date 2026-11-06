@@ -74,10 +74,15 @@ vi.mock('../../trpc', () => ({
   }),
 }));
 
-function renderWithProviders(node: React.ReactNode, initialEntries?: string[]) {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+function renderWithProviders(
+  node: React.ReactNode,
+  initialEntries?: string[],
+  queryClient?: QueryClient,
+) {
+  const client =
+    queryClient ?? new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={client}>
       <MemoryRouter initialEntries={initialEntries}>
         {node}
       </MemoryRouter>
@@ -141,6 +146,25 @@ describe('ImportScriptContext status transitions', () => {
     expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
     expect(screen.getByTestId('probe').textContent).toContain('"processing":true');
     expect(screen.getByTestId('probe').textContent).not.toContain('no-step');
+  });
+
+  it('resume with a warm script cache starts directly on preview (no import-step flash)', async () => {
+    statusValue = REVIEWING;
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    // simulate the /plays/imports page having prefetched the script
+    queryClient.setQueryData(
+      ['latestChanges', { since: new Date(0), uri: RESUME_ID, from: 'import' }],
+      scriptValue,
+    );
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+      queryClient,
+    );
+    // first render is already the preview step
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
   });
 
   it('prefetches the script immediately on resume, before the status poll says reviewing', async () => {

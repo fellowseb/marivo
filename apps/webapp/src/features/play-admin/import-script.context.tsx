@@ -8,7 +8,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import { useSearchParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../../trpc";
 
 interface ImportScriptMetadata {
@@ -48,6 +48,7 @@ const ImportScriptContext = createContext<ImportScriptContext | undefined>(undef
 
 export function ImportScriptContextProvider(props: PropsWithChildren) {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const resumeImportId = searchParams.get("resume");
   // Server-side generated: empty until initImportScript returns it (or when
@@ -56,18 +57,45 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
   const [importId, setImportId] = useState(resumeImportId ?? "");
   // The flow always starts on the import step — including when resuming — so
   // the page never falls back to a full-page loader while the first status
-  // poll is in flight. Resuming an ongoing import starts as processing.
-  const [step, setStep] = useState<Step>({
-    name: "import",
-    importId: resumeImportId ?? "",
-    processing: Boolean(resumeImportId),
+  // poll is in flight. Exception: when resuming and the imports page already
+  // prefetched the script into the cache, start directly on the preview step
+  // (metadata is filled in by the first status poll below).
+  const [step, setStep] = useState<Step>(() => {
+    if (resumeImportId) {
+      const cached = queryClient.getQueryData(
+        trpc.script.latestChanges.queryOptions({
+          since: new Date(0),
+          uri: resumeImportId,
+          from: "import",
+        }).queryKey,
+      );
+      if (cached) {
+        return {
+          name: "preview",
+          importId: resumeImportId,
+          metadata: {
+            title: "",
+            author: "",
+            language: "",
+            number_of_roles: 0,
+            number_of_male_roles: 0,
+            number_of_female_roles: 0,
+          },
+        };
+      }
+    }
+    return {
+      name: "import",
+      importId: resumeImportId ?? "",
+      processing: Boolean(resumeImportId),
+    };
   });
   const statusQry = trpc.plays.importScriptStatus.queryOptions({
     importId,
   });
-  // Poll while the user is on the import step: this is what drives the
-  // uploading -> processing -> reviewing/error transitions.
-  statusQry.enabled = Boolean(importId) && step.name === "import";
+  // Poll until the flow is past the preview step (import or preview): this is
+  // what drives the uploading -> processing -> reviewing/error transitions.
+  statusQry.enabled = Boolean(importId) && step.name !== "name";
   statusQry.refetchInterval = 5000;
   const { status: statusStatus, data: statusData } = useQuery(statusQry);
   // Fetch the imported script as soon as the import becomes reviewable. The
@@ -138,6 +166,19 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
       });
     }
   }, [statusStatus, statusData, importId, previewQuery.data, step]);
+  // A warm-cache resume starts on preview before the first status poll: fill
+  // in the real metadata as soon as the poll returns it.
+  useEffect(() => {
+    if (
+      statusStatus === "success" &&
+      statusData.id === importId &&
+      statusData.status === "reviewing"
+    ) {
+      setStep((prev) =>
+        prev.name === "preview" ? { ...prev, metadata: statusData.metadata } : prev,
+      );
+    }
+  }, [statusStatus, statusData, importId]);
   // The poll only runs once a server-generated (or resumed) importId exists,
   // so a query failure here genuinely means the import is gone. The importId
   // guard also prevents a stale cached error from re-appearing after Start over.
