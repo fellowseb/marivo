@@ -125,6 +125,21 @@ describe('ImportScriptContext status transitions', () => {
 
   const resumeAt = (id: string) => [`/plays/new/import?resume=${id}`];
 
+  it('resume starts directly on the import page (no full-page loader state)', async () => {
+    statusValue = { status: 'processing_files', error: null };
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+    );
+    // step is defined from the first render: the import page with the
+    // processing indicator, never an undefined-step loader
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+    expect(screen.getByTestId('probe').textContent).toContain('"processing":true');
+    expect(screen.getByTestId('probe').textContent).not.toContain('no-step');
+  });
+
   it('marks the import step as processing while files are processed', async () => {
     statusValue = { status: 'processing_files', error: null };
     renderWithProviders(

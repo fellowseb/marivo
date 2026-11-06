@@ -35,7 +35,7 @@ type Step =
   | { name: "name"; importId: string; metadata: ImportScriptMetadata };
 
 interface ImportScriptContext {
-  step: Step | undefined;
+  step: Step;
   /** Empty on a fresh page until initImportScript returns the server-generated id. */
   importId: string;
   setImportId: (importId: string) => void;
@@ -54,21 +54,20 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
   // resuming an existing import via ?resume=). The status poll only runs once
   // a real id exists, so a fresh page never polls a non-existent import.
   const [importId, setImportId] = useState(resumeImportId ?? "");
-  const [step, setStep] = useState<Step | undefined>(
-    resumeImportId
-      ? undefined
-      : {
-          name: "import",
-          importId: "",
-          processing: false,
-        },
-  );
+  // The flow always starts on the import step — including when resuming — so
+  // the page never falls back to a full-page loader while the first status
+  // poll is in flight. Resuming an ongoing import starts as processing.
+  const [step, setStep] = useState<Step>({
+    name: "import",
+    importId: resumeImportId ?? "",
+    processing: Boolean(resumeImportId),
+  });
   const statusQry = trpc.plays.importScriptStatus.queryOptions({
     importId,
   });
-  // Poll while the user is on the import step (or resuming): this is what
-  // drives the uploading -> processing -> reviewing/error transitions.
-  statusQry.enabled = Boolean(importId) && (step === undefined || step.name === "import");
+  // Poll while the user is on the import step: this is what drives the
+  // uploading -> processing -> reviewing/error transitions.
+  statusQry.enabled = Boolean(importId) && step.name === "import";
   statusQry.refetchInterval = 5000;
   const { status: statusStatus, data: statusData } = useQuery(statusQry);
   // Fetch the imported script as soon as the import becomes reviewable. The
@@ -104,6 +103,7 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
                 processing: true,
               };
             }
+            return prev;
           });
           break;
         case "error":
@@ -126,7 +126,7 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
       statusData.id === importId &&
       statusData.status === "reviewing" &&
       previewQuery.data &&
-      (step === undefined || step.name === "import")
+      step.name === "import"
     ) {
       setStep({
         name: "preview",
@@ -139,7 +139,7 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
   // so a query failure here genuinely means the import is gone. The importId
   // guard also prevents a stale cached error from re-appearing after Start over.
   useEffect(() => {
-    const onImportStep = step === undefined || step.name === "import";
+    const onImportStep = step.name === "import";
     if (statusStatus === "error" && importId && onImportStep) {
       setStep({
         name: "import",
