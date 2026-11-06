@@ -134,6 +134,8 @@ export function ScriptImportsPageBreadcrumbs() {
 export function ScriptImportsPage() {
   const trpc = useTRPC();
   const queryOpts = trpc.plays.allScriptImports.queryOptions();
+  // Poll so statuses (and the Resume gating) update while the user waits.
+  queryOpts.refetchInterval = 5000;
   const { data, isLoading, isError, isRefetching, refetch } = useQuery(queryOpts);
 
   const allOngoingImports =

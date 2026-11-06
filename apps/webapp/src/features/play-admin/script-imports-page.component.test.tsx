@@ -7,17 +7,22 @@ import ScriptImportsPage from './script-imports-page.component';
 const PROCESSING_ID = '10000000-0000-4000-8000-0000000000p1';
 const REVIEWING_ID = '10000000-0000-4000-8000-0000000000r2';
 
+let capturedQueryOpts: Record<string, unknown> | null = null;
+
 vi.mock('../../trpc', () => ({
   useTRPC: () => ({
     plays: {
       allScriptImports: {
-        queryOptions: () => ({
-          queryKey: ['allScriptImports'],
-          queryFn: async () => [
-            { id: PROCESSING_ID, status: 'processing_files', error: null },
-            { id: REVIEWING_ID, status: 'reviewing', error: null },
-          ],
-        }),
+        queryOptions: () => {
+          capturedQueryOpts = {
+            queryKey: ['allScriptImports'],
+            queryFn: async () => [
+              { id: PROCESSING_ID, status: 'processing_files', error: null },
+              { id: REVIEWING_ID, status: 'reviewing', error: null },
+            ],
+          };
+          return capturedQueryOpts;
+        },
       },
     },
   }),
@@ -53,5 +58,11 @@ describe('ScriptImportsPage resume gating', () => {
     expect(reviewingResume.closest('a')?.getAttribute('href')).toBe(
       `/plays/new/import?resume=${REVIEWING_ID}`,
     );
+  });
+
+  it('polls the imports list so the Resume gating updates on its own', async () => {
+    renderPage();
+    await screen.findAllByRole('button', { name: 'Resume' });
+    expect(capturedQueryOpts?.refetchInterval).toBe(5000);
   });
 });
