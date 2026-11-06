@@ -617,6 +617,7 @@ type Step = "pick" | "preview" | "name";
 function FromCollectionFlow() {
   const [step, setStep] = useState<Step>("pick");
   const [selectedUri, setSelectedUri] = useState<string | null>(null);
+  const [lineIdsToKeep, setLineIdsToKeep] = useState<string[] | undefined>(undefined);
   const trpc = useTRPC();
   const { mutateAsync: createFromCollection } = useMutation(
     trpc.plays.createFromCollection.mutationOptions(),
@@ -630,7 +631,10 @@ function FromCollectionFlow() {
         sourceLabel="Pick from our scripts collection"
         toolbar={<ImportScriptPreviewToolbar />}
         onBack={() => setStep("pick")}
-        onReviewDone={() => setStep("name")}
+        onReviewDone={(ids) => {
+          setLineIdsToKeep(ids);
+          setStep("name");
+        }}
       />
     );
   }
@@ -639,7 +643,9 @@ function FromCollectionFlow() {
       <NamePlayStep
         sourceLabel="Pick from our scripts collection"
         onBack={() => setStep("preview")}
-        createPlay={(title) => createFromCollection({ title, collectionUri: selectedUri })}
+        createPlay={(title) =>
+          createFromCollection({ title, collectionUri: selectedUri, lineIdsToKeep })
+        }
       />
     );
   }

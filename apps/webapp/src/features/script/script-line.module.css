@@ -102,6 +102,12 @@
   color: white;
 }
 
+/* read-only (preview) mode: still show the left handle on hover */
+.replique:not(.editableReplique):hover .repliqueHandle::after {
+  content: "⣿";
+  color: var(--color-text);
+}
+
 .replique:hover .menuHandle {
   background-color: var(--color-bg);
 }
@@ -171,6 +177,10 @@
 
 .selected {
   background-color: var(--color-bookmark-a27);
+}
+
+.excluded {
+  color: var(--color-danger);
 }
 
 .menu {

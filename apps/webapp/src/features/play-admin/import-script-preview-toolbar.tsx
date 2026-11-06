@@ -2,8 +2,13 @@ import Toolbar from "../../components/toolbar.component";
 import { useScriptTabToolbarContext } from "../script-edition/script-tab-toolbar.context.tsx";
 
 export function ImportScriptPreviewToolbar() {
-  const { setShowNavigatePanel, setShowSearchPanel, setShowCharactersPanel } =
-    useScriptTabToolbarContext();
+  const {
+    setShowNavigatePanel,
+    setShowSearchPanel,
+    setShowCharactersPanel,
+    setShowImportSelectionPanel,
+  } = useScriptTabToolbarContext();
+
   return (
     <Toolbar
       definition={{
@@ -33,6 +38,15 @@ export function ImportScriptPreviewToolbar() {
             disabled: false,
             onAction: () => {
               setShowCharactersPanel((prev) => !prev);
+            },
+          },
+          {
+            id: "import-selection",
+            label: "import selection",
+            icon: "filter",
+            disabled: false,
+            onAction: () => {
+              setShowImportSelectionPanel((prev) => !prev);
             },
           },
         ],

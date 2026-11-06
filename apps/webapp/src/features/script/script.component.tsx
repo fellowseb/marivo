@@ -12,6 +12,10 @@ interface ScriptProps {
   scriptContext: ScriptContext | null;
   scriptEditionContext?: ScriptEditionContext | null;
   isEditable: boolean;
+  /** Preview selection: line ids excluded from the import (rendered red). */
+  excludedLineIds?: Set<string>;
+  /** Reports line-selection changes (used by the import-selection panel). */
+  onSelectedLinesChange?: (ids: Set<string>) => void;
   onLineMenuClicked?: (id: string) => void;
   onLineDraftTextEdit?: (id: string, text: string) => void;
   onLineDraftInit?: (content: LineContent, text?: string, deleted?: boolean) => void;
@@ -21,9 +25,13 @@ interface ScriptProps {
 function Script(props: ScriptProps) {
   const { scriptContext, scriptEditionContext } = props;
   const [selectedLines, setSelectedLines] = useState(new Set<string>());
+  const reportSelection = (ids: Set<string>) => {
+    props.onSelectedLinesChange?.(ids);
+  };
   const on = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       setSelectedLines(new Set());
+      reportSelection(new Set());
     }
     if (event.key === "Delete" && selectedLines.size) {
       // scriptContext.removeLines([...selectedLines]);
@@ -36,7 +44,11 @@ function Script(props: ScriptProps) {
     };
   }, [selectedLines]);
   const handleClick = () => {
-    setSelectedLines((prev) => (prev.size ? new Set() : prev));
+    setSelectedLines((prev) => {
+      const next = prev.size ? new Set<string>() : prev;
+      reportSelection(next);
+      return next;
+    });
   };
   const handleSelectLine = (id: string, add: boolean) => {
     const had = selectedLines.has(id);
@@ -51,6 +63,7 @@ function Script(props: ScriptProps) {
       } else {
         selection.add(id);
       }
+      reportSelection(selection);
       return selection;
     });
   };
@@ -87,6 +100,7 @@ function Script(props: ScriptProps) {
                 ) : null}
                 <ScriptLine
                   selected={selected}
+                  excluded={props.excludedLineIds?.has(line.id)}
                   onShowMenu={props.onLineMenuClicked}
                   onSelect={handleSelectLine}
                   onDraftTextEdit={props.onLineDraftTextEdit}

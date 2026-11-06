@@ -148,9 +148,11 @@ export const providers = {
       const userContextService = new UserContextService(req);
       const playsRepository = new UserPlaysRepository(sql, userContextService);
       const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
+      const scriptRepository = new ScriptRepository(sql, userContextService);
       return new CreatePlayFromImportUseCase(
         playsRepository,
         scriptImportsRepository,
+        scriptRepository,
         userContextService,
       );
     },

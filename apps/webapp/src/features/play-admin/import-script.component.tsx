@@ -487,6 +487,7 @@ function NameStepFromImport(props: {
   onBack: () => void;
   importId: string;
   metadata: ImportScriptMetadata;
+  lineIdsToKeep?: string[];
 }) {
   const trpc = useTRPC();
   const { user } = useUser();
@@ -501,7 +502,9 @@ function NameStepFromImport(props: {
       onBack={props.onBack}
       metadata={props.metadata}
       allowAddToCommons={canCreateCollectionPlay}
-      createPlay={(title) => mutateAsync({ title, importId: props.importId })}
+      createPlay={(title) =>
+        mutateAsync({ title, importId: props.importId, lineIdsToKeep: props.lineIdsToKeep })
+      }
       publishToCollection={(input) => addToCollection({ importId: props.importId, ...input })}
     />
   );
@@ -528,6 +531,7 @@ function ImportScriptFlow() {
           onBack={backToReview}
           importId={step.importId}
           metadata={step.metadata}
+          lineIdsToKeep={step.lineIdsToKeep}
         />
       );
     default:

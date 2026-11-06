@@ -1,0 +1,80 @@
+.summary {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  padding: 0 4px;
+}
+
+.selectedActions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  font-weight: bold;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  padding: 4px;
+}
+
+.groupLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-faint);
+  padding: 2px 4px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.partRow {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+}
+
+.partTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  color: var(--color-text-faint);
+  font-size: var(--font-size-xs);
+}
+
+.excludedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 25vh;
+  overflow-y: auto;
+}
+
+.excludedItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-danger);
+}

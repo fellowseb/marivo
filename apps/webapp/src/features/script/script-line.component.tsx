@@ -36,6 +36,8 @@ interface ScriptLineProps {
   onDraftInit?: (content: LineContent, text?: string, deleted?: boolean) => void;
   onEdit?: (id: string, content: LineEditableContent) => void;
   selected?: boolean;
+  /** Preview selection: when set, the line is dimmed (excluded from the import). */
+  excluded?: boolean;
   characters: { [id: string]: string };
 }
 
@@ -211,9 +213,11 @@ function ScriptLine(props: ScriptLineProps) {
     lineEditableContentRef.current?.focus();
   };
   const handleHandleClick: MouseEventHandler = (event) => {
+    // line selection works in read-only mode too (import preview); never let
+    // the click bubble to the script container, which would clear the selection
+    props.onSelect?.(props.line.id, event.ctrlKey);
+    event.stopPropagation();
     if (isEditable) {
-      props.onSelect?.(props.line.id, event.ctrlKey);
-      event.stopPropagation();
       event.preventDefault();
     }
   };
@@ -228,6 +232,7 @@ function ScriptLine(props: ScriptLineProps) {
           [styles.replique]: true,
           [styles.editableReplique]: isEditable,
           [styles.selected]: Boolean(props.selected),
+          [styles.excluded]: Boolean(props.excluded),
         })}
       >
         <div
@@ -275,7 +280,7 @@ function ScriptLine(props: ScriptLineProps) {
             dangerouslySetInnerHTML={dangerouslySetInnerHTML}
             suppressContentEditableWarning={true}
           ></div>
-          {isEditable ? (
+          {props.onShowMenu ? (
             <div
               className={classNames({
                 [styles.menuHandle]: true,
