@@ -213,9 +213,11 @@ function ScriptLine(props: ScriptLineProps) {
     lineEditableContentRef.current?.focus();
   };
   const handleHandleClick: MouseEventHandler = (event) => {
+    // line selection works in read-only mode too (import preview); never let
+    // the click bubble to the script container, which would clear the selection
+    props.onSelect?.(props.line.id, event.ctrlKey);
+    event.stopPropagation();
     if (isEditable) {
-      props.onSelect?.(props.line.id, event.ctrlKey);
-      event.stopPropagation();
       event.preventDefault();
     }
   };
