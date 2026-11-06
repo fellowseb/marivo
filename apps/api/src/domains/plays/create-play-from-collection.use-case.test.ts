@@ -45,7 +45,7 @@ describe("CreatePlayFromCollectionUseCase", () => {
       uri: "99999999-9999-4999-8999-999999999999",
     });
     // the script is duplicated first…
-    expect(scriptRepository.copyScript).toHaveBeenCalledWith(42);
+    expect(scriptRepository.copyScript).toHaveBeenCalledWith(42, undefined);
     // …and the play points at the copy, never at the collection's script
     expect(playsRepository.createPlay).toHaveBeenCalledOnce();
     const call = vi.mocked(playsRepository.createPlay).mock.calls[0][0];
@@ -53,6 +53,22 @@ describe("CreatePlayFromCollectionUseCase", () => {
     expect(call.scriptId).toBe(777);
     expect(call.scriptId).not.toBe(42);
     expect(call.uri).toHaveLength(36);
+  });
+
+  it("passes lineIdsToKeep through to the script copy", async () => {
+    collectionRepository.getScriptIdByUri.mockResolvedValue(Result.ok(42));
+    scriptRepository.copyScript.mockResolvedValue(Result.ok(777));
+    const keep = ["11111111-1111-4111-8111-111111111111"];
+
+    const result = await useCase.execute({
+      title: "Partial play",
+      collectionUri: "99999999-9999-4999-8999-999999999999",
+      lineIdsToKeep: keep,
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(scriptRepository.copyScript).toHaveBeenCalledWith(42, keep);
+    expect(vi.mocked(playsRepository.createPlay).mock.calls[0][0].scriptId).toBe(777);
   });
 
   it("fails without creating a play when the collection uri is unknown", async () => {

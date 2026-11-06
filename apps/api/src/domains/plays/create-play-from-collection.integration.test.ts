@@ -132,4 +132,41 @@ describe("plays createPlayFromCollection (integration with real Postgres)", () =
     `;
     expect(originalPlay.script_id).toBe(scriptId);
   });
+
+  it("with lineIdsToKeep, copies only those lines and fixes lines_order", async () => {
+    const ctx = userContext();
+    const useCase = new CreatePlayFromCollectionUseCase(
+      new UserPlaysRepository(sql, ctx),
+      new PlaysCollectionRepository(sql, ctx),
+      new ScriptRepository(sql, ctx),
+      ctx,
+    );
+
+    const result = await useCase.execute({
+      title: "Only the text line",
+      collectionUri,
+      lineIdsToKeep: [line2Id],
+    });
+
+    expect(result.isOk()).toBe(true);
+    const [newPlay] = await sql<{ script_id: number }[]>`
+      SELECT script_id FROM plays WHERE uri = ${result.dataOrThrow().uri}
+    `;
+    expect(newPlay.script_id).not.toBe(scriptId);
+
+    const [newScript] = await sql<{ lines_order: string[] }[]>`
+      SELECT lines_order FROM scripts WHERE id = ${newPlay.script_id}
+    `;
+    expect(newScript.lines_order).toEqual([line2Id]);
+
+    const copiedLines = await sql<{ id: string }[]>`
+      SELECT id FROM lines WHERE script_id = ${newPlay.script_id}
+    `;
+    expect(copiedLines.map((l) => l.id)).toEqual([line2Id]);
+
+    const copiedContents = await sql<{ line_id: string }[]>`
+      SELECT line_id FROM lines_contents WHERE script_id = ${newPlay.script_id}
+    `;
+    expect(copiedContents.map((c) => c.line_id)).toEqual([line2Id]);
+  });
 });

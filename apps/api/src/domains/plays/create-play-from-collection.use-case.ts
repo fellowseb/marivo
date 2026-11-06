@@ -12,6 +12,8 @@ import type { ScriptRepository } from "../script/script.repository.ts";
 export const CreatePlayFromCollectionUseCaseInputSchema = z.object({
   title: z.string().max(100),
   collectionUri: z.string(),
+  /** Lines to keep in the copied script; absent = keep all. */
+  lineIdsToKeep: z.array(z.uuid()).optional(),
 });
 
 export const CreatePlayFromCollectionUseCaseOutputSchema = z.object({
@@ -51,7 +53,10 @@ class CreatePlayFromCollectionUseCase extends AuthenticatedUseCase<{
     // Copy the script instead of sharing it: edits to the new play must not
     // modify the collection play, and vice versa. Only the latest saved
     // version of each line is copied (shared drafts / drafts are dropped).
-    const copyResult = await this.scriptRepository.copyScript(scriptIdResult.dataOrThrow());
+    const copyResult = await this.scriptRepository.copyScript(
+      scriptIdResult.dataOrThrow(),
+      input.lineIdsToKeep,
+    );
     if (copyResult.isFailure()) {
       return Result.failure(copyResult.errorOrThrow());
     }

@@ -301,24 +301,45 @@ export class ScriptRepository extends UserRepositoryBase {
   }
 
   /**
-   * Duplicate a script into a new script row: all lines are copied (same line
-   * ids, so lines_order stays valid), but only the latest saved version of
-   * each line is kept — older saved versions, shared drafts and per-user
-   * drafts are dropped. Runs in the caller's transaction.
+   * Duplicate a script into a new script row: lines are copied (same line
+   * ids), but only the latest saved version of each line is kept — older
+   * saved versions, shared drafts and per-user drafts are dropped. When
+   * `keepLineIds` is provided, only those lines are copied and `lines_order`
+   * is filtered to them (order preserved). Runs in the caller's transaction.
    */
-  async copyScript(scriptId: number): Promise<Result<number, ScriptNotFound>> {
+  async copyScript(
+    scriptId: number,
+    keepLineIds?: string[],
+  ): Promise<Result<number, ScriptNotFound>> {
+    const [source] = await this.sql<
+      {
+        checksum: string;
+        lines_order: string[];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        characters: any;
+      }[]
+    >`
+      SELECT checksum, lines_order, characters
+      FROM scripts
+      WHERE id = ${scriptId};
+    `;
+    if (!source) {
+      return Result.failure(new ScriptNotFound());
+    }
+    const keptOrder = keepLineIds
+      ? source.lines_order.filter((lineId) => keepLineIds.includes(lineId))
+      : source.lines_order;
     const [scriptRow] = await this.sql<{ id: number }[]>`
       INSERT INTO scripts (
         checksum,
         lines_order,
         characters
       )
-      SELECT
-        checksum,
-        lines_order,
-        characters
-      FROM scripts
-      WHERE id = ${scriptId}
+      VALUES (
+        ${source.checksum},
+        ${keptOrder},
+        ${this.sql.json(source.characters)}::jsonb
+      )
       RETURNING id;
     `;
     if (!scriptRow) {
@@ -338,7 +359,8 @@ export class ScriptRepository extends UserRepositoryBase {
         type,
         last_modified_date
       FROM lines
-      WHERE script_id = ${scriptId};
+      WHERE script_id = ${scriptId}
+      ${keepLineIds ? this.sql`AND id = ANY(${keepLineIds}::uuid[])` : this.sql``};
     `;
     await this.sql`
       INSERT INTO lines_contents (
@@ -379,7 +401,8 @@ export class ScriptRepository extends UserRepositoryBase {
           WHERE lc2.script_id = lc.script_id
             AND lc2.line_id = lc.line_id
             AND lc2.type = 'saved_version'
-        );
+        )
+        ${keepLineIds ? this.sql`AND lc.line_id = ANY(${keepLineIds}::uuid[])` : this.sql``};
     `;
     return Result.ok(newScriptId);
   }
