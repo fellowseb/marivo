@@ -1,0 +1,87 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  border-left: 1px solid var(--color-border-strong);
+  background-color: var(--color-panel);
+  max-height: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.body {
+  overflow-y: auto;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.groupTitle {
+  margin: var(--spacing-sm) 0 var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sectionItem {
+  margin-bottom: 2px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.sectionToggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-faint);
+  padding: 0 2px;
+  font: inherit;
+}
+
+.sectionTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lineTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.lineList {
+  list-style: none;
+  margin: 0;
+  padding-left: 24px;
+}
+
+.count {
+  color: var(--color-text-faint);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}

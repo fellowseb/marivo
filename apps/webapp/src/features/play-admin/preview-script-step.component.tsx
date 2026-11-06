@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from "react";
+import { Suspense, useMemo, useState, type ReactNode } from "react";
 import ErrorBoundary from "../../components/error-boundary.component";
 import PageNotFound from "../../components/page-not-found.component";
 import DotsLoader from "../../components/dots-loader.component";
@@ -13,6 +13,13 @@ import {
 import ScriptSearchPanel from "../script-edition/script-search-panel.component";
 import ScriptNavigatePanel from "../script-edition/script-navigate-panel.component";
 import ScriptCharactersPanel from "../script-edition/script-characters-panel.component";
+import { ImportSelectionPanel } from "./import-selection-panel.component";
+import {
+  computeImportSelectionModel,
+  computeKeptLineIds,
+  EMPTY_SELECTION,
+  type ImportSelection,
+} from "./import-selection.lib";
 import styles from "./import-script.module.css";
 
 export type PreviewScriptFrom = "import" | "collection";
@@ -23,16 +30,38 @@ interface PreviewScriptStepProps {
   toolbar?: ReactNode;
   /** First breadcrumb segment of the flow, e.g. "Create from an external source". */
   sourceLabel?: string;
-  onReviewDone: () => void;
+  /** Called with the line ids to keep (undefined = keep everything). */
+  onReviewDone: (lineIdsToKeep?: string[]) => void;
   onBack: () => void;
 }
 
 function PreviewStepInner(props: {
   sourceLabel: string;
-  onReviewDone: () => void;
+  onReviewDone: (lineIdsToKeep?: string[]) => void;
   onBack: () => void;
 }) {
   const previewScriptContext = useScriptContext();
+  const [showSelectionPanel, setShowSelectionPanel] = useState(false);
+  const [selection, setSelection] = useState<ImportSelection>(EMPTY_SELECTION);
+  const selectionModel = useMemo(
+    () => (previewScriptContext ? computeImportSelectionModel(previewScriptContext) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      previewScriptContext?.lines,
+      previewScriptContext?.lineContents,
+      previewScriptContext?.lineToContents,
+      previewScriptContext?.linesOrder,
+      previewScriptContext?.characters,
+    ],
+  );
+  const allLineIds = previewScriptContext?.linesOrder ?? [];
+  const keptLineIds = selectionModel
+    ? computeKeptLineIds(selectionModel, selection, allLineIds)
+    : allLineIds;
+  const handleReviewDone = () => {
+    // undefined = keep everything (server default)
+    props.onReviewDone(keptLineIds.length === allLineIds.length ? undefined : keptLineIds);
+  };
   const {
     showSearchPanel,
     showNavigatePanel,
@@ -63,7 +92,14 @@ function PreviewStepInner(props: {
         Actions={
           <>
             <Button icon="previous" onClick={props.onBack} />
-            <Button rightIcon="next" onClick={props.onReviewDone}>
+            <Button
+              icon="filter"
+              variant={showSelectionPanel ? "standout" : "discrete"}
+              onClick={() => setShowSelectionPanel((s) => !s)}
+            >
+              Select parts
+            </Button>
+            <Button rightIcon="next" onClick={handleReviewDone}>
               Done
             </Button>
           </>
@@ -74,10 +110,23 @@ function PreviewStepInner(props: {
         the project.
         <br /> (i.e. entire sections missing or in wrong order). You'll be able to modify the script
         later.
-        <Script isEditable={false} scriptContext={previewScriptContext} />
+        <Script
+          isEditable={false}
+          scriptContext={previewScriptContext}
+          excludedLineIds={new Set(allLineIds.filter((id) => !keptLineIds.includes(id)))}
+        />
       </FlowStep>
-      {showPanels ? (
+      {showPanels || showSelectionPanel ? (
         <div className={styles.panelsContainer}>
+          {showSelectionPanel && selectionModel ? (
+            <ImportSelectionPanel
+              model={selectionModel}
+              selection={selection}
+              onChange={setSelection}
+              keptCount={keptLineIds.length}
+              totalCount={allLineIds.length}
+            />
+          ) : null}
           {showSearchPanel ? <ScriptSearchPanel onClose={handleCloseSearchPanel} /> : null}
           {showNavigatePanel ? (
             <ScriptNavigatePanel

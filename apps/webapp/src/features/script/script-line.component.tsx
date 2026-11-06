@@ -36,6 +36,8 @@ interface ScriptLineProps {
   onDraftInit?: (content: LineContent, text?: string, deleted?: boolean) => void;
   onEdit?: (id: string, content: LineEditableContent) => void;
   selected?: boolean;
+  /** Preview selection: when set, the line is dimmed (excluded from the import). */
+  excluded?: boolean;
   characters: { [id: string]: string };
 }
 
@@ -228,6 +230,7 @@ function ScriptLine(props: ScriptLineProps) {
           [styles.replique]: true,
           [styles.editableReplique]: isEditable,
           [styles.selected]: Boolean(props.selected),
+          [styles.excluded]: Boolean(props.excluded),
         })}
       >
         <div

@@ -12,6 +12,8 @@ interface ScriptProps {
   scriptContext: ScriptContext | null;
   scriptEditionContext?: ScriptEditionContext | null;
   isEditable: boolean;
+  /** Preview selection: line ids excluded from the import (rendered dimmed). */
+  excludedLineIds?: Set<string>;
   onLineMenuClicked?: (id: string) => void;
   onLineDraftTextEdit?: (id: string, text: string) => void;
   onLineDraftInit?: (content: LineContent, text?: string, deleted?: boolean) => void;
@@ -87,6 +89,7 @@ function Script(props: ScriptProps) {
                 ) : null}
                 <ScriptLine
                   selected={selected}
+                  excluded={props.excludedLineIds?.has(line.id)}
                   onShowMenu={props.onLineMenuClicked}
                   onSelect={handleSelectLine}
                   onDraftTextEdit={props.onLineDraftTextEdit}

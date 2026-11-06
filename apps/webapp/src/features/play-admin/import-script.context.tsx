@@ -32,7 +32,13 @@ type Step =
       error?: string | undefined;
     }
   | { name: "preview"; importId: string; metadata: ImportScriptMetadata }
-  | { name: "name"; importId: string; metadata: ImportScriptMetadata };
+  | {
+      name: "name";
+      importId: string;
+      metadata: ImportScriptMetadata;
+      /** Lines selected on the preview step; undefined = keep everything. */
+      lineIdsToKeep?: string[] | undefined;
+    };
 
 interface ImportScriptContext {
   step: Step;
@@ -40,7 +46,7 @@ interface ImportScriptContext {
   importId: string;
   setImportId: (importId: string) => void;
   startOver: () => void;
-  reviewDone: () => void;
+  reviewDone: (lineIdsToKeep?: string[]) => void;
   backToReview: () => void;
 }
 
@@ -199,18 +205,22 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
       processing: false,
     });
   }, []);
-  const reviewDone = useCallback(() => {
-    setStep((prev) => {
-      if (prev?.name !== "preview") {
-        return prev;
-      }
-      return {
-        name: "name",
-        importId,
-        metadata: prev.metadata,
-      };
-    });
-  }, [importId]);
+  const reviewDone = useCallback(
+    (lineIdsToKeep?: string[]) => {
+      setStep((prev) => {
+        if (prev?.name !== "preview") {
+          return prev;
+        }
+        return {
+          name: "name",
+          importId,
+          metadata: prev.metadata,
+          lineIdsToKeep,
+        };
+      });
+    },
+    [importId],
+  );
   const backToReview = useCallback(() => {
     setStep((prev) => {
       if (prev?.name !== "name") {

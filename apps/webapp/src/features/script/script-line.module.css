@@ -173,6 +173,10 @@
   background-color: var(--color-bookmark-a27);
 }
 
+.excluded {
+  opacity: 0.4;
+}
+
 .menu {
   backdrop-filter: blur(20px);
   background-color: var(--color-accent-a07);
