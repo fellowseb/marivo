@@ -8,6 +8,7 @@ import type { ScriptImport } from "./script-imports.models.ts";
 export const GetAllScriptImportsUseCaseOutputSchema = z.array(
   z.object({
     id: z.string().length(36),
+    createdAt: z.date(),
     status: z.enum(["uploading_files", "processing_files", "reviewing", "done", "error"]),
     error: z.string().nullable(),
   }),
@@ -29,6 +30,7 @@ export class GetAllScriptImportsUseCase extends AuthenticatedUseCase<{
     const imports = await this.scriptImportsRepository.getScriptImports();
     const result = imports.map((imp: ScriptImport) => ({
       id: imp.id,
+      createdAt: imp.createdAt,
       status: imp.status,
       error: imp.status === "reviewing" ? null : imp.error,
     }));

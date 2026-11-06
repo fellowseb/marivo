@@ -21,6 +21,7 @@ import { SetScriptImportResultUseCase } from "./set-script-import-result.use-cas
 import CreatePlayFromImportUseCase from "./create-play-from-import.use-case.ts";
 import CreatePlayFromCollectionUseCase from "./create-play-from-collection.use-case.ts";
 import { GetAllScriptImportsUseCase } from "./get-all-script-imports.use-case.ts";
+import { DeleteScriptImportUseCase } from "./delete-script-import.use-case.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
 
 export abstract class ResourceAccessAuth<TInput> {
@@ -173,4 +174,11 @@ export const providers = {
       return new GetAllScriptImportsUseCase(userContextService, scriptImportsRepository);
     },
   } as Provider<GetAllScriptImportsUseCase>,
+  DeleteScriptImportUseCase: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const scriptImportsRepository = new ScriptImportsRepository(sql, userContextService);
+      return new DeleteScriptImportUseCase(userContextService, scriptImportsRepository);
+    },
+  } as Provider<DeleteScriptImportUseCase>,
 };

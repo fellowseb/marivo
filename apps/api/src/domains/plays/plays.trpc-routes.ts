@@ -33,6 +33,7 @@ import {
   CreatePlayFromCollectionUseCaseOutputSchema,
 } from "./create-play-from-collection.use-case.ts";
 import { GetAllScriptImportsUseCaseOutputSchema } from "./get-all-script-imports.use-case.ts";
+import { DeleteScriptImportUseCaseInputSchema } from "./delete-script-import.use-case.ts";
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,4 +95,7 @@ export default router({
     .input(z.undefined())
     .output(GetAllScriptImportsUseCaseOutputSchema)
     .query(handleUseCase(providers.GetAllScriptImportsUseCase)),
+  deleteScriptImport: publicProcedure
+    .input(DeleteScriptImportUseCaseInputSchema)
+    .mutation(handleUseCase(providers.DeleteScriptImportUseCase)),
 });

@@ -15,12 +15,14 @@ export interface ScriptImportCharacter {
 export type ScriptImport =
   | {
       id: string;
+      createdAt: Date;
       status: Exclude<ScriptImportStatus, "reviewing">;
       /** Failure reason when status is "error". */
       error: string | null;
     }
   | {
       id: string;
+      createdAt: Date;
       status: ScriptImportStatus & "reviewing";
       metadata: {
         title: string;
