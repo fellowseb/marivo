@@ -18,6 +18,13 @@ import { ImportScriptPreviewToolbar } from "./import-script-preview-toolbar";
 import styles from "./from-collection.module.css";
 import itemListStyles from "../../components/item-list/item-list.module.css";
 import classNames from "classnames";
+import {
+  EMPTY_FILTERS,
+  countSetControls,
+  sectionHasValue,
+  toApiFilters,
+  type FiltersState,
+} from "./from-collection-filters.lib";
 
 export function FromCollectionBreadcrumbs() {
   return (
@@ -46,35 +53,6 @@ export function FromCollectionBreadcrumbs() {
 const PAGE_SIZE = 20;
 const FILTERS_STORAGE_KEY = "marivo:collection-filters";
 
-interface FiltersState {
-  title: string;
-  author: string;
-  languages: string[];
-  roles: string[];
-  maleRoles: string[];
-  femaleRoles: string[];
-  genres: string[];
-  periods: string[];
-  bookmarkedOnly: boolean;
-  archivedOnly: boolean;
-  /** which filter sections are expanded (ticked checkbox); persisted too */
-  openSections: Record<string, boolean>;
-}
-
-const EMPTY_FILTERS: FiltersState = {
-  title: "",
-  author: "",
-  languages: [],
-  roles: [],
-  maleRoles: [],
-  femaleRoles: [],
-  genres: [],
-  periods: [],
-  bookmarkedOnly: false,
-  archivedOnly: false,
-  openSections: {},
-};
-
 function loadFilters(): FiltersState {
   try {
     const raw = localStorage.getItem(FILTERS_STORAGE_KEY);
@@ -86,42 +64,6 @@ function loadFilters(): FiltersState {
     });
     return EMPTY_FILTERS;
   }
-}
-
-/** "1".."9" selectable values plus "10+"; maps to a min/max range. */
-function rolesToRange(values: string[]): { min?: number; max?: number } {
-  if (!values.length) return {};
-  const nums = values.map((v) => (v === "10+" ? 10 : Number.parseInt(v, 10)));
-  return {
-    min: Math.min(...nums),
-    max: values.includes("10+") ? undefined : Math.max(...nums),
-  };
-}
-
-/**
- * Build the server-side filter input. A filter whose section is collapsed
- * (checkbox empty) is disabled: its value is kept locally but not sent.
- */
-function toApiFilters(f: FiltersState) {
-  const open = (key: string) => f.openSections[key] ?? false;
-  const roles = open("roles") ? rolesToRange(f.roles) : {};
-  const male = open("maleRoles") ? rolesToRange(f.maleRoles) : {};
-  const female = open("femaleRoles") ? rolesToRange(f.femaleRoles) : {};
-  return {
-    title: open("title") && f.title ? f.title : undefined,
-    author: open("author") && f.author ? f.author : undefined,
-    languages: open("languages") && f.languages.length ? f.languages : undefined,
-    genres: open("genres") && f.genres.length ? f.genres : undefined,
-    periods: open("periods") && f.periods.length ? f.periods : undefined,
-    minRoles: roles.min,
-    maxRoles: roles.max,
-    minMaleRoles: male.min,
-    maxMaleRoles: male.max,
-    minFemaleRoles: female.min,
-    maxFemaleRoles: female.max,
-    bookmarkedOnly: open("bookmarked") && f.bookmarkedOnly ? true : undefined,
-    archivedOnly: open("archived") && f.archivedOnly ? true : undefined,
-  };
 }
 
 type CollectionScript = {
@@ -153,36 +95,47 @@ function groupByAuthor(scripts: CollectionScript[]): [string, CollectionScript[]
 }
 
 /**
- * A filter section: a checkbox header (ticked = expanded = filter enabled,
- * empty = collapsed = filter disabled). The open state lives in the
+ * A filter section: an arrow-collapsible header. A section with a filter
+ * value set cannot be collapsed (the arrow is hidden and the header is not
+ * clickable) — its value is always active. The open state lives in the
  * persisted filters state.
  */
 function FilterSection(props: {
   label: string;
   sectionKey: string;
   openSections: Record<string, boolean>;
+  filters: FiltersState;
   onToggleSection: (key: string, open: boolean) => void;
   children: ReactNode;
 }) {
-  const open = props.openSections[props.sectionKey] ?? false;
+  const hasValue = sectionHasValue(props.sectionKey, props.filters);
+  const open = hasValue || (props.openSections[props.sectionKey] ?? false);
   return (
     <div className={styles.filterSection}>
-      <label className={styles.filterSectionHeader}>
-        <input
-          type="checkbox"
-          checked={open}
-          onChange={(e) => props.onToggleSection(props.sectionKey, e.target.checked)}
-        />
+      <button
+        type="button"
+        className={styles.filterSectionHeader}
+        aria-label={props.label}
+        aria-expanded={open}
+        disabled={hasValue}
+        onClick={() => props.onToggleSection(props.sectionKey, !open)}
+      >
+        <span
+          className={classNames(styles.filterSectionArrow, {
+            [styles.filterSectionArrowOpen]: open,
+          })}
+        >
+          ▶
+        </span>
         <span>{props.label}</span>
-      </label>
-      <fieldset
+      </button>
+      <div
         className={classNames(styles.filterSectionBody, {
           [styles.filterSectionCollapsed]: !open,
         })}
-        disabled={!open}
       >
         {props.children}
-      </fieldset>
+      </div>
     </div>
   );
 }
@@ -353,8 +306,8 @@ function PickStep(props: PickStepProps) {
     { label: "10+", value: "10+" },
   ];
 
-  // number of enabled filter sections (ticked checkboxes)
-  const enabledCount = Object.values(filters.openSections).filter(Boolean).length;
+  // number of controls currently set (non-empty text, selection, or toggle on)
+  const enabledCount = countSetControls(filters);
 
   return (
     <FlowStep
@@ -394,30 +347,51 @@ function PickStep(props: PickStepProps) {
                 sectionKey="title"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
-                <input
-                  type="text"
-                  value={filters.title}
-                  onChange={(e) => setFilter("title", e.target.value)}
-                />
+                <div className={styles.textFilter}>
+                  <input
+                    type="text"
+                    value={filters.title}
+                    onChange={(e) => setFilter("title", e.target.value)}
+                  />
+                  {filters.title ? (
+                    <Button
+                      icon="close"
+                      ariaLabel="Clear title filter"
+                      onClick={() => setFilter("title", "")}
+                    />
+                  ) : null}
+                </div>
               </FilterSection>
               <FilterSection
                 label="Author"
                 sectionKey="author"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
-                <input
-                  type="text"
-                  value={filters.author}
-                  onChange={(e) => setFilter("author", e.target.value)}
-                />
+                <div className={styles.textFilter}>
+                  <input
+                    type="text"
+                    value={filters.author}
+                    onChange={(e) => setFilter("author", e.target.value)}
+                  />
+                  {filters.author ? (
+                    <Button
+                      icon="close"
+                      ariaLabel="Clear author filter"
+                      onClick={() => setFilter("author", "")}
+                    />
+                  ) : null}
+                </div>
               </FilterSection>
               <FilterSection
                 label="Language"
                 sectionKey="languages"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
                 <CardsSelect
                   multiple={true}
@@ -434,6 +408,7 @@ function PickStep(props: PickStepProps) {
                 sectionKey="roles"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
                 <CardsSelect
                   multiple={true}
@@ -447,6 +422,7 @@ function PickStep(props: PickStepProps) {
                 sectionKey="maleRoles"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
                 <CardsSelect
                   multiple={true}
@@ -460,6 +436,7 @@ function PickStep(props: PickStepProps) {
                 sectionKey="femaleRoles"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
                 <CardsSelect
                   multiple={true}
@@ -473,6 +450,7 @@ function PickStep(props: PickStepProps) {
                 sectionKey="genres"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
                 <CardsSelect
                   multiple={true}
@@ -489,6 +467,7 @@ function PickStep(props: PickStepProps) {
                 sectionKey="periods"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
                 <CardsSelect
                   multiple={true}
@@ -505,6 +484,7 @@ function PickStep(props: PickStepProps) {
                 sectionKey="bookmarked"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
+                filters={filters}
               >
                 <ToggleButton
                   label="Only bookmarked"
@@ -518,6 +498,7 @@ function PickStep(props: PickStepProps) {
                   sectionKey="archived"
                   openSections={filters.openSections}
                   onToggleSection={toggleSection}
+                  filters={filters}
                 >
                   <ToggleButton
                     label="Only archived"

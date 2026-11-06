@@ -101,10 +101,35 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 2px 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.filterSectionHeader:disabled {
+  cursor: default;
+}
+
+.filterSectionArrow {
+  transition: 0.1s linear transform;
+  color: var(--color-border-strong);
+  transform: rotate(90deg);
+  font-size: 0.7em;
+}
+
+.filterSectionArrowOpen {
+  transform: rotate(270deg);
+}
+
+.filterSectionHeader:disabled .filterSectionArrow {
+  visibility: hidden;
 }
 
 .filterSectionBody {
-  border: none;
   margin: 0;
   padding: 2px 0 2px 20px;
   display: flex;
@@ -112,12 +137,20 @@
   gap: 4px;
 }
 
-.filterSectionBody:disabled {
-  opacity: 0.45;
-}
-
 .filterSectionCollapsed {
   display: none;
+}
+
+.textFilter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.textFilter input {
+  flex: 1;
+  min-width: 0;
 }
 
 .separator {

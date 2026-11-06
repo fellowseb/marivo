@@ -70,9 +70,13 @@ vi.mock("./collection-metadata.context", () => ({
   }),
 }));
 
-// no Clerk role by default: the "Edit in collection" button stays hidden
+// no Clerk role by default: the "Edit in collection" button stays hidden;
+// tests can set mockMetadata.role (e.g. "collection-maintainer")
+const { mockMetadata } = vi.hoisted(() => ({
+  mockMetadata: { role: undefined as unknown },
+}));
 vi.mock("@clerk/react", () => ({
-  useUser: () => ({ user: { publicMetadata: {} } }),
+  useUser: () => ({ user: { publicMetadata: mockMetadata } }),
 }));
 
 function renderPick() {
@@ -90,6 +94,7 @@ describe("FromCollection pick step", () => {
   beforeEach(() => {
     localStorage.clear();
     listAllCalls.length = 0;
+    mockMetadata.role = undefined;
   });
   afterEach(() => cleanup());
 
@@ -136,24 +141,36 @@ describe("FromCollection pick step", () => {
   it("hides the Archived filter for users without the edit_collection_play_metadata capability", async () => {
     renderPick();
     await screen.findByText("Hamlet");
-    expect(screen.queryByText("Archived")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Archived" })).toBeNull();
     expect(screen.queryByText("Only archived")).toBeNull();
   });
 
-  it("sends filters to the server and persists them in localStorage; Clear resets", async () => {
+  it("shows the Archived filter for collection maintainers and counts its toggle as a set control", async () => {
+    mockMetadata.role = "collection-maintainer";
+    renderPick();
+    await screen.findByText("Hamlet");
+    const archivedHeader = screen.getByRole("button", { name: "Archived" });
+    fireEvent.click(archivedHeader);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Only archived" }));
+    expect(screen.getByRole("button", { name: "Filter by (1)" })).toBeTruthy();
+    const lastCall = listAllCalls.at(-1) as { filters: { archivedOnly?: boolean } };
+    expect(lastCall.filters.archivedOnly).toBe(true);
+    // value set: section forced open and not collapsible
+    const header = screen.getByRole("button", { name: "Archived" }) as HTMLButtonElement;
+    expect(header.disabled).toBe(true);
+    expect(header.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("sends filters to the server and persists them in localStorage; Clear resets values and collapses sections", async () => {
     renderPick();
     await screen.findByText("Le Jeu de l'amour et du hasard");
-    // the Title section is collapsed (checkbox empty, input disabled) by default
-    const titleCheckbox = screen.getByRole("checkbox", { name: "Title" }) as HTMLInputElement;
-    expect(titleCheckbox.checked).toBe(false);
+    // the Title section is collapsed by default
+    let titleHeader = screen.getByRole("button", { name: "Title" }) as HTMLButtonElement;
+    expect(titleHeader.getAttribute("aria-expanded")).toBe("false");
+    // expanding the section shows its body
+    fireEvent.click(titleHeader);
+    expect(titleHeader.getAttribute("aria-expanded")).toBe("true");
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-    const fieldset = input.closest("fieldset") as HTMLFieldSetElement;
-    expect(fieldset.disabled).toBe(true);
-    expect(fieldset.className).toContain("filterSectionCollapsed");
-    // expanding the section enables and shows the filter
-    fireEvent.click(titleCheckbox);
-    expect(fieldset.disabled).toBe(false);
-    expect(fieldset.className).not.toContain("filterSectionCollapsed");
     fireEvent.change(input, { target: { value: "hamlet" } });
 
     // the query received the title filter
@@ -165,40 +182,41 @@ describe("FromCollection pick step", () => {
       title: "hamlet",
     });
 
+    // a section with a value set cannot be collapsed anymore
+    titleHeader = screen.getByRole("button", { name: "Title" }) as HTMLButtonElement;
+    expect(titleHeader.disabled).toBe(true);
+    fireEvent.click(titleHeader);
+    expect(titleHeader.getAttribute("aria-expanded")).toBe("true");
+
     fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
     expect(input.value).toBe("");
     expect(JSON.parse(localStorage.getItem("marivo:collection-filters")!)).toMatchObject({
       title: "",
+      openSections: {},
     });
+    // back to collapsed and collapsible
+    titleHeader = screen.getByRole("button", { name: "Title" }) as HTMLButtonElement;
+    expect(titleHeader.disabled).toBe(false);
+    expect(titleHeader.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("unchecking a section disables its filter (not sent to the server) but keeps the value", async () => {
-    renderPick();
-    await screen.findByText("Hamlet");
-    const titleCheckbox = screen.getByRole("checkbox", { name: "Title" });
-    fireEvent.click(titleCheckbox);
-    const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "hamlet" } });
-    let lastCall = listAllCalls.at(-1) as { filters: { title?: string } };
-    expect(lastCall.filters.title).toBe("hamlet");
-
-    // uncheck -> filter disabled: not sent anymore, value kept in the input
-    fireEvent.click(titleCheckbox);
-    lastCall = listAllCalls.at(-1) as { filters: { title?: string } };
-    expect(lastCall.filters.title).toBeUndefined();
-    expect(input.value).toBe("hamlet");
-  });
-
-  it("shows the enabled-filter count on the toggle and Clear only when > 0", async () => {
+  it("shows the set-control count on the toggle and Clear only when > 0", async () => {
     renderPick();
     await screen.findByText("Hamlet");
 
-    // no section enabled: Clear hidden, toggle has no count
+    // nothing set: Clear hidden, toggle has no count
     expect(screen.queryByRole("button", { name: "Clear filters" })).toBeNull();
     expect(screen.getByRole("button", { name: "Filter by" })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("checkbox", { name: "Title" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "Author" }));
+    // set the title text control
+    fireEvent.click(screen.getByRole("button", { name: "Title" }));
+    const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "hamlet" } });
+    expect(screen.getByRole("button", { name: "Filter by (1)" })).toBeTruthy();
+
+    // set the bookmarked toggle
+    fireEvent.click(screen.getByRole("button", { name: "Bookmarked" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Only bookmarked" }));
     expect(screen.getByRole("button", { name: "Filter by (2)" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Clear filters" })).toBeTruthy();
 
@@ -208,15 +226,33 @@ describe("FromCollection pick step", () => {
     expect(screen.getByRole("button", { name: "Filter by" })).toBeTruthy();
   });
 
+  it("text controls have a clear button that resets only that control", async () => {
+    renderPick();
+    await screen.findByText("Hamlet");
+    fireEvent.click(screen.getByRole("button", { name: "Title" }));
+    const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+    expect(screen.queryByRole("button", { name: "Clear title filter" })).toBeNull();
+
+    fireEvent.change(input, { target: { value: "hamlet" } });
+    expect(screen.getByRole("button", { name: "Filter by (1)" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear title filter" }));
+    expect(input.value).toBe("");
+    expect(screen.queryByRole("button", { name: "Clear title filter" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Filter by" })).toBeTruthy();
+    const lastCall = listAllCalls.at(-1) as { filters: { title?: string } };
+    expect(lastCall.filters.title).toBeUndefined();
+  });
+
   it("persists the open/collapsed state of filter sections in localStorage", async () => {
     renderPick();
     await screen.findByText("Hamlet");
-    fireEvent.click(screen.getByRole("checkbox", { name: "Author" }));
+    fireEvent.click(screen.getByRole("button", { name: "Author" }));
     const stored = JSON.parse(localStorage.getItem("marivo:collection-filters")!);
     expect(stored.openSections).toEqual({ author: true });
   });
 
-  it("restores filters from localStorage on mount", async () => {
+  it("restores filters from localStorage on mount; values apply even when their section is collapsed", async () => {
     localStorage.setItem(
       "marivo:collection-filters",
       JSON.stringify({
@@ -229,7 +265,8 @@ describe("FromCollection pick step", () => {
         genres: ["tragedy"],
         periods: [],
         bookmarkedOnly: false,
-        openSections: { title: true, genres: true },
+        archivedOnly: false,
+        openSections: {},
       }),
     );
     renderPick();
@@ -237,5 +274,13 @@ describe("FromCollection pick step", () => {
     const lastCall = listAllCalls.at(-1) as { filters: { title?: string; genres?: string[] } };
     expect(lastCall.filters.title).toBe("hamlet");
     expect(lastCall.filters.genres).toEqual(["tragedy"]);
+    // sections with a value are force-open and not collapsible
+    const titleHeader = screen.getByRole("button", { name: "Title" }) as HTMLButtonElement;
+    expect(titleHeader.getAttribute("aria-expanded")).toBe("true");
+    expect(titleHeader.disabled).toBe(true);
+    // sections without a value stay collapsed
+    expect(screen.getByRole("button", { name: "Author" }).getAttribute("aria-expanded")).toBe(
+      "false",
+    );
   });
 });
