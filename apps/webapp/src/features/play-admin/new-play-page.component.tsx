@@ -1,7 +1,7 @@
 import { NavLink } from "react-router";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import FlowStep from "../../components/flow-step.component";
-import OngoingImportsNotification from "./ongoing-imports-notification.component";
+import { OngoingImportsSection } from "./ongoing-imports-section.component";
 import styles from "./new-play-page.module.css";
 import { useCollectionMetadataContext } from "./collection-metadata.context";
 
@@ -26,7 +26,6 @@ export function NewPlayPage() {
   const { count } = useCollectionMetadataContext();
   return (
     <FlowStep title="Create a new play project">
-      <OngoingImportsNotification />
       How do you want to initialize the script ?
       <NavLink
         className={styles.section}
@@ -37,6 +36,7 @@ export function NewPlayPage() {
         <div className={styles.desc}>Import script from an external source</div>
         <div className={styles.subdesc}>Supported file formats: PDF, TXT.</div>
       </NavLink>
+      <OngoingImportsSection />
       <NavLink
         className={styles.section}
         to={{
