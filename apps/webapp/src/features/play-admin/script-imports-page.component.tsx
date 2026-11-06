@@ -1,57 +1,50 @@
-import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTRPC } from '../../trpc';
-import { HeaderBreadcrumbs } from '../../layouts/header.component';
-import Skeleton from '../../components/skeleton.component';
-import DotsLoader from '../../components/dots-loader.component';
-import Button from '../../components/button.component';
-import styles from './script-imports-page.module.css';
-import ImportFilters from './import-filters.component';
-import type { ImportStatus } from './import-filters.component';
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "../../trpc";
+import { HeaderBreadcrumbs } from "../../layouts/header.component";
+import Skeleton from "../../components/skeleton.component";
+import DotsLoader from "../../components/dots-loader.component";
+import Button from "../../components/button.component";
+import styles from "./script-imports-page.module.css";
+import ImportFilters from "./import-filters.component";
+import type { ImportStatus } from "./import-filters.component";
 
 interface ScriptImport {
   id: string;
-  status:
-    | 'uploading_files'
-    | 'processing_files'
-    | 'reviewing'
-    | 'done'
-    | 'error';
+  status: "uploading_files" | "processing_files" | "reviewing" | "done" | "error";
   error: string | null;
 }
 
-function getStatusLabel(status: ScriptImport['status']): string {
+function getStatusLabel(status: ScriptImport["status"]): string {
   switch (status) {
-    case 'uploading_files':
-      return 'Uploading files';
-    case 'processing_files':
-      return 'Processing files';
-    case 'reviewing':
-      return 'Reviewing';
-    case 'done':
-      return 'Done';
-    case 'error':
-      return 'Error';
+    case "uploading_files":
+      return "Uploading files";
+    case "processing_files":
+      return "Processing files";
+    case "reviewing":
+      return "Reviewing";
+    case "done":
+      return "Done";
+    case "error":
+      return "Error";
     default:
       return status;
   }
 }
 
-function getStatusVariant(
-  status: ScriptImport['status'],
-): 'ongoing' | 'done' | 'error' {
+function getStatusVariant(status: ScriptImport["status"]): "ongoing" | "done" | "error" {
   switch (status) {
-    case 'uploading_files':
-    case 'processing_files':
-    case 'reviewing':
-      return 'ongoing';
-    case 'done':
-      return 'done';
-    case 'error':
-      return 'error';
+    case "uploading_files":
+    case "processing_files":
+    case "reviewing":
+      return "ongoing";
+    case "done":
+      return "done";
+    case "error":
+      return "error";
     default:
-      return 'ongoing';
+      return "ongoing";
   }
 }
 
@@ -66,12 +59,8 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
   const [resuming, setResuming] = useState(false);
   const statusLabel = getStatusLabel(imp.status);
   const statusVariant = getStatusVariant(imp.status);
-  const isOngoing = [
-    'uploading_files',
-    'processing_files',
-    'reviewing',
-  ].includes(imp.status);
-  const isReviewing = imp.status === 'reviewing';
+  const isOngoing = ["uploading_files", "processing_files", "reviewing"].includes(imp.status);
+  const isReviewing = imp.status === "reviewing";
 
   // On Resume: disable the button with a waiting icon, prefetch the script
   // into the cache, then navigate — so the flow lands directly on the preview.
@@ -84,7 +73,7 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
       trpc.script.latestChanges.queryOptions({
         since: new Date(0),
         uri: imp.id,
-        from: 'import',
+        from: "import",
       }),
     );
     navigate(`/plays/new/import?resume=${imp.id}`);
@@ -95,12 +84,10 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
       <div className={styles.scriptImportContent}>
         <div className={styles.scriptImportTitle}>{imp.id}</div>
         <div className={styles.scriptImportDetails}>
-          Status:{' '}
+          Status:{" "}
           <span
             className={
-              styles[
-                `statusBadge${statusVariant.charAt(0).toUpperCase() + statusVariant.slice(1)}`
-              ]
+              styles[`statusBadge${statusVariant.charAt(0).toUpperCase() + statusVariant.slice(1)}`]
             }
           >
             {statusLabel}
@@ -143,14 +130,14 @@ export function ScriptImportsPageBreadcrumbs() {
       crumbs={[
         <NavLink
           to={{
-            pathname: '/plays/new',
+            pathname: "/plays/new",
           }}
         >
           New play
         </NavLink>,
         <NavLink
           to={{
-            pathname: '/plays/imports',
+            pathname: "/plays/imports",
           }}
         >
           Script imports
@@ -165,20 +152,18 @@ export function ScriptImportsPage() {
   const queryOpts = trpc.plays.allScriptImports.queryOptions();
   // Poll so statuses (and the Resume gating) update while the user waits.
   queryOpts.refetchInterval = 5000;
-  const { data, isLoading, isError, isRefetching, refetch } =
-    useQuery(queryOpts);
+  const { data, isLoading, isError, isRefetching, refetch } = useQuery(queryOpts);
 
   const allOngoingImports =
     data?.filter((imp) =>
-      ['uploading_files', 'processing_files', 'reviewing'].includes(imp.status),
+      ["uploading_files", "processing_files", "reviewing"].includes(imp.status),
     ) ?? [];
-  const pastImports =
-    data?.filter((imp) => ['done', 'error'].includes(imp.status)) ?? [];
+  const pastImports = data?.filter((imp) => ["done", "error"].includes(imp.status)) ?? [];
 
   const [statusFilters, setStatusFilters] = useState<ImportStatus[]>([
-    'uploading_files',
-    'processing_files',
-    'reviewing',
+    "uploading_files",
+    "processing_files",
+    "reviewing",
   ]);
 
   const ongoingImports = allOngoingImports.filter((imp) =>
@@ -207,14 +192,9 @@ export function ScriptImportsPage() {
         <>
           {allOngoingImports.length > 0 && (
             <>
-              <h3 className={styles.sectionTitle}>
-                Ongoing Imports ({ongoingImports.length})
-              </h3>
+              <h3 className={styles.sectionTitle}>Ongoing Imports ({ongoingImports.length})</h3>
               <div className={styles.filtersContainer}>
-                <ImportFilters
-                  statuses={statusFilters}
-                  onStatusesChange={setStatusFilters}
-                />
+                <ImportFilters statuses={statusFilters} onStatusesChange={setStatusFilters} />
               </div>
               <ul className={styles.scriptImports}>
                 {ongoingImports.map((imp) => (
@@ -225,9 +205,7 @@ export function ScriptImportsPage() {
           )}
           {pastImports.length > 0 && (
             <>
-              <h3 className={styles.sectionTitle}>
-                Past Imports ({pastImports.length})
-              </h3>
+              <h3 className={styles.sectionTitle}>Past Imports ({pastImports.length})</h3>
               <ul className={styles.scriptImports}>
                 {pastImports.map((imp) => (
                   <ScriptImportItem key={imp.id} imp={imp} />

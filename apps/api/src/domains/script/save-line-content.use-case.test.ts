@@ -25,7 +25,12 @@ describe("SaveLineContentUseCase", () => {
       getScriptIdByUri: vi.fn(),
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
     userContext = { get: () => ({ userId: 1 }) } as unknown as UserContextService;
-    useCase = new SaveLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+    useCase = new SaveLineContentUseCase(
+      scriptRepository,
+      userPlaysRepository,
+      playsCollectionRepository,
+      userContext,
+    );
   });
 
   it("saves line content when play exists", async () => {

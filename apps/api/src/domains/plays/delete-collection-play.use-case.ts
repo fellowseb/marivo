@@ -25,9 +25,7 @@ export class DeleteCollectionPlayUseCase extends AuthenticatedUseCase<{
 
   async execute(input: DeleteCollectionPlayUseCaseInput) {
     if (!hasCapability(this.getUserContext().role, "delete_collection_play")) {
-      return Result.failure(
-        new ForbiddenError("Capability 'delete_collection_play' is required"),
-      );
+      return Result.failure(new ForbiddenError("Capability 'delete_collection_play' is required"));
     }
     const result = await this.repository.deleteByUri({ uri: input.uri });
     if (result.isFailure()) {

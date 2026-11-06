@@ -88,13 +88,15 @@ describe("playsCollection addToCollection (integration with real Postgres)", () 
     const collectionUri = result.dataOrThrow().uri;
     expect(collectionUri).toHaveLength(36);
 
-    const [row] = await sql<{
-      title: string;
-      author: string;
-      lang: string;
-      genre: string;
-      script_id: number;
-    }[]>`
+    const [row] = await sql<
+      {
+        title: string;
+        author: string;
+        lang: string;
+        genre: string;
+        script_id: number;
+      }[]
+    >`
       SELECT title, author, lang, genre, script_id FROM public_domain_plays WHERE uri = ${collectionUri}
     `;
     expect(row.title).toBe("Tartuffe");

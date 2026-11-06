@@ -104,7 +104,10 @@ describe("collection play management (integration with real Postgres)", () => {
     expect(found?.archived).toBe(true);
 
     // getDetails returns full metadata incl. archived
-    const details = await new GetCollectionPlayUseCase(collectionRepo("admin"), ctx("admin")).execute({ uri });
+    const details = await new GetCollectionPlayUseCase(
+      collectionRepo("admin"),
+      ctx("admin"),
+    ).execute({ uri });
     expect(details.isOk()).toBe(true);
     expect(details.dataOrThrow()).toMatchObject({
       uri,
@@ -178,9 +181,11 @@ describe("collection play management (integration with real Postgres)", () => {
     ).execute({ uri });
     expect(forbidden.errorOrThrow().code).toBe("FORBIDDEN");
 
-    const ok = await new DeleteCollectionPlayUseCase(collectionRepo("admin"), ctx("admin")).execute({
-      uri,
-    });
+    const ok = await new DeleteCollectionPlayUseCase(collectionRepo("admin"), ctx("admin")).execute(
+      {
+        uri,
+      },
+    );
     expect(ok.isOk()).toBe(true);
     const [gone] = await sql<{ count: string }[]>`
       SELECT COUNT(*) AS count FROM public_domain_plays WHERE uri = ${uri}

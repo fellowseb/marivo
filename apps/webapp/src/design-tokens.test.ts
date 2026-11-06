@@ -61,9 +61,10 @@ describe("design tokens", () => {
         .flatMap((line) => line.trim().match(/^--[a-z0-9-]+(?=:)/) ?? []),
     );
     const usedTokens = moduleCssFiles.flatMap((file) =>
-      [
-        ...fs.readFileSync(file, "utf8").matchAll(/var\((--[a-z0-9-]+)\)/g),
-      ].map((match) => ({ file, token: match[1] })),
+      [...fs.readFileSync(file, "utf8").matchAll(/var\((--[a-z0-9-]+)\)/g)].map((match) => ({
+        file,
+        token: match[1],
+      })),
     );
     const localTokens = new Set(
       moduleCssFiles.flatMap((file) =>
@@ -73,7 +74,13 @@ describe("design tokens", () => {
       ),
     );
     const undefinedTokens = usedTokens
-      .filter(({ token }) => !definedTokens.has(token) && !localTokens.has(token) && !token.startsWith("--toggle-") && !token.startsWith("--button-"))
+      .filter(
+        ({ token }) =>
+          !definedTokens.has(token) &&
+          !localTokens.has(token) &&
+          !token.startsWith("--toggle-") &&
+          !token.startsWith("--button-"),
+      )
       .map(({ file, token }) => `${file}: ${token}`);
     expect(undefinedTokens).toEqual([]);
   });

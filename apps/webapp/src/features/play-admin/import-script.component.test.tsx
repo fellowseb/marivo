@@ -1,32 +1,29 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router';
-import ImportScript from './import-script.component';
-import {
-  ImportScriptContextProvider,
-  useImportScriptContext,
-} from './import-script.context';
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router";
+import ImportScript from "./import-script.component";
+import { ImportScriptContextProvider, useImportScriptContext } from "./import-script.context";
 
 let statusValue: unknown;
 let statusShouldFail = false;
 let statusCalls = 0;
-let capturedImportId = '';
+let capturedImportId = "";
 let scriptShouldHang = false;
 let scriptResolve: ((value: unknown) => void) | null = null;
 let scriptCalls = 0;
 const scriptValue = { lastModifiedDate: new Date(0) };
-const SRV_IMPORT_ID = '20000000-0000-4000-8000-0000000000aa';
-const RESUME_ID = '10000000-0000-4000-8000-000000000001';
+const SRV_IMPORT_ID = "20000000-0000-4000-8000-0000000000aa";
+const RESUME_ID = "10000000-0000-4000-8000-000000000001";
 const initMock = vi.fn().mockResolvedValue({ importId: SRV_IMPORT_ID });
 const uploadMock = vi.fn().mockResolvedValue({});
 
-vi.mock('../../trpc', () => ({
+vi.mock("../../trpc", () => ({
   useTRPC: () => ({
     plays: {
       initImportScript: {
         mutationOptions: (opts?: { onSuccess?: (data: { importId: string }) => void }) => ({
-          mutationKey: ['initImportScript'],
+          mutationKey: ["initImportScript"],
           mutationFn: async () => {
             const data = await initMock();
             opts?.onSuccess?.(data);
@@ -35,30 +32,33 @@ vi.mock('../../trpc', () => ({
         }),
       },
       uploadFileForScriptImport: {
-        mutationOptions: () => ({ mutationKey: ['uploadFileForScriptImport'], mutationFn: uploadMock }),
-        mutationKey: () => ['uploadFileForScriptImport'],
+        mutationOptions: () => ({
+          mutationKey: ["uploadFileForScriptImport"],
+          mutationFn: uploadMock,
+        }),
+        mutationKey: () => ["uploadFileForScriptImport"],
       },
       importScriptStatus: {
         queryOptions: (input: unknown) => {
           capturedImportId = (input as { importId: string }).importId;
           return {
-            queryKey: ['importScriptStatus', input],
+            queryKey: ["importScriptStatus", input],
             queryFn: async () => {
               statusCalls += 1;
               if (statusShouldFail) {
-                throw new Error('NOT_FOUND');
+                throw new Error("NOT_FOUND");
               }
               return { id: capturedImportId, ...(statusValue as object) };
             },
           };
         },
-        queryKey: () => ['importScriptStatus'],
+        queryKey: () => ["importScriptStatus"],
       },
     },
     script: {
       latestChanges: {
         queryOptions: (input: unknown) => ({
-          queryKey: ['latestChanges', input],
+          queryKey: ["latestChanges", input],
           queryFn: () => {
             scriptCalls += 1;
             if (scriptShouldHang) {
@@ -79,13 +79,10 @@ function renderWithProviders(
   initialEntries?: string[],
   queryClient?: QueryClient,
 ) {
-  const client =
-    queryClient ?? new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = queryClient ?? new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={initialEntries}>
-        {node}
-      </MemoryRouter>
+      <MemoryRouter initialEntries={initialEntries}>{node}</MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -97,21 +94,21 @@ function Probe() {
     <div data-testid="probe">
       {step
         ? JSON.stringify(
-            step.name === 'import'
+            step.name === "import"
               ? { name: step.name, processing: step.processing, error: step.error ?? null }
               : { name: step.name },
           )
-        : 'no-step'}
+        : "no-step"}
     </div>
   );
 }
 
 const REVIEWING = {
-  status: 'reviewing',
+  status: "reviewing",
   metadata: {
-    title: 'Hamlet',
-    author: 'Shakespeare',
-    language: 'en',
+    title: "Hamlet",
+    author: "Shakespeare",
+    language: "en",
     characters: [],
     number_of_roles: 1,
     number_of_male_roles: 1,
@@ -119,7 +116,7 @@ const REVIEWING = {
   },
 };
 
-describe('ImportScriptContext status transitions', () => {
+describe("ImportScriptContext status transitions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     statusShouldFail = false;
@@ -127,14 +124,14 @@ describe('ImportScriptContext status transitions', () => {
     scriptShouldHang = false;
     scriptResolve = null;
     scriptCalls = 0;
-    statusValue = { status: 'uploading_files', error: null };
+    statusValue = { status: "uploading_files", error: null };
   });
   afterEach(() => cleanup());
 
   const resumeAt = (id: string) => [`/plays/new/import?resume=${id}`];
 
-  it('resume starts directly on the import page (no full-page loader state)', async () => {
-    statusValue = { status: 'processing_files', error: null };
+  it("resume starts directly on the import page (no full-page loader state)", async () => {
+    statusValue = { status: "processing_files", error: null };
     renderWithProviders(
       <ImportScriptContextProvider>
         <Probe />
@@ -143,17 +140,17 @@ describe('ImportScriptContext status transitions', () => {
     );
     // step is defined from the first render: the import page with the
     // processing indicator, never an undefined-step loader
-    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
-    expect(screen.getByTestId('probe').textContent).toContain('"processing":true');
-    expect(screen.getByTestId('probe').textContent).not.toContain('no-step');
+    expect(screen.getByTestId("probe").textContent).toContain('"name":"import"');
+    expect(screen.getByTestId("probe").textContent).toContain('"processing":true');
+    expect(screen.getByTestId("probe").textContent).not.toContain("no-step");
   });
 
-  it('resume with a warm script cache starts directly on preview (no import-step flash)', async () => {
+  it("resume with a warm script cache starts directly on preview (no import-step flash)", async () => {
     statusValue = REVIEWING;
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     // simulate the /plays/imports page having prefetched the script
     queryClient.setQueryData(
-      ['latestChanges', { since: new Date(0), uri: RESUME_ID, from: 'import' }],
+      ["latestChanges", { since: new Date(0), uri: RESUME_ID, from: "import" }],
       scriptValue,
     );
     renderWithProviders(
@@ -164,17 +161,17 @@ describe('ImportScriptContext status transitions', () => {
       queryClient,
     );
     // first render is already the preview step
-    expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
+    expect(screen.getByTestId("probe").textContent).toContain('"name":"preview"');
   });
 
   it(
-    'does not bounce back from preview to the import step on later polls',
+    "does not bounce back from preview to the import step on later polls",
     { timeout: 20000 },
     async () => {
       statusValue = REVIEWING;
       const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
       queryClient.setQueryData(
-        ['latestChanges', { since: new Date(0), uri: RESUME_ID, from: 'import' }],
+        ["latestChanges", { since: new Date(0), uri: RESUME_ID, from: "import" }],
         scriptValue,
       );
       renderWithProviders(
@@ -184,16 +181,16 @@ describe('ImportScriptContext status transitions', () => {
         resumeAt(RESUME_ID),
         queryClient,
       );
-      expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
+      expect(screen.getByTestId("probe").textContent).toContain('"name":"preview"');
       // let at least one poll interval (5s) pass with the status still reviewing
       await new Promise((resolve) => setTimeout(resolve, 6000));
-      expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
-      expect(screen.getByTestId('probe').textContent).not.toContain('"name":"import"');
+      expect(screen.getByTestId("probe").textContent).toContain('"name":"preview"');
+      expect(screen.getByTestId("probe").textContent).not.toContain('"name":"import"');
     },
   );
 
-  it('prefetches the script immediately on resume, before the status poll says reviewing', async () => {
-    statusValue = { status: 'processing_files', error: null };
+  it("prefetches the script immediately on resume, before the status poll says reviewing", async () => {
+    statusValue = { status: "processing_files", error: null };
     renderWithProviders(
       <ImportScriptContextProvider>
         <Probe />
@@ -202,11 +199,11 @@ describe('ImportScriptContext status transitions', () => {
     );
     await waitFor(() => expect(scriptCalls).toBeGreaterThan(0));
     // still on the import page: the advance to preview waits for the status poll
-    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+    expect(screen.getByTestId("probe").textContent).toContain('"name":"import"');
   });
 
-  it('does not prefetch the script on a fresh page before the status says reviewing', async () => {
-    statusValue = { status: 'processing_files', error: null };
+  it("does not prefetch the script on a fresh page before the status says reviewing", async () => {
+    statusValue = { status: "processing_files", error: null };
     renderWithProviders(
       <ImportScriptContextProvider>
         <Probe />
@@ -216,18 +213,20 @@ describe('ImportScriptContext status transitions', () => {
     expect(scriptCalls).toBe(0);
   });
 
-  it('marks the import step as processing while files are processed', async () => {
-    statusValue = { status: 'processing_files', error: null };
+  it("marks the import step as processing while files are processed", async () => {
+    statusValue = { status: "processing_files", error: null };
     renderWithProviders(
       <ImportScriptContextProvider>
         <Probe />
       </ImportScriptContextProvider>,
       resumeAt(RESUME_ID),
     );
-    await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"processing":true'));
+    await waitFor(() =>
+      expect(screen.getByTestId("probe").textContent).toContain('"processing":true'),
+    );
   });
 
-  it('advances to preview on reviewing once the script payload is loaded', async () => {
+  it("advances to preview on reviewing once the script payload is loaded", async () => {
     statusValue = REVIEWING;
     renderWithProviders(
       <ImportScriptContextProvider>
@@ -235,12 +234,15 @@ describe('ImportScriptContext status transitions', () => {
       </ImportScriptContextProvider>,
       resumeAt(RESUME_ID),
     );
-    await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"'), {
-      timeout: 9000,
-    });
+    await waitFor(
+      () => expect(screen.getByTestId("probe").textContent).toContain('"name":"preview"'),
+      {
+        timeout: 9000,
+      },
+    );
   });
 
-  it('stays on the import page while reviewing until the script payload arrives', async () => {
+  it("stays on the import page while reviewing until the script payload arrives", async () => {
     statusValue = REVIEWING;
     scriptShouldHang = true;
     renderWithProviders(
@@ -251,20 +253,23 @@ describe('ImportScriptContext status transitions', () => {
     );
     // status is reviewing, but the script query is still pending: no preview yet
     await waitFor(() =>
-      expect(screen.getByTestId('probe').textContent).toContain('"processing":true'),
+      expect(screen.getByTestId("probe").textContent).toContain('"processing":true'),
     );
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
-    expect(screen.getByTestId('probe').textContent).not.toContain('"preview"');
+    expect(screen.getByTestId("probe").textContent).toContain('"name":"import"');
+    expect(screen.getByTestId("probe").textContent).not.toContain('"preview"');
     // script payload arrives -> advance to preview
     scriptResolve?.(scriptValue);
-    await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"'), {
-      timeout: 9000,
-    });
+    await waitFor(
+      () => expect(screen.getByTestId("probe").textContent).toContain('"name":"preview"'),
+      {
+        timeout: 9000,
+      },
+    );
   });
 
-  it('surfaces the worker error message on error status', async () => {
-    statusValue = { status: 'error', error: 'LLM request failed' };
+  it("surfaces the worker error message on error status", async () => {
+    statusValue = { status: "error", error: "LLM request failed" };
     renderWithProviders(
       <ImportScriptContextProvider>
         <Probe />
@@ -272,12 +277,12 @@ describe('ImportScriptContext status transitions', () => {
       resumeAt(RESUME_ID),
     );
     await waitFor(
-      () => expect(screen.getByTestId('probe').textContent).toContain('LLM request failed'),
+      () => expect(screen.getByTestId("probe").textContent).toContain("LLM request failed"),
       { timeout: 9000 },
     );
   });
 
-  it('surfaces an error when a resumed import no longer exists (query failure)', async () => {
+  it("surfaces an error when a resumed import no longer exists (query failure)", async () => {
     statusShouldFail = true;
     renderWithProviders(
       <ImportScriptContextProvider>
@@ -286,12 +291,12 @@ describe('ImportScriptContext status transitions', () => {
       resumeAt(RESUME_ID),
     );
     await waitFor(
-      () => expect(screen.getByTestId('probe').textContent).toContain('no longer available'),
+      () => expect(screen.getByTestId("probe").textContent).toContain("no longer available"),
       { timeout: 9000 },
     );
   });
 
-  it('does NOT poll at all on a fresh page before init (importId is server-generated)', async () => {
+  it("does NOT poll at all on a fresh page before init (importId is server-generated)", async () => {
     statusShouldFail = true;
     renderWithProviders(
       <ImportScriptContextProvider>
@@ -301,72 +306,77 @@ describe('ImportScriptContext status transitions', () => {
     // let several would-be poll ticks pass: the query is disabled (no id yet)
     await new Promise((resolve) => setTimeout(resolve, 1500));
     expect(statusCalls).toBe(0);
-    expect(screen.getByTestId('probe').textContent).not.toContain('no longer available');
-    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+    expect(screen.getByTestId("probe").textContent).not.toContain("no longer available");
+    expect(screen.getByTestId("probe").textContent).toContain('"name":"import"');
   });
 
   it(
-    'shows the gone-error once the import existed and then disappeared',
+    "shows the gone-error once the import existed and then disappeared",
     { timeout: 30000 },
     async () => {
-    statusValue = { status: 'processing_files', error: null };
-    renderWithProviders(
-      <ImportScriptContextProvider>
-        <Probe />
-      </ImportScriptContextProvider>,
-      resumeAt(RESUME_ID),
-    );
-    await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"processing":true'));
-    // the row disappears server-side: polls start failing
-    statusShouldFail = true;
-    await waitFor(
-      () => expect(screen.getByTestId('probe').textContent).toContain('no longer available'),
-      { timeout: 9000 },
-    );
+      statusValue = { status: "processing_files", error: null };
+      renderWithProviders(
+        <ImportScriptContextProvider>
+          <Probe />
+        </ImportScriptContextProvider>,
+        resumeAt(RESUME_ID),
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId("probe").textContent).toContain('"processing":true'),
+      );
+      // the row disappears server-side: polls start failing
+      statusShouldFail = true;
+      await waitFor(
+        () => expect(screen.getByTestId("probe").textContent).toContain("no longer available"),
+        { timeout: 9000 },
+      );
     },
   );
 });
 
-describe('ImportScript page feedback', () => {
+describe("ImportScript page feedback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     statusShouldFail = false;
-    statusValue = { status: 'processing_files', error: null };
+    statusValue = { status: "processing_files", error: null };
   });
   afterEach(() => cleanup());
 
   it(
-    'shows processing feedback after clicking Import, then the error with a Start over button',
+    "shows processing feedback after clicking Import, then the error with a Start over button",
     { timeout: 30000 },
     async () => {
-    renderWithProviders(<ImportScript />);
+      renderWithProviders(<ImportScript />);
 
-    // select one file on the hidden input (FileList-like object with .item())
-    const file = new File(['hello'], 'part1.txt');
-    const fileList = { 0: file, length: 1, item: (i: number) => (i === 0 ? file : null) };
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    fireEvent.change(fileInput, { target: { files: fileList } });
-    expect(await screen.findByText('Selected script files: 1')).toBeTruthy();
+      // select one file on the hidden input (FileList-like object with .item())
+      const file = new File(["hello"], "part1.txt");
+      const fileList = { 0: file, length: 1, item: (i: number) => (i === 0 ? file : null) };
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      fireEvent.change(fileInput, { target: { files: fileList } });
+      expect(await screen.findByText("Selected script files: 1")).toBeTruthy();
 
-    // start the import: init + upload resolve, status poll reports processing
-    const importButton = screen.getByRole('button', { name: 'Import', exact: true }) as HTMLButtonElement;
-    fireEvent.click(importButton);
-    // the button must stay disabled from click until the processing poll
-    // takes over (no flicker window where it re-enables)
-    expect(importButton.disabled).toBe(true);
-    expect(await screen.findByText(/Processing files…/)).toBeTruthy();
-    expect(importButton.disabled).toBe(true);
-    await waitFor(() => expect(initMock).toHaveBeenCalledTimes(1));
-    await waitFor(() => expect(uploadMock).toHaveBeenCalledTimes(1));
+      // start the import: init + upload resolve, status poll reports processing
+      const importButton = screen.getByRole("button", {
+        name: "Import",
+        exact: true,
+      }) as HTMLButtonElement;
+      fireEvent.click(importButton);
+      // the button must stay disabled from click until the processing poll
+      // takes over (no flicker window where it re-enables)
+      expect(importButton.disabled).toBe(true);
+      expect(await screen.findByText(/Processing files…/)).toBeTruthy();
+      expect(importButton.disabled).toBe(true);
+      await waitFor(() => expect(initMock).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(uploadMock).toHaveBeenCalledTimes(1));
 
-    // worker fails -> error alert with the reason + Start over
-    statusValue = { status: 'error', error: 'LLM request failed' };
-    await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy(), { timeout: 9000 });
-    expect(screen.getByRole('alert').textContent).toContain('LLM request failed');
-    fireEvent.click(screen.getByRole('button', { name: 'Start over' }));
-    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
-    // files are preserved after starting over
-    expect(screen.getByText('Selected script files: 1')).toBeTruthy();
+      // worker fails -> error alert with the reason + Start over
+      statusValue = { status: "error", error: "LLM request failed" };
+      await waitFor(() => expect(screen.getByRole("alert")).toBeTruthy(), { timeout: 9000 });
+      expect(screen.getByRole("alert").textContent).toContain("LLM request failed");
+      fireEvent.click(screen.getByRole("button", { name: "Start over" }));
+      await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+      // files are preserved after starting over
+      expect(screen.getByText("Selected script files: 1")).toBeTruthy();
     },
   );
 });

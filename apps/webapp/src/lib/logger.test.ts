@@ -15,7 +15,12 @@ describe("logger", () => {
 
     expect(spy).toHaveBeenCalledOnce();
     const entry = spy.mock.calls[0][0] as Record<string, unknown>;
-    expect(entry).toMatchObject({ service: "marivo-webapp", level: "info", message: "hello", foo: 1 });
+    expect(entry).toMatchObject({
+      service: "marivo-webapp",
+      level: "info",
+      message: "hello",
+      foo: 1,
+    });
     expect(typeof entry.ts).toBe("string");
   });
 

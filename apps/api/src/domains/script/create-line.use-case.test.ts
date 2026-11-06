@@ -22,7 +22,12 @@ describe("CreateLineUseCase", () => {
       getScriptIdByUri: vi.fn(),
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
     userContext = { get: () => ({ userId: 1 }) } as unknown as UserContextService;
-    useCase = new CreateLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+    useCase = new CreateLineUseCase(
+      scriptRepository,
+      userPlaysRepository,
+      playsCollectionRepository,
+      userContext,
+    );
   });
 
   it("creates a heading line at position 0", async () => {

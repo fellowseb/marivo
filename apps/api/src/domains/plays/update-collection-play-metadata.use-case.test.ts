@@ -28,18 +28,22 @@ describe("UpdateCollectionPlayMetadataUseCase", () => {
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
   });
 
-  it.each(["admin", "collection-maintainer"] as const)("updates metadata (role: %s)", async (role) => {
-    const result = await new UpdateCollectionPlayMetadataUseCase(repository, ctx(role)).execute(
-      input,
-    );
-    expect(result.isOk()).toBe(true);
-    expect(repository.updateMetadata).toHaveBeenCalledWith(input);
-  });
+  it.each(["admin", "collection-maintainer"] as const)(
+    "updates metadata (role: %s)",
+    async (role) => {
+      const result = await new UpdateCollectionPlayMetadataUseCase(repository, ctx(role)).execute(
+        input,
+      );
+      expect(result.isOk()).toBe(true);
+      expect(repository.updateMetadata).toHaveBeenCalledWith(input);
+    },
+  );
 
   it("returns FORBIDDEN without the capability", async () => {
-    const result = await new UpdateCollectionPlayMetadataUseCase(repository, ctx(undefined)).execute(
-      input,
-    );
+    const result = await new UpdateCollectionPlayMetadataUseCase(
+      repository,
+      ctx(undefined),
+    ).execute(input);
     expect(result.isFailure()).toBe(true);
     expect(result.errorOrThrow().code).toBe("FORBIDDEN");
     expect(repository.updateMetadata).not.toHaveBeenCalled();
@@ -47,10 +51,9 @@ describe("UpdateCollectionPlayMetadataUseCase", () => {
 
   it("propagates NOT_FOUND", async () => {
     repository.updateMetadata.mockResolvedValue(Result.failure(new CollectionPlayNotFound()));
-    const result = await new UpdateCollectionPlayMetadataUseCase(
-      repository,
-      ctx("admin"),
-    ).execute(input);
+    const result = await new UpdateCollectionPlayMetadataUseCase(repository, ctx("admin")).execute(
+      input,
+    );
     expect(result.isFailure()).toBe(true);
     expect(result.errorOrThrow().code).toBe("NOT_FOUND");
   });

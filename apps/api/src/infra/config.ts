@@ -83,7 +83,9 @@ function deepMerge(base: unknown, override: unknown): unknown {
 }
 
 function getPath(obj: unknown, path: string): unknown {
-  return path.split(".").reduce<unknown>((acc, key) => (isPlainObject(acc) ? acc[key] : undefined), obj);
+  return path
+    .split(".")
+    .reduce<unknown>((acc, key) => (isPlainObject(acc) ? acc[key] : undefined), obj);
 }
 
 function setPath(obj: Record<string, unknown>, path: string, value: unknown): void {

@@ -26,11 +26,7 @@ export const LatestScriptChangesUseCaseOutputSchema = z.object({
         id: z.uuidv4(),
         lineId: z.uuidv4(),
         lastModifiedDate: z.date(),
-        type: z.union([
-          z.literal("saved_version"),
-          z.literal("shared_draft"),
-          z.literal("draft"),
-        ]),
+        type: z.union([z.literal("saved_version"), z.literal("shared_draft"), z.literal("draft")]),
         version: z.number().min(0).nullable(),
         authorUsername: z.string().nullable(),
         change: z.union([
@@ -98,7 +94,10 @@ export class LatestScriptChangesUseCase implements UseCase<{
     from: "play" | "import" | "collection";
     since: Date;
   }): Promise<
-    Result<ScriptDiff, ScriptNotFound | PlayNotFound | ScriptImportNotFound | CollectionPlayNotFound>
+    Result<
+      ScriptDiff,
+      ScriptNotFound | PlayNotFound | ScriptImportNotFound | CollectionPlayNotFound
+    >
   > {
     let scriptIdResult;
     if (params.from === "play") {

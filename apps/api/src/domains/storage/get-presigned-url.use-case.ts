@@ -56,8 +56,16 @@ export class GetPresignedUrlUseCase implements UseCase<{
     const objectKey = `${importId}/${key}`;
     const url =
       operation === "download"
-        ? await this.storage.presignDownload(IMPORTS_BUCKET, objectKey, PRESIGNED_URL_EXPIRES_IN_SECONDS)
-        : await this.storage.presignUpload(IMPORTS_BUCKET, objectKey, PRESIGNED_URL_EXPIRES_IN_SECONDS);
+        ? await this.storage.presignDownload(
+            IMPORTS_BUCKET,
+            objectKey,
+            PRESIGNED_URL_EXPIRES_IN_SECONDS,
+          )
+        : await this.storage.presignUpload(
+            IMPORTS_BUCKET,
+            objectKey,
+            PRESIGNED_URL_EXPIRES_IN_SECONDS,
+          );
     return Result.ok({
       url,
       expiresAt: new Date(Date.now() + PRESIGNED_URL_EXPIRES_IN_SECONDS * 1000),

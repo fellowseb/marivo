@@ -62,10 +62,7 @@ export async function waitForDependencies(
     if (db && redis && storage) {
       return true;
     }
-    getLogger().warn(
-      { attempt, retries, db, redis, storage },
-      "dependency check attempt failed",
-    );
+    getLogger().warn({ attempt, retries, db, redis, storage }, "dependency check attempt failed");
     if (attempt < retries) {
       await sleep(delayMs);
     }

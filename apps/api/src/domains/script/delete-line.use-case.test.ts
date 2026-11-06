@@ -22,7 +22,12 @@ describe("DeleteLineUseCase", () => {
       getScriptIdByUri: vi.fn(),
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
     userContext = { get: () => ({ userId: 1 }) } as unknown as UserContextService;
-    useCase = new DeleteLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+    useCase = new DeleteLineUseCase(
+      scriptRepository,
+      userPlaysRepository,
+      playsCollectionRepository,
+      userContext,
+    );
   });
 
   it("deletes a line successfully", async () => {

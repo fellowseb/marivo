@@ -1,8 +1,8 @@
-import type { APIRequestContext, Page } from '@playwright/test';
-import { execFileSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import type { APIRequestContext, Page } from "@playwright/test";
+import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 
-const CLERK_API = 'https://api.clerk.com/v1';
+const CLERK_API = "https://api.clerk.com/v1";
 
 export interface E2eUser {
   id: string;
@@ -13,9 +13,9 @@ export interface E2eUser {
 function clerkHeaders(): Record<string, string> {
   const secret = process.env.E2E_CLERK_SECRET_KEY;
   if (!secret) {
-    throw new Error('E2E_CLERK_SECRET_KEY is not set');
+    throw new Error("E2E_CLERK_SECRET_KEY is not set");
   }
-  return { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' };
+  return { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" };
 }
 
 /** Creates a fresh Clerk user for this run (deleted again by deleteE2eUser). */
@@ -55,12 +55,12 @@ export async function deleteE2eUser(request: APIRequestContext, userId: string):
 export async function signIn(page: Page, request: APIRequestContext): Promise<E2eUser> {
   const user = await createE2eUser(request);
 
-  const container = process.env.E2E_POSTGRES_CONTAINER ?? 'marivo-postgres-1';
+  const container = process.env.E2E_POSTGRES_CONTAINER ?? "marivo-postgres-1";
   const psql = (sql: string) =>
     execFileSync(
-      'docker',
-      ['exec', container, 'psql', '-U', 'postgres', '-d', 'marivo', '-t', '-A', '-c', sql],
-      { encoding: 'utf8' },
+      "docker",
+      ["exec", container, "psql", "-U", "postgres", "-d", "marivo", "-t", "-A", "-c", sql],
+      { encoding: "utf8" },
     ).trim();
   psql(
     `INSERT INTO users (clerk_id, username, full_name, primary_email) VALUES ('${user.id}', 'e2e-${randomUUID().slice(0, 8)}', 'E2E Test', '${user.email}') ON CONFLICT (clerk_id) DO NOTHING`,
@@ -75,15 +75,17 @@ export async function signIn(page: Page, request: APIRequestContext): Promise<E2
     data: { public_metadata: { userDbId: Number(dbId) } },
   });
   if (!patchRes.ok()) {
-    throw new Error(`Clerk set public_metadata failed: ${patchRes.status()} ${await patchRes.text()}`);
+    throw new Error(
+      `Clerk set public_metadata failed: ${patchRes.status()} ${await patchRes.text()}`,
+    );
   }
 
-  await page.goto('/signin');
-  await page.getByRole('textbox', { name: 'Email address' }).fill(user.email);
-  await page.getByRole('button', { name: 'Continue', exact: true }).click();
-  await page.getByPlaceholder('Enter your password').fill(user.password);
-  await page.getByRole('button', { name: 'Continue', exact: true }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith('/signin'), { timeout: 30_000 });
+  await page.goto("/signin");
+  await page.getByRole("textbox", { name: "Email address" }).fill(user.email);
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByPlaceholder("Enter your password").fill(user.password);
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith("/signin"), { timeout: 30_000 });
 
   return user;
 }

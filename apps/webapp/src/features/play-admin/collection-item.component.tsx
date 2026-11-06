@@ -1,6 +1,6 @@
-import Icon from '../../components/icon.component';
-import { ItemListItem } from '../../components/item-list/item-list.component';
-import styles from './collection-item.module.css';
+import Icon from "../../components/icon.component";
+import { ItemListItem } from "../../components/item-list/item-list.component";
+import styles from "./collection-item.module.css";
 
 interface CollectionItemProps {
   title: string;
@@ -25,7 +25,7 @@ export function CollectionItem(props: CollectionItemProps) {
         : null;
   const meta = [props.lang.toUpperCase(), props.genre, props.period, roles]
     .filter(Boolean)
-    .join(' · ');
+    .join(" · ");
   return (
     <ItemListItem
       onClick={props.onSelect}

@@ -43,7 +43,12 @@ describe("health router", () => {
 
   it("GET /health/ready is 503 when a check throws", async () => {
     const res = await request(
-      makeApp({ ...allOk, checkStorage: async () => { throw new Error("boom"); } }),
+      makeApp({
+        ...allOk,
+        checkStorage: async () => {
+          throw new Error("boom");
+        },
+      }),
     ).get("/health/ready");
     expect(res.status).toBe(503);
     expect(res.body.checks.storage).toBe(false);

@@ -1,10 +1,7 @@
 import z from "zod";
 import { hasCapability, Result } from "@marivo/utils";
 import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
-import type {
-  CollectionPage,
-  PlaysCollectionRepository,
-} from "./plays-collection.repository.ts";
+import type { CollectionPage, PlaysCollectionRepository } from "./plays-collection.repository.ts";
 
 export const CollectionFiltersSchema = z
   .object({

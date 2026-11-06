@@ -15,7 +15,11 @@ export default function AuthGuard(props: PropsWithChildren) {
     return <GlobalSpinner />;
   }
 
-  if (!isSignedIn && !location.pathname.startsWith("/signin") && !location.pathname.startsWith("/signup")) {
+  if (
+    !isSignedIn &&
+    !location.pathname.startsWith("/signin") &&
+    !location.pathname.startsWith("/signup")
+  ) {
     return <Navigate to="/signin" replace state={{ from: location.pathname }} />;
   }
 

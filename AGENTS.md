@@ -43,9 +43,12 @@ pnpm test
 
 ## 2. Code Quality Gates
 
+**Always run `pnpm format` before every commit** (oxfmt is the only formatter — do not use prettier). CI enforces it with `oxfmt --check .` in the Format job.
+
 Before pushing, run:
 
 ```bash
+pnpm format        # format the tree (run before EVERY commit)
 pnpm check-types   # TypeScript must pass
 pnpm lint          # Oxlint must pass (zero warnings)
 pnpm test          # All tests must pass

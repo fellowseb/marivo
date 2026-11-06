@@ -44,7 +44,10 @@ export class DeleteLineContentUseCase extends AuthenticatedUseCase<{
   async execute(
     params: DeleteLineContentUseCaseInput,
   ): Promise<
-    Result<DeleteLineContentUseCaseOutput, ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError>
+    Result<
+      DeleteLineContentUseCaseOutput,
+      ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError
+    >
   > {
     const scriptIdResult = await resolveEditableScriptId(
       { uri: params.uri, from: params.from },

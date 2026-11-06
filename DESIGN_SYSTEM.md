@@ -20,110 +20,110 @@ Naming rule: `--color-*` names describe **usage**, not appearance. Roles never c
 
 ### Accent (interactive brand color)
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `--color-accent` | `#1f313c` | Main brand color: links, buttons, item borders, headings |
+| Token                                       | Value                     | Usage                                                                                  |
+| ------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------- |
+| `--color-accent`                            | `#1f313c`                 | Main brand color: links, buttons, item borders, headings                               |
 | `--color-accent-a07` … `--color-accent-a80` | `#1f313c11` … `#1f313ccc` | Accent with alpha steps (07/10/13/33/47/60/80): overlays, hover states, subtle borders |
 
 ### Focus / active indicator
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `--color-focus` | `#e8ce7d` | Focus rings, selected items, active toggles |
+| Token                                    | Value                    | Usage                                       |
+| ---------------------------------------- | ------------------------ | ------------------------------------------- |
+| `--color-focus`                          | `#e8ce7d`                | Focus rings, selected items, active toggles |
 | `--color-focus-a13`, `--color-focus-a60` | `#e8ce7d22`, `#e8ce7d99` | Focus color with alpha: glows, subtle fills |
 
 ### Page background
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `--color-bg` | `#e4d6bc` | Page background |
-| `--color-bg-a00` / `a20` / `a40` / `a60` | `#e4d6bc00` / `#e4d6bc33` / `#e4d6bc66` / `#e4d6bc99` | Background with alpha: list containers, hover tints |
-| `--color-bg-soft` / `--color-bg-dim` / `--color-bg-deep` | `#e9dec9` / `#dccdab` / `#d8c69f` | Background elevation steps |
-| `--color-highlight` | `#ebcf96` | Highlighted background |
+| Token                                                    | Value                                                 | Usage                                               |
+| -------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------- |
+| `--color-bg`                                             | `#e4d6bc`                                             | Page background                                     |
+| `--color-bg-a00` / `a20` / `a40` / `a60`                 | `#e4d6bc00` / `#e4d6bc33` / `#e4d6bc66` / `#e4d6bc99` | Background with alpha: list containers, hover tints |
+| `--color-bg-soft` / `--color-bg-dim` / `--color-bg-deep` | `#e9dec9` / `#dccdab` / `#d8c69f`                     | Background elevation steps                          |
+| `--color-highlight`                                      | `#ebcf96`                                             | Highlighted background                              |
 
 ### Surfaces
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `--color-surface` | `#fef8eb` | Main surface (header, dialogs) |
-| `--color-surface-alt` / `-dim` / `-dark` / `-deep` | `#f9f1e2` / `#efeadf` / `#f3ead6` / `#ece2cc` | Surface elevation steps |
-| `--color-card` | `#e8e4da` | Card / list-item background |
-| `--color-panel` | `#ffffff` | Script page and side panels (elevated surface in dark) |
-| `--color-surface-sunken` | `#eeeeee` | Sunken / inset background |
+| Token                                              | Value                                         | Usage                                                  |
+| -------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------ |
+| `--color-surface`                                  | `#fef8eb`                                     | Main surface (header, dialogs)                         |
+| `--color-surface-alt` / `-dim` / `-dark` / `-deep` | `#f9f1e2` / `#efeadf` / `#f3ead6` / `#ece2cc` | Surface elevation steps                                |
+| `--color-card`                                     | `#e8e4da`                                     | Card / list-item background                            |
+| `--color-panel`                                    | `#ffffff`                                     | Script page and side panels (elevated surface in dark) |
+| `--color-surface-sunken`                           | `#eeeeee`                                     | Sunken / inset background                              |
 
 ### Text
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `--color-text` (+ `a07`) | `#333333` | Primary text |
+| Token                                      | Value     | Usage                                      |
+| ------------------------------------------ | --------- | ------------------------------------------ |
+| `--color-text` (+ `a07`)                   | `#333333` | Primary text                               |
 | `--color-text-secondary` (+ `a13` / `a20`) | `#8a6d3b` | Secondary text (metadata; theme brown hue) |
-| `--color-text-muted` | `#666666` | Muted text |
-| `--color-text-faint` (+ `a08`) | `#999999` | Placeholders, faint labels |
-| `--color-text-disabled` | `#bbbbbb` | Disabled text |
+| `--color-text-muted`                       | `#666666` | Muted text                                 |
+| `--color-text-faint` (+ `a08`)             | `#999999` | Placeholders, faint labels                 |
+| `--color-text-disabled`                    | `#bbbbbb` | Disabled text                              |
 
 ### Borders
 
-| Token | Value | Usage |
-| --- | --- | --- |
-| `--color-border` (+ `a40`) | `#cccccc` | Default borders |
-| `--color-border-strong` | `#cebc96` | Strong borders on the page background |
+| Token                      | Value     | Usage                                 |
+| -------------------------- | --------- | ------------------------------------- |
+| `--color-border` (+ `a40`) | `#cccccc` | Default borders                       |
+| `--color-border-strong`    | `#cebc96` | Strong borders on the page background |
 
 ### Status colors
 
-| Token | Value | Usage |
-| --- | --- | --- |
+| Token                                                          | Value                             | Usage                       |
+| -------------------------------------------------------------- | --------------------------------- | --------------------------- |
 | `--color-danger` / `--color-danger-dark` / `--color-danger-bg` | `#f43d3d` / `#c62828` / `#ffebee` | Errors, destructive actions |
-| `--color-success` / `--color-success-bg` | `#2e7d32` / `#e8f5e9` | Success states |
-| `--color-info` / `--color-info-bg` | `#1976d2` / `#e3f2fd` | Informational states |
-| `--color-error` | `#b00020` | Error text (inline alerts) |
-| `--color-bookmark` / `--color-bookmark-a27` | `#d63384` / `#ffb6c144` | Bookmarked items |
-| `--color-invite` / `--color-invite-a27` | `#60c5ea` / `#60c5ea44` | Play invitations |
+| `--color-success` / `--color-success-bg`                       | `#2e7d32` / `#e8f5e9`             | Success states              |
+| `--color-info` / `--color-info-bg`                             | `#1976d2` / `#e3f2fd`             | Informational states        |
+| `--color-error`                                                | `#b00020`                         | Error text (inline alerts)  |
+| `--color-bookmark` / `--color-bookmark-a27`                    | `#d63384` / `#ffb6c144`           | Bookmarked items            |
+| `--color-invite` / `--color-invite-a27`                        | `#60c5ea` / `#60c5ea44`           | Play invitations            |
 
 ### Literal primitives (appearance-named, theme-independent)
 
-| Token | Value | Usage |
-| --- | --- | --- |
+| Token                                                   | Value     | Usage                            |
+| ------------------------------------------------------- | --------- | -------------------------------- |
 | `--color-white` (+ `a13`/`a20`/`a33`/`a60` alpha steps) | `#ffffff` | Overlays on imagery, toggle knob |
-| `--color-warm-white` (+ `a53`) | `#fefefe` | Warm near-white overlay |
-| `--color-black` | `#000000` | Pure black |
-| `--color-transparent` | `#0000` | Fully transparent |
+| `--color-warm-white` (+ `a53`)                          | `#fefefe` | Warm near-white overlay          |
+| `--color-black`                                         | `#000000` | Pure black                       |
+| `--color-transparent`                                   | `#0000`   | Fully transparent                |
 
 ## Typography tokens
 
-| Token | Value |
-| --- | --- |
-| `--font-size-xs` | `0.7rem` |
-| `--font-size-sm` | `0.8rem` |
-| `--font-size-md` | `0.85rem` |
-| `--font-size-base` | `1rem` |
-| `--font-size-lg` | `1.2rem` |
-| `--font-size-xl` | `1.35rem` |
-| `--font-size-2xl` | `1.5rem` |
-| `--font-size-3xl` | `2rem` |
-| `--font-size-hero` | `3rem` |
+| Token              | Value     |
+| ------------------ | --------- |
+| `--font-size-xs`   | `0.7rem`  |
+| `--font-size-sm`   | `0.8rem`  |
+| `--font-size-md`   | `0.85rem` |
+| `--font-size-base` | `1rem`    |
+| `--font-size-lg`   | `1.2rem`  |
+| `--font-size-xl`   | `1.35rem` |
+| `--font-size-2xl`  | `1.5rem`  |
+| `--font-size-3xl`  | `2rem`    |
+| `--font-size-hero` | `3rem`    |
 
 The base font family (`Arimo`) and weight are set on `body` in `index.css`.
 
 ## Border radius tokens
 
-| Token | Value |
-| --- | --- |
-| `--radius-xs` | `2px` |
-| `--radius-sm` | `4px` |
-| `--radius-md` | `6px` |
-| `--radius-lg` | `8px` |
-| `--radius-xl` | `10px` |
-| `--radius-2xl` | `12px` |
+| Token           | Value  |
+| --------------- | ------ |
+| `--radius-xs`   | `2px`  |
+| `--radius-sm`   | `4px`  |
+| `--radius-md`   | `6px`  |
+| `--radius-lg`   | `8px`  |
+| `--radius-xl`   | `10px` |
+| `--radius-2xl`  | `12px` |
 | `--radius-pill` | `40px` |
 
 ## Shadow tokens
 
-| Token | Value |
-| --- | --- |
-| `--shadow-sm` | `2px 2px 2px var(--color-bg)` |
-| `--shadow-md` | `4px 4px 2px var(--color-text-muted)` |
-| `--shadow-lg` | `6px 15px 2px var(--color-bg)` |
-| `--shadow-inset-left` | `-4px 0 8px rgba(0, 0, 0, 0.15)` |
+| Token                 | Value                                 |
+| --------------------- | ------------------------------------- |
+| `--shadow-sm`         | `2px 2px 2px var(--color-bg)`         |
+| `--shadow-md`         | `4px 4px 2px var(--color-text-muted)` |
+| `--shadow-lg`         | `6px 15px 2px var(--color-bg)`        |
+| `--shadow-inset-left` | `-4px 0 8px rgba(0, 0, 0, 0.15)`      |
 
 ## Conventions
 

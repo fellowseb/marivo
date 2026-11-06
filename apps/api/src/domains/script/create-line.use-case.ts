@@ -45,7 +45,10 @@ export class CreateLineUseCase extends AuthenticatedUseCase<{
   async execute(
     params: CreateLineUseCaseInput,
   ): Promise<
-    Result<CreateLineUseCaseOutput, ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError>
+    Result<
+      CreateLineUseCaseOutput,
+      ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError
+    >
   > {
     const scriptIdResult = await resolveEditableScriptId(
       { uri: params.uri, from: params.from },
