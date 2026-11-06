@@ -20,28 +20,28 @@
 
 .section {
   margin-top: 10px;
-  border: 1px solid #1f313c55;
+  border: 1px solid var(--color-primary-a33);
   padding: 10px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .sectionDanger {
-  border-color: #f43d3d;
+  border-color: var(--color-danger);
 }
 
 .sectionTitle {
   font-weight: bolder;
-  font-size: 0.8rem;
-  color: #1f313c55;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-a33);
 }
 
 .sectionDanger > .sectionTitle {
-  color: #f43d3d;
+  color: var(--color-danger);
 }
 
 .sectionDanger button {
-  background-color: #f43d3d;
-  border-color: #f43d3d;
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .modalContainer {
@@ -58,7 +58,7 @@
 }
 
 .modalContainer > * {
-  box-shadow: 4px 4px 2px #666;
+  box-shadow: var(--shadow-md);
 }
 
 .deleteDialog {

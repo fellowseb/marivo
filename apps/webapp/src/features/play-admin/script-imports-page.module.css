@@ -21,9 +21,9 @@
   overflow-x: hidden;
   box-sizing: border-box;
   padding: 20px 1px 20px 10px;
-  border: 1px solid #cebc96;
-  border-radius: 4px;
-  background-color: #e4d6bc33;
+  border: 1px solid var(--color-sand-dark);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-sand-a20);
   flex: 1 1 0;
   scrollbar-gutter: stable;
 }
@@ -41,19 +41,19 @@
   margin: 0;
   min-width: 600px;
   min-height: 80px;
-  border: 1px solid #e4d6bc;
-  border-left: 10px solid #1f313c22;
-  border-radius: 4px;
-  background-color: #e8e4da;
+  border: 1px solid var(--color-sand);
+  border-left: 10px solid var(--color-primary-a13);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-linen);
   padding: 12px;
 }
 
 .scriptImport > div {
-  border: 1px solid #1f313c;
-  border-left: 10px solid #1f313c;
-  border-radius: 4px;
-  background-color: #99999914;
-  color: #1f313c;
+  border: 1px solid var(--color-primary);
+  border-left: 10px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-gray-light-a08);
+  color: var(--color-primary);
   text-decoration: none;
   margin: 0px;
   min-height: 80px;
@@ -66,8 +66,8 @@
 
 .scriptImport > div:hover {
   cursor: default;
-  background-color: #1f313c19;
-  border-left: 10px solid #1f313c;
+  background-color: var(--color-primary-a10);
+  border-left: 10px solid var(--color-primary);
 }
 
 .scriptImportContent {
@@ -82,7 +82,7 @@
   align-items: center;
   gap: 4px;
   font-family: "Cutive Mono", monospace;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: bold;
   word-break: break-all;
 }
@@ -104,8 +104,8 @@
 
 .sectionTitle {
   margin: 0 0 8px 10px;
-  font-size: 1.2rem;
-  color: #1f313c;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
   text-align: left;
 }
 
@@ -118,38 +118,38 @@
 
 .sectionTitleInList {
   margin: 0;
-  font-size: 1.2rem;
-  color: #1f313c;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
   text-align: left;
 }
 
 .statusBadgeOngoing {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 12px;
-  background-color: #e3f2fd;
-  color: #1976d2;
-  font-size: 0.85rem;
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+  font-size: var(--font-size-md);
   font-weight: 500;
 }
 
 .statusBadgeDone {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 12px;
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  font-size: 0.85rem;
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  font-size: var(--font-size-md);
   font-weight: 500;
 }
 
 .statusBadgeError {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 12px;
-  background-color: #ffebee;
-  color: #c62828;
-  font-size: 0.85rem;
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-dark);
+  font-size: var(--font-size-md);
   font-weight: 500;
 }
 
@@ -159,7 +159,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: var(--color-gray-light);
   flex: 1;
 }
 
@@ -175,7 +175,7 @@
 }
 
 .error {
-  color: #c62828;
+  color: var(--color-danger-dark);
   font-weight: 500;
   padding: 20px;
   text-align: center;

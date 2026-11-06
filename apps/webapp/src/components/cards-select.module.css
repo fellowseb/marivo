@@ -9,23 +9,23 @@
   min-width: 60px;
   height: 60px;
   padding: 4px;
-  border-radius: 4px;
-  background: #33333311;
+  border-radius: var(--radius-sm);
+  background: var(--color-ink-a07);
   display: flex;
   align-items: center;
   justify-content: center;
   color: black;
-  border-color: #33333311;
+  border-color: var(--color-ink-a07);
 }
 
 .optionNotSelected {
-  background: #33333311;
+  background: var(--color-ink-a07);
   color: black;
-  border-color: #33333311;
+  border-color: var(--color-ink-a07);
 }
 
 .optionSelected {
-  background: #e4d6bc;
+  background: var(--color-sand);
   color: black;
-  border-color: #33333311;
+  border-color: var(--color-ink-a07);
 }

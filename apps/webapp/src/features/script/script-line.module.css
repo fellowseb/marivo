@@ -1,5 +1,5 @@
 .repliqueCharacter {
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   font-weight: bold;
   font-family: "Cutive Mono", monospace;
   font-optical-sizing: auto;
@@ -15,7 +15,7 @@
   text-align: justify;
   display: flex;
   flex-direction: column;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   font-family: "Cutive Mono", monospace;
   font-optical-sizing: auto;
 }
@@ -39,14 +39,14 @@
 }
 
 .indicatorDisabled {
-  background-color: #fff !important;
+  background-color: var(--color-white) !important;
 }
 
 .unsavedDraftIndicator {
-  background-color: #333;
+  background-color: var(--color-ink);
   width: 6px;
   height: 6px;
-  border-radius: 40px;
+  border-radius: var(--radius-pill);
   position: absolute;
   right: 7px;
   top: 8px;
@@ -56,7 +56,7 @@
   background-color: orange;
   width: 6px;
   height: 6px;
-  border-radius: 40px;
+  border-radius: var(--radius-pill);
   position: absolute;
   right: 15px;
   top: 8px;
@@ -66,14 +66,14 @@
   background-color: skyblue;
   width: 6px;
   height: 6px;
-  border-radius: 40px;
+  border-radius: var(--radius-pill);
   position: absolute;
   right: 23px;
   top: 8px;
 }
 
 .editableReplique:hover .repliqueHandle {
-  background-color: #e4d6bc;
+  background-color: var(--color-sand);
   color: black;
 }
 
@@ -87,12 +87,12 @@
   left: -20px;
   top: 0;
   height: calc(100% + 1px);
-  border-radius: 4px 0px 0px 4px;
+  border-radius: var(--radius-sm) 0px 0px var(--radius-sm);
   width: 19px;
-  color: #999;
+  color: var(--color-gray-light);
   cursor: grab;
   box-sizing: border-box;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   display: flex;
   align-items: center;
 }
@@ -103,7 +103,7 @@
 }
 
 .replique:hover .menuHandle {
-  background-color: #e4d6bc;
+  background-color: var(--color-sand);
 }
 
 .repliqueNum {
@@ -138,18 +138,18 @@
   padding: 2px;
   height: 20px;
   width: 25px;
-  background-color: #1f313c;
+  background-color: var(--color-primary);
   padding: 0px;
   margin: 0px;
 }
 
 .repliqueActionDisabled {
-  background-color: #999;
+  background-color: var(--color-gray-light);
 }
 
 .repliqueActionDisabled:hover {
   cursor: default;
-  background-color: #999;
+  background-color: var(--color-gray-light);
 }
 
 .repliqueActionViewVersions {
@@ -166,17 +166,17 @@
   display: contents;
   color: black;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
 }
 
 .selected {
-  background-color: #ffb6c144;
+  background-color: var(--color-pink-light-a27);
 }
 
 .menu {
   backdrop-filter: blur(20px);
-  background-color: #1f313c11;
-  border-radius: 10px;
+  background-color: var(--color-primary-a07);
+  border-radius: var(--radius-xl);
   position: fixed;
   right: anchor(left);
   top: anchor(top);
@@ -192,19 +192,19 @@
   right: -40px;
   top: 0px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   width: 39px;
   cursor: pointer;
   border: 1px solid transparent;
 }
 
 .menuHandle:hover {
-  border: 1px solid #e4d6bc;
-  background: #e4d6bc;
+  border: 1px solid var(--color-sand);
+  background: var(--color-sand);
 }
 
 .blurOverlay {
-  background: #ffffff55;
+  background: var(--color-white-a33);
   backdrop-filter: blur(4px);
   width: 100%;
   height: 100%;
@@ -216,29 +216,29 @@
 
 .partName {
   text-align: center;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   font-family: "Cutive Mono", monospace;
   font-optical-sizing: auto;
 }
 
 .partNameDepth0 {
   margin-bottom: 3rem;
-  font-size: 3rem;
+  font-size: var(--font-size-hero);
 }
 
 .partNameDepth1 {
   margin-bottom: 2rem;
-  font-size: 2rem;
+  font-size: var(--font-size-3xl);
 }
 
 .partNameDepth2 {
   margin-bottom: 1rem;
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
 }
 
 .partNameDepth3 {
   margin-bottom: 0.75rem;
-  font-size: 1.35rem;
+  font-size: var(--font-size-xl);
 }
 
 .partNameDepth4 {
@@ -248,7 +248,7 @@
 
 .freetextLine {
   font-style: oblique;
-  color: #666;
+  color: var(--color-gray);
 }
 
 .lineToBeContainer {
@@ -268,7 +268,7 @@
 .lineToBeContainer .instructions {
   visibility: hidden;
   text-align: center;
-  color: #000;
+  color: var(--color-black);
 }
 
 .lineToBeContainer:focus-visible .instructions {

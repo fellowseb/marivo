@@ -1,7 +1,7 @@
 .menu {
   backdrop-filter: blur(20px);
-  background-color: #1f313c11;
-  border-radius: 10px;
+  background-color: var(--color-primary-a07);
+  border-radius: var(--radius-xl);
   position: fixed;
   right: anchor(left);
   top: anchor(top);

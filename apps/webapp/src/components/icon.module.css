@@ -19,13 +19,13 @@
 }
 
 .primary {
-  background-color: #1f313c;
+  background-color: var(--color-primary);
 }
 
 .secondary {
-  background-color: #eeeeee;
+  background-color: var(--color-gray-bg);
 }
 
 .disabled {
-  background-color: #999;
+  background-color: var(--color-gray-light);
 }

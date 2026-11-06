@@ -7,7 +7,7 @@
   z-index: 1000;
   top: 0;
   left: 0;
-  border-bottom: 1px solid #cebc96;
+  border-bottom: 1px solid var(--color-sand-dark);
 }
 
 .headerInner {
@@ -18,7 +18,7 @@
   justify-content: space-between;
   align-self: stretch;
   align-items: center;
-  background-color: #7b520033;
+  background-color: var(--color-brown-a20);
   backdrop-filter: blur(20px);
   top: 0;
   transition: top 0.5s ease-out;
@@ -29,7 +29,7 @@
 .menuBurger {
   width: 20px;
   height: 20px;
-  background-color: #333;
+  background-color: var(--color-ink);
   mask-image: url("/src/assets/dots-vertical.svg");
   mask-repeat: no-repeat;
   mask-position: 0 0;
@@ -83,15 +83,15 @@
 }
 
 .breadcrumbArrow {
-  color: #7b520033;
+  color: var(--color-brown-a20);
   top: 1px;
   position: relative;
 }
 
 .pageTitle {
-  color: #1f313c;
+  color: var(--color-primary);
   font-family: "Lobster Two", sans-serif;
-  font-size: 2rem;
+  font-size: var(--font-size-3xl);
   margin: 0;
   align-content: center;
 }
@@ -124,38 +124,38 @@
 }
 
 .userAction:hover {
-  background-color: #1f313ccc;
+  background-color: var(--color-primary-a80);
 }
 
 .userActionSettings {
   mask: url("/src/assets/user-circle.svg") no-repeat;
   mask-size: contain;
-  background-color: #1f313c;
+  background-color: var(--color-primary);
 }
 
 .userActionNotifications {
   mask: url("/src/assets/bell-O3.svg") no-repeat;
   mask-size: contain;
-  background-color: #1f313c;
+  background-color: var(--color-primary);
 }
 
 .userActionHelp {
   mask: url("/src/assets/help-circle.svg") no-repeat;
   mask-size: contain;
-  background-color: #1f313c;
+  background-color: var(--color-primary);
 }
 
 .userActionLogout {
   mask: url("/src/assets/log-out-02.svg") no-repeat;
   mask-size: contain;
-  background-color: #1f313c;
+  background-color: var(--color-primary);
 }
 
 .toolbar {
   display: flex;
   justify-content: center;
   padding: 4px;
-  background-color: #ece2cc;
+  background-color: var(--color-cream-deep);
 }
 
 .mainMenu {
@@ -163,6 +163,6 @@
   justify-content: space-between;
   align-items: center;
   height: 40px;
-  background-color: #ece2cc;
+  background-color: var(--color-cream-deep);
   backdrop-filter: blur(20px);
 }

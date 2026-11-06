@@ -21,10 +21,10 @@
 
 .sectionTitle {
   margin: 0;
-  font-size: 1rem;
-  color: #1f313c;
-  background-color: #e9dec9;
-  border-radius: 4px;
+  font-size: var(--font-size-base);
+  color: var(--color-primary);
+  background-color: var(--color-sand-soft);
+  border-radius: var(--radius-sm);
   padding: 2px;
   align-self: stretch;
 }
@@ -46,9 +46,9 @@
 
 .lineVersionContent {
   margin-left: 10px;
-  border: 2px solid #1f313c77;
-  border-radius: 4px;
-  background-color: #fefefe88;
+  border: 2px solid var(--color-primary-a47);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-warm-white-a53);
   padding: 4px;
 }
 

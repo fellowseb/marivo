@@ -5,12 +5,12 @@
 }
 
 .tab {
-  color: #1f313c;
+  color: var(--color-primary);
   height: 30px;
   align-content: center;
   text-align: left;
   padding-right: 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   padding-left: 6px;
   display: flex;
   align-items: center;
@@ -21,15 +21,15 @@
 }
 
 .selected {
-  background-color: #1f313c22;
-  background-color: #ebcf96;
+  background-color: var(--color-primary-a13);
+  background-color: var(--color-highlight);
 }
 
 .tab:hover {
-  background-color: #ebcf96;
+  background-color: var(--color-highlight);
 }
 
 .tab:focus-visible {
-  border: 2px solid #e8ce7d;
+  border: 2px solid var(--color-gold);
   text-decoration: none;
 }

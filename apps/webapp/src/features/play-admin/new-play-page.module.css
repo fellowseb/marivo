@@ -11,17 +11,17 @@
   justify-content: stretch;
   gap: 1ch;
   padding: 1ch;
-  border: 1px solid #cebc96;
-  background-color: #e4d6bc33;
-  border-radius: 4px;
+  border: 1px solid var(--color-sand-dark);
+  background-color: var(--color-sand-a20);
+  border-radius: var(--radius-sm);
   overflow-x: hidden;
 }
 
 .section {
   flex: 1;
   padding: 2ch;
-  border-radius: 4px;
-  background-color: #e4d6bc99;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-sand-a60);
   position: relative;
   left: 0;
   width: 800px;
@@ -33,7 +33,7 @@
 
 .section:hover {
   cursor: pointer;
-  background-color: #fefefe;
+  background-color: var(--color-warm-white);
 }
 
 .desc {

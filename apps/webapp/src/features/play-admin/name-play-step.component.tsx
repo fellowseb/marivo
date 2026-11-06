@@ -240,12 +240,12 @@ export function NamePlayStep(props: NamePlayStepProps) {
         }
       >
         {createError ? (
-          <div role="alert" style={{ color: "#b00020" }}>
+          <div role="alert" style={{ color: "var(--color-error)" }}>
             Failed to create the play: {createError}
           </div>
         ) : null}
         {publishError ? (
-          <div role="alert" style={{ color: "#b00020" }}>
+          <div role="alert" style={{ color: "var(--color-error)" }}>
             The script could not be added to the commons library. You can retry publishing or go
             back.
           </div>

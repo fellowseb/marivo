@@ -17,7 +17,7 @@
 }
 
 .modalContainer > * {
-  box-shadow: 4px 4px 2px #666;
+  box-shadow: var(--shadow-md);
 }
 
 .sharedDraftsButton {

@@ -12,7 +12,7 @@
 .notification {
   width: 300px;
   min-height: 80px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   grid-gap: 10px;
   padding: 10px;
   display: grid;

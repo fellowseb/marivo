@@ -1,7 +1,7 @@
 .panel {
-  border: 2px solid #e4d6bc;
+  border: 2px solid var(--color-sand);
   padding: 4px;
-  background-color: #ece2cc;
+  background-color: var(--color-cream-deep);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: #e4d6bc;
+  background-color: var(--color-sand);
   justify-content: space-between;
 }
 
@@ -32,5 +32,5 @@
 }
 
 .closeButton {
-  background-color: #1f313c77;
+  background-color: var(--color-primary-a47);
 }
