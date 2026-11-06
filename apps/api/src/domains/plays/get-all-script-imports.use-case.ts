@@ -11,6 +11,8 @@ export const GetAllScriptImportsUseCaseOutputSchema = z.array(
     createdAt: z.date(),
     status: z.enum(["uploading_files", "processing_files", "reviewing", "done", "error"]),
     error: z.string().nullable(),
+    /** Imported script title, present when status is "reviewing". */
+    title: z.string().nullable(),
   }),
 );
 
@@ -33,6 +35,7 @@ export class GetAllScriptImportsUseCase extends AuthenticatedUseCase<{
       createdAt: imp.createdAt,
       status: imp.status,
       error: imp.status === "reviewing" ? null : imp.error,
+      title: imp.status === "reviewing" ? imp.metadata.title : null,
     }));
     return Result.ok(result);
   }

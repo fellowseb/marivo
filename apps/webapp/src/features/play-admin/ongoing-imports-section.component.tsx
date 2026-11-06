@@ -6,12 +6,15 @@ import Button from "../../components/button.component";
 import Icon from "../../components/icon.component";
 import CollapsibleSection from "../../components/collapsible-section.component";
 import styles from "./ongoing-imports-section.module.css";
+import Container from "../../components/container.component";
 
 interface ScriptImport {
   id: string;
   createdAt: Date;
   status: "uploading_files" | "processing_files" | "reviewing" | "done" | "error";
   error: string | null;
+  /** Imported script title, present when status is "reviewing". */
+  title: string | null;
 }
 
 const ONGOING_STATUSES = ["uploading_files", "processing_files", "reviewing"];
@@ -55,7 +58,9 @@ function OngoingImportItem({ imp }: { imp: ScriptImport }) {
   const deleteMutation = useMutation(
     trpc.plays.deleteScriptImport.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: trpc.plays.allScriptImports.queryKey() });
+        queryClient.invalidateQueries({
+          queryKey: trpc.plays.allScriptImports.queryKey(),
+        });
       },
     }),
   );
@@ -95,11 +100,15 @@ function OngoingImportItem({ imp }: { imp: ScriptImport }) {
         >
           {getStatusLabel(imp.status)}
         </span>
+        {isReviewing && imp.title ? (
+          <span className={styles.itemTitle} title={imp.title}>
+            ({imp.title})
+          </span>
+        ) : null}
       </div>
       <div className={styles.itemActions}>
         <Button
           icon={resuming || !isReviewing ? "animatedWaiting" : "next"}
-          variant="standout"
           disabled={!isReviewing || resuming}
           onClick={handleResume}
         >
@@ -134,20 +143,21 @@ export function OngoingImportsSection() {
   }
 
   return (
-    <CollapsibleSection
-      arrow
-      Header={
-        <span className={styles.headerTitle}>
-          <Icon value="import" size="small" mode="primary" />
-          Ongoing imports ({ongoing.length})
-        </span>
-      }
-    >
-      <ul className={styles.list}>
-        {ongoing.map((imp) => (
-          <OngoingImportItem key={imp.id} imp={imp} />
-        ))}
-      </ul>
-    </CollapsibleSection>
+    <Container style={{ maxWidth: 800 }}>
+      <CollapsibleSection
+        Header={
+          <span className={styles.headerTitle}>
+            <Icon value="import" size="small" mode="primary" />
+            Ongoing imports ({ongoing.length})
+          </span>
+        }
+      >
+        <ul className={styles.list}>
+          {ongoing.map((imp) => (
+            <OngoingImportItem key={imp.id} imp={imp} />
+          ))}
+        </ul>
+      </CollapsibleSection>
+    </Container>
   );
 }

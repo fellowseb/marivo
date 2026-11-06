@@ -4,6 +4,7 @@ import FlowStep from "../../components/flow-step.component";
 import { OngoingImportsSection } from "./ongoing-imports-section.component";
 import styles from "./new-play-page.module.css";
 import { useCollectionMetadataContext } from "./collection-metadata.context";
+import Flex from "../../components/flex.component";
 
 export function NewPlayPageBreadcrumbs() {
   return (
@@ -26,43 +27,61 @@ export function NewPlayPage() {
   const { count } = useCollectionMetadataContext();
   return (
     <FlowStep title="Create a new play project">
-      How do you want to initialize the script ?
-      <NavLink
-        className={styles.section}
-        to={{
-          pathname: "import",
-        }}
-      >
-        <div className={styles.desc}>Import script from an external source</div>
-        <div className={styles.subdesc}>Supported file formats: PDF, TXT.</div>
-      </NavLink>
-      <OngoingImportsSection />
-      <NavLink
-        className={styles.section}
-        to={{
-          pathname: "from-collection",
-        }}
-      >
-        <div className={styles.desc}>
-          Pick from a collection of <strong>{count} scripts</strong> in the Public Domain.
-        </div>
-        <div className={styles.subdesc}>
-          A large selection of the most famous playwrights for FREE !
-          <br />
-          Available languages: French and English. (Soon: Spanish, German)
-          <br />
-          You'll be able to modify the script once the project created.
-        </div>
-      </NavLink>
-      <NavLink
-        className={styles.section}
-        to={{
-          pathname: "empty",
-        }}
-      >
-        <div className={styles.desc}>Start with an empty script</div>
-        <div className={styles.subdesc}>Ideal for playwrights !</div>
-      </NavLink>
+      <Flex direction="column" grow={1} justify="stretch" align="stretch">
+        How do you want to initialize the script ?
+        <Flex className={styles.section} direction="column" grow={1} align="stretch" gap={10}>
+          <NavLink
+            to={{
+              pathname: "import",
+            }}
+            className={styles.desc}
+          >
+            Import script from an external source
+          </NavLink>
+          <div className={styles.subdesc}>Supported file formats: PDF, TXT.</div>
+          <OngoingImportsSection />
+        </Flex>
+        <Flex
+          className={styles.section}
+          direction="column"
+          grow={1}
+          justify="center"
+          align="stretch"
+        >
+          <NavLink
+            className={styles.desc}
+            to={{
+              pathname: "from-collection",
+            }}
+          >
+            Pick from a collection of <strong>{count} scripts</strong> in the Public Domain.
+          </NavLink>
+          <div className={styles.subdesc}>
+            A large selection of the most famous playwrights for FREE !
+            <br />
+            Available languages: French and English. (Soon: Spanish, German)
+            <br />
+            You'll be able to modify the script once the project created.
+          </div>
+        </Flex>
+        <Flex
+          className={styles.section}
+          direction="column"
+          grow={1}
+          justify="center"
+          align="stretch"
+        >
+          <NavLink
+            className={styles.desc}
+            to={{
+              pathname: "empty",
+            }}
+          >
+            Start with an empty script
+          </NavLink>
+          <div className={styles.subdesc}>Ideal for playwrights !</div>
+        </Flex>
+      </Flex>
     </FlowStep>
   );
 }

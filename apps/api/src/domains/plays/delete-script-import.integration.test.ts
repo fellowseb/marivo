@@ -88,4 +88,21 @@ describe("plays deleteScriptImport (integration with real Postgres)", () => {
     expect(imp).toBeTruthy();
     expect(imp!.createdAt).toBeInstanceOf(Date);
   });
+
+  it("listing exposes the script title for reviewing imports", async () => {
+    const reviewingId = "10000000-0000-4000-8000-0000000000cc";
+    await sql`
+      INSERT INTO script_imports (id, status, files, result_metadata_title, user_id)
+      VALUES (${reviewingId}, 'reviewing', '{}'::jsonb, 'Hamlet', ${otherUserId})
+    `;
+    const ctx = userContext(otherUserId);
+    const listUseCase = new GetAllScriptImportsUseCase(ctx, new ScriptImportsRepository(sql, ctx));
+    const list = (await listUseCase.execute()).dataOrThrow();
+    const reviewing = list.find((i) => i.id === reviewingId);
+    expect(reviewing).toBeTruthy();
+    expect(reviewing!.status).toBe("reviewing");
+    expect(reviewing!.title).toBe("Hamlet");
+    const processing = list.find((i) => i.id === otherImportId);
+    expect(processing!.title).toBeNull();
+  });
 });

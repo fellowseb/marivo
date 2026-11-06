@@ -54,19 +54,6 @@ vi.mock("../../trpc", () => ({
         },
         queryKey: () => ["importScriptStatus"],
       },
-      allScriptImports: {
-        queryOptions: () => ({
-          queryKey: ["allScriptImports"],
-          queryFn: async () => [],
-        }),
-        queryKey: () => ["allScriptImports"],
-      },
-      deleteScriptImport: {
-        mutationOptions: () => ({
-          mutationKey: ["deleteScriptImport"],
-          mutationFn: async () => ({}),
-        }),
-      },
     },
     script: {
       latestChanges: {

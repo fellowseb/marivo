@@ -43,6 +43,15 @@
   white-space: nowrap;
 }
 
+.itemTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
 .itemActions {
   display: flex;
   flex-direction: row;

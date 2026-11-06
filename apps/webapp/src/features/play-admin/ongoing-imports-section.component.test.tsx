@@ -18,12 +18,14 @@ let listValue: unknown[] = [
     createdAt: new Date("2026-11-06T10:00:00Z"),
     status: "processing_files",
     error: null,
+    title: null,
   },
   {
     id: REVIEWING_ID,
     createdAt: new Date("2026-11-06T11:00:00Z"),
     status: "reviewing",
     error: null,
+    title: "A very long imported script title that should be truncated with an ellipsis",
   },
 ];
 
@@ -101,12 +103,14 @@ describe("OngoingImportsSection", () => {
         createdAt: new Date("2026-11-06T10:00:00Z"),
         status: "processing_files",
         error: null,
+        title: null,
       },
       {
         id: REVIEWING_ID,
         createdAt: new Date("2026-11-06T11:00:00Z"),
         status: "reviewing",
         error: null,
+        title: "A very long imported script title that should be truncated with an ellipsis",
       },
     ];
   });
@@ -119,6 +123,18 @@ describe("OngoingImportsSection", () => {
     expect(screen.getByText("Reviewing")).toBeTruthy();
     expect(screen.getByText(new Date("2026-11-06T10:00:00Z").toLocaleString())).toBeTruthy();
     expect(capturedQueryOpts?.refetchInterval).toBe(5000);
+  });
+
+  it("shows the imported script title in parens for reviewing imports (ellipsis css)", async () => {
+    renderSection();
+    fireEvent.click(await screen.findByRole("button", { name: /Ongoing imports \(2\)/ }));
+    const title = await screen.findByText(
+      /\(A very long imported script title that should be truncated with an ellipsis\)/,
+    );
+    expect(title).toBeTruthy();
+    expect(title.className).toContain("itemTitle");
+    // not shown for non-reviewing imports: only one title element
+    expect(screen.getAllByText(/^\(.*\)$/).length).toBe(1);
   });
 
   it("renders nothing when there are no ongoing imports", async () => {
