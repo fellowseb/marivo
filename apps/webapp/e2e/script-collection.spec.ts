@@ -36,7 +36,7 @@ test("browse, filter and paginate the collection, bookmark, then create a play f
     await expect(page.getByText("Page 1 / 3 · 54 scripts")).toBeVisible();
 
     // server-side filter: author = Molière -> only Molière's plays listed
-    await page.getByRole("checkbox", { name: "Author" }).check();
+    await page.getByRole("button", { name: "Author", exact: true }).click();
     await page.locator('input[type="text"]').nth(1).fill("Molière");
     await expect(page.getByText("Tartuffe")).toBeVisible();
     await expect(page.getByText("Pierre de Marivaux")).toHaveCount(0);
@@ -51,7 +51,7 @@ test("browse, filter and paginate the collection, bookmark, then create a play f
     await page.getByRole("button", { name: "Bookmark", exact: true }).click();
     // the bookmarked list item now shows a heart icon on its right
     await expect(page.getByRole("img", { name: "Bookmarked" })).toHaveCount(1);
-    await page.getByRole("checkbox", { name: "Bookmarked" }).check();
+    await page.getByRole("button", { name: "Bookmarked", exact: true }).click();
     await page.getByText("Only bookmarked").click();
     await expect(firstPlayItem(page)).toBeVisible();
     await expect(page.getByText("Le Misanthrope")).toHaveCount(0);
