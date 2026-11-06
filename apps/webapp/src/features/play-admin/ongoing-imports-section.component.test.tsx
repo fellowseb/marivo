@@ -123,6 +123,9 @@ describe("OngoingImportsSection", () => {
     expect(screen.getByText("Reviewing")).toBeTruthy();
     expect(screen.getByText(new Date("2026-11-06T10:00:00Z").toLocaleString())).toBeTruthy();
     expect(capturedQueryOpts?.refetchInterval).toBe(5000);
+    // no stale values on mount: immediate refetch despite the app-wide 60s staleTime
+    expect(capturedQueryOpts?.staleTime).toBe(0);
+    expect(capturedQueryOpts?.refetchOnMount).toBe("always");
   });
 
   it("shows the imported script title in parens for reviewing imports (ellipsis css)", async () => {

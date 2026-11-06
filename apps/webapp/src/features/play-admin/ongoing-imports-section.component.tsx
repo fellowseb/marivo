@@ -135,6 +135,10 @@ export function OngoingImportsSection() {
   const trpc = useTRPC();
   const queryOpts = trpc.plays.allScriptImports.queryOptions();
   queryOpts.refetchInterval = 5000;
+  // Never show stale values when the page mounts: the app-wide staleTime is
+  // 60s, so force an immediate refetch on mount.
+  queryOpts.staleTime = 0;
+  queryOpts.refetchOnMount = "always";
   const { data } = useQuery(queryOpts);
 
   const ongoing = (data ?? []).filter((imp) => ONGOING_STATUSES.includes(imp.status));
