@@ -14,6 +14,7 @@ let statusCalls = 0;
 let capturedImportId = '';
 let scriptShouldHang = false;
 let scriptResolve: ((value: unknown) => void) | null = null;
+let scriptCalls = 0;
 const scriptValue = { lastModifiedDate: new Date(0) };
 const SRV_IMPORT_ID = '20000000-0000-4000-8000-0000000000aa';
 const RESUME_ID = '10000000-0000-4000-8000-000000000001';
@@ -59,6 +60,7 @@ vi.mock('../../trpc', () => ({
         queryOptions: (input: unknown) => ({
           queryKey: ['latestChanges', input],
           queryFn: () => {
+            scriptCalls += 1;
             if (scriptShouldHang) {
               return new Promise((resolve) => {
                 scriptResolve = resolve;
@@ -119,6 +121,7 @@ describe('ImportScriptContext status transitions', () => {
     statusCalls = 0;
     scriptShouldHang = false;
     scriptResolve = null;
+    scriptCalls = 0;
     statusValue = { status: 'uploading_files', error: null };
   });
   afterEach(() => cleanup());
@@ -138,6 +141,30 @@ describe('ImportScriptContext status transitions', () => {
     expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
     expect(screen.getByTestId('probe').textContent).toContain('"processing":true');
     expect(screen.getByTestId('probe').textContent).not.toContain('no-step');
+  });
+
+  it('prefetches the script immediately on resume, before the status poll says reviewing', async () => {
+    statusValue = { status: 'processing_files', error: null };
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+    );
+    await waitFor(() => expect(scriptCalls).toBeGreaterThan(0));
+    // still on the import page: the advance to preview waits for the status poll
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+  });
+
+  it('does not prefetch the script on a fresh page before the status says reviewing', async () => {
+    statusValue = { status: 'processing_files', error: null };
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    expect(scriptCalls).toBe(0);
   });
 
   it('marks the import step as processing while files are processed', async () => {
