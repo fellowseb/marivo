@@ -302,7 +302,12 @@ function ImportStep() {
       {importError ? (
         <div
           role="alert"
-          style={{ color: "var(--color-error)", display: "flex", alignItems: "center", gap: "8px" }}
+          style={{
+            color: "var(--color-error)",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
         >
           <span>{importError}</span>
           <Button icon="redo" onClick={startOver}>

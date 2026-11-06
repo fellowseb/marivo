@@ -18,26 +18,20 @@
 }
 
 .section {
-  flex: 1;
   padding: 2ch;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-bg-a60);
-  position: relative;
   left: 0;
-  width: 800px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.section:hover {
-  cursor: pointer;
-  background-color: var(--color-warm-white);
 }
 
 .desc {
   font-weight: bold;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background-color: var(--color-surface-deep);
+}
+
+.desc:hover {
+  background-color: var(--color-surface-dim);
 }
 
 .desc:before {

@@ -1,0 +1,72 @@
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-a20);
+}
+
+.item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-dark);
+}
+
+.itemMain {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+.itemDate {
+  color: var(--color-text-faint);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.itemTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.itemActions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.statusBadgeOngoing {
+  color: var(--color-info);
+}
+
+.statusBadgeDone {
+  color: var(--color-success);
+}
+
+.statusBadgeError {
+  color: var(--color-error);
+}

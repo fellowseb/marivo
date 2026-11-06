@@ -19,6 +19,7 @@ export class ScriptImportNotFound extends AppError {
 
 interface GetScriptImportsRecordValues {
   id: string;
+  created_at: Date;
   status: string;
   error: string | null;
   result_metadata_title: string;
@@ -39,6 +40,7 @@ export class GetScriptImportsRecord extends DbRecord<GetScriptImportsRecordValue
     return status === "reviewing"
       ? {
           id: this.get("id"),
+          createdAt: this.get("created_at"),
           status,
           metadata: {
             title: this.get("result_metadata_title"),
@@ -55,6 +57,7 @@ export class GetScriptImportsRecord extends DbRecord<GetScriptImportsRecordValue
         }
       : {
           id: this.get("id"),
+          createdAt: this.get("created_at"),
           status,
           error: this.get("error"),
         };
@@ -213,11 +216,25 @@ export class ScriptImportsRepository extends UserRepositoryBase {
     `;
   }
 
+  async deleteScriptImport(importId: string): Promise<Result<undefined, ScriptImportNotFound>> {
+    const records = await this.sql<{ id: string }[]>`
+        DELETE
+        FROM script_imports
+        WHERE id = ${importId} AND user_id = ${this.userId()}
+        RETURNING id;
+    `;
+    if (records.length === 0) {
+      return Result.failure(new ScriptImportNotFound());
+    }
+    return Result.ok(undefined);
+  }
+
   async getScriptImports(): Promise<ScriptImport[]> {
     return (
       await this.sql<GetScriptImportsRecordValues[]>`
         SELECT
           id,
+          created_at,
           status,
           error,
           result_metadata_title,
@@ -233,7 +250,8 @@ export class ScriptImportsRepository extends UserRepositoryBase {
         FROM script_imports
         WHERE (
           user_id = ${this.userId()}
-        );
+        )
+        ORDER BY created_at DESC;
     `
     ).map((record) => new GetScriptImportsRecord(record).toModel());
   }

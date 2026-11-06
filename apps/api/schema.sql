@@ -176,6 +176,7 @@ CREATE TYPE script_import_status_enum AS ENUM (
 
 CREATE TABLE script_imports (
     id                      varchar(36)          NOT NULL UNIQUE,
+    created_at              timestamptz          NOT NULL DEFAULT now(),
     status                  script_import_status_enum   NOT NULL,
     files                   jsonb                NOT NULL,
     error                   varchar              ,
