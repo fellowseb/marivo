@@ -29,9 +29,9 @@ describe("design tokens", () => {
     expect(indexCss).toBeDefined();
     const indexCssContent = fs.readFileSync(indexCss!, "utf8");
     for (const token of [
-      "--color-primary",
-      "--color-sand",
-      "--color-cream",
+      "--color-accent",
+      "--color-bg",
+      "--color-surface",
       "--color-danger",
       "--font-size-base",
       "--radius-sm",

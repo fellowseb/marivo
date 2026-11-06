@@ -22,8 +22,8 @@
 .sectionTitle {
   margin: 0;
   font-size: var(--font-size-base);
-  color: var(--color-primary);
-  background-color: var(--color-sand-soft);
+  color: var(--color-accent);
+  background-color: var(--color-bg-soft);
   border-radius: var(--radius-sm);
   padding: 2px;
   align-self: stretch;
@@ -46,7 +46,7 @@
 
 .lineVersionContent {
   margin-left: 10px;
-  border: 2px solid var(--color-primary-a47);
+  border: 2px solid var(--color-accent-a47);
   border-radius: var(--radius-sm);
   background-color: var(--color-warm-white-a53);
   padding: 4px;

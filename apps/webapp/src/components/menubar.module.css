@@ -5,7 +5,7 @@
 }
 
 .tab {
-  color: var(--color-primary);
+  color: var(--color-accent);
   height: 30px;
   align-content: center;
   text-align: left;
@@ -21,7 +21,7 @@
 }
 
 .selected {
-  background-color: var(--color-primary-a13);
+  background-color: var(--color-accent-a13);
   background-color: var(--color-highlight);
 }
 
@@ -30,6 +30,6 @@
 }
 
 .tab:focus-visible {
-  border: 2px solid var(--color-gold);
+  border: 2px solid var(--color-focus);
   text-decoration: none;
 }

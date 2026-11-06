@@ -9,14 +9,14 @@
 
 input,
 textarea {
-  border: 2px solid var(--color-primary-a13);
+  border: 2px solid var(--color-accent-a13);
   border-radius: var(--radius-xs);
   font-family: inherit;
   font-size: var(--font-size-base);
-  color: var(--color-cream);
-  color: var(--color-primary);
-  background-color: var(--color-primary);
-  background-color: var(--color-primary-a07);
+  color: var(--color-surface);
+  color: var(--color-accent);
+  background-color: var(--color-accent);
+  background-color: var(--color-accent-a07);
   outline: none;
   padding: 2px 4px;
   box-sizing: border-box;
@@ -24,43 +24,43 @@ textarea {
 
 input:focus-visible,
 textarea:focus-visible {
-  border: 2px solid var(--color-gold);
-  background-color: var(--color-gold-a13);
-  outline: 1px solid var(--color-cream);
+  border: 2px solid var(--color-focus);
+  background-color: var(--color-focus-a13);
+  outline: 1px solid var(--color-surface);
 }
 
 input:disabled,
 textarea:disabled {
-  background-color: var(--color-primary-a33);
-  color: var(--color-primary-a80);
+  background-color: var(--color-accent-a33);
+  color: var(--color-accent-a80);
 }
 
 input[type="text"]::placeholder {
-  color: var(--color-gray-muted);
+  color: var(--color-text-disabled);
 }
 
 select,
 ::picker(select) {
   appearance: base-select;
-  background-color: var(--color-cream-dim);
-  border: 1px solid var(--color-primary-a13);
+  background-color: var(--color-surface-dim);
+  border: 1px solid var(--color-accent-a13);
   border-radius: var(--radius-xs);
   padding: 8px;
 }
 
 select::picker-icon {
-  color: var(--color-gray-light);
+  color: var(--color-text-faint);
 }
 
 select {
   box-sizing: border-box;
-  border: 2px solid var(--color-primary-a13);
+  border: 2px solid var(--color-accent-a13);
   border-radius: var(--radius-xs);
   font-family: inherit;
   font-size: var(--font-size-base);
   align-items: flex-end;
-  color: var(--color-primary);
-  background-color: var(--color-primary-a07);
+  color: var(--color-accent);
+  background-color: var(--color-accent-a07);
   outline: none;
   padding: 2px 4px;
 }
@@ -70,7 +70,7 @@ option {
 }
 
 option:focus-visible {
-  background-color: var(--color-gold);
+  background-color: var(--color-focus);
 }
 
 selectedcontent {
@@ -80,8 +80,8 @@ selectedcontent {
 }
 
 select:focus-visible {
-  border: 2px solid var(--color-gold);
-  background-color: var(--color-gold-a13);
+  border: 2px solid var(--color-focus);
+  background-color: var(--color-focus-a13);
 }
 
 input[type="checkbox"] {
@@ -92,7 +92,7 @@ input[type="checkbox"] {
   margin: 0;
   width: 20px;
   height: 20px;
-  border: 2px solid var(--color-primary-a13);
+  border: 2px solid var(--color-accent-a13);
   vertical-align: -2px;
   outline: none;
   padding: 0 1px 0 0;
@@ -103,7 +103,7 @@ input[type="checkbox"]::before {
   content: " ";
   width: 12px;
   height: 12px;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   border-radius: var(--radius-xs);
   font-size: 1.2em;
   transform: translate(2px, 2px) scale(0);
@@ -115,8 +115,8 @@ input[type="checkbox"]:checked::before {
 }
 
 input[type="checkbox"]:focus-visible {
-  border: 2px solid var(--color-gold);
-  background-color: var(--color-gold-a13);
+  border: 2px solid var(--color-focus);
+  background-color: var(--color-focus-a13);
 }
 
 input[type="radio"] {
@@ -127,7 +127,7 @@ input[type="radio"] {
   margin: 0;
   width: 20px;
   height: 20px;
-  border: 2px solid var(--color-primary-a13);
+  border: 2px solid var(--color-accent-a13);
   border-radius: var(--radius-pill);
   vertical-align: -2px;
   outline: none;
@@ -139,7 +139,7 @@ input[type="radio"]::before {
   content: " ";
   width: 10px;
   height: 10px;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   border-radius: var(--radius-pill);
   font-size: 1.2em;
   transform: translate(2px, 2px) scale(0);
@@ -151,8 +151,8 @@ input[type="radio"]:checked::before {
 }
 
 input[type="radio"]:focus-visible {
-  border: 2px solid var(--color-gold);
-  background-color: var(--color-gold-a13);
+  border: 2px solid var(--color-focus);
+  background-color: var(--color-focus-a13);
 }
 
 * {
@@ -161,17 +161,17 @@ input[type="radio"]:focus-visible {
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-accent);
   text-decoration: none;
 }
 
 a:active {
-  color: var(--color-primary);
+  color: var(--color-accent);
 }
 
 a:focus-visible {
   text-decoration: underline;
-  background-color: var(--color-gold-a13);
+  background-color: var(--color-focus-a13);
 }
 
 * {
@@ -184,6 +184,6 @@ a:focus-visible {
 }
 
 kbd {
-  color: var(--color-gray-light) !important;
+  color: var(--color-text-faint) !important;
   transition: none !important;
 }

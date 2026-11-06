@@ -43,7 +43,7 @@
 }
 
 .unsavedDraftIndicator {
-  background-color: var(--color-ink);
+  background-color: var(--color-text);
   width: 6px;
   height: 6px;
   border-radius: var(--radius-pill);
@@ -73,7 +73,7 @@
 }
 
 .editableReplique:hover .repliqueHandle {
-  background-color: var(--color-sand);
+  background-color: var(--color-bg);
   color: black;
 }
 
@@ -89,7 +89,7 @@
   height: calc(100% + 1px);
   border-radius: var(--radius-sm) 0px 0px var(--radius-sm);
   width: 19px;
-  color: var(--color-gray-light);
+  color: var(--color-text-faint);
   cursor: grab;
   box-sizing: border-box;
   font-size: var(--font-size-lg);
@@ -103,7 +103,7 @@
 }
 
 .replique:hover .menuHandle {
-  background-color: var(--color-sand);
+  background-color: var(--color-bg);
 }
 
 .repliqueNum {
@@ -138,18 +138,18 @@
   padding: 2px;
   height: 20px;
   width: 25px;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   padding: 0px;
   margin: 0px;
 }
 
 .repliqueActionDisabled {
-  background-color: var(--color-gray-light);
+  background-color: var(--color-text-faint);
 }
 
 .repliqueActionDisabled:hover {
   cursor: default;
-  background-color: var(--color-gray-light);
+  background-color: var(--color-text-faint);
 }
 
 .repliqueActionViewVersions {
@@ -170,12 +170,12 @@
 }
 
 .selected {
-  background-color: var(--color-pink-light-a27);
+  background-color: var(--color-bookmark-a27);
 }
 
 .menu {
   backdrop-filter: blur(20px);
-  background-color: var(--color-primary-a07);
+  background-color: var(--color-accent-a07);
   border-radius: var(--radius-xl);
   position: fixed;
   right: anchor(left);
@@ -199,8 +199,8 @@
 }
 
 .menuHandle:hover {
-  border: 1px solid var(--color-sand);
-  background: var(--color-sand);
+  border: 1px solid var(--color-bg);
+  background: var(--color-bg);
 }
 
 .blurOverlay {
@@ -248,7 +248,7 @@
 
 .freetextLine {
   font-style: oblique;
-  color: var(--color-gray);
+  color: var(--color-text-muted);
 }
 
 .lineToBeContainer {

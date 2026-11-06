@@ -9,10 +9,10 @@
 
 .invite {
   list-style: none;
-  border: 1px solid var(--color-sand);
-  border-left: 10px solid var(--color-sky);
+  border: 1px solid var(--color-bg);
+  border-left: 10px solid var(--color-invite);
   border-radius: var(--radius-sm);
-  background-color: var(--color-sky-a27);
+  background-color: var(--color-invite-a27);
   padding: 0px;
   display: flex;
   flex-direction: row;

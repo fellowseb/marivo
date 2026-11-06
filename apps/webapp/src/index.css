@@ -1,77 +1,101 @@
+/* ============================================================
+   Design tokens (see DESIGN_SYSTEM.md)
+
+   Each theme specs only a few base hues (--t-*). Every --color-*
+   token is derived from them with color-mix in OKLCH (perceptually
+   uniform), so all themes — and the dark variant — stay consistent
+   automatically. [data-mode="dark"] remaps semantic tokens once for
+   every theme; per-theme dark blocks are not needed.
+   ============================================================ */
 :root {
-  /* Primary brand color (dark petrol blue) */
-  --color-primary: #1f313c;
-  --color-primary-a07: #1f313c11;
-  --color-primary-a10: #1f313c19;
-  --color-primary-a13: #1f313c22;
-  --color-primary-a33: #1f313c55;
-  --color-primary-a47: #1f313c77;
-  --color-primary-a60: #1f313c99;
-  --color-primary-a80: #1f313ccc;
+  /* ---- Base hues: the only hand-picked colors (Sable = default) ---- */
+  --t-brand: #1f313c; /* accent (brand) petrol */
+  --t-accent: #e8ce7d; /* focus / active-indicator hue */
+  --t-warm: #e4d6bc; /* warm base (page background) */
+  --t-cream: #fef8eb; /* surface base */
+  --t-brown: #8a6d3b;
+  --t-danger: #f43d3d;
+  --t-success: #2e7d32;
+  --t-info: #1976d2;
+  --t-pink: #d63384;
+  --t-sky: #60c5ea;
+  /* dark surface base default; themes override it in their dark block */
+  --t-dark-base: #0c0f12;
 
-  /* Gold accent */
-  --color-gold: #e8ce7d;
-  --color-gold-a13: #e8ce7d22;
-  --color-gold-a60: #e8ce7d99;
+  /* ---- Derived: accent (brand hue) + alpha variants ---- */
+  --color-accent: var(--t-brand);
+  --color-accent-a07: color-mix(in oklch, var(--t-brand) 7%, transparent);
+  --color-accent-a10: color-mix(in oklch, var(--t-brand) 10%, transparent);
+  --color-accent-a13: color-mix(in oklch, var(--t-brand) 13%, transparent);
+  --color-accent-a33: color-mix(in oklch, var(--t-brand) 33%, transparent);
+  --color-accent-a47: color-mix(in oklch, var(--t-brand) 47%, transparent);
+  --color-accent-a60: color-mix(in oklch, var(--t-brand) 60%, transparent);
+  --color-accent-a80: color-mix(in oklch, var(--t-brand) 80%, transparent);
 
-  /* Sand / beige scale */
-  --color-sand: #e4d6bc;
-  --color-sand-a00: #e4d6bc00;
-  --color-sand-a20: #e4d6bc33;
-  --color-sand-a40: #e4d6bc66;
-  --color-sand-a60: #e4d6bc99;
-  --color-sand-soft: #e9dec9;
-  --color-sand-dim: #dccdab;
-  --color-sand-deep: #d8c69f;
-  --color-sand-dark: #cebc96;
-  --color-highlight: #ebcf96;
+  /* ---- Derived: focus / active indicator (accent hue) ---- */
+  --color-focus: var(--t-accent);
+  --color-focus-a13: color-mix(in oklch, var(--t-accent) 13%, transparent);
+  --color-focus-a60: color-mix(in oklch, var(--t-accent) 60%, transparent);
 
-  /* Cream surfaces */
-  --color-cream: #fef8eb;
-  --color-cream-alt: #f9f1e2;
-  --color-cream-dark: #f3ead6;
-  --color-cream-dim: #efeadf;
-  --color-cream-deep: #ece2cc;
-  --color-linen: #e8e4da;
+  /* ---- Derived: page-background ramp (warm base, darkened toward accent) ---- */
+  --color-bg: var(--t-warm);
+  --color-bg-a00: color-mix(in oklch, var(--t-warm) 0%, transparent);
+  --color-bg-a20: color-mix(in oklch, var(--t-warm) 20%, transparent);
+  --color-bg-a40: color-mix(in oklch, var(--t-warm) 40%, transparent);
+  --color-bg-a60: color-mix(in oklch, var(--t-warm) 60%, transparent);
+  --color-bg-soft: color-mix(in oklch, var(--t-warm) 92%, white);
+  --color-bg-dim: color-mix(in oklch, var(--t-warm) 88%, var(--t-brand));
+  --color-bg-deep: color-mix(in oklch, var(--t-warm) 80%, var(--t-brand));
+  --color-border-strong: color-mix(in oklch, var(--t-warm) 70%, var(--t-brand));
+  --color-highlight: color-mix(in oklch, var(--t-warm) 65%, var(--t-accent));
 
-  /* Neutrals */
+  /* ---- Derived: surface ramp (cards sit on the page background) ---- */
+  --color-surface: var(--t-cream);
+  --color-surface-alt: color-mix(in oklch, var(--t-cream) 85%, var(--t-warm));
+  --color-surface-dim: color-mix(in oklch, var(--t-cream) 75%, var(--t-warm));
+  --color-surface-dark: color-mix(in oklch, var(--t-cream) 60%, var(--t-warm));
+  --color-surface-deep: color-mix(in oklch, var(--t-cream) 45%, var(--t-warm));
+  --color-card: color-mix(in oklch, var(--t-cream) 80%, #999999);
+
+  /* ---- Derived: panel (script page, side panels) — white in light, elevated surface in dark ---- */
+  --color-panel: #ffffff;
+
+  /* ---- Literal primitives + neutral text/border ramp (text ramp remapped in dark) ---- */
   --color-white: #ffffff;
-  --color-white-a13: #ffffff22;
-  --color-white-a20: #ffffff33;
-  --color-white-a33: #ffffff55;
-  --color-white-a60: #ffffff99;
+  --color-white-a13: color-mix(in oklch, white 13%, transparent);
+  --color-white-a20: color-mix(in oklch, white 20%, transparent);
+  --color-white-a33: color-mix(in oklch, white 33%, transparent);
+  --color-white-a60: color-mix(in oklch, white 60%, transparent);
   --color-warm-white: #fefefe;
-  --color-warm-white-a53: #fefefe88;
+  --color-warm-white-a53: color-mix(in oklch, #fefefe 53%, transparent);
   --color-black: #000000;
-  --color-transparent: #0000;
-  --color-ink: #333333;
-  --color-ink-a07: #33333311;
-  --color-gray: #666666;
-  --color-gray-light: #999999;
-  --color-gray-light-a08: #99999914;
-  --color-gray-border: #cccccc;
-  --color-gray-border-a40: #cccccc66;
-  --color-gray-muted: #bbbbbb;
-  --color-gray-bg: #eeeeee;
+  --color-transparent: transparent;
+  --color-text: #333333;
+  --color-text-a07: color-mix(in oklch, #333333 7%, transparent);
+  --color-text-muted: #666666;
+  --color-text-faint: #999999;
+  --color-text-faint-a08: color-mix(in oklch, #999999 8%, transparent);
+  --color-border: #cccccc;
+  --color-border-a40: color-mix(in oklch, #cccccc 40%, transparent);
+  --color-text-disabled: #bbbbbb;
+  --color-surface-sunken: #eeeeee;
 
-  /* Brown accents */
-  --color-brown: #8a6d3b;
-  --color-brown-a13: #7b520022;
-  --color-brown-a20: #7b520033;
-
-  /* Status colors */
-  --color-danger: #f43d3d;
-  --color-danger-dark: #c62828;
-  --color-danger-bg: #ffebee;
-  --color-success: #2e7d32;
-  --color-success-bg: #e8f5e9;
-  --color-info: #1976d2;
-  --color-info-bg: #e3f2fd;
-  --color-error: #b00020;
-  --color-pink: #d63384;
-  --color-pink-light-a27: #ffb6c144;
-  --color-sky: #60c5ea;
-  --color-sky-a27: #60c5ea44;
+  /* ---- Derived: secondary text (brown hue) + status hues ---- */
+  --color-text-secondary: var(--t-brown);
+  --color-text-secondary-a13: color-mix(in oklch, var(--t-brown) 13%, transparent);
+  --color-text-secondary-a20: color-mix(in oklch, var(--t-brown) 20%, transparent);
+  --color-danger: var(--t-danger);
+  --color-danger-dark: color-mix(in oklch, var(--t-danger) 80%, black);
+  --color-danger-bg: color-mix(in oklch, var(--t-danger) 6%, white);
+  --color-success: var(--t-success);
+  --color-success-bg: color-mix(in oklch, var(--t-success) 8%, white);
+  --color-info: var(--t-info);
+  --color-info-bg: color-mix(in oklch, var(--t-info) 8%, white);
+  --color-error: color-mix(in oklch, var(--t-danger) 70%, black);
+  --color-bookmark: var(--t-pink);
+  --color-bookmark-a27: color-mix(in oklch, #ffb6c1 27%, transparent);
+  --color-invite: var(--t-sky);
+  --color-invite-a27: color-mix(in oklch, var(--t-sky) 27%, transparent);
 
   /* Typography scale */
   --font-size-xs: 0.7rem;
@@ -94,22 +118,713 @@
   --radius-pill: 40px;
 
   /* Shadows */
-  --shadow-sm: 2px 2px 2px var(--color-sand);
-  --shadow-md: 4px 4px 2px var(--color-gray);
-  --shadow-lg: 6px 15px 2px var(--color-sand);
+  --shadow-sm: 2px 2px 2px var(--color-bg);
+  --shadow-md: 4px 4px 2px var(--color-text-muted);
+  --shadow-lg: 6px 15px 2px var(--color-bg);
   --shadow-inset-left: -4px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Spacing scale */
+:root {
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+}
+
+/* ---- Themes: base hues only, everything else is derived ---- */
+[data-theme='sable'] {
+  --t-brand: #1f313c;
+  --t-accent: #e8ce7d;
+  --t-warm: #e4d6bc;
+  --t-cream: #fef8eb;
+  --t-brown: #8a6d3b;
+}
+
+[data-theme='sable'][data-mode='dark'] {
+  --t-dark-base: #0c0f12;
+  --t-brand: #8ba3b0;
+  --t-accent: #d9bd6f;
+  --t-warm: #3a4148;
+  --t-brown: #b08a52;
+}
+
+[data-theme='foret'] {
+  --t-brand: #1f3c2b;
+  --t-accent: #aae87d;
+  --t-warm: #cde4bc;
+  --t-cream: #f3feeb;
+  --t-brown: #5c8a3b;
+}
+
+[data-theme='foret'][data-mode='dark'] {
+  --t-dark-base: #0b120e;
+  --t-brand: #8fb89a;
+  --t-accent: #a4d67c;
+  --t-warm: #33402f;
+  --t-brown: #8fae7e;
+}
+
+[data-theme='ocean'] {
+  --t-brand: #1f2d3c;
+  --t-accent: #7dc4e8;
+  --t-warm: #bcd7e4;
+  --t-cream: #ebf8fe;
+  --t-brown: #3b708a;
+}
+
+[data-theme='ocean'][data-mode='dark'] {
+  --t-dark-base: #0b0f12;
+  --t-brand: #8aa5bd;
+  --t-accent: #6fb8e0;
+  --t-warm: #2e3d4a;
+  --t-brown: #6f93a8;
+}
+
+[data-theme='nord'] {
+  --t-brand: #2e3440;
+  --t-accent: #5e81ac;
+  --t-warm: #d8dee9;
+  --t-cream: #eceff4;
+  --t-brown: #8f6d5a;
+}
+
+[data-theme='nord'][data-mode='dark'] {
+  --t-dark-base: #2e3440;
+  --t-brand: #d8dee9;
+  --t-accent: #88c0d0;
+  --t-warm: #3b4252;
+  --t-brown: #b48ead;
+}
+
+[data-theme='gruvbox'] {
+  --t-brand: #3c3836;
+  --t-accent: #b57614;
+  --t-warm: #ebdbb2;
+  --t-cream: #fbf1c7;
+  --t-brown: #8a5a2b;
+}
+
+[data-theme='gruvbox'][data-mode='dark'] {
+  --t-dark-base: #282828;
+  --t-brand: #ebdbb2;
+  --t-accent: #fe8019;
+  --t-warm: #504945;
+  --t-brown: #d5a06a;
+}
+
+[data-theme='solarized'] {
+  --t-brand: #586e75;
+  --t-accent: #b58900;
+  --t-warm: #eee8d5;
+  --t-cream: #fdf6e3;
+  --t-brown: #8a6d3b;
+}
+
+[data-theme='solarized'][data-mode='dark'] {
+  --t-dark-base: #002b36;
+  --t-brand: #93a1a1;
+  --t-accent: #b58900;
+  --t-warm: #073642;
+  --t-brown: #9a8a5f;
+}
+
+[data-theme='dracula'] {
+  --t-brand: #44475a;
+  --t-accent: #9580ff;
+  --t-warm: #e9e9f5;
+  --t-cream: #f8f8f2;
+  --t-brown: #8a6d8f;
+}
+
+[data-theme='dracula'][data-mode='dark'] {
+  --t-dark-base: #282a36;
+  --t-brand: #f8f8f2;
+  --t-accent: #bd93f9;
+  --t-warm: #44475a;
+  --t-brown: #ff79c6;
+}
+
+[data-theme='catppuccin'] {
+  --t-brand: #4c4f69;
+  --t-accent: #8839ef;
+  --t-warm: #ccd0da;
+  --t-cream: #eff1f5;
+  --t-brown: #9a7b6d;
+}
+
+[data-theme='catppuccin'][data-mode='dark'] {
+  --t-dark-base: #1e1e2e;
+  --t-brand: #cdd6f4;
+  --t-accent: #cba6f7;
+  --t-warm: #313244;
+  --t-brown: #b0a0c8;
+}
+
+[data-theme='tokyonight'] {
+  --t-brand: #343b58;
+  --t-accent: #34548a;
+  --t-warm: #d5d7e0;
+  --t-cream: #e1e2e7;
+  --t-brown: #8a6d5a;
+}
+
+[data-theme='tokyonight'][data-mode='dark'] {
+  --t-dark-base: #1a1b26;
+  --t-brand: #c0caf5;
+  --t-accent: #7aa2f7;
+  --t-warm: #24283b;
+  --t-brown: #9a8ab8;
+}
+
+[data-theme='onedark'] {
+  --t-brand: #383a42;
+  --t-accent: #4f5666;
+  --t-warm: #d7dae0;
+  --t-cream: #fafafa;
+  --t-brown: #986848;
+}
+
+[data-theme='onedark'][data-mode='dark'] {
+  --t-dark-base: #282c34;
+  --t-brand: #abb2bf;
+  --t-accent: #61afef;
+  --t-warm: #3e4452;
+  --t-brown: #c08a5a;
+}
+
+[data-theme='ayu'] {
+  --t-brand: #5c6773;
+  --t-accent: #f29718;
+  --t-warm: #e6e6eb;
+  --t-cream: #fafafa;
+  --t-brown: #a37a48;
+}
+
+[data-theme='ayu'][data-mode='dark'] {
+  --t-dark-base: #191e2a;
+  --t-brand: #e6e9ef;
+  --t-accent: #ffb454;
+  --t-warm: #232834;
+  --t-brown: #c8a06a;
+}
+
+[data-theme='everforest'] {
+  --t-brand: #5c6a72;
+  --t-accent: #7f9c3f;
+  --t-warm: #e8e2c8;
+  --t-cream: #fffbef;
+  --t-brown: #8a7a4a;
+}
+
+[data-theme='everforest'][data-mode='dark'] {
+  --t-dark-base: #2d353b;
+  --t-brand: #d3c6aa;
+  --t-accent: #a7c080;
+  --t-warm: #3d484d;
+  --t-brown: #b5a06a;
+}
+
+[data-theme='rosepine'] {
+  --t-brand: #575279;
+  --t-accent: #907aa9;
+  --t-warm: #f2e9e1;
+  --t-cream: #fffaf3;
+  --t-brown: #9a7a6d;
+}
+
+[data-theme='rosepine'][data-mode='dark'] {
+  --t-dark-base: #191724;
+  --t-brand: #e0def4;
+  --t-accent: #c4a7e7;
+  --t-warm: #26233a;
+  --t-brown: #b8a0c8;
+}
+
+[data-theme='kanagawa'] {
+  --t-brand: #545c7e;
+  --t-accent: #766e6b;
+  --t-warm: #e5ddc0;
+  --t-cream: #f2ecbc;
+  --t-brown: #8a7a5a;
+}
+
+[data-theme='kanagawa'][data-mode='dark'] {
+  --t-dark-base: #1f1f28;
+  --t-brand: #dcd7ba;
+  --t-accent: #c0a36e;
+  --t-warm: #2a2a37;
+  --t-brown: #b0986a;
+}
+
+[data-theme='palenight'] {
+  --t-brand: #4e5579;
+  --t-accent: #6b7fd7;
+  --t-warm: #e4e7f2;
+  --t-cream: #f5f6fa;
+  --t-brown: #8a6d7a;
+}
+
+[data-theme='palenight'][data-mode='dark'] {
+  --t-dark-base: #292d3e;
+  --t-brand: #c3cbe4;
+  --t-accent: #82aaff;
+  --t-warm: #3e4358;
+  --t-brown: #a8a0c8;
+}
+
+[data-theme='horizon'] {
+  --t-brand: #2e303e;
+  --t-accent: #da5c7e;
+  --t-warm: #f0d8d4;
+  --t-cream: #fdf0ed;
+  --t-brown: #a06a5a;
+}
+
+[data-theme='horizon'][data-mode='dark'] {
+  --t-dark-base: #1c1e26;
+  --t-brand: #cbced3;
+  --t-accent: #e95678;
+  --t-warm: #2a2d3a;
+  --t-brown: #d08a8a;
+}
+
+[data-theme='nightowl'] {
+  --t-brand: #403f53;
+  --t-accent: #4876d6;
+  --t-warm: #e3e3ee;
+  --t-cream: #fbfbfb;
+  --t-brown: #8a6d9a;
+}
+
+[data-theme='nightowl'][data-mode='dark'] {
+  --t-dark-base: #011627;
+  --t-brand: #d6deeb;
+  --t-accent: #7e9cd8;
+  --t-warm: #0b2239;
+  --t-brown: #9a8ac8;
+}
+
+[data-theme='monokai'] {
+  --t-brand: #4a4a42;
+  --t-accent: #c29a3b;
+  --t-warm: #ece9dc;
+  --t-cream: #f9f9f5;
+  --t-brown: #8a6d3b;
+}
+
+[data-theme='monokai'][data-mode='dark'] {
+  --t-dark-base: #272822;
+  --t-brand: #f8f8f2;
+  --t-accent: #ae81ff;
+  --t-warm: #3e3d32;
+  --t-brown: #c8a06a;
+}
+
+[data-theme='github'] {
+  --t-brand: #24292f;
+  --t-accent: #0969da;
+  --t-warm: #eaeef2;
+  --t-cream: #ffffff;
+  --t-brown: #8a6d4a;
+}
+
+[data-theme='github'][data-mode='dark'] {
+  --t-dark-base: #0d1117;
+  --t-brand: #e6edf3;
+  --t-accent: #58a6ff;
+  --t-warm: #161b22;
+  --t-brown: #bb9a6a;
+}
+
+[data-theme='material'] {
+  --t-brand: #4f378b;
+  --t-accent: #6750a4;
+  --t-warm: #e8e0e9;
+  --t-cream: #fef7ff;
+  --t-brown: #7d5a50;
+}
+
+[data-theme='material'][data-mode='dark'] {
+  --t-dark-base: #141218;
+  --t-brand: #d0bcff;
+  --t-accent: #b39ddb;
+  --t-warm: #1d1b20;
+  --t-brown: #c8a898;
+}
+
+[data-theme='lavender'] {
+  --t-brand: #4a4e69;
+  --t-accent: #9a8c98;
+  --t-warm: #c9ada7;
+  --t-cream: #f2e9e4;
+  --t-brown: #8a6d7a;
+}
+
+[data-theme='lavender'][data-mode='dark'] {
+  --t-dark-base: #22223b;
+  --t-brand: #c9ada7;
+  --t-accent: #b5a7e0;
+  --t-warm: #2e2e45;
+  --t-brown: #b09ab8;
+}
+
+[data-theme='sunset'] {
+  --t-brand: #5b2a41;
+  --t-accent: #e36414;
+  --t-warm: #f4d8c8;
+  --t-cream: #fff4ec;
+  --t-brown: #9a5a4a;
+}
+
+[data-theme='sunset'][data-mode='dark'] {
+  --t-dark-base: #2b1b26;
+  --t-brand: #ffb4a2;
+  --t-accent: #e5989b;
+  --t-warm: #3d2631;
+  --t-brown: #d08a8a;
+}
+
+[data-theme='mist'] {
+  --t-brand: #2f4538;
+  --t-accent: #74a12e;
+  --t-warm: #dce8d5;
+  --t-cream: #f4f9f0;
+  --t-brown: #7a7a5a;
+}
+
+[data-theme='mist'][data-mode='dark'] {
+  --t-dark-base: #16211a;
+  --t-brand: #c5d5c0;
+  --t-accent: #a3b18a;
+  --t-warm: #1f2d24;
+  --t-brown: #a8b090;
+}
+
+[data-theme='desert'] {
+  --t-brand: #6d4c2f;
+  --t-accent: #d9a441;
+  --t-warm: #ead9c2;
+  --t-cream: #faf3e7;
+  --t-brown: #8a6d3b;
+}
+
+[data-theme='desert'][data-mode='dark'] {
+  --t-dark-base: #2b2118;
+  --t-brand: #e3c9a8;
+  --t-accent: #d9a441;
+  --t-warm: #3a2f24;
+  --t-brown: #c0a06a;
+}
+
+[data-theme='arctic'] {
+  --t-brand: #2c4a6e;
+  --t-accent: #4f9cf9;
+  --t-warm: #d9e8f5;
+  --t-cream: #f5fafd;
+  --t-brown: #6a7a8a;
+}
+
+[data-theme='arctic'][data-mode='dark'] {
+  --t-dark-base: #101c28;
+  --t-brand: #cfe3f5;
+  --t-accent: #6cb2f5;
+  --t-warm: #1a2a3a;
+  --t-brown: #90a8bd;
+}
+
+[data-theme='cherry'] {
+  --t-brand: #6e2b3f;
+  --t-accent: #e0507a;
+  --t-warm: #f6dde3;
+  --t-cream: #fdf1f4;
+  --t-brown: #9a5a6a;
+}
+
+[data-theme='cherry'][data-mode='dark'] {
+  --t-dark-base: #2a1520;
+  --t-brand: #f3c6d3;
+  --t-accent: #ef7ba0;
+  --t-warm: #3a1e2c;
+  --t-brown: #d08aa0;
+}
+
+[data-theme='mint'] {
+  --t-brand: #1f5f4b;
+  --t-accent: #2fa37c;
+  --t-warm: #d9efe6;
+  --t-cream: #f2fbf7;
+  --t-brown: #5a8a7a;
+}
+
+[data-theme='mint'][data-mode='dark'] {
+  --t-dark-base: #0f231c;
+  --t-brand: #c9efe0;
+  --t-accent: #4cc38a;
+  --t-warm: #16302a;
+  --t-brown: #8ac0a8;
+}
+
+[data-theme='amber'] {
+  --t-brand: #5c4a1f;
+  --t-accent: #d97706;
+  --t-warm: #f5e8cf;
+  --t-cream: #fffaf0;
+  --t-brown: #8a6d3b;
+}
+
+[data-theme='amber'][data-mode='dark'] {
+  --t-dark-base: #221a0d;
+  --t-brand: #f0d9a8;
+  --t-accent: #f0a832;
+  --t-warm: #2e2513;
+  --t-brown: #c8a05a;
+}
+
+[data-theme='slate'] {
+  --t-brand: #334155;
+  --t-accent: #64748b;
+  --t-warm: #e2e8f0;
+  --t-cream: #f8fafc;
+  --t-brown: #7a6a5a;
+}
+
+[data-theme='slate'][data-mode='dark'] {
+  --t-dark-base: #0f172a;
+  --t-brand: #e2e8f0;
+  --t-accent: #94a3b8;
+  --t-warm: #1e293b;
+  --t-brown: #b0a08a;
+}
+
+[data-theme='berry'] {
+  --t-brand: #5b2a86;
+  --t-accent: #c026d3;
+  --t-warm: #ecd9f5;
+  --t-cream: #fdf4ff;
+  --t-brown: #8a5a9a;
+}
+
+[data-theme='berry'][data-mode='dark'] {
+  --t-dark-base: #2a0f3a;
+  --t-brand: #e9c6fb;
+  --t-accent: #d946ef;
+  --t-warm: #3b1650;
+  --t-brown: #c090d8;
+}
+
+/* Theme preview swatches (light variant of each theme) */
+:root {
+  --swatch-sable-1: #1f313c;
+  --swatch-sable-2: #e4d6bc;
+  --swatch-sable-3: #e8ce7d;
+  --swatch-foret-1: #1f3c2b;
+  --swatch-foret-2: #cde4bc;
+  --swatch-foret-3: #aae87d;
+  --swatch-ocean-1: #1f2d3c;
+  --swatch-ocean-2: #bcd7e4;
+  --swatch-ocean-3: #7dc4e8;
+  --swatch-nord-1: #2e3440;
+  --swatch-nord-2: #d8dee9;
+  --swatch-nord-3: #5e81ac;
+  --swatch-gruvbox-1: #3c3836;
+  --swatch-gruvbox-2: #ebdbb2;
+  --swatch-gruvbox-3: #b57614;
+  --swatch-solarized-1: #586e75;
+  --swatch-solarized-2: #eee8d5;
+  --swatch-solarized-3: #b58900;
+  --swatch-dracula-1: #44475a;
+  --swatch-dracula-2: #e9e9f5;
+  --swatch-dracula-3: #9580ff;
+  --swatch-catppuccin-1: #4c4f69;
+  --swatch-catppuccin-2: #ccd0da;
+  --swatch-catppuccin-3: #8839ef;
+  --swatch-tokyonight-1: #343b58;
+  --swatch-tokyonight-2: #d5d7e0;
+  --swatch-tokyonight-3: #34548a;
+  --swatch-onedark-1: #383a42;
+  --swatch-onedark-2: #d7dae0;
+  --swatch-onedark-3: #4f5666;
+  --swatch-ayu-1: #5c6773;
+  --swatch-ayu-2: #e6e6eb;
+  --swatch-ayu-3: #f29718;
+  --swatch-everforest-1: #5c6a72;
+  --swatch-everforest-2: #e8e2c8;
+  --swatch-everforest-3: #7f9c3f;
+  --swatch-rosepine-1: #575279;
+  --swatch-rosepine-2: #f2e9e1;
+  --swatch-rosepine-3: #907aa9;
+  --swatch-kanagawa-1: #545c7e;
+  --swatch-kanagawa-2: #e5ddc0;
+  --swatch-kanagawa-3: #766e6b;
+  --swatch-palenight-1: #4e5579;
+  --swatch-palenight-2: #e4e7f2;
+  --swatch-palenight-3: #6b7fd7;
+  --swatch-horizon-1: #2e303e;
+  --swatch-horizon-2: #f0d8d4;
+  --swatch-horizon-3: #da5c7e;
+  --swatch-nightowl-1: #403f53;
+  --swatch-nightowl-2: #e3e3ee;
+  --swatch-nightowl-3: #4876d6;
+  --swatch-monokai-1: #4a4a42;
+  --swatch-monokai-2: #ece9dc;
+  --swatch-monokai-3: #c29a3b;
+  --swatch-github-1: #24292f;
+  --swatch-github-2: #eaeef2;
+  --swatch-github-3: #0969da;
+  --swatch-material-1: #4f378b;
+  --swatch-material-2: #e8e0e9;
+  --swatch-material-3: #6750a4;
+  --swatch-lavender-1: #4a4e69;
+  --swatch-lavender-2: #c9ada7;
+  --swatch-lavender-3: #9a8c98;
+  --swatch-sunset-1: #5b2a41;
+  --swatch-sunset-2: #f4d8c8;
+  --swatch-sunset-3: #e36414;
+  --swatch-mist-1: #2f4538;
+  --swatch-mist-2: #dce8d5;
+  --swatch-mist-3: #74a12e;
+  --swatch-desert-1: #6d4c2f;
+  --swatch-desert-2: #ead9c2;
+  --swatch-desert-3: #d9a441;
+  --swatch-arctic-1: #2c4a6e;
+  --swatch-arctic-2: #d9e8f5;
+  --swatch-arctic-3: #4f9cf9;
+  --swatch-cherry-1: #6e2b3f;
+  --swatch-cherry-2: #f6dde3;
+  --swatch-cherry-3: #e0507a;
+  --swatch-mint-1: #1f5f4b;
+  --swatch-mint-2: #d9efe6;
+  --swatch-mint-3: #2fa37c;
+  --swatch-amber-1: #5c4a1f;
+  --swatch-amber-2: #f5e8cf;
+  --swatch-amber-3: #d97706;
+  --swatch-slate-1: #334155;
+  --swatch-slate-2: #e2e8f0;
+  --swatch-slate-3: #64748b;
+  --swatch-berry-1: #5b2a86;
+  --swatch-berry-2: #ecd9f5;
+  --swatch-berry-3: #c026d3;
+}
+[data-mode='dark'] {
+  /* brand-tinted near-black base (never pure #000) + white-overlay elevation */
+  --t-surface: color-mix(in oklch, var(--t-dark-base) 85%, var(--t-brand));
+
+  --color-surface: var(--t-surface);
+  --color-surface-alt: color-mix(in oklch, var(--t-surface) 97%, white);
+  --color-surface-dim: color-mix(in oklch, var(--t-surface) 94%, white);
+  --color-surface-dark: color-mix(in oklch, var(--t-surface) 89%, white);
+  --color-surface-deep: color-mix(in oklch, var(--t-surface) 82%, white);
+  --color-card: color-mix(in oklch, var(--t-surface) 76%, white);
+  --color-panel: color-mix(in oklch, var(--t-surface) 88%, white);
+
+  --color-bg: color-mix(in oklch, var(--t-surface) 86%, var(--t-warm));
+  --color-bg-a00: color-mix(in oklch, var(--color-bg) 0%, transparent);
+  --color-bg-a20: color-mix(in oklch, var(--color-bg) 20%, transparent);
+  --color-bg-a40: color-mix(in oklch, var(--color-bg) 40%, transparent);
+  --color-bg-a60: color-mix(in oklch, var(--color-bg) 60%, transparent);
+  --color-bg-soft: color-mix(in oklch, var(--t-surface) 84%, var(--t-warm));
+  --color-bg-dim: color-mix(in oklch, var(--t-surface) 78%, var(--t-warm));
+  --color-bg-deep: color-mix(in oklch, var(--t-surface) 68%, var(--t-warm));
+  --color-border-strong: color-mix(in oklch, var(--t-surface) 58%, var(--t-brand));
+  --color-highlight: color-mix(in oklch, var(--t-surface) 72%, var(--t-accent));
+
+  /* accent lightened so it stays readable on dark surfaces */
+  --color-accent: color-mix(in oklch, var(--t-brand) 30%, white);
+  --color-accent-a07: color-mix(
+    in oklch,
+    var(--color-accent) 7%,
+    transparent
+  );
+  --color-accent-a10: color-mix(
+    in oklch,
+    var(--color-accent) 10%,
+    transparent
+  );
+  --color-accent-a13: color-mix(
+    in oklch,
+    var(--color-accent) 13%,
+    transparent
+  );
+  --color-accent-a33: color-mix(
+    in oklch,
+    var(--color-accent) 33%,
+    transparent
+  );
+  --color-accent-a47: color-mix(
+    in oklch,
+    var(--color-accent) 47%,
+    transparent
+  );
+  --color-accent-a60: color-mix(
+    in oklch,
+    var(--color-accent) 60%,
+    transparent
+  );
+  --color-accent-a80: color-mix(
+    in oklch,
+    var(--color-accent) 80%,
+    transparent
+  );
+
+  /* focus hue desaturated + slightly lightened (no neon on dark) */
+  --color-focus: color-mix(in oklch, var(--t-accent) 55%, #8f8f8f);
+  --color-focus-a13: color-mix(in oklch, var(--color-focus) 13%, transparent);
+  --color-focus-a60: color-mix(in oklch, var(--color-focus) 60%, transparent);
+
+  /* text + neutrals: white alpha ramp */
+  --color-text: rgb(255 255 255 / 0.87);
+  --color-text-a07: rgb(255 255 255 / 0.07);
+  --color-text-muted: rgb(255 255 255 / 0.6);
+  --color-text-faint: rgb(255 255 255 / 0.45);
+  --color-text-faint-a08: rgb(255 255 255 / 0.08);
+  --color-border: rgb(255 255 255 / 0.16);
+  --color-border-a40: rgb(255 255 255 / 0.4);
+  --color-text-disabled: rgb(255 255 255 / 0.3);
+  --color-surface-sunken: color-mix(in oklch, var(--t-surface) 92%, white);
+
+  /* brown + status: same hue, lightened/desaturated */
+  --color-text-secondary: color-mix(in oklch, var(--t-brown) 45%, white);
+  --color-text-secondary-a13: color-mix(in oklch, var(--color-text-secondary) 13%, transparent);
+  --color-text-secondary-a20: color-mix(in oklch, var(--color-text-secondary) 20%, transparent);
+  --color-danger: color-mix(in oklch, var(--t-danger) 60%, white);
+  --color-danger-dark: color-mix(in oklch, var(--t-danger) 80%, white);
+  --color-danger-bg: color-mix(in oklch, var(--t-danger) 14%, var(--t-surface));
+  --color-success: color-mix(in oklch, var(--t-success) 65%, white);
+  --color-success-bg: color-mix(
+    in oklch,
+    var(--t-success) 12%,
+    var(--t-surface)
+  );
+  --color-info: color-mix(in oklch, var(--t-info) 65%, white);
+  --color-info-bg: color-mix(in oklch, var(--t-info) 12%, var(--t-surface));
+  --color-error: color-mix(in oklch, var(--t-danger) 75%, white);
+  --color-bookmark: color-mix(in oklch, var(--t-pink) 70%, white);
+  --color-bookmark-a27: color-mix(
+    in oklch,
+    var(--color-bookmark) 27%,
+    transparent
+  );
+  --color-invite: color-mix(in oklch, var(--t-sky) 70%, white);
+  --color-invite-a27: color-mix(in oklch, var(--color-invite) 27%, transparent);
+
+  /* shadows are invisible on near-black: deepen them */
+  --shadow-sm: 2px 2px 2px rgb(0 0 0 / 0.5);
+  --shadow-md: 4px 4px 2px rgb(0 0 0 / 0.5);
+  --shadow-lg: 6px 15px 2px rgb(0 0 0 / 0.5);
+  --shadow-inset-left: -4px 0 8px rgb(0 0 0 / 0.4);
 }
 
 html {
   scrollbar-gutter: stable;
-  background-color: var(--color-sand);
-  scrollbar-color: var(--color-primary) var(--color-sand-a00);
+  background-color: var(--color-bg);
+  scrollbar-color: var(--color-accent) var(--color-bg-a00);
 }
 
 body {
-  background-color: var(--color-cream);
+  background-color: var(--color-surface);
   margin: 0;
-  font-family: Arimo;
+  font-family: Montserrat;
   font-weight: 400;
   font-style: normal;
 }
@@ -121,7 +836,7 @@ body {
   width: 100%;
   min-height: calc(100vh - 8px);
   justify-content: center;
-  background-image: url("/loader.svg");
+  background-image: url('/loader.svg');
   background-repeat: no-repeat;
   background-position: center;
   /* never wider than the section, so the spinner is never cropped on narrow viewports */

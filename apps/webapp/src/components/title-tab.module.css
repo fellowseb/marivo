@@ -1,7 +1,7 @@
 .icon {
   width: 20px;
   height: 20px;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   mask-image: url("/src/assets/book-open-01.svg");
   mask-repeat: no-repeat;
   mask-position: 0 0px;
@@ -14,12 +14,12 @@
   display: flex;
   align-items: center;
   flex-direction: row;
-  color: var(--color-primary);
+  color: var(--color-accent);
   text-align: left;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  background-color: var(--color-cream-deep);
+  background-color: var(--color-surface-deep);
   border-start-start-radius: 10px;
   border-start-end-radius: 10px;
   padding: 0 4px 0 4px;

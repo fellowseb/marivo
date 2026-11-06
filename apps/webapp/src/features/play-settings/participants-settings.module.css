@@ -20,7 +20,7 @@
 
 .section {
   margin-top: 10px;
-  border: 1px solid var(--color-primary-a33);
+  border: 1px solid var(--color-accent-a33);
   padding: 10px;
   border-radius: var(--radius-sm);
 }
@@ -28,7 +28,7 @@
 .sectionTitle {
   font-weight: bolder;
   font-size: var(--font-size-sm);
-  color: var(--color-primary-a33);
+  color: var(--color-accent-a33);
 }
 
 .permissionsTable {
@@ -44,7 +44,7 @@
 .permissionsTable tbody .permissionsTableGroupRow td {
   font-size: var(--font-size-sm);
   font-style: italic;
-  border-bottom: 1px solid var(--color-primary);
+  border-bottom: 1px solid var(--color-accent);
 }
 
 .permissionsTable tbody .permissionsTablePermissionRow td:first-of-type {
@@ -63,12 +63,12 @@
   width: 1rem;
   height: 1rem;
   mask: url("/src/assets/trash-03.svg") no-repeat;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   transform: rotate(-90deg);
 }
 
 .deleteFunctionBtn:hover {
-  background-color: var(--color-primary-a33);
+  background-color: var(--color-accent-a33);
 }
 
 .addFunctionBtn {

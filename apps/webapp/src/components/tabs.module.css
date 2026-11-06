@@ -1,6 +1,6 @@
 .container {
-  border: 1px solid var(--color-gray-border);
-  border: 1px solid var(--color-sand-dark);
+  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
@@ -16,20 +16,19 @@
 
 .contentContainer {
   flex: 1;
-  background-color: var(--color-linen);
-  background-color: var(--color-sand-a20);
+  background-color: var(--color-bg-a20);
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  border-top: 1px solid var(--color-sand);
+  border-top: 1px solid var(--color-bg);
 }
 
 .tab {
   font-family: Arimo;
-  color: var(--color-primary);
+  color: var(--color-accent);
   padding: 8px;
-  border: 1px solid var(--color-sand-dark);
+  border: 1px solid var(--color-border-strong);
   border-bottom: 0;
-  background-color: var(--color-linen);
-  background-color: var(--color-cream-alt);
+  background-color: var(--color-card);
+  background-color: var(--color-surface-alt);
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   cursor: pointer;
   height: 30px;
@@ -46,12 +45,12 @@
 }
 
 .tab.inactive {
-  background-color: var(--color-sand);
+  background-color: var(--color-bg);
   top: 2px;
 }
 
 .tab:focus-visible {
-  border-color: var(--color-gold);
-  background-color: var(--color-gold-a60);
-  color: var(--color-primary);
+  border-color: var(--color-focus);
+  background-color: var(--color-focus-a60);
+  color: var(--color-accent);
 }

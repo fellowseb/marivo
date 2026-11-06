@@ -21,7 +21,7 @@
 
 .section {
   margin-top: 10px;
-  border: 1px solid var(--color-primary-a33);
+  border: 1px solid var(--color-accent-a33);
   padding: 10px;
   border-radius: var(--radius-sm);
 }
@@ -33,7 +33,7 @@
 .sectionTitle {
   font-weight: bolder;
   font-size: var(--font-size-sm);
-  color: var(--color-primary-a33);
+  color: var(--color-accent-a33);
 }
 
 .sectionDanger > .sectionTitle {
@@ -61,7 +61,7 @@
 
 .modalContainer > * {
   box-shadow: var(--shadow-md);
-  background: var(--color-cream-dark);
+  background: var(--color-surface-dark);
   padding: 16px;
   border-radius: var(--radius-md);
   display: flex;
@@ -75,6 +75,6 @@
 }
 
 .archivedNote {
-  color: var(--color-brown);
+  color: var(--color-text-secondary);
   font-style: italic;
 }

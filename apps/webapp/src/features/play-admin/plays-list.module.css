@@ -1,26 +1,9 @@
-.plays {
-  position: relative;
+.playsListContainer {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-sizing: border-box;
-  padding: 20px 1px 20px 10px;
-  border: 1px solid var(--color-sand-dark);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-sand-a20);
-  flex: 1 1 0;
-  scrollbar-gutter: stable;
-}
-
-.play {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  min-width: 600px;
-  min-height: 125px;
+  flex: 1;
+  min-height: 0;
+  background-color: var(--color-bg-a20);
 }
 
 .playSkeleton {
@@ -28,66 +11,11 @@
   margin: 0;
   min-width: 600px;
   min-height: 125px;
-  border: 1px solid var(--color-sand);
-  border-left: 10px solid var(--color-primary-a13);
+  border: 1px solid var(--color-bg);
+  border-left: 10px solid var(--color-accent-a13);
   border-radius: var(--radius-sm);
-  background-color: var(--color-linen);
+  background-color: var(--color-card);
   padding: 12px;
-}
-
-.play > a {
-  border: 1px solid var(--color-primary);
-  border-left: 10px solid var(--color-primary);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-linen);
-  background-color: var(--color-gray-light-a08);
-  color: var(--color-primary);
-  text-decoration: none;
-  margin: 0px;
-  min-height: 100px;
-  width: 100%;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  transition: background-color 0.5s ease-out;
-}
-
-.play.disabled > a {
-  border-left: 10px solid var(--color-primary-a13);
-}
-
-.play.disabled > a:hover {
-  cursor: default;
-  background-color: var(--color-linen);
-  border-left: 10px solid var(--color-primary-a13);
-}
-
-.play.disabled .playPoster,
-.play.disabled:hover .playPoster {
-  background-color: var(--color-primary-a13);
-}
-
-.play > a:focus {
-  text-decoration: none;
-  border: 1px solid var(--color-gold);
-  border-left: 10px solid var(--color-gold);
-}
-
-.play > a:hover {
-  cursor: pointer;
-  background-color: var(--color-primary-a10);
-  border-left: 10px solid var(--color-primary);
-}
-
-.playTitle {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-  font-family: "Lobster Two", sans-serif;
-  font-size: var(--font-size-lg);
-  font-weight: bold;
-  margin-bottom: 0.5rem;
 }
 
 .playDetailsValues {
@@ -95,19 +23,11 @@
   text-align: left;
 }
 
-.playDetails {
-  display: grid;
-  font-style: italic;
-  flex: 1;
-  grid-gap: 0 4px;
-  grid-template-columns: auto 1fr;
-}
-
 .playPoster {
   display: none;
   width: 100px;
   height: 100px;
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   border-radius: var(--radius-sm);
 }
 
@@ -117,32 +37,10 @@
   mask: url("/src/assets/book-closed.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
-  background-color: var(--color-linen);
+  background-color: var(--color-card);
 }
 
 .playPosterOverlay.opening {
-  mask: url("/src/assets/dots-horizontal.svg") no-repeat;
-  mask-size: 60px 60px;
-  mask-position: 20px 20px;
-}
-
-.play.disabled:hover .playPosterOverlay {
-  mask: url("/src/assets/book-closed.svg") no-repeat;
-  mask-size: 60px 60px;
-  mask-position: 20px 20px;
-}
-
-.play:hover .playPoster {
-  background-color: var(--color-primary);
-}
-
-.play:hover .playPosterOverlay {
-  mask: url("/src/assets/book-open-01.svg") no-repeat;
-  mask-size: 60px 60px;
-  mask-position: 20px 20px;
-}
-
-.play:hover .playPosterOverlay.opening {
   mask: url("/src/assets/dots-horizontal.svg") no-repeat;
   mask-size: 60px 60px;
   mask-position: 20px 20px;
@@ -154,7 +52,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--color-gray-light);
+  color: var(--color-text-faint);
   flex: 1;
 }
 

@@ -21,9 +21,9 @@
   overflow-x: hidden;
   box-sizing: border-box;
   padding: 20px 1px 20px 10px;
-  border: 1px solid var(--color-sand-dark);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
-  background-color: var(--color-sand-a20);
+  background-color: var(--color-bg-a20);
   flex: 1 1 0;
   scrollbar-gutter: stable;
 }
@@ -41,19 +41,19 @@
   margin: 0;
   min-width: 600px;
   min-height: 80px;
-  border: 1px solid var(--color-sand);
-  border-left: 10px solid var(--color-primary-a13);
+  border: 1px solid var(--color-bg);
+  border-left: 10px solid var(--color-accent-a13);
   border-radius: var(--radius-sm);
-  background-color: var(--color-linen);
+  background-color: var(--color-card);
   padding: 12px;
 }
 
 .scriptImport > div {
-  border: 1px solid var(--color-primary);
-  border-left: 10px solid var(--color-primary);
+  border: 1px solid var(--color-accent);
+  border-left: 10px solid var(--color-accent);
   border-radius: var(--radius-sm);
-  background-color: var(--color-gray-light-a08);
-  color: var(--color-primary);
+  background-color: var(--color-text-faint-a08);
+  color: var(--color-accent);
   text-decoration: none;
   margin: 0px;
   min-height: 80px;
@@ -66,8 +66,8 @@
 
 .scriptImport > div:hover {
   cursor: default;
-  background-color: var(--color-primary-a10);
-  border-left: 10px solid var(--color-primary);
+  background-color: var(--color-accent-a10);
+  border-left: 10px solid var(--color-accent);
 }
 
 .scriptImportContent {
@@ -105,7 +105,7 @@
 .sectionTitle {
   margin: 0 0 8px 10px;
   font-size: var(--font-size-lg);
-  color: var(--color-primary);
+  color: var(--color-accent);
   text-align: left;
 }
 
@@ -119,7 +119,7 @@
 .sectionTitleInList {
   margin: 0;
   font-size: var(--font-size-lg);
-  color: var(--color-primary);
+  color: var(--color-accent);
   text-align: left;
 }
 
@@ -159,7 +159,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--color-gray-light);
+  color: var(--color-text-faint);
   flex: 1;
 }
 

@@ -1,15 +1,15 @@
 .normal {
-  --border-color: var(--color-primary);
-  --font-color: var(--color-cream);
-  --bg-color: var(--color-primary);
-  --hover-bg-color: var(--color-primary-a60);
+  --border-color: var(--color-accent);
+  --font-color: var(--color-surface);
+  --bg-color: var(--color-accent);
+  --hover-bg-color: var(--color-accent-a60);
 }
 
 .discrete {
   --border-color: transparent;
-  --font-color: var(--color-primary);
-  --bg-color: var(--color-sand-a20);
-  --hover-bg-color: var(--color-sand-a40);
+  --font-color: var(--color-accent);
+  --bg-color: var(--color-bg-a20);
+  --hover-bg-color: var(--color-bg-a40);
 }
 
 .button {
@@ -34,22 +34,22 @@
 }
 
 .button:focus-visible {
-  border-color: var(--color-gold);
-  background-color: var(--color-gold-a60);
-  color: var(--color-primary);
-  outline: 1px solid var(--color-cream);
+  border-color: var(--color-focus);
+  background-color: var(--color-focus-a60);
+  color: var(--color-accent);
+  outline: 1px solid var(--color-surface);
 }
 
 .button:focus-visible .icon {
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
 
 .button:disabled {
-  background-color: var(--color-gray-border);
-  color: var(--color-primary-a47);
-  border-color: var(--color-primary-a47);
+  background-color: var(--color-border);
+  color: var(--color-accent-a47);
+  border-color: var(--color-accent-a47);
 }
 
 .button:disabled .icon {
-  background-color: var(--color-primary-a47);
+  background-color: var(--color-accent-a47);
 }

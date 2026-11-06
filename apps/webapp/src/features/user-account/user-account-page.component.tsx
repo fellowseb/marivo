@@ -2,6 +2,8 @@ import { NavLink } from "react-router";
 import styles from "./user-account-page.module.css";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import { UserProfile } from "@clerk/react-router";
+import ThemeSwitcher from "../theme/theme-switcher.component";
+import Icon from "../../components/icon.component";
 
 export function UserAccountPageBreadcrumbs() {
   return (
@@ -28,10 +30,18 @@ export function UserAccountPage() {
         appearance={{
           theme: "simple",
           variables: {
-            colorBackground: "var(--color-cream-deep)",
+            colorBackground: "var(--color-surface-deep)",
           },
         }}
-      />
+      >
+        <UserProfile.Page
+          label="Theme"
+          url="theme"
+          labelIcon={<Icon value="settings" size="small" mode="primary" />}
+        >
+          <ThemeSwitcher />
+        </UserProfile.Page>
+      </UserProfile>
     </div>
   );
 }

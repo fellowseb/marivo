@@ -2,10 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary-a13);
-  border: 1px solid var(--color-sand-dark);
-  border-radius: var(--radius-sm);
+  color: var(--color-accent);
   flex: 0 1 0;
 }
 
@@ -47,7 +44,7 @@
 
 .arrow {
   transition: 0.1s linear transform;
-  color: var(--color-sand-dark);
+  color: var(--color-border-strong);
   transform: rotate(90deg);
 }
 
