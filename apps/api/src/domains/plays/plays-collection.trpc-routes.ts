@@ -21,9 +21,7 @@ import {
   GetCollectionPlayUseCaseInputSchema,
   GetCollectionPlayUseCaseOutputSchema,
 } from "./get-collection-play.use-case.ts";
-import {
-  UpdateCollectionPlayMetadataUseCaseInputSchema,
-} from "./update-collection-play-metadata.use-case.ts";
+import { UpdateCollectionPlayMetadataUseCaseInputSchema } from "./update-collection-play-metadata.use-case.ts";
 import {
   SetCollectionPlayArchivedUseCaseInputSchema,
   SetCollectionPlayArchivedUseCaseOutputSchema,

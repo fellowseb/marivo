@@ -29,9 +29,42 @@ describe("playsCollection listAll (integration with real Postgres)", () => {
     repository = new PlaysCollectionRepository(sql, userContext);
 
     const plays = [
-      { key: "hamlet", uri: "10000000-0000-4000-8000-000000000001", title: "Hamlet", author: "William Shakespeare", lang: "en", genre: "tragedy", period: "elizabethan", words: ["To be or not to be", "that is the question"], male: 2, female: 1 },
-      { key: "macbeth", uri: "10000000-0000-4000-8000-000000000002", title: "Macbeth", author: "William Shakespeare", lang: "en", genre: "tragedy", period: "elizabethan", words: ["Out damned spot"], male: 3, female: 2 },
-      { key: "jeu", uri: "10000000-0000-4000-8000-000000000003", title: "Le Jeu de l'amour et du hasard", author: "Pierre de Marivaux", lang: "fr", genre: "comedy", period: "contemporary", words: ["Un valet", "et sa maîtresse"], male: 1, female: 1 },
+      {
+        key: "hamlet",
+        uri: "10000000-0000-4000-8000-000000000001",
+        title: "Hamlet",
+        author: "William Shakespeare",
+        lang: "en",
+        genre: "tragedy",
+        period: "elizabethan",
+        words: ["To be or not to be", "that is the question"],
+        male: 2,
+        female: 1,
+      },
+      {
+        key: "macbeth",
+        uri: "10000000-0000-4000-8000-000000000002",
+        title: "Macbeth",
+        author: "William Shakespeare",
+        lang: "en",
+        genre: "tragedy",
+        period: "elizabethan",
+        words: ["Out damned spot"],
+        male: 3,
+        female: 2,
+      },
+      {
+        key: "jeu",
+        uri: "10000000-0000-4000-8000-000000000003",
+        title: "Le Jeu de l'amour et du hasard",
+        author: "Pierre de Marivaux",
+        lang: "fr",
+        genre: "comedy",
+        period: "contemporary",
+        words: ["Un valet", "et sa maîtresse"],
+        male: 1,
+        female: 1,
+      },
     ];
     for (const play of plays) {
       const [script] = await sql<{ id: number }[]>`
@@ -182,7 +215,9 @@ describe("playsCollection listAll (integration with real Postgres)", () => {
   });
 
   it("toggleBookmark fails with CollectionPlayNotFound for unknown uri", async () => {
-    const result = await repository.toggleBookmark({ playUri: "00000000-0000-4000-8000-000000000000" });
+    const result = await repository.toggleBookmark({
+      playUri: "00000000-0000-4000-8000-000000000000",
+    });
     expect(result.isFailure()).toBe(true);
     expect(result.errorOrThrow()).toBeInstanceOf(CollectionPlayNotFound);
   });
@@ -191,7 +226,9 @@ describe("playsCollection listAll (integration with real Postgres)", () => {
     const ok = await repository.getScriptIdByUri({ uri: uris.hamlet });
     expect(ok.isOk()).toBe(true);
 
-    const missing = await repository.getScriptIdByUri({ uri: "00000000-0000-4000-8000-000000000000" });
+    const missing = await repository.getScriptIdByUri({
+      uri: "00000000-0000-4000-8000-000000000000",
+    });
     expect(missing.isFailure()).toBe(true);
     expect(missing.errorOrThrow()).toBeInstanceOf(CollectionPlayNotFound);
   });
@@ -200,7 +237,11 @@ describe("playsCollection listAll (integration with real Postgres)", () => {
     const userContext = { get: () => ({ userId }) } as unknown as UserContextService;
     const useCase = new ListAllScriptsUseCase(repository, userContext);
 
-    const result = await useCase.execute({ filters: { genres: ["tragedy"] }, page: 1, pageSize: 10 });
+    const result = await useCase.execute({
+      filters: { genres: ["tragedy"] },
+      page: 1,
+      pageSize: 10,
+    });
 
     expect(result.isOk()).toBe(true);
     const output = result.dataOrThrow();

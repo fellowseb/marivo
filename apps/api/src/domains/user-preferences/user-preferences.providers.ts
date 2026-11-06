@@ -11,16 +11,20 @@ export const providers = {
   GetUserTheme: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
-      const repository: UserPreferencesRepository =
-        new PostgresUserPreferencesRepository(sql, userContextService);
+      const repository: UserPreferencesRepository = new PostgresUserPreferencesRepository(
+        sql,
+        userContextService,
+      );
       return new GetUserThemeUseCase(repository, userContextService);
     },
   } as Provider<GetUserThemeUseCase>,
   SetUserTheme: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
-      const repository: UserPreferencesRepository =
-        new PostgresUserPreferencesRepository(sql, userContextService);
+      const repository: UserPreferencesRepository = new PostgresUserPreferencesRepository(
+        sql,
+        userContextService,
+      );
       return new SetUserThemeUseCase(repository, userContextService);
     },
   } as Provider<SetUserThemeUseCase>,

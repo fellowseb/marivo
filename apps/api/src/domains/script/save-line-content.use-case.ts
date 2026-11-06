@@ -56,7 +56,10 @@ export class SaveLineContentUseCase extends AuthenticatedUseCase<{
   async execute(
     params: SaveLineContentUseCaseInput,
   ): Promise<
-    Result<SaveLineContentUseCaseOutput, ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError>
+    Result<
+      SaveLineContentUseCaseOutput,
+      ScriptNotFound | PlayNotFound | CollectionPlayNotFound | ForbiddenError
+    >
   > {
     const scriptIdResult = await resolveEditableScriptId(
       { uri: params.uri, from: params.from },

@@ -67,7 +67,11 @@ describe("loadConfig", () => {
 
   it("throws a clear error on an invalid numeric env value", () => {
     expect(() =>
-      loadConfig({ env: { TRPC_PORT: "abc" }, nodeEnv: "nonexistent-env", configDir: realConfigDir }),
+      loadConfig({
+        env: { TRPC_PORT: "abc" },
+        nodeEnv: "nonexistent-env",
+        configDir: realConfigDir,
+      }),
     ).toThrow(/Invalid number for config "server\.port"/);
   });
 

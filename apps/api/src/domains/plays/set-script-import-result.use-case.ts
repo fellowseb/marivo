@@ -74,7 +74,10 @@ export class SetScriptImportResultUseCase extends AuthenticatedUseCase<{
       const dirPath = path.dirname(tempFilePath);
       await fs.mkdir(dirPath, { recursive: true });
       const tempWriteStream = createWriteStream(tempFilePath);
-      getLogger().info({ importId, key: `${importId}/result-lines.csv` }, "downloading import result");
+      getLogger().info(
+        { importId, key: `${importId}/result-lines.csv` },
+        "downloading import result",
+      );
       const downloadStream = await this.storageService.download(
         "marivo-imports",
         `${importId}/result-lines.csv`,

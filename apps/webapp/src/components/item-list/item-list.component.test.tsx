@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
-import { ItemList, ItemListItem } from './item-list.component';
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
+import { ItemList, ItemListItem } from "./item-list.component";
 
-describe('ItemList / ItemListItem', () => {
+describe("ItemList / ItemListItem", () => {
   afterEach(() => cleanup());
 
-  it('renders a ul container with items', () => {
+  it("renders a ul container with items", () => {
     const { container } = render(
       <MemoryRouter>
         <ItemList>
@@ -14,13 +14,13 @@ describe('ItemList / ItemListItem', () => {
         </ItemList>
       </MemoryRouter>,
     );
-    expect(container.querySelector('ul')).toBeTruthy();
-    expect(container.querySelector('li')).toBeTruthy();
-    expect(screen.getByText('Hamlet')).toBeTruthy();
-    expect(screen.getByText('en · tragedy')).toBeTruthy();
+    expect(container.querySelector("ul")).toBeTruthy();
+    expect(container.querySelector("li")).toBeTruthy();
+    expect(screen.getByText("Hamlet")).toBeTruthy();
+    expect(screen.getByText("en · tragedy")).toBeTruthy();
   });
 
-  it('button item fires onClick and shows trailing content; selected state applies', () => {
+  it("button item fires onClick and shows trailing content; selected state applies", () => {
     const onClick = vi.fn();
     render(
       <MemoryRouter>
@@ -34,14 +34,14 @@ describe('ItemList / ItemListItem', () => {
         </ItemList>
       </MemoryRouter>,
     );
-    const item = screen.getByRole('button', { name: /Tartuffe/ });
-    expect(item.className).toContain('selected');
-    expect(screen.getByRole('img', { name: 'Bookmarked' })).toBeTruthy();
+    const item = screen.getByRole("button", { name: /Tartuffe/ });
+    expect(item.className).toContain("selected");
+    expect(screen.getByRole("img", { name: "Bookmarked" })).toBeTruthy();
     fireEvent.click(item);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('link item navigates via NavLink', () => {
+  it("link item navigates via NavLink", () => {
     render(
       <MemoryRouter>
         <ItemList>
@@ -49,7 +49,7 @@ describe('ItemList / ItemListItem', () => {
         </ItemList>
       </MemoryRouter>,
     );
-    const link = screen.getByRole('link', { name: /Othello/ });
-    expect(link.getAttribute('href')).toBe('/plays/edit/123');
+    const link = screen.getByRole("link", { name: /Othello/ });
+    expect(link.getAttribute("href")).toBe("/plays/edit/123");
   });
 });

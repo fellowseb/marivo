@@ -32,7 +32,12 @@ export const providers = {
       const scriptRepository = new ScriptRepository(sql, userService);
       const userPlaysRepository = new UserPlaysRepository(sql, userService);
       const playsCollectionRepository = new PlaysCollectionRepository(sql, userService);
-      return new SaveLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userService);
+      return new SaveLineContentUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userService,
+      );
     },
   } as Provider<SaveLineContentUseCase>,
   CreateLineUseCase: {
@@ -41,7 +46,12 @@ export const providers = {
       const scriptRepository = new ScriptRepository(sql, userService);
       const userPlaysRepository = new UserPlaysRepository(sql, userService);
       const playsCollectionRepository = new PlaysCollectionRepository(sql, userService);
-      return new CreateLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userService);
+      return new CreateLineUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userService,
+      );
     },
   } as Provider<CreateLineUseCase>,
   DeleteLineUseCase: {
@@ -50,7 +60,12 @@ export const providers = {
       const scriptRepository = new ScriptRepository(sql, userService);
       const userPlaysRepository = new UserPlaysRepository(sql, userService);
       const playsCollectionRepository = new PlaysCollectionRepository(sql, userService);
-      return new DeleteLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userService);
+      return new DeleteLineUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userService,
+      );
     },
   } as Provider<DeleteLineUseCase>,
   DeleteLineContentUseCase: {
@@ -59,7 +74,12 @@ export const providers = {
       const scriptRepository = new ScriptRepository(sql, userService);
       const userPlaysRepository = new UserPlaysRepository(sql, userService);
       const playsCollectionRepository = new PlaysCollectionRepository(sql, userService);
-      return new DeleteLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userService);
+      return new DeleteLineContentUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userService,
+      );
     },
   } as Provider<DeleteLineContentUseCase>,
 };

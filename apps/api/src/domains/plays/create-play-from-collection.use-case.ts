@@ -17,8 +17,12 @@ export const CreatePlayFromCollectionUseCaseOutputSchema = z.object({
   uri: z.string().length(36),
 });
 
-type CreatePlayFromCollectionUseCaseInput = z.infer<typeof CreatePlayFromCollectionUseCaseInputSchema>;
-type CreatePlayFromCollectionUseCaseOutput = z.infer<typeof CreatePlayFromCollectionUseCaseOutputSchema>;
+type CreatePlayFromCollectionUseCaseInput = z.infer<
+  typeof CreatePlayFromCollectionUseCaseInputSchema
+>;
+type CreatePlayFromCollectionUseCaseOutput = z.infer<
+  typeof CreatePlayFromCollectionUseCaseOutputSchema
+>;
 
 class CreatePlayFromCollectionUseCase extends AuthenticatedUseCase<{
   params: CreatePlayFromCollectionUseCaseInput;

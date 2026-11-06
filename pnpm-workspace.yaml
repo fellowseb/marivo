@@ -1,9 +1,9 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
+  - "apps/*"
+  - "packages/*"
 minimumReleaseAgeExclude:
-  - '@tanstack/query-core@5.105.1'
-  - '@tanstack/react-query@5.105.1'
+  - "@tanstack/query-core@5.105.1"
+  - "@tanstack/react-query@5.105.1"
   - globals@17.14.0
 skills:
   dirs:
@@ -12,13 +12,13 @@ skills:
 overrides:
   typescript: 5.9.3
 permissions:
-  '@swc/core':
+  "@swc/core":
     build: true
-  '@trpc/client':
+  "@trpc/client":
     skills: true
-  '@trpc/server':
+  "@trpc/server":
     skills: true
-  '@trpc/tanstack-react-query':
+  "@trpc/tanstack-react-query":
     skills: true
   # optional native dep of ssh2: its node-gyp build fails on node:*-alpine
   # images (no toolchain) and is not needed (pure-JS fallback)

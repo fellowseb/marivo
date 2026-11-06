@@ -234,19 +234,21 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
   async findByUri(params: {
     uri: string;
   }): Promise<Result<CollectionPlayDetails, CollectionPlayNotFound | InternalServerError>> {
-    const records = await this.sql<{
-      uri: string;
-      title: string;
-      author: string;
-      lang: string;
-      number_of_roles: number | null;
-      number_of_male_roles: number | null;
-      number_of_female_roles: number | null;
-      genre: string | null;
-      period: string | null;
-      synopsis: string | null;
-      archived: boolean;
-    }[]>`
+    const records = await this.sql<
+      {
+        uri: string;
+        title: string;
+        author: string;
+        lang: string;
+        number_of_roles: number | null;
+        number_of_male_roles: number | null;
+        number_of_female_roles: number | null;
+        genre: string | null;
+        period: string | null;
+        synopsis: string | null;
+        archived: boolean;
+      }[]
+    >`
       SELECT uri, title, author, lang,
              number_of_roles, number_of_male_roles, number_of_female_roles,
              genre, period, synopsis, archived
@@ -334,9 +336,7 @@ export class PlaysCollectionRepository extends UserRepositoryBase {
     return Result.ok(undefined);
   }
 
-  async getScriptIdByUri(params: {
-    uri: string;
-  }): Promise<Result<number, CollectionPlayNotFound>> {
+  async getScriptIdByUri(params: { uri: string }): Promise<Result<number, CollectionPlayNotFound>> {
     const records = await this.sql<{ script_id: number }[]>`
       SELECT script_id FROM public_domain_plays WHERE uri = ${params.uri};
     `;

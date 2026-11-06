@@ -60,10 +60,7 @@ export const providers = {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);
       const playsCollectionRepository = new PlaysCollectionRepository(sql, userContextService);
-      return new UpdateCollectionPlayMetadataUseCase(
-        playsCollectionRepository,
-        userContextService,
-      );
+      return new UpdateCollectionPlayMetadataUseCase(playsCollectionRepository, userContextService);
     },
   } as Provider<UpdateCollectionPlayMetadataUseCase>,
   SetCollectionPlayArchived: {

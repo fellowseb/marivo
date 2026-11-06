@@ -48,9 +48,7 @@ function makeState(): ScriptState {
         },
       ],
     ]),
-    lineToContents: new Map([
-      ["line-1", { sharedDrafts: ["d1"], versions: ["", "c1", "c2"] }],
-    ]),
+    lineToContents: new Map([["line-1", { sharedDrafts: ["d1"], versions: ["", "c1", "c2"] }]]),
     linesOrder: ["line-1"],
     characters: {},
     checksums: new Map(),
@@ -88,17 +86,20 @@ const sharedDraftDiff = {
 describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
   it("content_delete removes the version content and its reference", () => {
     const state = makeState();
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "c2",
-        lineId: "line-1",
-        type: "saved_version",
-        version: 2,
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        authorUsername: "seb",
-        change: { type: "content_delete" },
-      },
-    ]));
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "c2",
+          lineId: "line-1",
+          type: "saved_version",
+          version: 2,
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          authorUsername: "seb",
+          change: { type: "content_delete" },
+        },
+      ]),
+    );
 
     expect(next.lineContents.has("c2")).toBe(false);
     const contents = next.lineToContents.get("line-1");
@@ -119,17 +120,20 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
 
   it("content_delete on a shared draft removes it from sharedDrafts", () => {
     const state = makeState();
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "d1",
-        lineId: "line-1",
-        type: "shared_draft",
-        version: null,
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        authorUsername: "seb",
-        change: { type: "content_delete" },
-      },
-    ]));
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "d1",
+          lineId: "line-1",
+          type: "shared_draft",
+          version: null,
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          authorUsername: "seb",
+          change: { type: "content_delete" },
+        },
+      ]),
+    );
 
     expect(next.lineContents.has("d1")).toBe(false);
     expect(next.lineToContents.get("line-1")?.sharedDrafts).toEqual([]);
@@ -137,32 +141,35 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
 
   it("content_create_update still registers new versions and shared drafts", () => {
     const state = makeState();
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "c3",
-        lineId: "line-1",
-        type: "saved_version",
-        version: 3,
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        authorUsername: "seb",
-        change: {
-          type: "content_create_update",
-          content: { lineType: "freetext", text: "version 3" },
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "c3",
+          lineId: "line-1",
+          type: "saved_version",
+          version: 3,
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          authorUsername: "seb",
+          change: {
+            type: "content_create_update",
+            content: { lineType: "freetext", text: "version 3" },
+          },
         },
-      },
-      {
-        id: "d2",
-        lineId: "line-1",
-        type: "shared_draft",
-        version: null,
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        authorUsername: "seb",
-        change: {
-          type: "content_create_update",
-          content: { lineType: "freetext", text: "new shared draft" },
+        {
+          id: "d2",
+          lineId: "line-1",
+          type: "shared_draft",
+          version: null,
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          authorUsername: "seb",
+          change: {
+            type: "content_create_update",
+            content: { lineType: "freetext", text: "new shared draft" },
+          },
         },
-      },
-    ]));
+      ]),
+    );
 
     expect(next.lineContents.get("c3")?.text).toBe("version 3");
     expect(next.lineToContents.get("line-1")?.versions[3]).toBe("c3");
@@ -193,9 +200,7 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
   it("ignores stale payloads older than the last applied remote date", () => {
     const state = makeState();
     const fresh = reducer(state, latestChangesAction([sharedDraftDiff]));
-    expect(fresh.remoteLastModifiedDate.getTime()).toBe(
-      new Date("2026-01-01T11:00:00Z").getTime(),
-    );
+    expect(fresh.remoteLastModifiedDate.getTime()).toBe(new Date("2026-01-01T11:00:00Z").getTime());
 
     const stale = reducer(
       fresh,
@@ -224,20 +229,23 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
 
   it("stores draft rows in the draft slot (keyed by line id) without touching sharedDrafts", () => {
     const state = makeState();
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "draft-row-uuid",
-        lineId: "line-1",
-        type: "draft",
-        version: null,
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        authorUsername: "seb",
-        change: {
-          type: "content_create_update",
-          content: { lineType: "freetext", text: "server draft" },
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "draft-row-uuid",
+          lineId: "line-1",
+          type: "draft",
+          version: null,
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          authorUsername: "seb",
+          change: {
+            type: "content_create_update",
+            content: { lineType: "freetext", text: "server draft" },
+          },
         },
-      },
-    ]));
+      ]),
+    );
 
     const draft = next.lineContents.get("line-1");
     expect(draft?.id).toBe("line-1");
@@ -262,34 +270,40 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
       authorUsername: "seb",
     });
 
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "draft-row-uuid",
-        lineId: "line-1",
-        type: "draft",
-        version: null,
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        authorUsername: "seb",
-        change: {
-          type: "content_create_update",
-          content: { lineType: "freetext", text: "older server draft" },
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "draft-row-uuid",
+          lineId: "line-1",
+          type: "draft",
+          version: null,
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          authorUsername: "seb",
+          change: {
+            type: "content_create_update",
+            content: { lineType: "freetext", text: "older server draft" },
+          },
         },
-      },
-    ]));
+      ]),
+    );
 
     expect(next.lineContents.get("line-1")?.text).toBe("newer local edit");
   });
 
   it("line_create does not clobber existing local refs for the line", () => {
     const state = makeState();
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "line-1",
-        lineType: "freetext",
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        change: { type: "line_create" },
-      },
-    ]));
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "line-1",
+          lineType: "freetext",
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          change: { type: "line_create" },
+        },
+      ]),
+    );
 
     // versions/sharedDrafts populated locally before the server echo arrives
     expect(next.lineToContents.get("line-1")?.versions.filter(Boolean)).toEqual(["c1", "c2"]);
@@ -309,17 +323,20 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
       authorUsername: "seb",
     });
 
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "draft-row-uuid",
-        lineId: "line-1",
-        type: "draft",
-        version: null,
-        lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
-        authorUsername: "seb",
-        change: { type: "content_delete" },
-      },
-    ]));
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "draft-row-uuid",
+          lineId: "line-1",
+          type: "draft",
+          version: null,
+          lastModifiedDate: new Date("2026-01-01T11:00:00Z"),
+          authorUsername: "seb",
+          change: { type: "content_delete" },
+        },
+      ]),
+    );
 
     expect(next.lineContents.has("line-1")).toBe(false);
     expect(next.lineToContents.get("line-1")?.sharedDrafts).toEqual(["d1"]);
@@ -338,17 +355,20 @@ describe("reducer PROCESS_LATEST_CHANGES_PAYLOAD", () => {
       authorUsername: "seb",
     });
 
-    const next = reducer(state, latestChangesAction([
-      {
-        id: "draft-row-uuid",
-        lineId: "line-1",
-        type: "draft",
-        version: null,
-        lastModifiedDate: new Date("2026-01-01T10:00:00Z"),
-        authorUsername: "seb",
-        change: { type: "content_delete" },
-      },
-    ]));
+    const next = reducer(
+      state,
+      latestChangesAction([
+        {
+          id: "draft-row-uuid",
+          lineId: "line-1",
+          type: "draft",
+          version: null,
+          lastModifiedDate: new Date("2026-01-01T10:00:00Z"),
+          authorUsername: "seb",
+          change: { type: "content_delete" },
+        },
+      ]),
+    );
 
     expect(next.lineContents.get("line-1")?.text).toBe("fresh local edit");
   });
@@ -358,7 +378,10 @@ describe("getLineContentForDisplayWithInfo", () => {
   it("never selects a deleted content row as display content", () => {
     const state = makeState();
     // Simulate a deleted row still present in the map with a dangling reference
-    state.lineContents.set("c2", { ...makeVersionContent("c2", "line-1", 2, "version 2"), deleted: true });
+    state.lineContents.set("c2", {
+      ...makeVersionContent("c2", "line-1", 2, "version 2"),
+      deleted: true,
+    });
     const line = state.lines.get("line-1") as Line;
     const [displayContent] = getLineContentForDisplayWithInfo(
       line,

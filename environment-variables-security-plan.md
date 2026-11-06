@@ -39,14 +39,14 @@ marivo/
 
 **Credentials Found in Local Files:**
 
-| File     | Credentials                                                                           | Risk Level                  |
-| -------- | ------------------------------------------------------------------------------------- | --------------------------- |
-| Multiple | Mistral API Key: `<REDACTED_MISTRAL_API_KEY>`                                   | **HIGH** - Financial risk   |
-| Multiple | Clerk Secret Key: `<REDACTED_CLERK_SECRET_KEY>`                | **HIGH** - Auth bypass risk |
-| Multiple | Clerk Publishable Key: `<REDACTED_CLERK_PUBLISHABLE_KEY>`         | **MEDIUM**                  |
-| Multiple | Garage Access Key: `<REDACTED_GARAGE_ACCESS_KEY>`                                       | **HIGH** - Data access risk |
-| Multiple | Garage Secret Key: `<REDACTED_GARAGE_SECRET_KEY>` | **HIGH** - Data access risk |
-| Multiple | PostgreSQL Password: `postgres`                                                       | **MEDIUM**                  |
+| File     | Credentials                                               | Risk Level                  |
+| -------- | --------------------------------------------------------- | --------------------------- |
+| Multiple | Mistral API Key: `<REDACTED_MISTRAL_API_KEY>`             | **HIGH** - Financial risk   |
+| Multiple | Clerk Secret Key: `<REDACTED_CLERK_SECRET_KEY>`           | **HIGH** - Auth bypass risk |
+| Multiple | Clerk Publishable Key: `<REDACTED_CLERK_PUBLISHABLE_KEY>` | **MEDIUM**                  |
+| Multiple | Garage Access Key: `<REDACTED_GARAGE_ACCESS_KEY>`         | **HIGH** - Data access risk |
+| Multiple | Garage Secret Key: `<REDACTED_GARAGE_SECRET_KEY>`         | **HIGH** - Data access risk |
+| Multiple | PostgreSQL Password: `postgres`                           | **MEDIUM**                  |
 
 ### 🎯 Real Security Issue
 

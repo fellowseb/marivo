@@ -24,8 +24,22 @@ describe("appErrorToTrpcError", () => {
 
   it("maps every AppError code to the HTTP status from APP_ERROR_HTTP_STATUS", () => {
     const cases: [AppError, keyof typeof APP_ERROR_HTTP_STATUS][] = [
-      [new (class extends AppError { constructor() { super("m", "BAD_REQUEST"); } })(), "BAD_REQUEST"],
-      [new (class extends AppError { constructor() { super("m", "UNAUTHORIZED"); } })(), "UNAUTHORIZED"],
+      [
+        new (class extends AppError {
+          constructor() {
+            super("m", "BAD_REQUEST");
+          }
+        })(),
+        "BAD_REQUEST",
+      ],
+      [
+        new (class extends AppError {
+          constructor() {
+            super("m", "UNAUTHORIZED");
+          }
+        })(),
+        "UNAUTHORIZED",
+      ],
       [new ForbiddenError(), "FORBIDDEN"],
       [new NotFoundError(), "NOT_FOUND"],
       [new InternalServerError(), "INTERNAL_SERVER_ERROR"],

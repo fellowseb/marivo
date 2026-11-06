@@ -133,7 +133,7 @@
 }
 
 /* ---- Themes: base hues only, everything else is derived ---- */
-[data-theme='sable'] {
+[data-theme="sable"] {
   --t-brand: #1f313c;
   --t-accent: #e8ce7d;
   --t-warm: #e4d6bc;
@@ -141,7 +141,7 @@
   --t-brown: #8a6d3b;
 }
 
-[data-theme='sable'][data-mode='dark'] {
+[data-theme="sable"][data-mode="dark"] {
   --t-dark-base: #0c0f12;
   --t-brand: #8ba3b0;
   --t-accent: #d9bd6f;
@@ -149,7 +149,7 @@
   --t-brown: #b08a52;
 }
 
-[data-theme='foret'] {
+[data-theme="foret"] {
   --t-brand: #1f3c2b;
   --t-accent: #aae87d;
   --t-warm: #cde4bc;
@@ -157,7 +157,7 @@
   --t-brown: #5c8a3b;
 }
 
-[data-theme='foret'][data-mode='dark'] {
+[data-theme="foret"][data-mode="dark"] {
   --t-dark-base: #0b120e;
   --t-brand: #8fb89a;
   --t-accent: #a4d67c;
@@ -165,7 +165,7 @@
   --t-brown: #8fae7e;
 }
 
-[data-theme='ocean'] {
+[data-theme="ocean"] {
   --t-brand: #1f2d3c;
   --t-accent: #7dc4e8;
   --t-warm: #bcd7e4;
@@ -173,7 +173,7 @@
   --t-brown: #3b708a;
 }
 
-[data-theme='ocean'][data-mode='dark'] {
+[data-theme="ocean"][data-mode="dark"] {
   --t-dark-base: #0b0f12;
   --t-brand: #8aa5bd;
   --t-accent: #6fb8e0;
@@ -181,7 +181,7 @@
   --t-brown: #6f93a8;
 }
 
-[data-theme='nord'] {
+[data-theme="nord"] {
   --t-brand: #2e3440;
   --t-accent: #5e81ac;
   --t-warm: #d8dee9;
@@ -189,7 +189,7 @@
   --t-brown: #8f6d5a;
 }
 
-[data-theme='nord'][data-mode='dark'] {
+[data-theme="nord"][data-mode="dark"] {
   --t-dark-base: #2e3440;
   --t-brand: #d8dee9;
   --t-accent: #88c0d0;
@@ -197,7 +197,7 @@
   --t-brown: #b48ead;
 }
 
-[data-theme='gruvbox'] {
+[data-theme="gruvbox"] {
   --t-brand: #3c3836;
   --t-accent: #b57614;
   --t-warm: #ebdbb2;
@@ -205,7 +205,7 @@
   --t-brown: #8a5a2b;
 }
 
-[data-theme='gruvbox'][data-mode='dark'] {
+[data-theme="gruvbox"][data-mode="dark"] {
   --t-dark-base: #282828;
   --t-brand: #ebdbb2;
   --t-accent: #fe8019;
@@ -213,7 +213,7 @@
   --t-brown: #d5a06a;
 }
 
-[data-theme='solarized'] {
+[data-theme="solarized"] {
   --t-brand: #586e75;
   --t-accent: #b58900;
   --t-warm: #eee8d5;
@@ -221,7 +221,7 @@
   --t-brown: #8a6d3b;
 }
 
-[data-theme='solarized'][data-mode='dark'] {
+[data-theme="solarized"][data-mode="dark"] {
   --t-dark-base: #002b36;
   --t-brand: #93a1a1;
   --t-accent: #b58900;
@@ -229,7 +229,7 @@
   --t-brown: #9a8a5f;
 }
 
-[data-theme='dracula'] {
+[data-theme="dracula"] {
   --t-brand: #44475a;
   --t-accent: #9580ff;
   --t-warm: #e9e9f5;
@@ -237,7 +237,7 @@
   --t-brown: #8a6d8f;
 }
 
-[data-theme='dracula'][data-mode='dark'] {
+[data-theme="dracula"][data-mode="dark"] {
   --t-dark-base: #282a36;
   --t-brand: #f8f8f2;
   --t-accent: #bd93f9;
@@ -245,7 +245,7 @@
   --t-brown: #ff79c6;
 }
 
-[data-theme='catppuccin'] {
+[data-theme="catppuccin"] {
   --t-brand: #4c4f69;
   --t-accent: #8839ef;
   --t-warm: #ccd0da;
@@ -253,7 +253,7 @@
   --t-brown: #9a7b6d;
 }
 
-[data-theme='catppuccin'][data-mode='dark'] {
+[data-theme="catppuccin"][data-mode="dark"] {
   --t-dark-base: #1e1e2e;
   --t-brand: #cdd6f4;
   --t-accent: #cba6f7;
@@ -261,7 +261,7 @@
   --t-brown: #b0a0c8;
 }
 
-[data-theme='tokyonight'] {
+[data-theme="tokyonight"] {
   --t-brand: #343b58;
   --t-accent: #34548a;
   --t-warm: #d5d7e0;
@@ -269,7 +269,7 @@
   --t-brown: #8a6d5a;
 }
 
-[data-theme='tokyonight'][data-mode='dark'] {
+[data-theme="tokyonight"][data-mode="dark"] {
   --t-dark-base: #1a1b26;
   --t-brand: #c0caf5;
   --t-accent: #7aa2f7;
@@ -277,7 +277,7 @@
   --t-brown: #9a8ab8;
 }
 
-[data-theme='onedark'] {
+[data-theme="onedark"] {
   --t-brand: #383a42;
   --t-accent: #4f5666;
   --t-warm: #d7dae0;
@@ -285,7 +285,7 @@
   --t-brown: #986848;
 }
 
-[data-theme='onedark'][data-mode='dark'] {
+[data-theme="onedark"][data-mode="dark"] {
   --t-dark-base: #282c34;
   --t-brand: #abb2bf;
   --t-accent: #61afef;
@@ -293,7 +293,7 @@
   --t-brown: #c08a5a;
 }
 
-[data-theme='ayu'] {
+[data-theme="ayu"] {
   --t-brand: #5c6773;
   --t-accent: #f29718;
   --t-warm: #e6e6eb;
@@ -301,7 +301,7 @@
   --t-brown: #a37a48;
 }
 
-[data-theme='ayu'][data-mode='dark'] {
+[data-theme="ayu"][data-mode="dark"] {
   --t-dark-base: #191e2a;
   --t-brand: #e6e9ef;
   --t-accent: #ffb454;
@@ -309,7 +309,7 @@
   --t-brown: #c8a06a;
 }
 
-[data-theme='everforest'] {
+[data-theme="everforest"] {
   --t-brand: #5c6a72;
   --t-accent: #7f9c3f;
   --t-warm: #e8e2c8;
@@ -317,7 +317,7 @@
   --t-brown: #8a7a4a;
 }
 
-[data-theme='everforest'][data-mode='dark'] {
+[data-theme="everforest"][data-mode="dark"] {
   --t-dark-base: #2d353b;
   --t-brand: #d3c6aa;
   --t-accent: #a7c080;
@@ -325,7 +325,7 @@
   --t-brown: #b5a06a;
 }
 
-[data-theme='rosepine'] {
+[data-theme="rosepine"] {
   --t-brand: #575279;
   --t-accent: #907aa9;
   --t-warm: #f2e9e1;
@@ -333,7 +333,7 @@
   --t-brown: #9a7a6d;
 }
 
-[data-theme='rosepine'][data-mode='dark'] {
+[data-theme="rosepine"][data-mode="dark"] {
   --t-dark-base: #191724;
   --t-brand: #e0def4;
   --t-accent: #c4a7e7;
@@ -341,7 +341,7 @@
   --t-brown: #b8a0c8;
 }
 
-[data-theme='kanagawa'] {
+[data-theme="kanagawa"] {
   --t-brand: #545c7e;
   --t-accent: #766e6b;
   --t-warm: #e5ddc0;
@@ -349,7 +349,7 @@
   --t-brown: #8a7a5a;
 }
 
-[data-theme='kanagawa'][data-mode='dark'] {
+[data-theme="kanagawa"][data-mode="dark"] {
   --t-dark-base: #1f1f28;
   --t-brand: #dcd7ba;
   --t-accent: #c0a36e;
@@ -357,7 +357,7 @@
   --t-brown: #b0986a;
 }
 
-[data-theme='palenight'] {
+[data-theme="palenight"] {
   --t-brand: #4e5579;
   --t-accent: #6b7fd7;
   --t-warm: #e4e7f2;
@@ -365,7 +365,7 @@
   --t-brown: #8a6d7a;
 }
 
-[data-theme='palenight'][data-mode='dark'] {
+[data-theme="palenight"][data-mode="dark"] {
   --t-dark-base: #292d3e;
   --t-brand: #c3cbe4;
   --t-accent: #82aaff;
@@ -373,7 +373,7 @@
   --t-brown: #a8a0c8;
 }
 
-[data-theme='horizon'] {
+[data-theme="horizon"] {
   --t-brand: #2e303e;
   --t-accent: #da5c7e;
   --t-warm: #f0d8d4;
@@ -381,7 +381,7 @@
   --t-brown: #a06a5a;
 }
 
-[data-theme='horizon'][data-mode='dark'] {
+[data-theme="horizon"][data-mode="dark"] {
   --t-dark-base: #1c1e26;
   --t-brand: #cbced3;
   --t-accent: #e95678;
@@ -389,7 +389,7 @@
   --t-brown: #d08a8a;
 }
 
-[data-theme='nightowl'] {
+[data-theme="nightowl"] {
   --t-brand: #403f53;
   --t-accent: #4876d6;
   --t-warm: #e3e3ee;
@@ -397,7 +397,7 @@
   --t-brown: #8a6d9a;
 }
 
-[data-theme='nightowl'][data-mode='dark'] {
+[data-theme="nightowl"][data-mode="dark"] {
   --t-dark-base: #011627;
   --t-brand: #d6deeb;
   --t-accent: #7e9cd8;
@@ -405,7 +405,7 @@
   --t-brown: #9a8ac8;
 }
 
-[data-theme='monokai'] {
+[data-theme="monokai"] {
   --t-brand: #4a4a42;
   --t-accent: #c29a3b;
   --t-warm: #ece9dc;
@@ -413,7 +413,7 @@
   --t-brown: #8a6d3b;
 }
 
-[data-theme='monokai'][data-mode='dark'] {
+[data-theme="monokai"][data-mode="dark"] {
   --t-dark-base: #272822;
   --t-brand: #f8f8f2;
   --t-accent: #ae81ff;
@@ -421,7 +421,7 @@
   --t-brown: #c8a06a;
 }
 
-[data-theme='github'] {
+[data-theme="github"] {
   --t-brand: #24292f;
   --t-accent: #0969da;
   --t-warm: #eaeef2;
@@ -429,7 +429,7 @@
   --t-brown: #8a6d4a;
 }
 
-[data-theme='github'][data-mode='dark'] {
+[data-theme="github"][data-mode="dark"] {
   --t-dark-base: #0d1117;
   --t-brand: #e6edf3;
   --t-accent: #58a6ff;
@@ -437,7 +437,7 @@
   --t-brown: #bb9a6a;
 }
 
-[data-theme='material'] {
+[data-theme="material"] {
   --t-brand: #4f378b;
   --t-accent: #6750a4;
   --t-warm: #e8e0e9;
@@ -445,7 +445,7 @@
   --t-brown: #7d5a50;
 }
 
-[data-theme='material'][data-mode='dark'] {
+[data-theme="material"][data-mode="dark"] {
   --t-dark-base: #141218;
   --t-brand: #d0bcff;
   --t-accent: #b39ddb;
@@ -453,7 +453,7 @@
   --t-brown: #c8a898;
 }
 
-[data-theme='lavender'] {
+[data-theme="lavender"] {
   --t-brand: #4a4e69;
   --t-accent: #9a8c98;
   --t-warm: #c9ada7;
@@ -461,7 +461,7 @@
   --t-brown: #8a6d7a;
 }
 
-[data-theme='lavender'][data-mode='dark'] {
+[data-theme="lavender"][data-mode="dark"] {
   --t-dark-base: #22223b;
   --t-brand: #c9ada7;
   --t-accent: #b5a7e0;
@@ -469,7 +469,7 @@
   --t-brown: #b09ab8;
 }
 
-[data-theme='sunset'] {
+[data-theme="sunset"] {
   --t-brand: #5b2a41;
   --t-accent: #e36414;
   --t-warm: #f4d8c8;
@@ -477,7 +477,7 @@
   --t-brown: #9a5a4a;
 }
 
-[data-theme='sunset'][data-mode='dark'] {
+[data-theme="sunset"][data-mode="dark"] {
   --t-dark-base: #2b1b26;
   --t-brand: #ffb4a2;
   --t-accent: #e5989b;
@@ -485,7 +485,7 @@
   --t-brown: #d08a8a;
 }
 
-[data-theme='mist'] {
+[data-theme="mist"] {
   --t-brand: #2f4538;
   --t-accent: #74a12e;
   --t-warm: #dce8d5;
@@ -493,7 +493,7 @@
   --t-brown: #7a7a5a;
 }
 
-[data-theme='mist'][data-mode='dark'] {
+[data-theme="mist"][data-mode="dark"] {
   --t-dark-base: #16211a;
   --t-brand: #c5d5c0;
   --t-accent: #a3b18a;
@@ -501,7 +501,7 @@
   --t-brown: #a8b090;
 }
 
-[data-theme='desert'] {
+[data-theme="desert"] {
   --t-brand: #6d4c2f;
   --t-accent: #d9a441;
   --t-warm: #ead9c2;
@@ -509,7 +509,7 @@
   --t-brown: #8a6d3b;
 }
 
-[data-theme='desert'][data-mode='dark'] {
+[data-theme="desert"][data-mode="dark"] {
   --t-dark-base: #2b2118;
   --t-brand: #e3c9a8;
   --t-accent: #d9a441;
@@ -517,7 +517,7 @@
   --t-brown: #c0a06a;
 }
 
-[data-theme='arctic'] {
+[data-theme="arctic"] {
   --t-brand: #2c4a6e;
   --t-accent: #4f9cf9;
   --t-warm: #d9e8f5;
@@ -525,7 +525,7 @@
   --t-brown: #6a7a8a;
 }
 
-[data-theme='arctic'][data-mode='dark'] {
+[data-theme="arctic"][data-mode="dark"] {
   --t-dark-base: #101c28;
   --t-brand: #cfe3f5;
   --t-accent: #6cb2f5;
@@ -533,7 +533,7 @@
   --t-brown: #90a8bd;
 }
 
-[data-theme='cherry'] {
+[data-theme="cherry"] {
   --t-brand: #6e2b3f;
   --t-accent: #e0507a;
   --t-warm: #f6dde3;
@@ -541,7 +541,7 @@
   --t-brown: #9a5a6a;
 }
 
-[data-theme='cherry'][data-mode='dark'] {
+[data-theme="cherry"][data-mode="dark"] {
   --t-dark-base: #2a1520;
   --t-brand: #f3c6d3;
   --t-accent: #ef7ba0;
@@ -549,7 +549,7 @@
   --t-brown: #d08aa0;
 }
 
-[data-theme='mint'] {
+[data-theme="mint"] {
   --t-brand: #1f5f4b;
   --t-accent: #2fa37c;
   --t-warm: #d9efe6;
@@ -557,7 +557,7 @@
   --t-brown: #5a8a7a;
 }
 
-[data-theme='mint'][data-mode='dark'] {
+[data-theme="mint"][data-mode="dark"] {
   --t-dark-base: #0f231c;
   --t-brand: #c9efe0;
   --t-accent: #4cc38a;
@@ -565,7 +565,7 @@
   --t-brown: #8ac0a8;
 }
 
-[data-theme='amber'] {
+[data-theme="amber"] {
   --t-brand: #5c4a1f;
   --t-accent: #d97706;
   --t-warm: #f5e8cf;
@@ -573,7 +573,7 @@
   --t-brown: #8a6d3b;
 }
 
-[data-theme='amber'][data-mode='dark'] {
+[data-theme="amber"][data-mode="dark"] {
   --t-dark-base: #221a0d;
   --t-brand: #f0d9a8;
   --t-accent: #f0a832;
@@ -581,7 +581,7 @@
   --t-brown: #c8a05a;
 }
 
-[data-theme='slate'] {
+[data-theme="slate"] {
   --t-brand: #334155;
   --t-accent: #64748b;
   --t-warm: #e2e8f0;
@@ -589,7 +589,7 @@
   --t-brown: #7a6a5a;
 }
 
-[data-theme='slate'][data-mode='dark'] {
+[data-theme="slate"][data-mode="dark"] {
   --t-dark-base: #0f172a;
   --t-brand: #e2e8f0;
   --t-accent: #94a3b8;
@@ -597,7 +597,7 @@
   --t-brown: #b0a08a;
 }
 
-[data-theme='berry'] {
+[data-theme="berry"] {
   --t-brand: #5b2a86;
   --t-accent: #c026d3;
   --t-warm: #ecd9f5;
@@ -605,7 +605,7 @@
   --t-brown: #8a5a9a;
 }
 
-[data-theme='berry'][data-mode='dark'] {
+[data-theme="berry"][data-mode="dark"] {
   --t-dark-base: #2a0f3a;
   --t-brand: #e9c6fb;
   --t-accent: #d946ef;
@@ -706,7 +706,7 @@
   --swatch-berry-2: #ecd9f5;
   --swatch-berry-3: #c026d3;
 }
-[data-mode='dark'] {
+[data-mode="dark"] {
   /* brand-tinted near-black base (never pure #000) + white-overlay elevation */
   --t-surface: color-mix(in oklch, var(--t-dark-base) 85%, var(--t-brand));
 
@@ -731,41 +731,13 @@
 
   /* accent lightened so it stays readable on dark surfaces */
   --color-accent: color-mix(in oklch, var(--t-brand) 30%, white);
-  --color-accent-a07: color-mix(
-    in oklch,
-    var(--color-accent) 7%,
-    transparent
-  );
-  --color-accent-a10: color-mix(
-    in oklch,
-    var(--color-accent) 10%,
-    transparent
-  );
-  --color-accent-a13: color-mix(
-    in oklch,
-    var(--color-accent) 13%,
-    transparent
-  );
-  --color-accent-a33: color-mix(
-    in oklch,
-    var(--color-accent) 33%,
-    transparent
-  );
-  --color-accent-a47: color-mix(
-    in oklch,
-    var(--color-accent) 47%,
-    transparent
-  );
-  --color-accent-a60: color-mix(
-    in oklch,
-    var(--color-accent) 60%,
-    transparent
-  );
-  --color-accent-a80: color-mix(
-    in oklch,
-    var(--color-accent) 80%,
-    transparent
-  );
+  --color-accent-a07: color-mix(in oklch, var(--color-accent) 7%, transparent);
+  --color-accent-a10: color-mix(in oklch, var(--color-accent) 10%, transparent);
+  --color-accent-a13: color-mix(in oklch, var(--color-accent) 13%, transparent);
+  --color-accent-a33: color-mix(in oklch, var(--color-accent) 33%, transparent);
+  --color-accent-a47: color-mix(in oklch, var(--color-accent) 47%, transparent);
+  --color-accent-a60: color-mix(in oklch, var(--color-accent) 60%, transparent);
+  --color-accent-a80: color-mix(in oklch, var(--color-accent) 80%, transparent);
 
   /* focus hue desaturated + slightly lightened (no neon on dark) */
   --color-focus: color-mix(in oklch, var(--t-accent) 55%, #8f8f8f);
@@ -791,20 +763,12 @@
   --color-danger-dark: color-mix(in oklch, var(--t-danger) 80%, white);
   --color-danger-bg: color-mix(in oklch, var(--t-danger) 14%, var(--t-surface));
   --color-success: color-mix(in oklch, var(--t-success) 65%, white);
-  --color-success-bg: color-mix(
-    in oklch,
-    var(--t-success) 12%,
-    var(--t-surface)
-  );
+  --color-success-bg: color-mix(in oklch, var(--t-success) 12%, var(--t-surface));
   --color-info: color-mix(in oklch, var(--t-info) 65%, white);
   --color-info-bg: color-mix(in oklch, var(--t-info) 12%, var(--t-surface));
   --color-error: color-mix(in oklch, var(--t-danger) 75%, white);
   --color-bookmark: color-mix(in oklch, var(--t-pink) 70%, white);
-  --color-bookmark-a27: color-mix(
-    in oklch,
-    var(--color-bookmark) 27%,
-    transparent
-  );
+  --color-bookmark-a27: color-mix(in oklch, var(--color-bookmark) 27%, transparent);
   --color-invite: color-mix(in oklch, var(--t-sky) 70%, white);
   --color-invite-a27: color-mix(in oklch, var(--color-invite) 27%, transparent);
 
@@ -836,7 +800,7 @@ body {
   width: 100%;
   min-height: calc(100vh - 8px);
   justify-content: center;
-  background-image: url('/loader.svg');
+  background-image: url("/loader.svg");
   background-repeat: no-repeat;
   background-position: center;
   /* never wider than the section, so the spinner is never cropped on narrow viewports */

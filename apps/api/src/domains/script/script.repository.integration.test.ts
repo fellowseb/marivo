@@ -307,7 +307,10 @@ describe("ScriptRepository (integration with real Postgres)", () => {
     const draftDelete = changes
       .dataOrThrow()
       .diffs.find(
-        (d) => !("lineType" in d) && d.id === draft.dataOrThrow().contentId && d.change.type === "content_delete",
+        (d) =>
+          !("lineType" in d) &&
+          d.id === draft.dataOrThrow().contentId &&
+          d.change.type === "content_delete",
       );
     expect(draftDelete).toBeDefined();
   });
@@ -355,7 +358,8 @@ describe("ScriptRepository (integration with real Postgres)", () => {
     });
     expect(result.isOk()).toBe(true);
 
-    const [line] = await sql`SELECT id, type FROM lines WHERE id = ${lineId} AND script_id = ${scriptId}`;
+    const [line] =
+      await sql`SELECT id, type FROM lines WHERE id = ${lineId} AND script_id = ${scriptId}`;
     expect(line.type).toBe("freetext");
     const [script] = await sql<{ lines_order: string[] }[]>`
       SELECT lines_order FROM scripts WHERE id = ${scriptId}

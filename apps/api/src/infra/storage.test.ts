@@ -114,13 +114,21 @@ describe("Storage.ensureBucket", () => {
       vi.fn().mockImplementation(async (url: string) => {
         calls.push(url);
         if (url.includes("GetBucketInfo")) {
-          return { ok: true, status: 200, json: async () => ({ id: "bid-9" }), text: async () => "" };
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({ id: "bid-9" }),
+            text: async () => "",
+          };
         }
         return { ok: true, status: 200, json: async () => ({}), text: async () => "" };
       }),
     );
     const { client } = fakeS3Client(
-      Object.assign(new Error("forbidden"), { name: "Forbidden", $metadata: { httpStatusCode: 403 } }),
+      Object.assign(new Error("forbidden"), {
+        name: "Forbidden",
+        $metadata: { httpStatusCode: 403 },
+      }),
     );
     const storage = new Storage({
       endpoint: "http://x",

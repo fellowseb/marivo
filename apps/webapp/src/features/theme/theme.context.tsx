@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@clerk/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../../trpc.ts";
@@ -50,9 +43,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [storedTheme]);
 
-  const { mutateAsync: saveTheme } = useMutation(
-    trpc.userPreferences.setTheme.mutationOptions(),
-  );
+  const { mutateAsync: saveTheme } = useMutation(trpc.userPreferences.setTheme.mutationOptions());
 
   const setTheme = useCallback(
     (next: ThemeValue) => {

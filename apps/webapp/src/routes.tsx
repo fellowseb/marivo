@@ -51,10 +51,7 @@ function AppRoutes() {
     <AuthGuard>
       <CollectionMetadataContextProvider>
         <Routes>
-          <Route
-            path="*"
-            element={withErrorBoundary(<MainLayout breadcrumbs={breadcrumbs} />)}
-          >
+          <Route path="*" element={withErrorBoundary(<MainLayout breadcrumbs={breadcrumbs} />)}>
             <Route path="plays" element={withErrorBoundary(<PlaysPage />)} />
             <Route path="plays/new" element={withErrorBoundary(<NewPlayPage />)} />
             <Route path="plays/new/empty" element={withErrorBoundary(<NewEmptyScript />)} />
@@ -64,10 +61,7 @@ function AppRoutes() {
               element={withErrorBoundary(<FromCollection />)}
             />
             <Route path="plays/imports" element={withErrorBoundary(<ScriptImportsPage />)} />
-            <Route
-              path="my-account/security?"
-              element={withErrorBoundary(<UserAccountPage />)}
-            />
+            <Route path="my-account/security?" element={withErrorBoundary(<UserAccountPage />)} />
             <Route path="signin" element={<Navigate to="/plays" replace />} />
             <Route path="signup" element={<Navigate to="/plays" replace />} />
             <Route index element={<Navigate to="plays" replace />}></Route>

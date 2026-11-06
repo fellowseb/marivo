@@ -1,36 +1,31 @@
-import superjson from 'superjson';
-import { v7 as uuidv7 } from 'uuid';
-import { StrictMode, useState } from 'react';
-import 'keyboard-css/dist/css/main.min.css';
-import { BrowserRouter } from 'react-router';
-import { ClerkProvider, useAuth } from '@clerk/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import superjson from "superjson";
+import { v7 as uuidv7 } from "uuid";
+import { StrictMode, useState } from "react";
+import "keyboard-css/dist/css/main.min.css";
+import { BrowserRouter } from "react-router";
+import { ClerkProvider, useAuth } from "@clerk/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createTRPCClient,
   httpLink,
   isNonJsonSerializable,
   splitLink,
   TRPCClientError,
-} from '@trpc/client';
-import type { AppRouter } from '@marivo/api';
-import Routes from './routes.tsx';
-import './app.css';
-import { TRPCProvider } from './trpc.ts';
-import { NotificationsContextProvider } from './components/notifications.context.tsx';
-import ErrorBoundary, {
-  ErrorFallback,
-} from './components/error-boundary.component';
-import { ThemeProvider } from './features/theme/theme.context.tsx';
+} from "@trpc/client";
+import type { AppRouter } from "@marivo/api";
+import Routes from "./routes.tsx";
+import "./app.css";
+import { TRPCProvider } from "./trpc.ts";
+import { NotificationsContextProvider } from "./components/notifications.context.tsx";
+import ErrorBoundary, { ErrorFallback } from "./components/error-boundary.component";
+import { ThemeProvider } from "./features/theme/theme.context.tsx";
 
 function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
         retry: (failureCount, error) => {
-          if (
-            error instanceof TRPCClientError &&
-            error.data?.code === 'NOT_FOUND'
-          ) {
+          if (error instanceof TRPCClientError && error.data?.code === "NOT_FOUND") {
             return false;
           }
           return failureCount < 4;
@@ -44,7 +39,7 @@ function makeQueryClient() {
 let browserQueryClient: QueryClient | undefined = undefined;
 
 function getQueryClient() {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return makeQueryClient();
   } else {
     if (!browserQueryClient) browserQueryClient = makeQueryClient();
@@ -78,12 +73,12 @@ function TrpcApiProvider(props: React.PropsWithChildren<TrpcApiProviderProps>) {
               const importFileId = (h.op.input as any).id;
               return {
                 Authorization: `Bearer ${token}`,
-                'x-marivo-request-id': uuidv7(),
-                ...(importId && typeof importId === 'string'
-                  ? { 'x-marivo-import-id': importId }
+                "x-marivo-request-id": uuidv7(),
+                ...(importId && typeof importId === "string"
+                  ? { "x-marivo-import-id": importId }
                   : {}),
-                ...(importFileId && typeof importFileId === 'string'
-                  ? { 'x-marivo-import-file-id': importFileId }
+                ...(importFileId && typeof importFileId === "string"
+                  ? { "x-marivo-import-file-id": importFileId }
                   : {}),
               };
             },
@@ -95,7 +90,7 @@ function TrpcApiProvider(props: React.PropsWithChildren<TrpcApiProviderProps>) {
               const token = await getToken();
               return {
                 Authorization: `Bearer ${token}`,
-                'x-marivo-request-id': uuidv7(),
+                "x-marivo-request-id": uuidv7(),
               };
             },
           }),
@@ -114,12 +109,12 @@ function TrpcApiProvider(props: React.PropsWithChildren<TrpcApiProviderProps>) {
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing Clerk Publishable Key');
+  throw new Error("Missing Clerk Publishable Key");
 }
 
 const API_URL = import.meta.env.VITE_MARIVO_TRPC_API_URL;
 if (!API_URL) {
-  throw new Error('Missing TRPC API url');
+  throw new Error("Missing TRPC API url");
 }
 
 function App() {

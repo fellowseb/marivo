@@ -39,7 +39,12 @@ describe("Script write endpoints - integration (happy paths)", () => {
 
   describe("saveLineContent happy path", () => {
     it("saves a freetext line and returns content id", async () => {
-      const useCase = new SaveLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+      const useCase = new SaveLineContentUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
       const contentId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
       scriptRepository.saveLineContent.mockResolvedValue(
         Result.ok({
@@ -64,7 +69,12 @@ describe("Script write endpoints - integration (happy paths)", () => {
     });
 
     it("saves a heading line with level", async () => {
-      const useCase = new SaveLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+      const useCase = new SaveLineContentUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
       scriptRepository.saveLineContent.mockResolvedValue(
         Result.ok({
           contentId: "heading-content-1",
@@ -93,7 +103,12 @@ describe("Script write endpoints - integration (happy paths)", () => {
     });
 
     it("saves a chartext line with characters", async () => {
-      const useCase = new SaveLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+      const useCase = new SaveLineContentUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
       scriptRepository.saveLineContent.mockResolvedValue(
         Result.ok({ contentId: "cue-1", lastModifiedDate: new Date() }),
       );
@@ -125,7 +140,12 @@ describe("Script write endpoints - integration (happy paths)", () => {
 
   describe("createLine happy path", () => {
     it("creates a new line at the beginning", async () => {
-      const useCase = new CreateLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+      const useCase = new CreateLineUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
       scriptRepository.createLine.mockResolvedValue(
         Result.ok({ lastModifiedDate: new Date("2026-01-15") }),
       );
@@ -147,7 +167,12 @@ describe("Script write endpoints - integration (happy paths)", () => {
     });
 
     it("creates a line in the middle", async () => {
-      const useCase = new CreateLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+      const useCase = new CreateLineUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
       scriptRepository.createLine.mockResolvedValue(Result.ok({ lastModifiedDate: new Date() }));
 
       const result = await useCase.execute({
@@ -166,7 +191,12 @@ describe("Script write endpoints - integration (happy paths)", () => {
 
   describe("deleteLine happy path", () => {
     it("deletes a line and returns success", async () => {
-      const useCase = new DeleteLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+      const useCase = new DeleteLineUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
       scriptRepository.deleteLine.mockResolvedValue(
         Result.ok({ lastModifiedDate: new Date("2026-01-15") }),
       );
@@ -186,9 +216,24 @@ describe("Script write endpoints - integration (happy paths)", () => {
 
   describe("end-to-end flow", () => {
     it("create line -> save content -> delete line all succeed", async () => {
-      const createUseCase = new CreateLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
-      const saveUseCase = new SaveLineContentUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
-      const deleteUseCase = new DeleteLineUseCase(scriptRepository, userPlaysRepository, playsCollectionRepository, userContext);
+      const createUseCase = new CreateLineUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
+      const saveUseCase = new SaveLineContentUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
+      const deleteUseCase = new DeleteLineUseCase(
+        scriptRepository,
+        userPlaysRepository,
+        playsCollectionRepository,
+        userContext,
+      );
 
       const lineId = "e2e-line-1";
 

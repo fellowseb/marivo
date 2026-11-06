@@ -46,7 +46,11 @@ describe("ListAllScriptsUseCase", () => {
       } as never),
     );
 
-    const result = await useCase.execute({ filters: { author: "Marivaux" }, page: 2, pageSize: 20 });
+    const result = await useCase.execute({
+      filters: { author: "Marivaux" },
+      page: 2,
+      pageSize: 20,
+    });
 
     expect(result.isOk()).toBe(true);
     expect(repository.findAllScripts).toHaveBeenCalledWith({

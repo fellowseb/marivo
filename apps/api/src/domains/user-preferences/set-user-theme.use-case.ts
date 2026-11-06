@@ -21,10 +21,7 @@ export class SetUserThemeUseCase extends AuthenticatedUseCase<{
   success: SetUserThemeUseCaseOutput;
   failure: UserNotFound;
 }> {
-  constructor(
-    repository: UserPreferencesRepository,
-    userContextService: UserContextService,
-  ) {
+  constructor(repository: UserPreferencesRepository, userContextService: UserContextService) {
     super(userContextService);
     this.repository = repository;
   }

@@ -20,13 +20,16 @@ describe("DeleteCollectionPlayUseCase", () => {
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
   });
 
-  it.each(["admin", "collection-maintainer"] as const)("deletes the play (role: %s)", async (role) => {
-    const result = await new DeleteCollectionPlayUseCase(repository, ctx(role)).execute({
-      uri: URI,
-    });
-    expect(result.isOk()).toBe(true);
-    expect(repository.deleteByUri).toHaveBeenCalledWith({ uri: URI });
-  });
+  it.each(["admin", "collection-maintainer"] as const)(
+    "deletes the play (role: %s)",
+    async (role) => {
+      const result = await new DeleteCollectionPlayUseCase(repository, ctx(role)).execute({
+        uri: URI,
+      });
+      expect(result.isOk()).toBe(true);
+      expect(repository.deleteByUri).toHaveBeenCalledWith({ uri: URI });
+    },
+  );
 
   it("returns FORBIDDEN without the capability", async () => {
     const result = await new DeleteCollectionPlayUseCase(repository, ctx(undefined)).execute({

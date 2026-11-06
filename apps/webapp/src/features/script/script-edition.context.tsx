@@ -96,7 +96,13 @@ export function ScriptEditionContextProvider(
       context.dispatch(action);
       // Persist the line server-side so saving its content doesn't hit the
       // lines_contents -> lines foreign key
-      createLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id, lineType: "heading", position: pos });
+      createLineMutation.mutate({
+        uri: props.uri,
+        from: props.from,
+        lineId: id,
+        lineType: "heading",
+        position: pos,
+      });
       const undoAction = {
         type: "UNDO_INSERT_HEADING_LINE",
         id,
@@ -129,7 +135,13 @@ export function ScriptEditionContextProvider(
         characterId,
       } as const satisfies ScriptAction;
       context.dispatch(action);
-      createLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id, lineType: "chartext", position: pos });
+      createLineMutation.mutate({
+        uri: props.uri,
+        from: props.from,
+        lineId: id,
+        lineType: "chartext",
+        position: pos,
+      });
       const undoAction = {
         type: "UNDO_INSERT_CUE_LINE",
         id,
@@ -162,7 +174,13 @@ export function ScriptEditionContextProvider(
         init,
       } as const;
       context.dispatch(action);
-      createLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id, lineType: "freetext", position: pos });
+      createLineMutation.mutate({
+        uri: props.uri,
+        from: props.from,
+        lineId: id,
+        lineType: "freetext",
+        position: pos,
+      });
       const undoAction = {
         type: "UNDO_INSERT_FREETEXT_LINE",
         id,
@@ -308,31 +326,41 @@ export function ScriptEditionContextProvider(
       // shared draft and is only visible to its author)
       const draftContent = { ...currLine, ...content, type: "draft" as const };
       saveLineContentMutation.mutate({
-        uri: props.uri, from: props.from,
+        uri: props.uri,
+        from: props.from,
         lineId: id,
         content: buildContentPayload(draftContent as LineContent),
         contentType: "draft",
         version: null,
       });
     },
-    [context?.lineContents, context?.characters, context?.lastModifiedDate, props.uri, saveLineContentMutation],
+    [
+      context?.lineContents,
+      context?.characters,
+      context?.lastModifiedDate,
+      props.uri,
+      saveLineContentMutation,
+    ],
   );
 
-  const removeLines = useCallback((ids: string[]) => {
-    if (!context) {
-      const error = new Error("Unexpected undefined script context");
-      logger.warn("unexpected error in script edition", { error });
-      throw error;
-    }
-    context.dispatch({
-      type: "REMOVE_LINES",
-      ids,
-    });
-    // Persist deletions to server
-    for (const id of ids) {
-      deleteLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id });
-    }
-  }, [props.uri, deleteLineMutation]);
+  const removeLines = useCallback(
+    (ids: string[]) => {
+      if (!context) {
+        const error = new Error("Unexpected undefined script context");
+        logger.warn("unexpected error in script edition", { error });
+        throw error;
+      }
+      context.dispatch({
+        type: "REMOVE_LINES",
+        ids,
+      });
+      // Persist deletions to server
+      for (const id of ids) {
+        deleteLineMutation.mutate({ uri: props.uri, from: props.from, lineId: id });
+      }
+    },
+    [props.uri, deleteLineMutation],
+  );
   const discardChanges = useCallback(
     (id: string) => {
       if (!context) {
@@ -389,7 +417,8 @@ export function ScriptEditionContextProvider(
           ? context.lineContents.get(latestVersionId)
           : undefined;
         saveLineContentMutation.mutate({
-          uri: props.uri, from: props.from,
+          uri: props.uri,
+          from: props.from,
           lineId: id,
           content: {
             lineType: content.lineType,
@@ -405,116 +434,134 @@ export function ScriptEditionContextProvider(
     },
     [context, props.uri, saveLineContentMutation],
   );
-  const saveChangesAsNewVersion = useCallback((id: string) => {
-    if (!context) {
-      const error = new Error("Unexpected undefined script context");
-      logger.warn("unexpected error in script edition", { error });
-      throw error;
-    }
-    const contentId = uuidV4();
-    const action = {
-      type: "SAVE_CHANGES_AS_NEW_VERSION",
-      id,
-      contentId,
-    } as const as ScriptAction;
-    // Capture the draft content BEFORE dispatch (reducer moves it to a new version id)
-    const content = context.lineContents.get(id);
-    context.dispatch(action);
-    // Persist to server as new saved version, reusing the optimistic content
-    // id so the server row and the local entry share the same id
-    if (content && content.type === "draft") {
+  const saveChangesAsNewVersion = useCallback(
+    (id: string) => {
+      if (!context) {
+        const error = new Error("Unexpected undefined script context");
+        logger.warn("unexpected error in script edition", { error });
+        throw error;
+      }
+      const contentId = uuidV4();
+      const action = {
+        type: "SAVE_CHANGES_AS_NEW_VERSION",
+        id,
+        contentId,
+      } as const as ScriptAction;
+      // Capture the draft content BEFORE dispatch (reducer moves it to a new version id)
+      const content = context.lineContents.get(id);
+      context.dispatch(action);
+      // Persist to server as new saved version, reusing the optimistic content
+      // id so the server row and the local entry share the same id
+      if (content && content.type === "draft") {
+        saveLineContentMutation.mutate({
+          uri: props.uri,
+          from: props.from,
+          lineId: id,
+          contentId,
+          content: buildContentPayload(content),
+          contentType: "saved_version",
+          version: null,
+        });
+      }
+    },
+    [context, props.uri, saveLineContentMutation],
+  );
+  const saveChangesAsSharedDraft = useCallback(
+    (id: string) => {
+      if (!context) {
+        const error = new Error("Unexpected undefined script context");
+        logger.warn("unexpected error in script edition", { error });
+        throw error;
+      }
+      const contentId = uuidV4();
+      const action = {
+        type: "SAVE_CHANGES_AS_SHARED_DRAFT",
+        id,
+        contentId,
+      } as const as ScriptAction;
+      // Capture the draft content BEFORE dispatch (reducer moves it to a new draft id)
+      const content = context.lineContents.get(id);
+      context.dispatch(action);
+      // Persist to server as shared draft, reusing the optimistic content id
+      if (content && content.type === "draft") {
+        saveLineContentMutation.mutate({
+          uri: props.uri,
+          from: props.from,
+          lineId: id,
+          contentId,
+          content: buildContentPayload(content),
+          contentType: "shared_draft",
+          version: null,
+        });
+      }
+    },
+    [context, props.uri, saveLineContentMutation],
+  );
+  const deleteSharedDraft = useCallback(
+    (id: string, contentId: string) => {
+      if (!context) {
+        const error = new Error("Unexpected undefined script context");
+        logger.warn("unexpected error in script edition", { error });
+        throw error;
+      }
+      const action = {
+        type: "DELETE_SHARED_DRAFT",
+        id,
+        contentId,
+      } as const as ScriptAction;
+      context.dispatch(action);
+      // Persist deletion to server
+      deleteLineContentMutation.mutate({ uri: props.uri, from: props.from, lineId: id, contentId });
+    },
+    [context, props.uri, deleteLineContentMutation],
+  );
+  const deletePreviousVersion = useCallback(
+    (id: string, contentId: string) => {
+      if (!context) {
+        logger.warn("unexpected undefined script context");
+        return;
+      }
+      const action = {
+        type: "DELETE_PREVIOUS_VERSION",
+        id,
+        contentId,
+      } as const as ScriptAction;
+      context.dispatch(action);
+      // Persist deletion to server
+      deleteLineContentMutation.mutate({ uri: props.uri, from: props.from, lineId: id, contentId });
+    },
+    [context, props.uri, deleteLineContentMutation],
+  );
+  const applySharedDraftAsNewVersion = useCallback(
+    (id: string, sharedDraft: LineContent) => {
+      if (!context) {
+        const error = new Error("Unexpected undefined script context");
+        logger.warn("unexpected error in script edition", { error });
+        throw error;
+      }
+      const contentId = uuidV4();
+      const lastModifiedDate = new Date(Date.now());
+      const action = {
+        type: "APPLY_SHARED_DRAFT_AS_NEW_VERSION",
+        id,
+        contentId,
+        sharedDraft,
+        lastModifiedDate,
+      } as const as ScriptAction;
+      context.dispatch(action);
+      // Persist to server as new saved version
       saveLineContentMutation.mutate({
-        uri: props.uri, from: props.from,
+        uri: props.uri,
+        from: props.from,
         lineId: id,
         contentId,
-        content: buildContentPayload(content),
+        content: buildContentPayload(sharedDraft),
         contentType: "saved_version",
         version: null,
       });
-    }
-  }, [context, props.uri, saveLineContentMutation]);
-  const saveChangesAsSharedDraft = useCallback((id: string) => {
-    if (!context) {
-      const error = new Error("Unexpected undefined script context");
-      logger.warn("unexpected error in script edition", { error });
-      throw error;
-    }
-    const contentId = uuidV4();
-    const action = {
-      type: "SAVE_CHANGES_AS_SHARED_DRAFT",
-      id,
-      contentId,
-    } as const as ScriptAction;
-    // Capture the draft content BEFORE dispatch (reducer moves it to a new draft id)
-    const content = context.lineContents.get(id);
-    context.dispatch(action);
-    // Persist to server as shared draft, reusing the optimistic content id
-    if (content && content.type === "draft") {
-      saveLineContentMutation.mutate({
-        uri: props.uri, from: props.from,
-        lineId: id,
-        contentId,
-        content: buildContentPayload(content),
-        contentType: "shared_draft",
-        version: null,
-      });
-    }
-  }, [context, props.uri, saveLineContentMutation]);
-  const deleteSharedDraft = useCallback((id: string, contentId: string) => {
-    if (!context) {
-      const error = new Error("Unexpected undefined script context");
-      logger.warn("unexpected error in script edition", { error });
-      throw error;
-    }
-    const action = {
-      type: "DELETE_SHARED_DRAFT",
-      id,
-      contentId,
-    } as const as ScriptAction;
-    context.dispatch(action);
-    // Persist deletion to server
-    deleteLineContentMutation.mutate({ uri: props.uri, from: props.from, lineId: id, contentId });
-  }, [context, props.uri, deleteLineContentMutation]);
-  const deletePreviousVersion = useCallback((id: string, contentId: string) => {
-    if (!context) {
-      logger.warn("unexpected undefined script context");
-      return;
-    }
-    const action = {
-      type: "DELETE_PREVIOUS_VERSION",
-      id,
-      contentId,
-    } as const as ScriptAction;
-    context.dispatch(action);
-    // Persist deletion to server
-    deleteLineContentMutation.mutate({ uri: props.uri, from: props.from, lineId: id, contentId });
-  }, [context, props.uri, deleteLineContentMutation]);
-  const applySharedDraftAsNewVersion = useCallback((id: string, sharedDraft: LineContent) => {
-    if (!context) {
-      const error = new Error("Unexpected undefined script context");
-      logger.warn("unexpected error in script edition", { error });
-      throw error;
-    }
-    const contentId = uuidV4();
-    const lastModifiedDate = new Date(Date.now());
-    const action = {
-      type: "APPLY_SHARED_DRAFT_AS_NEW_VERSION",
-      id,
-      contentId,
-      sharedDraft,
-      lastModifiedDate,
-    } as const as ScriptAction;
-    context.dispatch(action);
-    // Persist to server as new saved version
-    saveLineContentMutation.mutate({
-      uri: props.uri, from: props.from,
-      lineId: id,
-      contentId,
-      content: buildContentPayload(sharedDraft),
-      contentType: "saved_version",
-      version: null,
-    });
-  }, [context, props.uri, saveLineContentMutation]);
+    },
+    [context, props.uri, saveLineContentMutation],
+  );
   const applyPreviousVersionAsNewVersion = useCallback(
     (id: string, previousVersion: LineContent) => {
       if (!context) {
@@ -534,7 +581,8 @@ export function ScriptEditionContextProvider(
       context.dispatch(action);
       // Persist to server as new saved version
       saveLineContentMutation.mutate({
-        uri: props.uri, from: props.from,
+        uri: props.uri,
+        from: props.from,
         lineId: id,
         contentId,
         content: buildContentPayload(previousVersion),

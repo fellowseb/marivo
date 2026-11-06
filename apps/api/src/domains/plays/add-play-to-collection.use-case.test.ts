@@ -33,7 +33,9 @@ describe("AddPlayToCollectionUseCase", () => {
   beforeEach(() => {
     collectionRepository = {
       existsByScriptId: vi.fn().mockResolvedValue(Result.ok(false)),
-      addToCollection: vi.fn().mockResolvedValue(Result.ok({ uri: "20000000-0000-4000-8000-000000000002" })),
+      addToCollection: vi
+        .fn()
+        .mockResolvedValue(Result.ok({ uri: "20000000-0000-4000-8000-000000000002" })),
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
     importsRepository = {
       getResultScriptId: vi.fn().mockResolvedValue(Result.ok(42)),

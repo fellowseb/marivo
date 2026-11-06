@@ -67,7 +67,11 @@ metrics_token = "${randomBytes(32).toString("hex")}"
     const keyRes = await fetch(`${adminUrl}/v2/CreateKey`, {
       method: "POST",
       headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ name: "presign-test", neverExpires: true, allow: { createBucket: true } }),
+      body: JSON.stringify({
+        name: "presign-test",
+        neverExpires: true,
+        allow: { createBucket: true },
+      }),
     });
     const key = (await keyRes.json()) as { accessKeyId: string; secretAccessKey: string };
     s3Endpoint = `http://localhost:${container.getMappedPort(3900)}`;

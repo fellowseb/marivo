@@ -61,20 +61,18 @@ describe("GetPresignedUrlUseCase", () => {
     );
   });
 
-  it.each([
-    "../other-import/file.txt",
-    "a/../../etc/passwd",
-    "/absolute/path",
-    "a//b",
-  ])("rejects path traversal key %j", async (key) => {
-    const result = await useCase.execute({ importId: IMPORT_ID, key, operation: "download" });
+  it.each(["../other-import/file.txt", "a/../../etc/passwd", "/absolute/path", "a//b"])(
+    "rejects path traversal key %j",
+    async (key) => {
+      const result = await useCase.execute({ importId: IMPORT_ID, key, operation: "download" });
 
-    expect(result.isFailure()).toBe(true);
-    const error = result.errorOrThrow();
-    expect(error).toBeInstanceOf(InvalidStorageKeyError);
-    expect(error.code).toBe("BAD_REQUEST");
-    expect(storage.presignDownload).not.toHaveBeenCalled();
-  });
+      expect(result.isFailure()).toBe(true);
+      const error = result.errorOrThrow();
+      expect(error).toBeInstanceOf(InvalidStorageKeyError);
+      expect(error.code).toBe("BAD_REQUEST");
+      expect(storage.presignDownload).not.toHaveBeenCalled();
+    },
+  );
 
   it("input schema rejects a non-uuid importId", () => {
     const parsed = GetPresignedUrlUseCaseInputSchema.safeParse({

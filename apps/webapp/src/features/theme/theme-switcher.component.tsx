@@ -39,11 +39,7 @@ export function ThemeSwitcher() {
               <span className={styles.themeDescription}>{option.description}</span>
               <span className={styles.swatches}>
                 {(THEME_SWATCHES[option.name] ?? []).map((color) => (
-                  <span
-                    key={color}
-                    className={styles.swatch}
-                    style={{ backgroundColor: color }}
-                  />
+                  <span key={color} className={styles.swatch} style={{ backgroundColor: color }} />
                 ))}
               </span>
             </button>

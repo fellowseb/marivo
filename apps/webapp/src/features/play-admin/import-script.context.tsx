@@ -110,8 +110,7 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
     }),
     // On resume, fetch right away (the imports page usually warmed the cache);
     // otherwise wait until the status poll reports "reviewing".
-    enabled:
-      Boolean(importId) && (resumeImportId !== null || statusData?.status === "reviewing"),
+    enabled: Boolean(importId) && (resumeImportId !== null || statusData?.status === "reviewing"),
   });
   useEffect(() => {
     if (statusStatus === "success" && statusData.id === importId) {

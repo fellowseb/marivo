@@ -34,10 +34,7 @@ describe("UploadFileForScriptImportUseCase", () => {
   });
 
   it("returns a BAD_REQUEST failure Result when the import id header is missing", async () => {
-    const result = await useCase.execute(
-      ReadableStream.from([]) as unknown as ReadableStream,
-      {},
-    );
+    const result = await useCase.execute(ReadableStream.from([]) as unknown as ReadableStream, {});
 
     expect(result.isFailure()).toBe(true);
     const error = result.errorOrThrow();
@@ -66,7 +63,11 @@ describe("UploadFileForScriptImportUseCase", () => {
     });
 
     expect(result.isOk()).toBe(true);
-    expect(storage.upload).toHaveBeenCalledWith("marivo-imports", "import-1/file-1", expect.anything());
+    expect(storage.upload).toHaveBeenCalledWith(
+      "marivo-imports",
+      "import-1/file-1",
+      expect.anything(),
+    );
     expect(broker.publish).not.toHaveBeenCalled();
   });
 });

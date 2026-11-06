@@ -230,19 +230,13 @@ export function CollectionPlaySettings(props: { uri: string }) {
       {canEditMetadata ? (
         <div className={styles.line}>
           <label>Metadata</label>
-          <Button
-            icon="save"
-            disabled={updateMutation.isPending}
-            onClick={handleSave}
-          >
+          <Button icon="save" disabled={updateMutation.isPending} onClick={handleSave}>
             Save
           </Button>
           <Button
             icon="archive"
             disabled={archiveMutation.isPending}
-            onClick={() =>
-              archiveMutation.mutate({ uri: props.uri, archived: !details.archived })
-            }
+            onClick={() => archiveMutation.mutate({ uri: props.uri, archived: !details.archived })}
           >
             {details.archived ? "Unarchive" : "Archive"}
           </Button>
@@ -252,11 +246,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         <div className={styles.sectionTitle}>Danger zone</div>
         <div className={styles.line}>
           <label>Delete the script</label>
-          <Button
-            icon="delete"
-            disabled={!canDelete}
-            onClick={() => setShowDeleteConfirm(true)}
-          >
+          <Button icon="delete" disabled={!canDelete} onClick={() => setShowDeleteConfirm(true)}>
             Delete
           </Button>
         </div>

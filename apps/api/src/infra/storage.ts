@@ -99,10 +99,7 @@ export class Storage {
    * grants access via the admin API when the bucket already exists but the
    * key is not allowed on it (403).
    */
-  async ensureBucket(
-    bucketName: string,
-    admin?: { adminUrl: string; adminToken: string },
-  ) {
+  async ensureBucket(bucketName: string, admin?: { adminUrl: string; adminToken: string }) {
     try {
       await this.client.send(new HeadBucketCommand({ Bucket: bucketName }));
       return;
@@ -121,20 +118,16 @@ export class Storage {
 
   /** Presigned GET url (e.g. for the worker to download an import file). */
   presignDownload(bucket: string, key: string, expiresInSeconds = 900): Promise<string> {
-    return getSignedUrl(
-      this.client,
-      new GetObjectCommand({ Bucket: bucket, Key: key }),
-      { expiresIn: expiresInSeconds },
-    );
+    return getSignedUrl(this.client, new GetObjectCommand({ Bucket: bucket, Key: key }), {
+      expiresIn: expiresInSeconds,
+    });
   }
 
   /** Presigned PUT url (e.g. for the worker to upload a result file). */
   presignUpload(bucket: string, key: string, expiresInSeconds = 900): Promise<string> {
-    return getSignedUrl(
-      this.client,
-      new PutObjectCommand({ Bucket: bucket, Key: key }),
-      { expiresIn: expiresInSeconds },
-    );
+    return getSignedUrl(this.client, new PutObjectCommand({ Bucket: bucket, Key: key }), {
+      expiresIn: expiresInSeconds,
+    });
   }
 
   /** Readiness probe: can we reach the S3-compatible storage? */

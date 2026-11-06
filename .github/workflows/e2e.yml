@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: [master]
     paths:
-      - 'apps/webapp/**'
-      - 'apps/api/**'
-      - 'apps/worker/**'
-      - 'compose.yaml'
-      - 'compose.e2e.yaml'
-      - 'scripts/e2e-env.sh'
-      - '.github/workflows/e2e.yml'
+      - "apps/webapp/**"
+      - "apps/api/**"
+      - "apps/worker/**"
+      - "compose.yaml"
+      - "compose.e2e.yaml"
+      - "scripts/e2e-env.sh"
+      - ".github/workflows/e2e.yml"
   workflow_dispatch:
 
 concurrency:

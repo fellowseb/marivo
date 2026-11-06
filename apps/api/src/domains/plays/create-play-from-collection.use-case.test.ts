@@ -18,7 +18,11 @@ describe("CreatePlayFromCollectionUseCase", () => {
     collectionRepository = {
       getScriptIdByUri: vi.fn(),
     } as unknown as vi.Mocked<PlaysCollectionRepository>;
-    useCase = new CreatePlayFromCollectionUseCase(playsRepository, collectionRepository, userContext);
+    useCase = new CreatePlayFromCollectionUseCase(
+      playsRepository,
+      collectionRepository,
+      userContext,
+    );
   });
 
   it("creates a play pointing at the collection script", async () => {

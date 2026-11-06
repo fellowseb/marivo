@@ -46,9 +46,7 @@ export class AddPlayToCollectionUseCase extends AuthenticatedUseCase<{
 
   async execute(input: AddPlayToCollectionUseCaseInput) {
     if (!hasCapability(this.getUserContext().role, "create_collection_play")) {
-      return Result.failure(
-        new ForbiddenError("Capability 'create_collection_play' is required"),
-      );
+      return Result.failure(new ForbiddenError("Capability 'create_collection_play' is required"));
     }
     const scriptIdResult = await this.importsRepository.getResultScriptId({ id: input.importId });
     if (scriptIdResult.isFailure()) {
