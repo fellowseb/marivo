@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import ScriptImportsPage from './script-imports-page.component';
 
 const PROCESSING_ID = '10000000-0000-4000-8000-0000000000p1';
 const REVIEWING_ID = '10000000-0000-4000-8000-0000000000r2';
 
 let capturedQueryOpts: Record<string, unknown> | null = null;
-const prefetchCalls: unknown[] = [];
+let prefetchCalls: { uri: string; from: string }[] = [];
+let prefetchGate: Promise<void> | null = null;
 
 vi.mock('../../trpc', () => ({
   useTRPC: () => ({
@@ -37,27 +38,32 @@ vi.mock('../../trpc', () => ({
   }),
 }));
 
+function LocationProbe() {
+  const location = useLocation();
+  return <div data-testid="location">{location.pathname + location.search}</div>;
+}
+
 function renderPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const prefetchSpy = vi
-    .spyOn(queryClient, 'prefetchQuery')
-    .mockImplementation((opts: unknown) => {
-      prefetchCalls.push(opts);
-      return Promise.resolve();
-    });
-  const result = render(
+  vi.spyOn(queryClient, 'prefetchQuery').mockImplementation((opts: unknown) => {
+    const input = (opts as { queryKey: [string, { uri: string; from: string }] }).queryKey[1];
+    prefetchCalls.push({ uri: input.uri, from: input.from });
+    return prefetchGate ?? Promise.resolve();
+  });
+  return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={['/plays/imports']}>
         <ScriptImportsPage />
+        <LocationProbe />
       </MemoryRouter>
     </QueryClientProvider>,
   );
-  return { ...result, prefetchSpy };
 }
 
-describe('ScriptImportsPage resume gating', () => {
+describe('ScriptImportsPage resume flow', () => {
   beforeEach(() => {
-    prefetchCalls.length = 0;
+    prefetchCalls = [];
+    prefetchGate = null;
     capturedQueryOpts = null;
   });
   afterEach(() => cleanup());
@@ -67,17 +73,11 @@ describe('ScriptImportsPage resume gating', () => {
     const resumeButtons = await screen.findAllByRole('button', { name: 'Resume' });
     expect(resumeButtons).toHaveLength(2);
 
-    // processing import: disabled, not wrapped in a link (cannot navigate)
     const processingResume = resumeButtons[0] as HTMLButtonElement;
     expect(processingResume.disabled).toBe(true);
-    expect(processingResume.closest('a')).toBeNull();
 
-    // reviewing import: enabled and links to the resume URL
     const reviewingResume = resumeButtons[1] as HTMLButtonElement;
     expect(reviewingResume.disabled).toBe(false);
-    expect(reviewingResume.closest('a')?.getAttribute('href')).toBe(
-      `/plays/new/import?resume=${REVIEWING_ID}`,
-    );
   });
 
   it('polls the imports list so the Resume gating updates on its own', async () => {
@@ -86,21 +86,35 @@ describe('ScriptImportsPage resume gating', () => {
     expect(capturedQueryOpts?.refetchInterval).toBe(5000);
   });
 
-  it('prefetches the script of reviewing imports into the cache', async () => {
+  it('does not prefetch scripts on page load', async () => {
     renderPage();
     await screen.findAllByRole('button', { name: 'Resume' });
-    const keys = prefetchCalls.map(
-      (opts) => (opts as { queryKey: unknown[] }).queryKey,
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(prefetchCalls).toHaveLength(0);
+  });
+
+  it('on Resume click: disables the button, prefetches the script, then navigates', async () => {
+    let releasePrefetch!: () => void;
+    prefetchGate = new Promise<void>((resolve) => {
+      releasePrefetch = resolve;
+    });
+    renderPage();
+    const resumeButtons = await screen.findAllByRole('button', { name: 'Resume' });
+    const reviewingResume = resumeButtons[1] as HTMLButtonElement;
+
+    fireEvent.click(reviewingResume);
+
+    // mid-prefetch: disabled + waiting, prefetched only the clicked import
+    expect(reviewingResume.disabled).toBe(true);
+    expect(prefetchCalls).toEqual([{ uri: REVIEWING_ID, from: 'import' }]);
+    expect(screen.getByTestId('location').textContent).toBe('/plays/imports');
+
+    // prefetch done -> navigate to the resume flow
+    releasePrefetch();
+    await waitFor(() =>
+      expect(screen.getByTestId('location').textContent).toBe(
+        `/plays/new/import?resume=${REVIEWING_ID}`,
+      ),
     );
-    const reviewingPrefetch = keys.find(
-      (key) => Array.isArray(key) && key[0] === 'latestChanges',
-    ) as [string, { uri: string; from: string }] | undefined;
-    expect(reviewingPrefetch).toBeTruthy();
-    expect(reviewingPrefetch![1].uri).toBe(REVIEWING_ID);
-    expect(reviewingPrefetch![1].from).toBe('import');
-    // the processing import is not prefetched
-    expect(
-      keys.filter((key) => Array.isArray(key) && key[0] === 'latestChanges'),
-    ).toHaveLength(1);
   });
 });

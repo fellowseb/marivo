@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router';
+import { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTRPC } from '../../trpc';
 import { HeaderBreadcrumbs } from '../../layouts/header.component';
@@ -60,6 +60,10 @@ interface ScriptImportItemProps {
 }
 
 function ScriptImportItem({ imp }: ScriptImportItemProps) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [resuming, setResuming] = useState(false);
   const statusLabel = getStatusLabel(imp.status);
   const statusVariant = getStatusVariant(imp.status);
   const isOngoing = [
@@ -68,6 +72,23 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
     'reviewing',
   ].includes(imp.status);
   const isReviewing = imp.status === 'reviewing';
+
+  // On Resume: disable the button with a waiting icon, prefetch the script
+  // into the cache, then navigate — so the flow lands directly on the preview.
+  const handleResume = async () => {
+    if (resuming || !isReviewing) {
+      return;
+    }
+    setResuming(true);
+    await queryClient.prefetchQuery(
+      trpc.script.latestChanges.queryOptions({
+        since: new Date(0),
+        uri: imp.id,
+        from: 'import',
+      }),
+    );
+    navigate(`/plays/new/import?resume=${imp.id}`);
+  };
 
   return (
     <li className={styles.scriptImport}>
@@ -92,19 +113,14 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
         ) : null}
         {isOngoing && (
           <div className={styles.scriptImportActions}>
-            {isReviewing ? (
-              <NavLink to={`/plays/new/import?resume=${imp.id}`}>
-                <Button icon="next" variant="standout">
-                  Resume
-                </Button>
-              </NavLink>
-            ) : (
-              // Not reviewable yet: keep the button visible but disabled with a
-              // waiting icon, so resuming can't flash the import step first.
-              <Button icon="animatedWaiting" variant="standout" disabled={true}>
-                Resume
-              </Button>
-            )}
+            <Button
+              icon={resuming || !isReviewing ? "animatedWaiting" : "next"}
+              variant="standout"
+              disabled={!isReviewing || resuming}
+              onClick={handleResume}
+            >
+              Resume
+            </Button>
           </div>
         )}
       </div>
@@ -146,29 +162,11 @@ export function ScriptImportsPageBreadcrumbs() {
 
 export function ScriptImportsPage() {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const queryOpts = trpc.plays.allScriptImports.queryOptions();
   // Poll so statuses (and the Resume gating) update while the user waits.
   queryOpts.refetchInterval = 5000;
   const { data, isLoading, isError, isRefetching, refetch } =
     useQuery(queryOpts);
-
-  // Warm the cache with the script of reviewable imports (same query key as
-  // the preview's suspense query), so clicking Resume lands on the preview
-  // instantly instead of flashing the import step first.
-  useEffect(() => {
-    for (const imp of data ?? []) {
-      if (imp.status === 'reviewing') {
-        queryClient.prefetchQuery(
-          trpc.script.latestChanges.queryOptions({
-            since: new Date(0),
-            uri: imp.id,
-            from: 'import',
-          }),
-        );
-      }
-    }
-  }, [data, queryClient, trpc]);
 
   const allOngoingImports =
     data?.filter((imp) =>

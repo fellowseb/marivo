@@ -167,6 +167,31 @@ describe('ImportScriptContext status transitions', () => {
     expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
   });
 
+  it(
+    'does not bounce back from preview to the import step on later polls',
+    { timeout: 20000 },
+    async () => {
+      statusValue = REVIEWING;
+      const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      queryClient.setQueryData(
+        ['latestChanges', { since: new Date(0), uri: RESUME_ID, from: 'import' }],
+        scriptValue,
+      );
+      renderWithProviders(
+        <ImportScriptContextProvider>
+          <Probe />
+        </ImportScriptContextProvider>,
+        resumeAt(RESUME_ID),
+        queryClient,
+      );
+      expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
+      // let at least one poll interval (5s) pass with the status still reviewing
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+      expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
+      expect(screen.getByTestId('probe').textContent).not.toContain('"name":"import"');
+    },
+  );
+
   it('prefetches the script immediately on resume, before the status poll says reviewing', async () => {
     statusValue = { status: 'processing_files', error: null };
     renderWithProviders(

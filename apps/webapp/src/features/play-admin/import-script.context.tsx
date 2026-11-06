@@ -122,12 +122,11 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
           // "reviewing" also keeps the import page visible: the preview step
           // only mounts once previewQuery has the script (see effect below).
           setStep((prev) => {
-            if (
-              !prev ||
-              prev.name !== "import" ||
-              !prev.processing ||
-              prev.importId !== importId
-            ) {
+            // Never bounce back from preview/name to the import step on a poll.
+            if (prev.name !== "import") {
+              return prev;
+            }
+            if (!prev.processing || prev.importId !== importId) {
               return {
                 name: "import",
                 importId,
