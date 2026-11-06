@@ -160,9 +160,11 @@ export const providers = {
       const userContextService = new UserContextService(req);
       const playsRepository = new UserPlaysRepository(sql, userContextService);
       const collectionRepository = new PlaysCollectionRepository(sql, userContextService);
+      const scriptRepository = new ScriptRepository(sql, userContextService);
       return new CreatePlayFromCollectionUseCase(
         playsRepository,
         collectionRepository,
+        scriptRepository,
         userContextService,
       );
     },
