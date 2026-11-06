@@ -12,6 +12,10 @@ let statusValue: unknown;
 let statusShouldFail = false;
 let statusCalls = 0;
 let capturedImportId = '';
+let scriptShouldHang = false;
+let scriptResolve: ((value: unknown) => void) | null = null;
+let scriptCalls = 0;
+const scriptValue = { lastModifiedDate: new Date(0) };
 const SRV_IMPORT_ID = '20000000-0000-4000-8000-0000000000aa';
 const RESUME_ID = '10000000-0000-4000-8000-000000000001';
 const initMock = vi.fn().mockResolvedValue({ importId: SRV_IMPORT_ID });
@@ -51,13 +55,34 @@ vi.mock('../../trpc', () => ({
         queryKey: () => ['importScriptStatus'],
       },
     },
+    script: {
+      latestChanges: {
+        queryOptions: (input: unknown) => ({
+          queryKey: ['latestChanges', input],
+          queryFn: () => {
+            scriptCalls += 1;
+            if (scriptShouldHang) {
+              return new Promise((resolve) => {
+                scriptResolve = resolve;
+              });
+            }
+            return Promise.resolve(scriptValue);
+          },
+        }),
+      },
+    },
   }),
 }));
 
-function renderWithProviders(node: React.ReactNode, initialEntries?: string[]) {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+function renderWithProviders(
+  node: React.ReactNode,
+  initialEntries?: string[],
+  queryClient?: QueryClient,
+) {
+  const client =
+    queryClient ?? new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={client}>
       <MemoryRouter initialEntries={initialEntries}>
         {node}
       </MemoryRouter>
@@ -99,11 +124,97 @@ describe('ImportScriptContext status transitions', () => {
     vi.clearAllMocks();
     statusShouldFail = false;
     statusCalls = 0;
+    scriptShouldHang = false;
+    scriptResolve = null;
+    scriptCalls = 0;
     statusValue = { status: 'uploading_files', error: null };
   });
   afterEach(() => cleanup());
 
   const resumeAt = (id: string) => [`/plays/new/import?resume=${id}`];
+
+  it('resume starts directly on the import page (no full-page loader state)', async () => {
+    statusValue = { status: 'processing_files', error: null };
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+    );
+    // step is defined from the first render: the import page with the
+    // processing indicator, never an undefined-step loader
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+    expect(screen.getByTestId('probe').textContent).toContain('"processing":true');
+    expect(screen.getByTestId('probe').textContent).not.toContain('no-step');
+  });
+
+  it('resume with a warm script cache starts directly on preview (no import-step flash)', async () => {
+    statusValue = REVIEWING;
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    // simulate the /plays/imports page having prefetched the script
+    queryClient.setQueryData(
+      ['latestChanges', { since: new Date(0), uri: RESUME_ID, from: 'import' }],
+      scriptValue,
+    );
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+      queryClient,
+    );
+    // first render is already the preview step
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
+  });
+
+  it(
+    'does not bounce back from preview to the import step on later polls',
+    { timeout: 20000 },
+    async () => {
+      statusValue = REVIEWING;
+      const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      queryClient.setQueryData(
+        ['latestChanges', { since: new Date(0), uri: RESUME_ID, from: 'import' }],
+        scriptValue,
+      );
+      renderWithProviders(
+        <ImportScriptContextProvider>
+          <Probe />
+        </ImportScriptContextProvider>,
+        resumeAt(RESUME_ID),
+        queryClient,
+      );
+      expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
+      // let at least one poll interval (5s) pass with the status still reviewing
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+      expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"');
+      expect(screen.getByTestId('probe').textContent).not.toContain('"name":"import"');
+    },
+  );
+
+  it('prefetches the script immediately on resume, before the status poll says reviewing', async () => {
+    statusValue = { status: 'processing_files', error: null };
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+    );
+    await waitFor(() => expect(scriptCalls).toBeGreaterThan(0));
+    // still on the import page: the advance to preview waits for the status poll
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+  });
+
+  it('does not prefetch the script on a fresh page before the status says reviewing', async () => {
+    statusValue = { status: 'processing_files', error: null };
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    expect(scriptCalls).toBe(0);
+  });
 
   it('marks the import step as processing while files are processed', async () => {
     statusValue = { status: 'processing_files', error: null };
@@ -116,7 +227,7 @@ describe('ImportScriptContext status transitions', () => {
     await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"processing":true'));
   });
 
-  it('advances to preview on reviewing', async () => {
+  it('advances to preview on reviewing once the script payload is loaded', async () => {
     statusValue = REVIEWING;
     renderWithProviders(
       <ImportScriptContextProvider>
@@ -124,6 +235,29 @@ describe('ImportScriptContext status transitions', () => {
       </ImportScriptContextProvider>,
       resumeAt(RESUME_ID),
     );
+    await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"'), {
+      timeout: 9000,
+    });
+  });
+
+  it('stays on the import page while reviewing until the script payload arrives', async () => {
+    statusValue = REVIEWING;
+    scriptShouldHang = true;
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+    );
+    // status is reviewing, but the script query is still pending: no preview yet
+    await waitFor(() =>
+      expect(screen.getByTestId('probe').textContent).toContain('"processing":true'),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+    expect(screen.getByTestId('probe').textContent).not.toContain('"preview"');
+    // script payload arrives -> advance to preview
+    scriptResolve?.(scriptValue);
     await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"'), {
       timeout: 9000,
     });

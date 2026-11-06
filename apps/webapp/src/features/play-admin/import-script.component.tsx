@@ -183,7 +183,7 @@ function ImportStep() {
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (step?.name === "import" && (step.processing || step.error)) {
+    if (step.name === "import" && (step.processing || step.error)) {
       setStarted(false);
     }
   }, [step]);
@@ -271,10 +271,10 @@ function ImportStep() {
     started ||
     initStatus === "pending" ||
     statusUpload === "pending" ||
-    (step?.name === "import" && step.processing);
+    (step.name === "import" && step.processing);
   const uploadsPending = uploadsState.filter((s) => s.status === "pending").length;
   const uploadsDone = uploadsState.filter((s) => s.status === "success").length;
-  const importError = step?.name === "import" ? step.error : undefined;
+  const importError = step.name === "import" ? step.error : undefined;
   return (
     <FlowStep
       title="Create from an external source ▶  Import script"
@@ -315,7 +315,7 @@ function ImportStep() {
           Failed to start the import. Your files are still selected — you can try again.
         </div>
       ) : null}
-      {step?.name === "import" && step.processing ? (
+      {step.name === "import" && step.processing ? (
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <DotsLoader size="medium" />
           <span>Processing files… this can take a minute. You can stay on this page.</span>
@@ -504,9 +504,6 @@ function NameStepFromImport(props: {
 
 function ImportScriptFlow() {
   const { step, startOver, reviewDone, backToReview } = useImportScriptContext();
-  if (!step) {
-    return <DotsLoader size="xlarge" />;
-  }
   switch (step.name) {
     case "import":
       return <ImportStep />;
