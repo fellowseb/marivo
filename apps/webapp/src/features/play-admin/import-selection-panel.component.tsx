@@ -46,7 +46,7 @@ function SectionRow(props: {
           {expanded ? "▼" : "▶"}
         </button>
         <span className={styles.sectionTitle}>
-          {"  ".repeat(props.section.headingLevel - 1)}
+          {"  ".repeat(Math.max(0, props.section.headingLevel - 1))}
           {props.section.title}
         </span>
         <span className={styles.count}>{props.section.lineIds.length} lines</span>
