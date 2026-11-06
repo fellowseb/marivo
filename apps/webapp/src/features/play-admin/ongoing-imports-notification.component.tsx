@@ -35,7 +35,7 @@ export function OngoingImportsNotification() {
           You have <strong>{ongoingImports.length}</strong> ongoing script import
           {ongoingImports.length > 1 ? "s" : ""}.
         </span>
-        <NavLink to="/plays/imports">
+        <NavLink to="/plays/new/import">
           <Button customClassNames={[styles.viewButton]}>View Imports</Button>
         </NavLink>
       </div>

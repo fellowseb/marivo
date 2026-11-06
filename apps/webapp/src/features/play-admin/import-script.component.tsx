@@ -15,6 +15,7 @@ import DotsLoader from "../../components/dots-loader.component";
 import styles from "./import-script.module.css";
 import { assertUnreachable } from "@marivo/utils";
 import { ImportScriptContextProvider, useImportScriptContext } from "./import-script.context";
+import { OngoingImportsSection } from "./ongoing-imports-section.component";
 import { ImportScriptPreviewToolbar } from "./import-script-preview-toolbar";
 import { PreviewScriptStep } from "./preview-script-step.component";
 import { NamePlayStep } from "./name-play-step.component";
@@ -292,6 +293,7 @@ function ImportStep() {
         </>
       }
     >
+      <OngoingImportsSection />
       Provide the script file(s) by either uploading it(/them) from disk or entering a URL to a
       remote location.
       <Admonition type="info">
