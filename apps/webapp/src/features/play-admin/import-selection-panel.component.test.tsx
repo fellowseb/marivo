@@ -3,8 +3,9 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ImportSelectionPanel } from "./import-selection-panel.component";
 import {
   computeImportSelectionModel,
-  EMPTY_SELECTION,
   computeKeptLineIds,
+  EMPTY_SELECTION,
+  type ImportSelection,
 } from "./import-selection.lib";
 import type { Line, LineContent } from "../script/script.models";
 
@@ -22,80 +23,100 @@ function heading(id: string, text: string, level: number): LineContent {
   };
 }
 
-function makeModel() {
-  const order = ["h0", "l1"];
-  const contents: Record<string, LineContent> = {
-    h0: heading("h0", "Title (level 0)", 0),
-    l1: {
-      id: "l1",
-      lineId: "l1",
-      type: "saved_version",
-      version: 1,
-      lastModifiedDate: new Date(0),
-      authorUsername: "a",
-      lineType: "freetext",
-      text: "text",
-    } as LineContent,
+function chartext(id: string, chars: string[], text: string): LineContent {
+  return {
+    id,
+    lineId: id,
+    type: "saved_version",
+    version: 1,
+    lastModifiedDate: new Date(0),
+    authorUsername: "a",
+    lineType: "chartext",
+    characters: chars,
+    text,
   };
+}
+
+// Title (level 0), Act I (level 1) with two hamlet lines
+const ORDER = ["h0", "h1", "l1", "l2"];
+const CONTENTS: Record<string, LineContent> = {
+  h0: heading("h0", "Hamlet (level 0)", 0),
+  h1: heading("h1", "Act I", 1),
+  l1: chartext("l1", ["c1"], "To be"),
+  l2: chartext("l2", ["c1"], "Or not"),
+};
+
+function makeModel() {
   const lines = new Map<string, Line>(
-    order.map((id) => [id, { id, type: contents[id].lineType, lastModifiedDate: new Date(0) }]),
+    ORDER.map((id) => [id, { id, type: CONTENTS[id].lineType, lastModifiedDate: new Date(0) }]),
   );
-  const lineContents = new Map(Object.entries(contents));
+  const lineContents = new Map(Object.entries(CONTENTS));
   const lineToContents = new Map(
-    order.map((id) => [id, { sharedDrafts: [], versions: [contents[id].id] }]),
+    ORDER.map((id) => [id, { sharedDrafts: [], versions: [CONTENTS[id].id] }]),
   );
   return computeImportSelectionModel({
     lines,
     lineContents,
     lineToContents,
-    linesOrder: order,
-    characters: {},
+    linesOrder: ORDER,
+    characters: { c1: "HAMLET" },
   });
+}
+
+function renderPanel(selection: ImportSelection, selectedLineIds: Set<string>) {
+  let current = selection;
+  const model = makeModel();
+  const utils = render(
+    <ImportSelectionPanel
+      model={model}
+      selection={current}
+      onChange={(s) => {
+        current = s;
+      }}
+      keptCount={computeKeptLineIds(model, current, ORDER).length}
+      totalCount={ORDER.length}
+      selectedLineIds={selectedLineIds}
+      onClose={() => {}}
+    />,
+  );
+  return { ...utils, getSelection: () => current, model };
 }
 
 describe("ImportSelectionPanel", () => {
   afterEach(() => cleanup());
 
-  it("renders a level-0 heading section without crashing (repeat(-1) regression)", () => {
-    const model = makeModel();
-    render(
-      <ImportSelectionPanel
-        model={model}
-        selection={EMPTY_SELECTION}
-        onChange={() => {}}
-        keptCount={2}
-        totalCount={2}
-      />,
-    );
-    expect(screen.getByText("Title (level 0)")).toBeTruthy();
+  it("renders a level-0 part without crashing (repeat(-1) regression) and shows Included/Excluded sections", () => {
+    renderPanel(EMPTY_SELECTION, new Set());
+    expect(screen.getByText("Import selection")).toBeTruthy();
+    expect(screen.getByText(/Hamlet \(level 0\)/)).toBeTruthy();
+    expect(screen.getByText(/Act I/)).toBeTruthy();
+    expect(screen.getByText("Included")).toBeTruthy();
+    expect(screen.getByText(/Excluded \(0\)/)).toBeTruthy();
+    expect(screen.getByText("HAMLET")).toBeTruthy();
   });
 
-  it("unchecking a section excludes its lines from the kept set", () => {
-    const model = makeModel();
-    let selection = EMPTY_SELECTION;
-    const { rerender } = render(
-      <ImportSelectionPanel
-        model={model}
-        selection={selection}
-        onChange={(s) => {
-          selection = s;
-        }}
-        keptCount={2}
-        totalCount={2}
-      />,
-    );
-    fireEvent.click(screen.getByRole("checkbox"));
-    rerender(
-      <ImportSelectionPanel
-        model={model}
-        selection={selection}
-        onChange={(s) => {
-          selection = s;
-        }}
-        keptCount={0}
-        totalCount={2}
-      />,
-    );
-    expect(computeKeptLineIds(model, selection, ["h0", "l1"])).toEqual([]);
+  it("unchecking a part excludes its lines from the kept set", () => {
+    const { getSelection, model } = renderPanel(EMPTY_SELECTION, new Set());
+    // first checkbox is the first part (h0)
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+    expect(computeKeptLineIds(model, getSelection(), ORDER)).toEqual([]);
+  });
+
+  it("shows Exclude from import for selected lines and moves them to the Excluded list", () => {
+    const { getSelection, model } = renderPanel(EMPTY_SELECTION, new Set(["l1"]));
+    fireEvent.click(screen.getByRole("button", { name: /Exclude from import/ }));
+    const selection = getSelection();
+    expect(selection.excludedLines.has("l1")).toBe(true);
+    expect(computeKeptLineIds(model, selection, ORDER)).toEqual(["h0", "h1", "l2"]);
+  });
+
+  it("shows Include into import when all selected lines are excluded", () => {
+    const selection: ImportSelection = {
+      ...EMPTY_SELECTION,
+      excludedLines: new Set(["l1"]),
+    };
+    const { getSelection, model } = renderPanel(selection, new Set(["l1"]));
+    fireEvent.click(screen.getByRole("button", { name: /Include into import/ }));
+    expect(computeKeptLineIds(model, getSelection(), ORDER)).toEqual(ORDER);
   });
 });

@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import ErrorBoundary from "../../components/error-boundary.component";
 import PageNotFound from "../../components/page-not-found.component";
 import DotsLoader from "../../components/dots-loader.component";
@@ -41,8 +41,8 @@ function PreviewStepInner(props: {
   onBack: () => void;
 }) {
   const previewScriptContext = useScriptContext();
-  const [showSelectionPanel, setShowSelectionPanel] = useState(false);
   const [selection, setSelection] = useState<ImportSelection>(EMPTY_SELECTION);
+  const [selectedLineIds, setSelectedLineIds] = useState<Set<string>>(new Set());
   const selectionModel = useMemo(
     () => (previewScriptContext ? computeImportSelectionModel(previewScriptContext) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,11 +66,18 @@ function PreviewStepInner(props: {
     showSearchPanel,
     showNavigatePanel,
     showCharactersPanel,
+    showImportSelectionPanel,
     setShowSearchPanel,
     setShowNavigatePanel,
     setShowCharactersPanel,
+    setShowImportSelectionPanel,
   } = useScriptTabToolbarContext();
-  const showPanels = showSearchPanel || showNavigatePanel || showCharactersPanel;
+  // the import-selection panel is open by default (unlike the other panels)
+  useEffect(() => {
+    setShowImportSelectionPanel(true);
+  }, [setShowImportSelectionPanel]);
+  const showPanels =
+    showSearchPanel || showNavigatePanel || showCharactersPanel || showImportSelectionPanel;
   const handleCloseSearchPanel = () => {
     setShowSearchPanel(false);
   };
@@ -92,13 +99,6 @@ function PreviewStepInner(props: {
         Actions={
           <>
             <Button icon="previous" onClick={props.onBack} />
-            <Button
-              icon="filter"
-              variant={showSelectionPanel ? "standout" : "discrete"}
-              onClick={() => setShowSelectionPanel((s) => !s)}
-            >
-              Select parts
-            </Button>
             <Button rightIcon="next" onClick={handleReviewDone}>
               Done
             </Button>
@@ -114,17 +114,20 @@ function PreviewStepInner(props: {
           isEditable={false}
           scriptContext={previewScriptContext}
           excludedLineIds={new Set(allLineIds.filter((id) => !keptLineIds.includes(id)))}
+          onSelectedLinesChange={setSelectedLineIds}
         />
       </FlowStep>
-      {showPanels || showSelectionPanel ? (
+      {showPanels ? (
         <div className={styles.panelsContainer}>
-          {showSelectionPanel && selectionModel ? (
+          {showImportSelectionPanel && selectionModel ? (
             <ImportSelectionPanel
               model={selectionModel}
               selection={selection}
               onChange={setSelection}
               keptCount={keptLineIds.length}
               totalCount={allLineIds.length}
+              selectedLineIds={selectedLineIds}
+              onClose={() => setShowImportSelectionPanel(false)}
             />
           ) : null}
           {showSearchPanel ? <ScriptSearchPanel onClose={handleCloseSearchPanel} /> : null}

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import Panel from "../../components/panel.component";
+import Button from "../../components/button.component";
 import type { ImportSection, ImportSelection, ImportSelectionModel } from "./import-selection.lib";
 import styles from "./import-selection-panel.module.css";
 
@@ -8,6 +9,9 @@ interface ImportSelectionPanelProps {
   onChange: (selection: ImportSelection) => void;
   keptCount: number;
   totalCount: number;
+  /** Lines currently selected in the script view. */
+  selectedLineIds: Set<string>;
+  onClose?: () => void;
 }
 
 function toggle(set: Set<string>, id: string): Set<string> {
@@ -20,93 +24,102 @@ function toggle(set: Set<string>, id: string): Set<string> {
   return next;
 }
 
-function SectionRow(props: {
-  section: ImportSection;
-  selection: ImportSelection;
-  onToggleSection: (id: string) => void;
-  onToggleLine: (id: string) => void;
-  lineTitles: Map<string, string>;
+function scrollToLine(lineId: string) {
+  const elem = document.getElementById(`script-line-${lineId}`);
+  if (!elem) {
+    return;
+  }
+  window.scrollBy({ top: elem.offsetTop - window.pageYOffset, left: 0, behavior: "instant" });
+}
+
+function PartRow(props: {
+  part: ImportSection;
+  excluded: boolean;
+  onToggle: (id: string) => void;
+  isLast: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  const checked = !props.selection.excludedSections.has(props.section.id);
+  // same tree-drawing trick as the Navigate panel
+  let treeStruct = props.part.headingLevel === 0 ? "" : props.isLast ? "└" : "├";
+  if (props.part.headingLevel !== 0) {
+    treeStruct = treeStruct.concat(...new Array(props.part.headingLevel).fill("─"));
+    treeStruct += " ";
+  }
   return (
-    <li className={styles.sectionItem}>
+    <li className={styles.partRow}>
       <label className={styles.row}>
         <input
           type="checkbox"
-          checked={checked}
-          onChange={() => props.onToggleSection(props.section.id)}
+          checked={!props.excluded}
+          onChange={() => props.onToggle(props.part.id)}
         />
-        <button
-          type="button"
-          className={styles.sectionToggle}
-          onClick={() => setExpanded((e) => !e)}
-          aria-label={expanded ? "Collapse section" : "Expand section"}
-        >
-          {expanded ? "▼" : "▶"}
-        </button>
-        <span className={styles.sectionTitle}>
-          {"  ".repeat(Math.max(0, props.section.headingLevel - 1))}
-          {props.section.title}
-        </span>
-        <span className={styles.count}>{props.section.lineIds.length} lines</span>
+        <Button variant="discrete" onClick={() => scrollToLine(props.part.id)}>
+          {treeStruct}
+          {props.part.title}
+        </Button>
+        <span className={styles.count}>{props.part.lineIds.length}</span>
       </label>
-      {expanded ? (
-        <ul className={styles.lineList}>
-          {props.section.lineIds.map((lineId) => (
-            <li key={lineId}>
-              <label className={styles.row}>
-                <input
-                  type="checkbox"
-                  checked={!props.selection.excludedLines.has(lineId)}
-                  onChange={() => props.onToggleLine(lineId)}
-                />
-                <span className={styles.lineTitle}>{props.lineTitles.get(lineId) ?? lineId}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      ) : null}
     </li>
   );
 }
 
-/** Panel to select which parts of the previewed play to import. */
+/** "Import selection" panel: Included (Parts as a hierarchy + Characters) and Excluded (lines). */
 export function ImportSelectionPanel(props: ImportSelectionPanelProps) {
   const { model, selection, onChange } = props;
-  const lineTitles = model.lineTitles;
   const toggleSection = (id: string) =>
     onChange({ ...selection, excludedSections: toggle(selection.excludedSections, id) });
   const toggleCharacter = (id: string) =>
     onChange({ ...selection, excludedCharacters: toggle(selection.excludedCharacters, id) });
-  const toggleLine = (id: string) =>
-    onChange({ ...selection, excludedLines: toggle(selection.excludedLines, id) });
+  const includeLines = (ids: string[]) =>
+    onChange({
+      ...selection,
+      excludedLines: new Set([...selection.excludedLines].filter((id) => !ids.includes(id))),
+    });
+  const excludeLines = (ids: string[]) =>
+    onChange({
+      ...selection,
+      excludedLines: new Set([...selection.excludedLines, ...ids]),
+    });
+
+  const excludedLineIds = [...selection.excludedLines];
+  const selected = [...props.selectedLineIds];
+  const allSelectedExcluded =
+    selected.length > 0 && selected.every((id) => selection.excludedLines.has(id));
 
   return (
-    <div className={styles.panel}>
-      <div className={styles.header}>
-        <strong>Select what to import</strong>
-        <span className={styles.count}>
-          {props.keptCount} / {props.totalCount} lines
-        </span>
+    <Panel title="Import selection" icon="filter" onClose={props.onClose}>
+      <div className={styles.summary}>
+        {props.keptCount} / {props.totalCount} lines selected
       </div>
-      <div className={styles.body}>
-        <h4 className={styles.groupTitle}>Sections</h4>
+      {selected.length > 0 ? (
+        <div className={styles.selectedActions}>
+          {allSelectedExcluded ? (
+            <Button icon="next" onClick={() => includeLines(selected)}>
+              Include into import
+            </Button>
+          ) : (
+            <Button icon="delete" onClick={() => excludeLines(selected)}>
+              Exclude from import
+            </Button>
+          )}
+        </div>
+      ) : null}
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}>Included</div>
+        <div className={styles.groupLabel}>Parts</div>
         <ul className={styles.list}>
-          {model.sections.map((section) => (
-            <SectionRow
-              key={section.id}
-              section={section}
-              selection={selection}
-              onToggleSection={toggleSection}
-              onToggleLine={toggleLine}
-              lineTitles={lineTitles}
+          {model.sections.map((part, idx, arr) => (
+            <PartRow
+              key={part.id}
+              part={part}
+              excluded={selection.excludedSections.has(part.id)}
+              onToggle={toggleSection}
+              isLast={idx === arr.length - 1}
             />
           ))}
         </ul>
         {model.characters.length > 0 ? (
           <>
-            <h4 className={styles.groupTitle}>Characters</h4>
+            <div className={styles.groupLabel}>Characters</div>
             <ul className={styles.list}>
               {model.characters.map((character) => (
                 <li key={character.id}>
@@ -116,8 +129,8 @@ export function ImportSelectionPanel(props: ImportSelectionPanelProps) {
                       checked={!selection.excludedCharacters.has(character.id)}
                       onChange={() => toggleCharacter(character.id)}
                     />
-                    <span className={styles.sectionTitle}>{character.name}</span>
-                    <span className={styles.count}>{character.lineIds.length} lines</span>
+                    <span className={styles.partTitle}>{character.name}</span>
+                    <span className={styles.count}>{character.lineIds.length}</span>
                   </label>
                 </li>
               ))}
@@ -125,6 +138,19 @@ export function ImportSelectionPanel(props: ImportSelectionPanelProps) {
           </>
         ) : null}
       </div>
-    </div>
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}>Excluded ({excludedLineIds.length})</div>
+        <ul className={styles.excludedList}>
+          {excludedLineIds.map((lineId) => (
+            <li key={lineId} className={styles.excludedItem}>
+              <Button variant="discrete" onClick={() => scrollToLine(lineId)}>
+                {model.lineTitles.get(lineId) ?? lineId}
+              </Button>
+              <Button icon="close" variant="discrete" onClick={() => includeLines([lineId])} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Panel>
   );
 }
