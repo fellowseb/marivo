@@ -12,6 +12,9 @@ let statusValue: unknown;
 let statusShouldFail = false;
 let statusCalls = 0;
 let capturedImportId = '';
+let scriptShouldHang = false;
+let scriptResolve: ((value: unknown) => void) | null = null;
+const scriptValue = { lastModifiedDate: new Date(0) };
 const SRV_IMPORT_ID = '20000000-0000-4000-8000-0000000000aa';
 const RESUME_ID = '10000000-0000-4000-8000-000000000001';
 const initMock = vi.fn().mockResolvedValue({ importId: SRV_IMPORT_ID });
@@ -49,6 +52,21 @@ vi.mock('../../trpc', () => ({
           };
         },
         queryKey: () => ['importScriptStatus'],
+      },
+    },
+    script: {
+      latestChanges: {
+        queryOptions: (input: unknown) => ({
+          queryKey: ['latestChanges', input],
+          queryFn: () => {
+            if (scriptShouldHang) {
+              return new Promise((resolve) => {
+                scriptResolve = resolve;
+              });
+            }
+            return Promise.resolve(scriptValue);
+          },
+        }),
       },
     },
   }),
@@ -99,6 +117,8 @@ describe('ImportScriptContext status transitions', () => {
     vi.clearAllMocks();
     statusShouldFail = false;
     statusCalls = 0;
+    scriptShouldHang = false;
+    scriptResolve = null;
     statusValue = { status: 'uploading_files', error: null };
   });
   afterEach(() => cleanup());
@@ -116,7 +136,7 @@ describe('ImportScriptContext status transitions', () => {
     await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"processing":true'));
   });
 
-  it('advances to preview on reviewing', async () => {
+  it('advances to preview on reviewing once the script payload is loaded', async () => {
     statusValue = REVIEWING;
     renderWithProviders(
       <ImportScriptContextProvider>
@@ -124,6 +144,29 @@ describe('ImportScriptContext status transitions', () => {
       </ImportScriptContextProvider>,
       resumeAt(RESUME_ID),
     );
+    await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"'), {
+      timeout: 9000,
+    });
+  });
+
+  it('stays on the import page while reviewing until the script payload arrives', async () => {
+    statusValue = REVIEWING;
+    scriptShouldHang = true;
+    renderWithProviders(
+      <ImportScriptContextProvider>
+        <Probe />
+      </ImportScriptContextProvider>,
+      resumeAt(RESUME_ID),
+    );
+    // status is reviewing, but the script query is still pending: no preview yet
+    await waitFor(() =>
+      expect(screen.getByTestId('probe').textContent).toContain('"processing":true'),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    expect(screen.getByTestId('probe').textContent).toContain('"name":"import"');
+    expect(screen.getByTestId('probe').textContent).not.toContain('"preview"');
+    // script payload arrives -> advance to preview
+    scriptResolve?.(scriptValue);
     await waitFor(() => expect(screen.getByTestId('probe').textContent).toContain('"name":"preview"'), {
       timeout: 9000,
     });

@@ -71,11 +71,26 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
   statusQry.enabled = Boolean(importId) && (step === undefined || step.name === "import");
   statusQry.refetchInterval = 5000;
   const { status: statusStatus, data: statusData } = useQuery(statusQry);
+  // Fetch the imported script as soon as the import becomes reviewable. The
+  // flow stays on the import page (with its processing indicator) until this
+  // resolves, so the preview step never mounts into a full-page suspense
+  // fallback showing only the banner and a dots loader.
+  const previewQuery = useQuery({
+    ...trpc.script.latestChanges.queryOptions({
+      since: new Date(0),
+      uri: importId,
+      from: "import",
+    }),
+    enabled: Boolean(importId) && statusData?.status === "reviewing",
+  });
   useEffect(() => {
     if (statusStatus === "success" && statusData.id === importId) {
       switch (statusData.status) {
         case "processing_files":
         case "uploading_files":
+        case "reviewing":
+          // "reviewing" also keeps the import page visible: the preview step
+          // only mounts once previewQuery has the script (see effect below).
           setStep((prev) => {
             if (
               !prev ||
@@ -99,26 +114,27 @@ export function ImportScriptContextProvider(props: PropsWithChildren) {
             error: statusData.error ?? "The import failed.",
           });
           break;
-        case "reviewing":
-          setStep((prev) => {
-            if (
-              !prev ||
-              (prev &&
-                (prev.name !== "preview" ||
-                  prev.metadata !== statusData.metadata ||
-                  prev.importId !== importId))
-            ) {
-              return {
-                name: "preview",
-                importId,
-                metadata: statusData.metadata,
-              };
-            }
-          });
-          break;
       }
     }
   }, [statusStatus, statusData, importId]);
+  // Advance to the preview step only once the script payload is actually
+  // loaded, so the user waits on the import page instead of on a blank
+  // suspense fallback. The suspense query in the preview reuses this cache.
+  useEffect(() => {
+    if (
+      statusStatus === "success" &&
+      statusData.id === importId &&
+      statusData.status === "reviewing" &&
+      previewQuery.data &&
+      (step === undefined || step.name === "import")
+    ) {
+      setStep({
+        name: "preview",
+        importId,
+        metadata: statusData.metadata,
+      });
+    }
+  }, [statusStatus, statusData, importId, previewQuery.data, step]);
   // The poll only runs once a server-generated (or resumed) importId exists,
   // so a query failure here genuinely means the import is gone. The importId
   // guard also prevents a stale cached error from re-appearing after Start over.
