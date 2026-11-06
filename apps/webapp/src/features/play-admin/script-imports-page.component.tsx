@@ -55,6 +55,7 @@ interface ScriptImportItemProps {
 function ScriptImportItem({ imp }: ScriptImportItemProps) {
   const statusLabel = getStatusLabel(imp.status);
   const statusVariant = getStatusVariant(imp.status);
+  const isOngoing = ["uploading_files", "processing_files", "reviewing"].includes(imp.status);
   const isReviewing = imp.status === "reviewing";
 
   return (
@@ -76,13 +77,21 @@ function ScriptImportItem({ imp }: ScriptImportItemProps) {
             {imp.error}
           </div>
         ) : null}
-        {isReviewing && (
+        {isOngoing && (
           <div className={styles.scriptImportActions}>
-            <NavLink to={`/plays/new/import?resume=${imp.id}`}>
-              <Button icon="next" variant="standout">
+            {isReviewing ? (
+              <NavLink to={`/plays/new/import?resume=${imp.id}`}>
+                <Button icon="next" variant="standout">
+                  Resume
+                </Button>
+              </NavLink>
+            ) : (
+              // Not reviewable yet: keep the button visible but disabled with a
+              // waiting icon, so resuming can't flash the import step first.
+              <Button icon="animatedWaiting" variant="standout" disabled={true}>
                 Resume
               </Button>
-            </NavLink>
+            )}
           </div>
         )}
       </div>
