@@ -14,6 +14,7 @@ import ScriptSearchPanel from "../script-edition/script-search-panel.component";
 import ScriptNavigatePanel from "../script-edition/script-navigate-panel.component";
 import ScriptCharactersPanel from "../script-edition/script-characters-panel.component";
 import { ImportSelectionPanel } from "./import-selection-panel.component";
+import MenuDropdown from "../../components/menu-dropdown.component";
 import {
   computeImportSelectionModel,
   computeKeptLineIds,
@@ -43,6 +44,32 @@ function PreviewStepInner(props: {
   const previewScriptContext = useScriptContext();
   const [selection, setSelection] = useState<ImportSelection>(EMPTY_SELECTION);
   const [selectedLineIds, setSelectedLineIds] = useState<Set<string>>(new Set());
+  const [lineIdForMenu, setLineIdForMenu] = useState<string | null>(null);
+  const handleShowLineMenu = (id: string) => {
+    setLineIdForMenu((prev) => (prev === id ? null : id));
+  };
+  // the menu acts on the clicked line, or on the whole current selection if
+  // the clicked line is part of it
+  const applyExclude = (exclude: boolean) => {
+    const targets =
+      lineIdForMenu && selectedLineIds.has(lineIdForMenu)
+        ? [...selectedLineIds]
+        : lineIdForMenu
+          ? [lineIdForMenu]
+          : [];
+    if (targets.length === 0) {
+      return;
+    }
+    setSelection((prev) => ({
+      ...prev,
+      excludedLines: new Set(
+        exclude
+          ? [...prev.excludedLines, ...targets]
+          : [...prev.excludedLines].filter((id) => !targets.includes(id)),
+      ),
+    }));
+    setLineIdForMenu(null);
+  };
   const selectionModel = useMemo(
     () => (previewScriptContext ? computeImportSelectionModel(previewScriptContext) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,6 +85,7 @@ function PreviewStepInner(props: {
   const keptLineIds = selectionModel
     ? computeKeptLineIds(selectionModel, selection, allLineIds)
     : allLineIds;
+  const menuLineExcluded = lineIdForMenu ? !keptLineIds.includes(lineIdForMenu) : false;
   const handleReviewDone = () => {
     // undefined = keep everything (server default)
     props.onReviewDone(keptLineIds.length === allLineIds.length ? undefined : keptLineIds);
@@ -115,8 +143,25 @@ function PreviewStepInner(props: {
           scriptContext={previewScriptContext}
           excludedLineIds={new Set(allLineIds.filter((id) => !keptLineIds.includes(id)))}
           onSelectedLinesChange={setSelectedLineIds}
+          onLineMenuClicked={handleShowLineMenu}
         />
       </FlowStep>
+      {lineIdForMenu ? (
+        <MenuDropdown
+          positionAnchorName={`--menu-anchor-${lineIdForMenu}`}
+          onBlur={() => setLineIdForMenu(null)}
+        >
+          {menuLineExcluded ? (
+            <Button icon="next" onClick={() => applyExclude(false)}>
+              Include into import
+            </Button>
+          ) : (
+            <Button icon="delete" onClick={() => applyExclude(true)}>
+              Exclude from import
+            </Button>
+          )}
+        </MenuDropdown>
+      ) : null}
       {showPanels ? (
         <div className={styles.panelsContainer}>
           {showImportSelectionPanel && selectionModel ? (

@@ -280,7 +280,7 @@ function ScriptLine(props: ScriptLineProps) {
             dangerouslySetInnerHTML={dangerouslySetInnerHTML}
             suppressContentEditableWarning={true}
           ></div>
-          {isEditable ? (
+          {props.onShowMenu ? (
             <div
               className={classNames({
                 [styles.menuHandle]: true,
