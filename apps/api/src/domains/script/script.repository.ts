@@ -300,6 +300,90 @@ export class ScriptRepository extends UserRepositoryBase {
     return scriptRow.id;
   }
 
+  /**
+   * Duplicate a script into a new script row: all lines are copied (same line
+   * ids, so lines_order stays valid), but only the latest saved version of
+   * each line is kept — older saved versions, shared drafts and per-user
+   * drafts are dropped. Runs in the caller's transaction.
+   */
+  async copyScript(scriptId: number): Promise<Result<number, ScriptNotFound>> {
+    const [scriptRow] = await this.sql<{ id: number }[]>`
+      INSERT INTO scripts (
+        checksum,
+        lines_order,
+        characters
+      )
+      SELECT
+        checksum,
+        lines_order,
+        characters
+      FROM scripts
+      WHERE id = ${scriptId}
+      RETURNING id;
+    `;
+    if (!scriptRow) {
+      return Result.failure(new ScriptNotFound());
+    }
+    const newScriptId = scriptRow.id;
+    await this.sql`
+      INSERT INTO lines (
+        id,
+        script_id,
+        type,
+        last_modified_date
+      )
+      SELECT
+        id,
+        ${newScriptId},
+        type,
+        last_modified_date
+      FROM lines
+      WHERE script_id = ${scriptId};
+    `;
+    await this.sql`
+      INSERT INTO lines_contents (
+        id,
+        script_id,
+        type,
+        line_id,
+        line_type,
+        deleted,
+        characters,
+        heading_level,
+        text,
+        last_modified_date,
+        checksum,
+        version,
+        author_id
+      )
+      SELECT
+        lc.id,
+        ${newScriptId},
+        lc.type,
+        lc.line_id,
+        lc.line_type,
+        lc.deleted,
+        lc.characters,
+        lc.heading_level,
+        lc.text,
+        lc.last_modified_date,
+        lc.checksum,
+        lc.version,
+        lc.author_id
+      FROM lines_contents lc
+      WHERE lc.script_id = ${scriptId}
+        AND lc.type = 'saved_version'
+        AND lc.version = (
+          SELECT MAX(lc2.version)
+          FROM lines_contents lc2
+          WHERE lc2.script_id = lc.script_id
+            AND lc2.line_id = lc.line_id
+            AND lc2.type = 'saved_version'
+        );
+    `;
+    return Result.ok(newScriptId);
+  }
+
   async saveLineContent(params: {
     scriptId: number;
     lineId: string;
