@@ -19,6 +19,11 @@
     "planningReminders": "Planning reminders"
   },
   "participants": {
+    "title": "Participants",
+    "userColumn": "User",
+    "roleColumn": "Role",
+    "matrixTitle": "Permissions by role",
+    "roleFor": "Role for {{username}}",
     "owner": "Owner",
     "script": "Script",
     "stagingDirections": "Staging directions",

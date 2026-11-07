@@ -19,6 +19,11 @@
     "planningReminders": "Rappels de planning"
   },
   "participants": {
+    "title": "Participants",
+    "userColumn": "Utilisateur",
+    "roleColumn": "Rôle",
+    "matrixTitle": "Permissions par rôle",
+    "roleFor": "Rôle de {{username}}",
     "owner": "Propriétaire",
     "script": "Script",
     "stagingDirections": "Notes de mise en scène",

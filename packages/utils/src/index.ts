@@ -38,3 +38,16 @@ export {
   type SupportedLanguage,
   type LanguageValue,
 } from "./languages.ts";
+export {
+  PLAY_ROLES,
+  PLAY_PERMISSIONS,
+  PLAY_ROLE_PERMISSIONS,
+  ASSIGNABLE_PLAY_ROLES,
+  isPlayRole,
+  isAssignablePlayRole,
+  playRolePermissions,
+  type PlayRole,
+  type PlayPermission,
+  type PlayPermissions,
+  type AssignablePlayRole,
+} from "./play-roles.ts";

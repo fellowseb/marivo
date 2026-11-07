@@ -34,6 +34,10 @@ import {
 } from "./create-play-from-collection.use-case.ts";
 import { GetAllScriptImportsUseCaseOutputSchema } from "./get-all-script-imports.use-case.ts";
 import { DeleteScriptImportUseCaseInputSchema } from "./delete-script-import.use-case.ts";
+import {
+  SetParticipantRoleUseCaseInputSchema,
+  SetParticipantRoleUseCaseOutputSchema,
+} from "./set-participant-role.use-case.ts";
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,6 +84,11 @@ export default router({
     .use(resourceAuth(providers.PlayAccessChecker))
     .output(PlayDetailsUseCaseOutputSchema)
     .query(handleUseCase(providers.PlayDetailsUseCase)),
+  setParticipantRole: publicProcedure
+    .input(SetParticipantRoleUseCaseInputSchema)
+    .use(resourceAuth(providers.PlaySettingsWriteChecker))
+    .output(SetParticipantRoleUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.SetParticipantRoleUseCase)),
   initImportScript: publicProcedure
     .input(InitImportScriptUseCaseInputSchema)
     .output(InitImportScriptUseCaseOutputSchema)

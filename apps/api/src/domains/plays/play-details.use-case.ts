@@ -33,6 +33,7 @@ export const PlayDetailsUseCaseOutputSchema = z.object({
     z.string(),
     z.object({
       fullName: z.string(),
+      role: z.string().nullable(),
     }),
   ),
   permissions: PERMISSIONS_SCHEMA.strict(),
@@ -60,7 +61,7 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
           details,
           permissions,
           participants: {
-            [details.ownerUsername]: { fullName: details.ownerFullName },
+            [details.ownerUsername]: { fullName: details.ownerFullName, role: "owner" },
             ...participants,
           },
         });
