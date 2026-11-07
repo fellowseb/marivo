@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import classNames from "classnames";
 import styles from "./general-settings.module.css";
 import Button from "../../components/button.component";
@@ -6,6 +7,7 @@ import { useState } from "react";
 import DeletePlayDialog from "./delete-play-dialog.component";
 
 function GeneralSettings() {
+  const { t } = useTranslation("settings");
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const playDetails = usePlayContext();
   const ready = playDetails?.isOk();
@@ -24,25 +26,25 @@ function GeneralSettings() {
     <>
       <div className={styles.container}>
         <div className={styles.line}>
-          <label>Play Title</label>
+          <label>{t("general.playTitle")}</label>
           <input type="text" value={playDetails.dataOrThrow().details.title} size={40} />
         </div>
         <div className={styles.line}>
-          <label>Creation Date</label>
+          <label>{t("general.creationDate")}</label>
           <span>{playDetails.dataOrThrow().details.createdDate.toLocaleString()}</span>
         </div>
         <div className={styles.line}>
-          <label>Last Modification Date</label>
+          <label>{t("general.lastModificationDate")}</label>
           <span>{playDetails.dataOrThrow().details.lastModifiedDate.toLocaleString()}</span>
         </div>
         <div className={styles.line}>
-          <label>Archive the project</label>
+          <label>{t("general.archive")}</label>
           <Button icon="archive">Archive</Button>
         </div>
         <div className={classNames([styles.section, styles.sectionDanger])}>
           <div className={classNames([styles.sectionTitle])}>Danger zone</div>
           <div className={styles.line}>
-            <label>Delete the project</label>
+            <label>{t("general.delete")}</label>
             <Button icon="delete" onClick={handleDelete}>
               Delete
             </Button>

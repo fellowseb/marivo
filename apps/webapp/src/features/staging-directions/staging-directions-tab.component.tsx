@@ -1,30 +1,32 @@
+import { useTranslation } from "react-i18next";
 import Tabs from "../../components/tabs.component";
 import styles from "./staging-directions-tab.module.css";
 
 function StagingDirectionsTab() {
+  const { t } = useTranslation("settings");
   return (
     <div className={styles.container}>
       <Tabs
         containerClass={styles.tabs}
         tabs={[
           {
-            name: "Characters",
+            name: t("staging.characters"),
             ContentComponent: <div>CharactersList</div>,
           },
           {
-            name: "Props",
+            name: t("staging.props"),
             ContentComponent: <div>PropsList</div>,
           },
           {
-            name: "Costumes",
+            name: t("staging.costumes"),
             ContentComponent: <div>CostumesList</div>,
           },
           {
-            name: "Lights",
+            name: t("staging.lights"),
             ContentComponent: <div>LightsList</div>,
           },
           {
-            name: "Sounds",
+            name: t("staging.sounds"),
             ContentComponent: <div>SoundsList</div>,
           },
         ]}

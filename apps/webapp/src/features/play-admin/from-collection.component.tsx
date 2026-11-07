@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useUser } from "@clerk/react";
 import { hasCapability, parseRole } from "@marivo/utils";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -27,6 +28,7 @@ import {
 } from "./from-collection-filters.lib";
 
 export function FromCollectionBreadcrumbs() {
+  const { t } = useTranslation();
   return (
     <HeaderBreadcrumbs
       key="new-from-collection"
@@ -36,14 +38,14 @@ export function FromCollectionBreadcrumbs() {
             pathname: "/plays/new",
           }}
         >
-          New play
+          {t("layout:newPlay")}
         </NavLink>,
         <NavLink
           to={{
             pathname: "/plays/new/from-collection",
           }}
         >
-          From collection
+          {t("layout:fromCollection")}
         </NavLink>,
       ]}
     />
@@ -156,6 +158,7 @@ function CollectionDetails(props: {
   bookmarkPending: boolean;
   onEdit?: (() => void) | undefined;
 }) {
+  const { t } = useTranslation("collection");
   const { script } = props;
   const characterNames = Object.values(script.characters);
   return (
@@ -165,10 +168,10 @@ function CollectionDetails(props: {
           <div className={styles.detailsTitle}>{script.title}</div>
           <div className={styles.detailsAuthor}>{script.author}</div>
         </DetailSection>
-        <DetailSection label="Synopsis">
+        <DetailSection label={t("details.synopsis")}>
           {script.synopsis ? <p className={styles.synopsis}>{script.synopsis}</p> : null}
         </DetailSection>
-        <DetailSection label="Characters">
+        <DetailSection label={t("details.characters")}>
           {characterNames.length > 0 ? (
             <ul className={styles.characters}>
               {characterNames.map((name) => (
@@ -177,31 +180,39 @@ function CollectionDetails(props: {
             </ul>
           ) : null}
         </DetailSection>
-        <DetailSection label="Distribution">
-          {script.numberOfRoles != null ? `${script.numberOfRoles} roles` : null}
-          {script.numberOfMaleRoles != null ? ` · ${script.numberOfMaleRoles} male` : ""}
-          {script.numberOfFemaleRoles != null ? ` · ${script.numberOfFemaleRoles} female` : ""}
+        <DetailSection label={t("details.distribution")}>
+          {script.numberOfRoles != null
+            ? t("details.rolesCount", { count: script.numberOfRoles })
+            : null}
+          {script.numberOfMaleRoles != null
+            ? ` · ${t("details.maleCount", { n: script.numberOfMaleRoles })}`
+            : ""}
+          {script.numberOfFemaleRoles != null
+            ? ` · ${t("details.femaleCount", { n: script.numberOfFemaleRoles })}`
+            : ""}
         </DetailSection>
-        <DetailSection label="Genre">{script.genre}</DetailSection>
-        <DetailSection label="Period">{script.period}</DetailSection>
-        <DetailSection label="Language">{script.lang.toUpperCase()}</DetailSection>
-        <DetailSection label="Other">{script.numberOfWords} words</DetailSection>
+        <DetailSection label={t("details.genre")}>{script.genre}</DetailSection>
+        <DetailSection label={t("details.period")}>{script.period}</DetailSection>
+        <DetailSection label={t("details.language")}>{script.lang.toUpperCase()}</DetailSection>
+        <DetailSection label={t("details.other")}>
+          {t("details.wordsCount", { count: script.numberOfWords })}
+        </DetailSection>
       </div>
       <div className={styles.detailsActions}>
         <Button
           icon="memorize"
-          ariaLabel={script.bookmarked ? "Remove bookmark" : "Bookmark"}
+          ariaLabel={script.bookmarked ? t("details.removeBookmark") : t("details.bookmark")}
           disabled={props.bookmarkPending}
           onClick={props.onToggleBookmark}
           customClassNames={[styles.bookmarkButton]}
         />
         {props.onEdit ? (
-          <Button icon="script" ariaLabel="Edit in collection" onClick={props.onEdit}>
-            Edit
+          <Button icon="script" ariaLabel={t("details.editInCollection")} onClick={props.onEdit}>
+            {t("details.edit")}
           </Button>
         ) : null}
-        <Button icon="close" ariaLabel="Close" onClick={props.onClose}>
-          Close
+        <Button icon="close" ariaLabel={t("details.close")} onClick={props.onClose}>
+          {t("details.close")}
         </Button>
       </div>
     </div>
@@ -215,6 +226,7 @@ interface PickStepProps {
 }
 
 function PickStep(props: PickStepProps) {
+  const { t } = useTranslation("collection");
   const { genres, periods } = useCollectionMetadataContext();
   const trpc = useTRPC();
   const navigate = useNavigate();
@@ -311,12 +323,12 @@ function PickStep(props: PickStepProps) {
 
   return (
     <FlowStep
-      title="Pick from our scripts collection"
+      title={t("pickTitle")}
       Actions={
         <>
           <Button icon="previous" onClick={handlePrevious} />
           <Button disabled={!selected} rightIcon="next" onClick={props.onNext}>
-            Next
+            {t("common:next")}
           </Button>
         </>
       }
@@ -333,7 +345,9 @@ function PickStep(props: PickStepProps) {
                 ? enabledCount > 0
                   ? `(${enabledCount})`
                   : ""
-                : `Filter by${enabledCount > 0 ? ` (${enabledCount})` : ""}`}
+                : enabledCount > 0
+                  ? t("filterByWithCount", { n: enabledCount })
+                  : t("filterBy")}
             </Button>
           </div>
           <div
@@ -343,7 +357,7 @@ function PickStep(props: PickStepProps) {
           >
             <div className={styles.filtersBody}>
               <FilterSection
-                label="Title"
+                label={t("filters.title")}
                 sectionKey="title"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -358,14 +372,14 @@ function PickStep(props: PickStepProps) {
                   {filters.title ? (
                     <Button
                       icon="close"
-                      ariaLabel="Clear title filter"
+                      ariaLabel={t("filters.clearTitle")}
                       onClick={() => setFilter("title", "")}
                     />
                   ) : null}
                 </div>
               </FilterSection>
               <FilterSection
-                label="Author"
+                label={t("filters.author")}
                 sectionKey="author"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -380,14 +394,14 @@ function PickStep(props: PickStepProps) {
                   {filters.author ? (
                     <Button
                       icon="close"
-                      ariaLabel="Clear author filter"
+                      ariaLabel={t("filters.clearAuthor")}
                       onClick={() => setFilter("author", "")}
                     />
                   ) : null}
                 </div>
               </FilterSection>
               <FilterSection
-                label="Language"
+                label={t("filters.language")}
                 sectionKey="languages"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -404,7 +418,7 @@ function PickStep(props: PickStepProps) {
                 />
               </FilterSection>
               <FilterSection
-                label="Number of roles"
+                label={t("filters.numberOfRoles")}
                 sectionKey="roles"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -418,7 +432,7 @@ function PickStep(props: PickStepProps) {
                 />
               </FilterSection>
               <FilterSection
-                label="Number of male roles"
+                label={t("filters.numberOfMaleRoles")}
                 sectionKey="maleRoles"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -432,7 +446,7 @@ function PickStep(props: PickStepProps) {
                 />
               </FilterSection>
               <FilterSection
-                label="Number of female roles"
+                label={t("filters.numberOfFemaleRoles")}
                 sectionKey="femaleRoles"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -446,7 +460,7 @@ function PickStep(props: PickStepProps) {
                 />
               </FilterSection>
               <FilterSection
-                label="Genre"
+                label={t("filters.genre")}
                 sectionKey="genres"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -463,7 +477,7 @@ function PickStep(props: PickStepProps) {
                 />
               </FilterSection>
               <FilterSection
-                label="Period"
+                label={t("filters.period")}
                 sectionKey="periods"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
@@ -480,28 +494,28 @@ function PickStep(props: PickStepProps) {
                 />
               </FilterSection>
               <FilterSection
-                label="Bookmarked"
+                label={t("filters.bookmarked")}
                 sectionKey="bookmarked"
                 openSections={filters.openSections}
                 onToggleSection={toggleSection}
                 filters={filters}
               >
                 <ToggleButton
-                  label="Only bookmarked"
+                  label={t("filters.onlyBookmarked")}
                   value={filters.bookmarkedOnly}
                   onToggle={(value) => setFilter("bookmarkedOnly", value)}
                 />
               </FilterSection>
               {canSeeArchived ? (
                 <FilterSection
-                  label="Archived"
+                  label={t("filters.archived")}
                   sectionKey="archived"
                   openSections={filters.openSections}
                   onToggleSection={toggleSection}
                   filters={filters}
                 >
                   <ToggleButton
-                    label="Only archived"
+                    label={t("filters.onlyArchived")}
                     value={filters.archivedOnly}
                     onToggle={(value) => setFilter("archivedOnly", value)}
                   />
@@ -511,8 +525,8 @@ function PickStep(props: PickStepProps) {
           </div>
           <div className={styles.filtersFooter}>
             {enabledCount > 0 ? (
-              <Button icon="clear" ariaLabel="Clear filters" onClick={clearFilters}>
-                {filtersHidden ? null : "Clear"}
+              <Button icon="clear" ariaLabel={t("filters.clearAll")} onClick={clearFilters}>
+                {filtersHidden ? null : t("filters.clear")}
               </Button>
             ) : null}
           </div>
@@ -520,11 +534,9 @@ function PickStep(props: PickStepProps) {
         <div className={styles.separator} />
         <div className={styles.resultsColumn}>
           <div className={classNames(styles.results, itemListStyles.list)}>
-            {isLoading ? <div>Loading collection…</div> : null}
-            {isError ? <div>Failed to load the collection.</div> : null}
-            {!isLoading && !isError && groups.length === 0 ? (
-              <div>No script matches the filters.</div>
-            ) : null}
+            {isLoading ? <div>{t("loading")}</div> : null}
+            {isError ? <div>{t("loadError")}</div> : null}
+            {!isLoading && !isError && groups.length === 0 ? <div>{t("noMatch")}</div> : null}
             {groups.map(([author, scripts]) => (
               <div key={author} className={styles.authorGroup}>
                 <div className={styles.authorHeader}>{author}</div>
@@ -555,17 +567,15 @@ function PickStep(props: PickStepProps) {
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              Prev
+              {t("common:prev")}
             </Button>
-            <span>
-              Page {page} / {totalPages} · {data?.total ?? 0} scripts
-            </span>
+            <span>{t("pagination", { page, totalPages, total: data?.total ?? 0 })}</span>
             <Button
               icon="next"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
-              Next page
+              {t("nextPage")}
             </Button>
           </div>
         </div>
@@ -609,7 +619,7 @@ function FromCollectionFlow() {
       <PreviewScriptStep
         scriptUri={selectedUri}
         from="collection"
-        sourceLabel="Pick from our scripts collection"
+        sourceLabel={t("sourceLabel")}
         toolbar={<ImportScriptPreviewToolbar />}
         onBack={() => setStep("pick")}
         onReviewDone={(ids) => {
@@ -622,7 +632,7 @@ function FromCollectionFlow() {
   if (step === "name" && selectedUri) {
     return (
       <NamePlayStep
-        sourceLabel="Pick from our scripts collection"
+        sourceLabel={t("sourceLabel")}
         onBack={() => setStep("preview")}
         createPlay={(title) =>
           createFromCollection({ title, collectionUri: selectedUri, lineIdsToKeep })

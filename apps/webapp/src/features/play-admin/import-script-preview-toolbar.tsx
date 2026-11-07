@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import Toolbar from "../../components/toolbar.component";
 import { useScriptTabToolbarContext } from "../script-edition/script-tab-toolbar.context.tsx";
 
 export function ImportScriptPreviewToolbar() {
+  const { t } = useTranslation("script");
   const {
     setShowNavigatePanel,
     setShowSearchPanel,
@@ -15,7 +17,7 @@ export function ImportScriptPreviewToolbar() {
         items: [
           {
             id: "script-search",
-            label: "search",
+            label: t("toolbar.search"),
             icon: "search",
             disabled: false,
             onAction: () => {
@@ -24,7 +26,7 @@ export function ImportScriptPreviewToolbar() {
           },
           {
             id: "script-navigate",
-            label: "navigate",
+            label: t("toolbar.navigate"),
             icon: "navigate",
             disabled: false,
             onAction: () => {
@@ -33,7 +35,7 @@ export function ImportScriptPreviewToolbar() {
           },
           {
             id: "script-characters",
-            label: "characters",
+            label: t("toolbar.characters"),
             icon: "characterLine",
             disabled: false,
             onAction: () => {
@@ -42,7 +44,7 @@ export function ImportScriptPreviewToolbar() {
           },
           {
             id: "import-selection",
-            label: "import selection",
+            label: t("toolbar.importSelection"),
             icon: "filter",
             disabled: false,
             onAction: () => {

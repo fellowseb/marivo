@@ -1,0 +1,6 @@
+{
+  "network": {
+    "backOnline": "Changement d'état du réseau détecté : de retour en ligne !",
+    "offline": "Changement d'état du réseau détecté : vous êtes hors ligne"
+  }
+}

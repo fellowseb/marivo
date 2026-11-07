@@ -1,4 +1,5 @@
 import { Suspense, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, Route, Routes, useNavigate, useParams } from "react-router";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import PlayPageLayout from "../../layouts/play-page-layout.component";
@@ -36,6 +37,7 @@ function PlayPageTitle() {
 }
 
 export function PlayPageBreadcrumbs() {
+  const { t } = useTranslation("layout");
   return (
     <HeaderBreadcrumbs
       key="plays"
@@ -45,7 +47,7 @@ export function PlayPageBreadcrumbs() {
             pathname: "/plays",
           }}
         >
-          My plays
+          {t("myPlays")}
         </NavLink>,
         <PlayPageTitle />,
       ]}

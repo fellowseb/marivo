@@ -1,18 +1,20 @@
+import { useTranslation } from "react-i18next";
 import classNames from "classnames";
 import styles from "./general-settings.module.css";
 
 function IntegrationsSettings() {
+  const { t } = useTranslation("settings");
   return (
     <div className={styles.container}>
       <div className={classNames([styles.section])}>
         <div className={classNames([styles.sectionTitle])}>Notifications</div>
         <div className={styles.line}>
-          <label>Notify WhatsApp group</label>
+          <label>{t("integrations.notifyWhatsapp")}</label>
           <input type="checkbox" />
           <input type="text" size={36} defaultValue="WhatsApp Group ID" disabled={true} />
         </div>
         <div className={styles.line}>
-          <label>Script updates</label>
+          <label>{t("integrations.scriptUpdates")}</label>
           <input type="checkbox" />
         </div>
         <div className={styles.line}>
@@ -20,15 +22,15 @@ function IntegrationsSettings() {
           <input type="checkbox" />
         </div>
         <div className={styles.line}>
-          <label>Blocking updates</label>
+          <label>{t("integrations.blockingUpdates")}</label>
           <input type="checkbox" />
         </div>
         <div className={styles.line}>
-          <label>Planning updates</label>
+          <label>{t("integrations.planningUpdates")}</label>
           <input type="checkbox" />
         </div>
         <div className={styles.line}>
-          <label>Planning reminders</label>
+          <label>{t("integrations.planningReminders")}</label>
           <input type="checkbox" />
         </div>
       </div>

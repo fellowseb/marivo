@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Button from "../../components/button.component";
 import CollapsibleSection from "../../components/collapsible-section.component";
 import Panel from "../../components/panel.component";
@@ -8,8 +9,9 @@ interface ScriptSearchPanelProps {
 }
 
 function ScriptSearchPanel(props: ScriptSearchPanelProps) {
+  const { t } = useTranslation("script");
   return (
-    <Panel title="Search" icon="search" onClose={props.onClose}>
+    <Panel title={t("panels.search")} icon="search" onClose={props.onClose}>
       <div className={styles.searchRow}>
         <input type="search" placeholder="Text..." />
       </div>

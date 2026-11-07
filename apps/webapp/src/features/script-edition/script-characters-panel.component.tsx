@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Button from "../../components/button.component";
 import Panel from "../../components/panel.component";
 import styles from "./script-characters-panel.module.css";
@@ -8,8 +9,9 @@ interface ScriptCharactersPanelProps {
 }
 
 function ScriptCharactersPanel(props: ScriptCharactersPanelProps) {
+  const { t } = useTranslation("script");
   return (
-    <Panel title="Characters" icon="characterLine" onClose={props.onClose}>
+    <Panel title={t("panels.characters")} icon="characterLine" onClose={props.onClose}>
       <div className={styles.content}>
         <ul className={styles.charactersContainer}>
           {Object.keys(props.characters).map((characterId) => {

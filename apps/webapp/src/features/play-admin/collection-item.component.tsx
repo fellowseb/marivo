@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Icon from "../../components/icon.component";
 import { ItemListItem } from "../../components/item-list/item-list.component";
 import styles from "./collection-item.module.css";
@@ -17,11 +18,15 @@ interface CollectionItemProps {
 }
 
 export function CollectionItem(props: CollectionItemProps) {
+  const { t } = useTranslation("collection");
   const roles =
     props.numberOfMaleRoles != null && props.numberOfFemaleRoles != null
-      ? `${props.numberOfMaleRoles} male + ${props.numberOfFemaleRoles} female`
+      ? t("item.rolesMaleFemale", {
+          male: props.numberOfMaleRoles,
+          female: props.numberOfFemaleRoles,
+        })
       : props.numberOfRoles != null
-        ? `${props.numberOfRoles} roles`
+        ? t("item.rolesCount", { count: props.numberOfRoles })
         : null;
   const meta = [props.lang.toUpperCase(), props.genre, props.period, roles]
     .filter(Boolean)
@@ -33,12 +38,14 @@ export function CollectionItem(props: CollectionItemProps) {
       title={
         <>
           {props.title}
-          {props.archived ? <span className={styles.archivedBadge}>archived</span> : null}
+          {props.archived ? (
+            <span className={styles.archivedBadge}>{t("item.archived")}</span>
+          ) : null}
         </>
       }
       trailing={
         props.bookmarked ? (
-          <span className={styles.bookmark} role="img" aria-label="Bookmarked">
+          <span className={styles.bookmark} role="img" aria-label={t("item.bookmarked")}>
             <Icon value="memorize" size="medium" mode="primary" />
           </span>
         ) : null

@@ -1,0 +1,54 @@
+{
+  "tabs": {
+    "general": "Général",
+    "participants": "Participants & permissions",
+    "integrations": "Intégrations"
+  },
+  "general": {
+    "playTitle": "Titre de la pièce",
+    "creationDate": "Date de création",
+    "lastModificationDate": "Date de dernière modification",
+    "archive": "Archiver le projet",
+    "delete": "Supprimer le projet"
+  },
+  "integrations": {
+    "notifyWhatsapp": "Notifier le groupe WhatsApp",
+    "scriptUpdates": "Mises à jour du script",
+    "blockingUpdates": "Mises à jour du blocage",
+    "planningUpdates": "Mises à jour du planning",
+    "planningReminders": "Rappels de planning"
+  },
+  "participants": {
+    "owner": "Propriétaire",
+    "script": "Script",
+    "stagingDirections": "Notes de mise en scène",
+    "blocking": "Blocage",
+    "memorize": "Mémorisation",
+    "planning": "Planning",
+    "settings": "Réglages"
+  },
+  "deleteDialog": {
+    "title": "Supprimer le projet de pièce courant",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "errorFallback": "Échec de la suppression de la pièce",
+    "body1": "Voulez-vous vraiment supprimer le projet de pièce courant « {{title}} » ? Cette action est <strong>IRRÉVERSIBLE</strong> car toutes les données associées seront effacées.",
+    "body2": "Vous pouvez plutôt <strong>l'archiver</strong> pour désactiver toute modification de la part des participants."
+  },
+  "staging": {
+    "characters": "Personnages",
+    "props": "Accessoires",
+    "costumes": "Costumes",
+    "lights": "Lumières",
+    "sounds": "Sons"
+  },
+  "memorize": {
+    "title": "Démarrer une session",
+    "start": "Démarrer",
+    "character": "Personnage",
+    "parts": "Parties",
+    "randomize": "Mélanger les répliques",
+    "onlyCueLines": "Uniquement les répliques",
+    "hideMyLines": "Cacher mes répliques"
+  }
+}

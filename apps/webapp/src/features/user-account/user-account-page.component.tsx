@@ -1,11 +1,14 @@
 import { NavLink } from "react-router";
+import { useTranslation } from "react-i18next";
 import styles from "./user-account-page.module.css";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import { UserProfile } from "@clerk/react-router";
 import ThemeSwitcher from "../theme/theme-switcher.component";
+import LanguageSwitcher from "../language/language-switcher.component";
 import Icon from "../../components/icon.component";
 
 export function UserAccountPageBreadcrumbs() {
+  const { t } = useTranslation("account");
   return (
     <HeaderBreadcrumbs
       key="my-account"
@@ -15,7 +18,7 @@ export function UserAccountPageBreadcrumbs() {
             pathname: "/my-account",
           }}
         >
-          My account
+          {t("breadcrumb")}
         </NavLink>,
       ]}
     />
@@ -23,6 +26,7 @@ export function UserAccountPageBreadcrumbs() {
 }
 
 export function UserAccountPage() {
+  const { t } = useTranslation("account");
   return (
     <div className={styles.container}>
       <UserProfile
@@ -35,11 +39,18 @@ export function UserAccountPage() {
         }}
       >
         <UserProfile.Page
-          label="Theme"
+          label={t("themePage")}
           url="theme"
           labelIcon={<Icon value="settings" size="small" mode="primary" />}
         >
           <ThemeSwitcher />
+        </UserProfile.Page>
+        <UserProfile.Page
+          label={t("languagePage")}
+          url="language"
+          labelIcon={<Icon value="settings" size="small" mode="primary" />}
+        >
+          <LanguageSwitcher />
         </UserProfile.Page>
       </UserProfile>
     </div>

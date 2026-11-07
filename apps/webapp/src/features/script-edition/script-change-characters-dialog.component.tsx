@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { createRef, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import Button from "../../components/button.component";
 import { ToggleButton } from "../../components/toggle-button.component";
@@ -14,6 +15,7 @@ interface ScriptChangeCharactersDialogProps {
 }
 
 export function ScriptChangeCharactersDialog(props: ScriptChangeCharactersDialogProps) {
+  const { t } = useTranslation("script");
   const choicesRefs = useRef<RefObject<HTMLInputElement | null>[]>([]);
   choicesRefs.current = Object.keys(props.characters).map(
     (_, i) => choicesRefs.current[i] ?? createRef(),
@@ -44,7 +46,7 @@ export function ScriptChangeCharactersDialog(props: ScriptChangeCharactersDialog
   };
   return (
     <Dialog
-      title="Select cue line characters"
+      title={t("charactersDialog.title")}
       actions={
         <Button icon="accept" onClick={handleOkClick} autoFocus={true}>
           OK
@@ -53,7 +55,7 @@ export function ScriptChangeCharactersDialog(props: ScriptChangeCharactersDialog
       onKeyUp={handleKeyUp}
     >
       <ToggleButton
-        label="Select multiple"
+        label={t("charactersDialog.selectMultiple")}
         onToggle={handleSelectMultipleToggle}
         value={allowMultiple}
       />

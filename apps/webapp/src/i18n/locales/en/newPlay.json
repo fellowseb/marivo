@@ -1,0 +1,83 @@
+{
+  "title": "Create a new play project",
+  "intro": "How do you want to initialize the script ?",
+  "import": {
+    "breadcrumb": "Import script",
+    "title": "Import script from an external source",
+    "subtitle": "Supported file formats: PDF, TXT."
+  },
+  "importStep": {
+    "title": "Create from an external source ▶  Import script",
+    "importButton": "Import",
+    "intro": "Provide the script file(s) by either uploading it(/them) from disk or entering a URL to a remote location.",
+    "formats": "Supported formats: PDF, TXT.",
+    "sources": "Known sources: libre-theatre.fr, wikisource.com.",
+    "startOver": "Start over",
+    "initError": "Failed to start the import. Your files are still selected — you can try again.",
+    "processing": "Processing files… this can take a minute. You can stay on this page.",
+    "uploading": "Uploading files… ({{done}}/{{total}})",
+    "selectedNone": "Selected script files: none",
+    "selectedCount": "Selected script files: {{n}}",
+    "dropHere": "Drop files here",
+    "or": "or",
+    "browseDisk": "Browse your disk",
+    "urlPlaceholder": "Enter URL to remote file..."
+  },
+  "collection": {
+    "title_one": "Pick from a collection of <strong>{{count}} script</strong> in the Public Domain.",
+    "title_other": "Pick from a collection of <strong>{{count}} scripts</strong> in the Public Domain.",
+    "subtitle": {
+      "line1": "A large selection of the most famous playwrights for FREE !",
+      "line2": "Available languages: French and English. (Soon: Spanish, German)",
+      "line3": "You'll be able to modify the script once the project created."
+    }
+  },
+  "empty": {
+    "breadcrumb": "Empty script",
+    "title": "Create ▶  Name your play",
+    "subtitle": "Ideal for playwrights !"
+  },
+  "ongoingImports": {
+    "header": "Ongoing imports ({{n}})",
+    "resume": "Resume",
+    "delete": "Delete",
+    "status": {
+      "uploadingFiles": "Uploading files",
+      "processingFiles": "Processing files",
+      "reviewing": "Reviewing",
+      "done": "Done",
+      "error": "Error"
+    }
+  },
+  "nameStep": {
+    "defaultSource": "Create from an external source",
+    "defaultTitle": "New play",
+    "title": "{{source}} ▶ Name your new play",
+    "titleCommons": "{{source}} ▶ Add details to public play",
+    "adminCommands": "Administrator commands",
+    "addToCommons": "Add to commons library",
+    "create": "Create",
+    "retryPublish": "Retry publish",
+    "createError": "Failed to create the play: {{error}}",
+    "publishError": "The script could not be added to the commons library. You can retry publishing or go back.",
+    "publishedNotification": "\"{{title}}\" was added to the scripts collection as archived.",
+    "intro": "Give a name to your project.",
+    "introAdmonition": {
+      "line1": "This name doesn't need to correspond to the title of the play. For instance you might also want to indicate the name of the troupe or company, and maybe the year.",
+      "line2": "You'll be able to change it later on !"
+    },
+    "projectName": "Project name",
+    "projectNamePlaceholder": "Othello - Shakespeare (Troupe Name / 2026)",
+    "fields": {
+      "title": "Title",
+      "author": "Author",
+      "language": "Language",
+      "numberOfRoles": "Number of roles",
+      "numberOfMaleRoles": "Number of male roles",
+      "numberOfFemaleRoles": "Number of female roles",
+      "genre": "Genre",
+      "period": "Period",
+      "synopsis": "Synopsys"
+    }
+  }
+}

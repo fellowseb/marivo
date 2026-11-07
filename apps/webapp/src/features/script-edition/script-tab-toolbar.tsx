@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import Toolbar from "../../components/toolbar.component";
 import { useScriptTabToolbarContext } from "./script-tab-toolbar.context";
 import { useScriptUndoRedo } from "../script/script-undo-redo.context";
 
 export function ScriptToolbar() {
+  const { t } = useTranslation("script");
   const { setShowNavigatePanel, setShowSearchPanel, setShowCharactersPanel } =
     useScriptTabToolbarContext();
   const { undo, getUndoItems, redo, getRedoItems } = useScriptUndoRedo();
@@ -16,21 +18,21 @@ export function ScriptToolbar() {
         items: [
           {
             id: "script-undo",
-            label: "undo",
+            label: t("toolbar.undo"),
             icon: "undo",
             disabled: undoDisabled,
             onAction: handleUndo,
           },
           {
             id: "script-redo",
-            label: "redo",
+            label: t("toolbar.redo"),
             icon: "redo",
             disabled: redoDisabled,
             onAction: handleRedo,
           },
           {
             id: "script-search",
-            label: "search",
+            label: t("toolbar.search"),
             icon: "search",
             disabled: false,
             onAction: () => {
@@ -39,7 +41,7 @@ export function ScriptToolbar() {
           },
           {
             id: "script-navigate",
-            label: "navigate",
+            label: t("toolbar.navigate"),
             icon: "navigate",
             disabled: false,
             onAction: () => {
@@ -48,7 +50,7 @@ export function ScriptToolbar() {
           },
           {
             id: "script-characters",
-            label: "characters",
+            label: t("toolbar.characters"),
             icon: "characterLine",
             disabled: false,
             onAction: () => {

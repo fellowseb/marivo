@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useTRPC } from "../../trpc";
@@ -14,6 +15,7 @@ interface DeletePlayDialogProps {
 }
 
 export function DeletePlayDialog(props: DeletePlayDialogProps) {
+  const { t } = useTranslation("settings");
   const { showNotification } = useNotifications();
   const navigate = useNavigate();
   const trpc = useTRPC();
@@ -44,7 +46,7 @@ export function DeletePlayDialog(props: DeletePlayDialogProps) {
         onError: (error) => {
           showNotification({
             autoHide: true,
-            message: error.message || "Failed to delete play",
+            message: error.message || t("deleteDialog.errorFallback"),
             type: "error",
           });
           props.onClose();
@@ -61,26 +63,27 @@ export function DeletePlayDialog(props: DeletePlayDialogProps) {
     <Dialog
       icon="delete"
       customClassNames={[styles.deleteDialog]}
-      title="Delete current play project"
+      title={t("deleteDialog.title")}
       actions={
         <>
           <Button icon="delete" onClick={handleDelete} disabled={isPending}>
-            {isPending ? <DotsLoader size="small" /> : "Delete"}
+            {isPending ? <DotsLoader size="small" /> : t("deleteDialog.delete")}
           </Button>
           <Button icon="clear" onClick={handleCancel} disabled={isPending}>
-            Cancel
+            {t("deleteDialog.cancel")}
           </Button>
         </>
       }
     >
       <p>
-        Are you sure you want to delete the current play project &quot;
-        {props.playTitle}&quot;? This action is <strong>IRREVERSIBLE</strong> as all related data
-        will be wiped out.
+        <Trans
+          i18nKey="settings:deleteDialog.body1"
+          values={{ title: props.playTitle }}
+          components={{ strong: <strong /> }}
+        />
       </p>
       <p>
-        You may instead want to <strong>archive it</strong> to disable all modifications from
-        participants.
+        <Trans i18nKey="settings:deleteDialog.body2" components={{ strong: <strong /> }} />
       </p>
     </Dialog>
   );

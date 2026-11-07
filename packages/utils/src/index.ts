@@ -27,3 +27,14 @@ export {
   type ThemePalette,
   type ThemeHues,
 } from "./themes.ts";
+export {
+  SUPPORTED_LANGUAGES,
+  LANGUAGE_VALUES,
+  DEFAULT_LANGUAGE,
+  isSupportedLanguage,
+  isLanguageValue,
+  parseLanguageValue,
+  resolveLanguage,
+  type SupportedLanguage,
+  type LanguageValue,
+} from "./languages.ts";

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Suspense } from "react";
 import { Navigate, NavLink, Route, Routes, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -21,14 +23,17 @@ export const COLLECTION_URI_PARAM = "uri";
 export const COLLECTION_EDIT_ROUTE = `/collection/edit/:${COLLECTION_URI_PARAM}/*`;
 
 /** Menubar with the script and settings sub-tabs, like the play page (`../` = up from the sub-route). */
-const COLLECTION_EDIT_MENU: MenuBarDefinition = {
-  items: [
-    { label: "Script", icon: "script", path: "../script" },
-    { label: "Settings", icon: "settings", path: "../settings" },
-  ],
-};
+function makeCollectionEditMenu(t: TFunction<"collection">): MenuBarDefinition {
+  return {
+    items: [
+      { label: t("editMenu.script"), icon: "script", path: "../script" },
+      { label: t("editMenu.settings"), icon: "settings", path: "../settings" },
+    ],
+  };
+}
 
 export function CollectionPlayEditBreadcrumbs(props: { uri: string }) {
+  const { t } = useTranslation("collection");
   const trpc = useTRPC();
   const detailsQuery = useQuery(trpc.playsCollection.getDetails.queryOptions({ uri: props.uri }));
   const title = detailsQuery.data?.title ?? "…";
@@ -36,7 +41,7 @@ export function CollectionPlayEditBreadcrumbs(props: { uri: string }) {
     <HeaderBreadcrumbs
       key="collection-edit"
       crumbs={[
-        <NavLink to={{ pathname: "/plays/new/from-collection" }}>Scripts collection</NavLink>,
+        <NavLink to={{ pathname: "/plays/new/from-collection" }}>{t("editBreadcrumb")}</NavLink>,
         <TitleTab title={title} />,
       ]}
     />
@@ -51,6 +56,7 @@ export function CollectionPlayEditBreadcrumbs(props: { uri: string }) {
  * `edit_collection_play_script` capability.
  */
 export default function CollectionPlayEditPage() {
+  const { t } = useTranslation("collection");
   const params = useParams();
   const uri = params[COLLECTION_URI_PARAM];
   if (!uri) {
@@ -76,7 +82,7 @@ export default function CollectionPlayEditPage() {
           <ScriptUndoRedoContextProvider>
             <MainLayoutBase
               breadcrumbs={<CollectionPlayEditBreadcrumbs uri={uri} />}
-              Menu={<MenuBar definition={COLLECTION_EDIT_MENU} />}
+              Menu={<MenuBar definition={makeCollectionEditMenu(t)} />}
               Toolbar={
                 <Routes>
                   <Route path="script" element={<ScriptToolbar />} />

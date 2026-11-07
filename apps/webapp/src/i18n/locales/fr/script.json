@@ -1,0 +1,65 @@
+{
+  "toolbar": {
+    "undo": "annuler",
+    "redo": "rétablir",
+    "search": "rechercher",
+    "navigate": "naviguer",
+    "characters": "personnages",
+    "importSelection": "sélection d'import"
+  },
+  "panels": {
+    "navigate": "Navigation",
+    "search": "Recherche",
+    "characters": "Personnages",
+    "importSelection": "Sélection d'import"
+  },
+  "importSelection": {
+    "include": "Inclure dans l'import",
+    "exclude": "Exclure de l'import",
+    "included": "Inclus",
+    "excluded": "Exclus ({{n}})"
+  },
+  "preview": {
+    "title": "{{source}} ▶  Aperçu du script",
+    "done": "Terminé",
+    "intro": "Vous pouvez vérifier le résultat de l'import pour vous assurer qu'il n'y a pas de problème majeur avant de créer le projet.",
+    "introDetail": "(c.-à-d. des sections entières manquantes ou dans le mauvais ordre). Vous pourrez modifier le script plus tard."
+  },
+  "lineMenu": {
+    "changeHeadingLevel": "Changer le niveau de titre",
+    "changeCharacters": "Changer les personnages",
+    "removeLine": "Supprimer la ligne",
+    "save": "Enregistrer",
+    "saveChanges": "Enregistrer les modifications",
+    "saveAsNewVersion": "Enregistrer comme nouvelle version",
+    "saveAsSharedDraft": "Enregistrer comme brouillon partagé",
+    "discardChanges": "Annuler les modifications",
+    "showPreviousVersions": "Afficher les versions précédentes",
+    "showSharedDrafts": "Afficher les brouillons partagés"
+  },
+  "versions": {
+    "title": "Versions de la ligne « {{kind}} »",
+    "kind": { "heading": "Titre", "cue": "Réplique", "freetext": "Texte libre" },
+    "someone": "Quelqu'un",
+    "current": "Version courante",
+    "previous": "Versions précédentes",
+    "sharedDrafts": "Brouillons partagés",
+    "noPrevious": "Aucune version précédente",
+    "noSharedDrafts": "Aucun brouillon partagé",
+    "applyAsNewVersion": "Appliquer comme nouvelle version",
+    "delete": "Supprimer",
+    "ok": "OK"
+  },
+  "headingDialog": {
+    "title": "Titre",
+    "act": "Acte",
+    "scene": "Scène",
+    "level3": "Titre (niveau 3)",
+    "level4": "Titre (niveau 4)",
+    "title2": "Choisir le niveau de titre"
+  },
+  "charactersDialog": {
+    "title": "Choisir les personnages de la réplique",
+    "selectMultiple": "Sélection multiple"
+  }
+}

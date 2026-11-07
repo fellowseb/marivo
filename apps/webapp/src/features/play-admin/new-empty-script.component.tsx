@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Button from "../../components/button.component";
@@ -8,6 +9,7 @@ import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import FlowStep from "../../components/flow-step.component";
 
 export function NewEmptyScriptBreadcrumbs() {
+  const { t } = useTranslation();
   return (
     <HeaderBreadcrumbs
       key="new-empty-script"
@@ -17,14 +19,14 @@ export function NewEmptyScriptBreadcrumbs() {
             pathname: "/plays/new",
           }}
         >
-          New play
+          {t("layout:newPlay")}
         </NavLink>,
         <NavLink
           to={{
             pathname: "/plays/new/empty",
           }}
         >
-          Empty script
+          {t("newPlay:empty.breadcrumb")}
         </NavLink>,
       ]}
     />
@@ -32,6 +34,7 @@ export function NewEmptyScriptBreadcrumbs() {
 }
 
 function NewEmptyScript() {
+  const { t } = useTranslation("newPlay");
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [createReady, setCreateReady] = useState(false);
   const handleTitleChange = () => {
@@ -41,7 +44,7 @@ function NewEmptyScript() {
   const { mutate, isPending, isSuccess, data } = useMutation(trpc.plays.create.mutationOptions());
   const navigate = useNavigate();
   const handleCreate = () => {
-    const title = titleInputRef.current?.value ?? "New play";
+    const title = titleInputRef.current?.value ?? t("nameStep.defaultTitle");
     mutate({ title });
   };
   const [createdUri, setCreatedUri] = useState<string | null>(null);
@@ -71,7 +74,7 @@ function NewEmptyScript() {
   };
   return (
     <FlowStep
-      title="Create ▶  Name your play"
+      title={t("empty.title")}
       Actions={
         <>
           <Button icon="previous" onClick={handlePrevious} />
@@ -85,12 +88,11 @@ function NewEmptyScript() {
         </>
       }
     >
-      Give a name to your project.
+      {t("nameStep.intro")}
       <Admonition type="info">
-        This name doesn't need to correspond to the title of the play. For instance you might also
-        want to indicate the name of the troupe or company, and maybe the year.
+        {t("nameStep.introAdmonition.line1")}
         <br />
-        You'll be able to change it later on !
+        {t("nameStep.introAdmonition.line2")}
       </Admonition>
       <div
         style={{
@@ -100,9 +102,9 @@ function NewEmptyScript() {
           alignItems: "center",
         }}
       >
-        <label>Project name</label>
+        <label>{t("nameStep.projectName")}</label>
         <input
-          placeholder="Othello - Shakespeare (Troupe Name / 2026)"
+          placeholder={t("nameStep.projectNamePlaceholder")}
           ref={titleInputRef}
           type="text"
           size={60}

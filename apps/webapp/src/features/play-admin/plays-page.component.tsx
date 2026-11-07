@@ -2,14 +2,17 @@ import styles from "./plays-page.module.css";
 import PlayList from "./plays-list.component";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import Button from "../../components/button.component";
 
 export function PlaysPageBreadcrumbs() {
-  return <HeaderBreadcrumbs crumbs={["My plays"]} />;
+  const { t } = useTranslation("layout");
+  return <HeaderBreadcrumbs crumbs={[t("myPlays")]} />;
 }
 
 function PlaysPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("plays");
 
   const handleCreateNewPlay = () => {
     navigate({
@@ -22,7 +25,7 @@ function PlaysPage() {
       <PlayList />
       <div className={styles.playListActions}>
         <Button onClick={handleCreateNewPlay} icon="new">
-          Create new play
+          {t("createNewPlay")}
         </Button>
       </div>
     </div>

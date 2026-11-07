@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import ErrorBoundary from "../../components/error-boundary.component";
 import PageNotFound from "../../components/page-not-found.component";
@@ -41,6 +42,7 @@ function PreviewStepInner(props: {
   onReviewDone: (lineIdsToKeep?: string[]) => void;
   onBack: () => void;
 }) {
+  const { t } = useTranslation("script");
   const previewScriptContext = useScriptContext();
   const [selection, setSelection] = useState<ImportSelection>(EMPTY_SELECTION);
   const [selectedLineIds, setSelectedLineIds] = useState<Set<string>>(new Set());
@@ -123,7 +125,7 @@ function PreviewStepInner(props: {
       }}
     >
       <FlowStep
-        title={`${props.sourceLabel} ▶  Preview script`}
+        title={t("preview.title", { source: props.sourceLabel })}
         Actions={
           <>
             <Button icon="previous" onClick={props.onBack} />
@@ -134,10 +136,9 @@ function PreviewStepInner(props: {
         }
         growVertically={true}
       >
-        You can review the import result to make sure there isn't a massive issue before creating
-        the project.
-        <br /> (i.e. entire sections missing or in wrong order). You'll be able to modify the script
-        later.
+        {t("preview.intro")}
+        <br />
+        {t("preview.introDetail")}
         <Script
           isEditable={false}
           scriptContext={previewScriptContext}
@@ -153,11 +154,11 @@ function PreviewStepInner(props: {
         >
           {menuLineExcluded ? (
             <Button icon="next" onClick={() => applyExclude(false)}>
-              Include into import
+              {t("importSelection.include")}
             </Button>
           ) : (
             <Button icon="delete" onClick={() => applyExclude(true)}>
-              Exclude from import
+              {t("importSelection.exclude")}
             </Button>
           )}
         </MenuDropdown>
@@ -199,6 +200,7 @@ function PreviewStepInner(props: {
  * (from="import") and the collection flow (from="collection").
  */
 export function PreviewScriptStep(props: PreviewScriptStepProps) {
+  const { t } = useTranslation("script");
   return (
     <ErrorBoundary fallback={<PageNotFound />}>
       <Suspense
@@ -219,7 +221,7 @@ export function PreviewScriptStep(props: PreviewScriptStepProps) {
           <ScriptTabToolbarContextProvider>
             {props.toolbar}
             <PreviewStepInner
-              sourceLabel={props.sourceLabel ?? "Create from an external source"}
+              sourceLabel={props.sourceLabel ?? t("newPlay:nameStep.defaultSource")}
               onBack={props.onBack}
               onReviewDone={props.onReviewDone}
             />

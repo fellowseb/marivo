@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import classNames from "classnames";
 import { createRef, useRef, type KeyboardEvent, type RefObject } from "react";
 import Button from "../../components/button.component";
@@ -12,32 +14,36 @@ interface ScriptChangeHeadingDialogProps {
   lineContent: LineContent;
 }
 
-const CHOICES = [
-  {
-    style: lineStyles.partNameDepth0,
-    sampleText: "Title",
-  },
-  {
-    style: lineStyles.partNameDepth1,
-    sampleText: "Act",
-  },
-  {
-    style: lineStyles.partNameDepth2,
-    sampleText: "Scene",
-  },
-  {
-    style: lineStyles.partNameDepth3,
-    sampleText: "Heading (level 3)",
-  },
-  {
-    style: lineStyles.partNameDepth4,
-    sampleText: "Heading (level 4)",
-  },
-];
+function makeChoices(t: TFunction<"script">) {
+  return [
+    {
+      style: lineStyles.partNameDepth0,
+      sampleText: t("headingDialog.title"),
+    },
+    {
+      style: lineStyles.partNameDepth1,
+      sampleText: t("headingDialog.act"),
+    },
+    {
+      style: lineStyles.partNameDepth2,
+      sampleText: t("headingDialog.scene"),
+    },
+    {
+      style: lineStyles.partNameDepth3,
+      sampleText: t("headingDialog.level3"),
+    },
+    {
+      style: lineStyles.partNameDepth4,
+      sampleText: t("headingDialog.level4"),
+    },
+  ];
+}
 
 export function ScriptChangeHeadingDialog(props: ScriptChangeHeadingDialogProps) {
+  const { t } = useTranslation("script");
+  const choices = makeChoices(t);
   const choicesRefs = useRef<RefObject<HTMLInputElement | null>[]>([]);
-  choicesRefs.current = CHOICES.map((_, i) => choicesRefs.current[i] ?? createRef());
+  choicesRefs.current = choices.map((_, i) => choicesRefs.current[i] ?? createRef());
   const handleOkClick = () => {
     props.onOK();
   };
@@ -57,7 +63,7 @@ export function ScriptChangeHeadingDialog(props: ScriptChangeHeadingDialogProps)
   const content = props.lineContent as HeadingLineContent;
   return (
     <Dialog
-      title="Select heading level"
+      title={t("headingDialog.title2")}
       actions={
         <Button icon="accept" onClick={handleOkClick} autoFocus={true}>
           OK
@@ -66,7 +72,7 @@ export function ScriptChangeHeadingDialog(props: ScriptChangeHeadingDialogProps)
       onKeyUp={handleKeyUp}
     >
       <ul className={styles.choices}>
-        {CHOICES.map(({ style, sampleText }, idx) => (
+        {choices.map(({ style, sampleText }, idx) => (
           <li key={idx}>
             <input
               type="radio"

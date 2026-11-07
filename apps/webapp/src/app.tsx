@@ -19,6 +19,9 @@ import { TRPCProvider } from "./trpc.ts";
 import { NotificationsContextProvider } from "./components/notifications.context.tsx";
 import ErrorBoundary, { ErrorFallback } from "./components/error-boundary.component";
 import { ThemeProvider } from "./features/theme/theme.context.tsx";
+import { LanguageProvider } from "./features/language/language.context.tsx";
+import i18n from "./i18n/i18n.ts";
+import { I18nextProvider } from "react-i18next";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -124,13 +127,17 @@ function App() {
       <ErrorBoundary fallback={<ErrorFallback />}>
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
           <TrpcApiProvider apiUrl={API_URL}>
-            <ThemeProvider>
-              <NotificationsContextProvider>
-                <BrowserRouter>
-                  <Routes />
-                </BrowserRouter>
-              </NotificationsContextProvider>
-            </ThemeProvider>
+            <I18nextProvider i18n={i18n}>
+              <ThemeProvider>
+                <LanguageProvider>
+                  <NotificationsContextProvider>
+                    <BrowserRouter>
+                      <Routes />
+                    </BrowserRouter>
+                  </NotificationsContextProvider>
+                </LanguageProvider>
+              </ThemeProvider>
+            </I18nextProvider>
           </TrpcApiProvider>
         </ClerkProvider>
       </ErrorBoundary>

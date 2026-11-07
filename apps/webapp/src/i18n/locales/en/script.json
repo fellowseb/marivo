@@ -1,0 +1,65 @@
+{
+  "toolbar": {
+    "undo": "undo",
+    "redo": "redo",
+    "search": "search",
+    "navigate": "navigate",
+    "characters": "characters",
+    "importSelection": "import selection"
+  },
+  "panels": {
+    "navigate": "Navigate",
+    "search": "Search",
+    "characters": "Characters",
+    "importSelection": "Import selection"
+  },
+  "importSelection": {
+    "include": "Include into import",
+    "exclude": "Exclude from import",
+    "included": "Included",
+    "excluded": "Excluded ({{n}})"
+  },
+  "preview": {
+    "title": "{{source}} ▶  Preview script",
+    "done": "Done",
+    "intro": "You can review the import result to make sure there isn't a massive issue before creating the project.",
+    "introDetail": "(i.e. entire sections missing or in wrong order). You'll be able to modify the script later."
+  },
+  "lineMenu": {
+    "changeHeadingLevel": "Change heading level",
+    "changeCharacters": "Change characters",
+    "removeLine": "Remove line",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "saveAsNewVersion": "Save as new version",
+    "saveAsSharedDraft": "Save as shared draft",
+    "discardChanges": "Discard changes",
+    "showPreviousVersions": "Show previous versions",
+    "showSharedDrafts": "Show shared drafts"
+  },
+  "versions": {
+    "title": "{{kind}} line versions",
+    "kind": { "heading": "Heading", "cue": "Cue", "freetext": "Freetext" },
+    "someone": "Someone",
+    "current": "Current version",
+    "previous": "Previous versions",
+    "sharedDrafts": "Shared drafts",
+    "noPrevious": "No previous versions",
+    "noSharedDrafts": "No shared drafts",
+    "applyAsNewVersion": "Apply as new version",
+    "delete": "Delete",
+    "ok": "OK"
+  },
+  "headingDialog": {
+    "title": "Title",
+    "act": "Act",
+    "scene": "Scene",
+    "level3": "Heading (level 3)",
+    "level4": "Heading (level 4)",
+    "title2": "Select heading level"
+  },
+  "charactersDialog": {
+    "title": "Select cue line characters",
+    "selectMultiple": "Select multiple"
+  }
+}

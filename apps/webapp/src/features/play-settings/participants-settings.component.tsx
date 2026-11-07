@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import classNames from "classnames";
 import styles from "./participants-settings.module.css";
 
 function ParticipantsSettings() {
+  const { t } = useTranslation("settings");
   return (
     <div className={styles.container}>
       <div className={classNames([styles.section])}>
@@ -14,7 +16,7 @@ function ParticipantsSettings() {
           <thead>
             <tr>
               <th></th>
-              <th>Owner</th>
+              <th>{t("participants.owner")}</th>
               <th>
                 Staging Director <button className={styles.deleteFunctionBtn} />
               </th>
@@ -28,7 +30,7 @@ function ParticipantsSettings() {
           </thead>
           <tbody>
             <tr className={styles.permissionsTableGroupRow}>
-              <td colSpan={4}>Script</td>
+              <td colSpan={4}>{t("participants.script")}</td>
             </tr>
             <tr className={styles.permissionsTablePermissionRow}>
               <td>view</td>
@@ -67,7 +69,7 @@ function ParticipantsSettings() {
               </td>
             </tr>
             <tr className={styles.permissionsTableGroupRow}>
-              <td colSpan={4}>Staging directions</td>
+              <td colSpan={4}>{t("participants.stagingDirections")}</td>
             </tr>
             <tr className={styles.permissionsTablePermissionRow}>
               <td>view</td>
@@ -106,7 +108,7 @@ function ParticipantsSettings() {
               </td>
             </tr>
             <tr className={styles.permissionsTableGroupRow}>
-              <td colSpan={4}>Blocking</td>
+              <td colSpan={4}>{t("participants.blocking")}</td>
             </tr>
             <tr className={styles.permissionsTablePermissionRow}>
               <td>view</td>
@@ -133,7 +135,7 @@ function ParticipantsSettings() {
               </td>
             </tr>
             <tr className={styles.permissionsTableGroupRow}>
-              <td colSpan={4}>Memorize</td>
+              <td colSpan={4}>{t("participants.memorize")}</td>
             </tr>
             <tr className={styles.permissionsTablePermissionRow}>
               <td>access</td>
@@ -148,7 +150,7 @@ function ParticipantsSettings() {
               </td>
             </tr>
             <tr className={styles.permissionsTableGroupRow}>
-              <td colSpan={4}>Planning</td>
+              <td colSpan={4}>{t("participants.planning")}</td>
             </tr>
             <tr className={styles.permissionsTablePermissionRow}>
               <td>view</td>
@@ -175,7 +177,7 @@ function ParticipantsSettings() {
               </td>
             </tr>
             <tr className={styles.permissionsTableGroupRow}>
-              <td colSpan={4}>Settings</td>
+              <td colSpan={4}>{t("participants.settings")}</td>
             </tr>
             <tr className={styles.permissionsTablePermissionRow}>
               <td>view</td>

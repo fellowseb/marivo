@@ -1,4 +1,4 @@
-import { Result, type ThemeValue } from "@marivo/utils";
+import { Result, type LanguageValue, type ThemeValue } from "@marivo/utils";
 import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
 import { AppError } from "../../shared/error.ts";
 
@@ -11,6 +11,8 @@ export class UserNotFound extends AppError {
 export interface UserPreferencesRepository {
   getTheme(): Promise<Result<ThemeValue, UserNotFound>>;
   setTheme(theme: ThemeValue): Promise<Result<ThemeValue, UserNotFound>>;
+  getLanguage(): Promise<Result<LanguageValue, UserNotFound>>;
+  setLanguage(language: LanguageValue): Promise<Result<LanguageValue, UserNotFound>>;
 }
 
 export class PostgresUserPreferencesRepository
@@ -35,5 +37,25 @@ export class PostgresUserPreferencesRepository
       return Result.failure(new UserNotFound());
     }
     return Result.ok(row.theme);
+  }
+
+  async getLanguage(): Promise<Result<LanguageValue, UserNotFound>> {
+    const [row] = await this.sql<
+      { language: LanguageValue }[]
+    >`SELECT language FROM users WHERE id = ${this.userId()}`;
+    if (!row) {
+      return Result.failure(new UserNotFound());
+    }
+    return Result.ok(row.language);
+  }
+
+  async setLanguage(language: LanguageValue): Promise<Result<LanguageValue, UserNotFound>> {
+    const [row] = await this.sql<{ language: LanguageValue }[]>`
+      UPDATE users SET language = ${language} WHERE id = ${this.userId()} RETURNING language
+    `;
+    if (!row) {
+      return Result.failure(new UserNotFound());
+    }
+    return Result.ok(row.language);
   }
 }
