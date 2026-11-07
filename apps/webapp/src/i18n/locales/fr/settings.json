@@ -24,6 +24,7 @@
     "roleColumn": "Rôle",
     "matrixTitle": "Permissions par rôle",
     "roleFor": "Rôle de {{username}}",
+    "customRole": "personnalisé",
     "owner": "Propriétaire",
     "script": "Script",
     "stagingDirections": "Notes de mise en scène",

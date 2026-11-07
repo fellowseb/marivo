@@ -38,6 +38,10 @@ import {
   SetParticipantRoleUseCaseInputSchema,
   SetParticipantRoleUseCaseOutputSchema,
 } from "./set-participant-role.use-case.ts";
+import {
+  SetParticipantPermissionsUseCaseInputSchema,
+  SetParticipantPermissionsUseCaseOutputSchema,
+} from "./set-participant-permissions.use-case.ts";
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,6 +93,11 @@ export default router({
     .use(resourceAuth(providers.PlaySettingsWriteChecker))
     .output(SetParticipantRoleUseCaseOutputSchema)
     .mutation(handleUseCase(providers.SetParticipantRoleUseCase)),
+  setParticipantPermissions: publicProcedure
+    .input(SetParticipantPermissionsUseCaseInputSchema)
+    .use(resourceAuth(providers.PlaySettingsWriteChecker))
+    .output(SetParticipantPermissionsUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.SetParticipantPermissionsUseCase)),
   initImportScript: publicProcedure
     .input(InitImportScriptUseCaseInputSchema)
     .output(InitImportScriptUseCaseOutputSchema)

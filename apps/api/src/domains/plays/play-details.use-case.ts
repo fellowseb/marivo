@@ -1,5 +1,5 @@
 import z from "zod";
-import { assertUnreachable, Result } from "@marivo/utils";
+import { assertUnreachable, PLAY_ROLE_PERMISSIONS, Result } from "@marivo/utils";
 import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
 import {
   PERMISSIONS_SCHEMA,
@@ -34,6 +34,7 @@ export const PlayDetailsUseCaseOutputSchema = z.object({
     z.object({
       fullName: z.string(),
       role: z.string().nullable(),
+      permissions: PERMISSIONS_SCHEMA.strict(),
     }),
   ),
   permissions: PERMISSIONS_SCHEMA.strict(),
@@ -61,7 +62,11 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
           details,
           permissions,
           participants: {
-            [details.ownerUsername]: { fullName: details.ownerFullName, role: "owner" },
+            [details.ownerUsername]: {
+              fullName: details.ownerFullName,
+              role: "owner",
+              permissions: PLAY_ROLE_PERMISSIONS.owner,
+            },
             ...participants,
           },
         });

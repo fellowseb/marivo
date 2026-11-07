@@ -3,6 +3,8 @@ import type { Sql } from "postgres";
 import { setupTestDatabase, teardownTestDatabase } from "../../test-utils/db.ts";
 import { PlayAccessForbidden, UserPlaysRepository } from "./user-plays.repository.ts";
 import { SetParticipantRoleUseCase } from "./set-participant-role.use-case.ts";
+import { SetParticipantPermissionsUseCase } from "./set-participant-permissions.use-case.ts";
+import { PLAY_ROLE_PERMISSIONS } from "@marivo/utils";
 import { PlayDetailsUseCase } from "./play-details.use-case.ts";
 import type { UserContextService } from "../../shared/use-case.ts";
 
@@ -134,5 +136,67 @@ describe("setParticipantRole + role matrix (integration with real Postgres)", ()
     });
     expect(result.isFailure()).toBe(true);
     expect(result.errorOrThrow().code).toBe("NOT_FOUND");
+  });
+
+  it("owner can set custom permissions and they resolve from the custom role jsonb", async () => {
+    const { repository: ownerRepo, ctx: ownerCtx } = makeRepos(ownerId);
+    const custom = { ...PLAY_ROLE_PERMISSIONS.viewer, scriptWrite: true, settingsRead: false };
+    const setResult = await new SetParticipantPermissionsUseCase(ownerRepo, ownerCtx).execute({
+      uri: playUri,
+      username: "participant1",
+      permissions: custom,
+    });
+    expect(setResult.isOk()).toBe(true);
+
+    const { repository: partRepo } = makeRepos(participantId);
+    const details = await new PlayDetailsUseCase(partRepo, ctxFor(participantId)).execute({
+      uri: playUri,
+    });
+    const { permissions, participants } = details.dataOrThrow();
+    expect(participants["participant1"].role).toBe("custom:participant1");
+    expect(participants["participant1"].permissions.scriptWrite).toBe(true);
+    expect(participants["participant1"].permissions.settingsRead).toBe(false);
+    // the participant's own resolved permissions follow the custom role
+    expect(permissions.scriptWrite).toBe(true);
+    expect(permissions.settingsRead).toBe(false);
+  });
+
+  it("custom permissions update in place on a second call (no duplicate custom role)", async () => {
+    const { repository: ownerRepo, ctx: ownerCtx } = makeRepos(ownerId);
+    const first = { ...PLAY_ROLE_PERMISSIONS.guest, scriptWrite: true };
+    await new SetParticipantPermissionsUseCase(ownerRepo, ownerCtx).execute({
+      uri: playUri,
+      username: "participant1",
+      permissions: first,
+    });
+    const second = { ...first, blockingRead: true };
+    await new SetParticipantPermissionsUseCase(ownerRepo, ownerCtx).execute({
+      uri: playUri,
+      username: "participant1",
+      permissions: second,
+    });
+
+    const roles = await sql<{ name: string }[]>`
+      SELECT name FROM roles
+      WHERE play_id = (SELECT id FROM plays WHERE uri = ${playUri}) AND name LIKE 'custom:%'
+    `;
+    expect(roles).toHaveLength(1);
+
+    const { repository: partRepo } = makeRepos(participantId);
+    const details = await new PlayDetailsUseCase(partRepo, ctxFor(participantId)).execute({
+      uri: playUri,
+    });
+    expect(details.dataOrThrow().permissions.blockingRead).toBe(true);
+  });
+
+  it("a participant without settingsWrite cannot set permissions", async () => {
+    const { repository: partRepo, ctx: partCtx } = makeRepos(participantId);
+    const result = await new SetParticipantPermissionsUseCase(partRepo, partCtx).execute({
+      uri: playUri,
+      username: "participant1",
+      permissions: PLAY_ROLE_PERMISSIONS.admin,
+    });
+    expect(result.isFailure()).toBe(true);
+    expect(result.errorOrThrow().code).toBe("FORBIDDEN");
   });
 });

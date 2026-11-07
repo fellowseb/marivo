@@ -24,6 +24,7 @@
     "roleColumn": "Role",
     "matrixTitle": "Permissions by role",
     "roleFor": "Role for {{username}}",
+    "customRole": "custom",
     "owner": "Owner",
     "script": "Script",
     "stagingDirections": "Staging directions",

@@ -55,6 +55,7 @@ interface PlayParticipantsRecordValues {
   username: string;
   full_name: string;
   role_name: string | null;
+  permissions: string | null;
 }
 
 /**
@@ -101,8 +102,38 @@ interface PlayDetails {
   permissions: UserPermissions;
 }
 
+/**
+ * Resolve a participant's permissions: standard roles come from the hardcoded
+ * role => permissions matrix; custom roles fall back to the jsonb stored on
+ * the role row; participants without a role get the defaults.
+ */
+function resolveParticipantPermissions(
+  roleName: string | null,
+  dbPermissions: string | null,
+): UserPermissions {
+  if (roleName && isPlayRole(roleName)) {
+    return { ...playRolePermissions(roleName) };
+  }
+  if (dbPermissions) {
+    const result = PERMISSIONS_SCHEMA.safeParse(dbPermissions);
+    if (!result.success) {
+      throw new InternalServerError("Invalid permissions object in database");
+    }
+    return Object.keys(PERMISSIONS_DEFAULTS).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: result.data[key],
+      }),
+      {} as UserPermissions,
+    );
+  }
+  return { ...PERMISSIONS_DEFAULTS };
+}
+
 interface PlayParticipants {
-  participants: { [username: string]: { fullName: string; role: string | null } };
+  participants: {
+    [username: string]: { fullName: string; role: string | null; permissions: UserPermissions };
+  };
 }
 
 export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
@@ -118,27 +149,10 @@ export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
         {} as UserPermissions,
       );
     } else {
-      const roleName = this.get("role_name");
-      if (roleName && isPlayRole(roleName)) {
-        // standard role: resolve permissions from the hardcoded role => permissions matrix
-        permissionsResolved = { ...playRolePermissions(roleName) };
-      } else {
-        // custom role: fall back to the permissions jsonb stored on the role row
-        const dbPermissions = this.get("permissions");
-        if (dbPermissions) {
-          const result = PERMISSIONS_SCHEMA.safeParse(dbPermissions);
-          if (!result.success) {
-            throw new InternalServerError("Invalid permissions object in database");
-          }
-          permissionsResolved = Object.keys(PERMISSIONS_DEFAULTS).reduce(
-            (acc, key) => ({
-              ...acc,
-              [key]: result.data[key],
-            }),
-            {} as UserPermissions,
-          );
-        }
-      }
+      permissionsResolved = resolveParticipantPermissions(
+        this.get("role_name"),
+        this.get("permissions"),
+      );
     }
     return {
       details: {
@@ -165,11 +179,15 @@ export class PlayParticipantsRecord {
   }
   toModel(): PlayParticipants {
     return this.records.reduce(
-      (acc, { username, full_name, role_name }) => {
+      (acc, { username, full_name, role_name, permissions }) => {
         return {
           participants: {
             ...acc.participants,
-            [username]: { fullName: full_name, role: role_name },
+            [username]: {
+              fullName: full_name,
+              role: role_name,
+              permissions: resolveParticipantPermissions(role_name, permissions),
+            },
           },
         };
       },
@@ -352,7 +370,8 @@ export class UserPlaysRepository extends UserRepositoryBase {
       SELECT
         u.username,
         u.full_name,
-        r.name AS role_name
+        r.name AS role_name,
+        r.permissions
       FROM users_in_plays uip
         JOIN users u ON u.id = uip.user_id
         LEFT JOIN roles r ON r.id = uip.role_id
@@ -436,6 +455,68 @@ export class UserPlaysRepository extends UserRepositoryBase {
     const [updated] = await this.sql<{ user_id: number }[]>`
       UPDATE users_in_plays
       SET role_id = ${roleRow.id}
+      WHERE play_id = ${playRow.id} AND user_id = ${userRow.id}
+      RETURNING user_id
+    `;
+    if (!updated) {
+      return Result.failure(new ParticipantNotFound(params.username));
+    }
+    return Result.ok(undefined);
+  }
+
+  /**
+   * Set custom permissions for a participant: upserts a per-participant
+   * custom role (`custom:<username>`) with the given permissions jsonb and
+   * points the membership at it. Standard-role names stay resolvable through
+   * the matrix; custom ones read their jsonb.
+   */
+  async setParticipantPermissions(params: {
+    playUri: string;
+    username: string;
+    permissions: UserPermissions;
+  }): Promise<Result<undefined, PlayNotFound | ParticipantNotFound>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const [userRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM users WHERE username = ${params.username}
+    `;
+    if (!userRow) {
+      return Result.failure(new ParticipantNotFound(params.username));
+    }
+    const customRoleName = `custom:${params.username}`;
+    const [existingRole] = await this.sql<{ id: number }[]>`
+      SELECT id FROM roles WHERE play_id = ${playRow.id} AND name = ${customRoleName}
+    `;
+    let roleId: number;
+    if (existingRole) {
+      await this.sql`
+        UPDATE roles
+        SET permissions = ${this.sql.json(params.permissions)}::jsonb
+        WHERE id = ${existingRole.id}
+      `;
+      roleId = existingRole.id;
+    } else {
+      const [newRole] = await this.sql<{ id: number }[]>`
+        INSERT INTO roles (name, play_id, permissions)
+        VALUES (
+          ${customRoleName},
+          ${playRow.id},
+          ${this.sql.json(params.permissions)}::jsonb
+        )
+        RETURNING id
+      `;
+      if (!newRole) {
+        throw new InternalServerError("Unexpected empty row on custom role insert");
+      }
+      roleId = newRole.id;
+    }
+    const [updated] = await this.sql<{ user_id: number }[]>`
+      UPDATE users_in_plays
+      SET role_id = ${roleId}
       WHERE play_id = ${playRow.id} AND user_id = ${userRow.id}
       RETURNING user_id
     `;
