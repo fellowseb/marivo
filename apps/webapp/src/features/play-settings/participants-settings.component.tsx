@@ -144,7 +144,9 @@ function ParticipantsSettings() {
             <tr>
               <th></th>
               {usernames.map((username) => (
-                <th key={username}>{username}</th>
+                <th key={username}>
+                  {participants[username]?.role === "owner" ? t("participants.owner") : username}
+                </th>
               ))}
             </tr>
           </thead>
