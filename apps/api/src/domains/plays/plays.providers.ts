@@ -22,6 +22,12 @@ import CreatePlayFromImportUseCase from "./create-play-from-import.use-case.ts";
 import CreatePlayFromCollectionUseCase from "./create-play-from-collection.use-case.ts";
 import { GetAllScriptImportsUseCase } from "./get-all-script-imports.use-case.ts";
 import { DeleteScriptImportUseCase } from "./delete-script-import.use-case.ts";
+import { SetParticipantRoleUseCase } from "./set-participant-role.use-case.ts";
+import {
+  AddPlayRoleUseCase,
+  RemovePlayRoleUseCase,
+  UpdatePlayRolePermissionsUseCase,
+} from "./play-roles.use-case.ts";
 import { PlaysCollectionRepository } from "./plays-collection.repository.ts";
 
 export abstract class ResourceAccessAuth<TInput> {
@@ -51,6 +57,31 @@ class PlayAccessChecker extends ResourceAccessAuth<{
     return await this.playRepository.checkPlayAccess({
       uri: params.input.uri,
     });
+  }
+
+  private playRepository: UserPlaysRepository;
+}
+
+/** Requires the settingsWrite permission on the play (owner bypasses). */
+class PlaySettingsWriteChecker extends ResourceAccessAuth<{
+  uri: string;
+}> {
+  constructor(playRepository: UserPlaysRepository) {
+    super();
+    this.playRepository = playRepository;
+  }
+
+  async authorize(params: {
+    input: { uri: string };
+  }): Promise<Result<undefined, PlayAccessForbidden>> {
+    const res = await this.playRepository.checkPlayPermission({
+      uri: params.input.uri,
+      permission: "settingsWrite",
+    });
+    if (res.isFailure()) {
+      return Result.failure(new PlayAccessForbidden());
+    }
+    return Result.ok(undefined);
   }
 
   private playRepository: UserPlaysRepository;
@@ -102,6 +133,41 @@ export const providers = {
       return new PlayAccessChecker(playsRepository);
     },
   } as Provider<PlayAccessChecker>,
+  PlaySettingsWriteChecker: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      return new PlaySettingsWriteChecker(playsRepository);
+    },
+  } as Provider<PlaySettingsWriteChecker>,
+  SetParticipantRoleUseCase: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      return new SetParticipantRoleUseCase(playsRepository, userContextService);
+    },
+  } as Provider<SetParticipantRoleUseCase>,
+  AddPlayRoleUseCase: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      return new AddPlayRoleUseCase(playsRepository, userContextService);
+    },
+  } as Provider<AddPlayRoleUseCase>,
+  RemovePlayRoleUseCase: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      return new RemovePlayRoleUseCase(playsRepository, userContextService);
+    },
+  } as Provider<RemovePlayRoleUseCase>,
+  UpdatePlayRolePermissionsUseCase: {
+    instantiate({ req, sql }) {
+      const userContextService = new UserContextService(req);
+      const playsRepository = new UserPlaysRepository(sql, userContextService);
+      return new UpdatePlayRolePermissionsUseCase(playsRepository, userContextService);
+    },
+  } as Provider<UpdatePlayRolePermissionsUseCase>,
   InitImportScriptUseCase: {
     instantiate({ req, sql }) {
       const userContextService = new UserContextService(req);

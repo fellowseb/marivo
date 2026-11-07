@@ -17,6 +17,7 @@ describe("DeleteLineUseCase", () => {
     } as unknown as vi.Mocked<ScriptRepository>;
     userPlaysRepository = {
       getScriptId: vi.fn(),
+      getScriptIdForPermission: vi.fn(),
     } as unknown as vi.Mocked<UserPlaysRepository>;
     playsCollectionRepository = {
       getScriptIdByUri: vi.fn(),
@@ -32,7 +33,7 @@ describe("DeleteLineUseCase", () => {
 
   it("deletes a line successfully", async () => {
     const uri = "550e8400-e29b-41d4-a716-446655440000";
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(3));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(3));
     scriptRepository.deleteLine.mockResolvedValue(
       Result.ok({ lastModifiedDate: new Date("2026-01-01") }),
     );
@@ -50,7 +51,9 @@ describe("DeleteLineUseCase", () => {
   });
 
   it("returns failure when play not found", async () => {
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.failure(new PlayNotFound()));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(
+      Result.failure(new PlayNotFound()),
+    );
 
     const result = await useCase.execute({
       uri: "550e8400-e29b-41d4-a716-446655440000",
@@ -62,7 +65,7 @@ describe("DeleteLineUseCase", () => {
   });
 
   it("returns failure when script not found", async () => {
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(404));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(404));
     scriptRepository.deleteLine.mockResolvedValue(Result.failure(new ScriptNotFound()));
 
     const result = await useCase.execute({

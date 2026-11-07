@@ -62,7 +62,7 @@ export class SaveLineContentUseCase extends AuthenticatedUseCase<{
     >
   > {
     const scriptIdResult = await resolveEditableScriptId(
-      { uri: params.uri, from: params.from },
+      { uri: params.uri, from: params.from, permission: "scriptWrite" },
       {
         userPlaysRepository: this.userPlaysRepository,
         playsCollectionRepository: this.playsCollectionRepository,

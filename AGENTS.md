@@ -88,6 +88,16 @@ regenerate it before pushing.
 - **Webapp**: Feature-based. Each feature in `src/features/<name>/` with co-located context, state, components.
 - **State**: Reducer pattern for complex state (`script-state.ts`). Persist to localStorage for offline support.
 
+### Permissions (RBAC) — mandatory server-side enforcement
+
+Play-scoped permissions (`scriptRead`, `scriptWrite`, `settingsRead`, …, resolved from the role matrix in `@marivo/utils` `play-roles.ts`) must **never be enforced only in the webapp UI**. For every new API use case/route that reads or mutates play-scoped data:
+
+1. Attach the tRPC middleware at route registration: `.use(requirePlayPermission("<permission>"))` from `apps/api/src/domains/plays/play-permission.middleware.ts` (it 403/404s correctly and skips non-play sources).
+2. Also enforce in the use case/repository layer via `UserPlaysRepository.getScriptIdForPermission({ uri, permission })` / `checkPlayPermission(...)` — defense in depth for non-HTTP callers (worker, server-side calls).
+3. Add tests: middleware unit test + real-Postgres integration test proving a low-privilege participant gets FORBIDDEN and a non-participant NOT_FOUND.
+
+Owner bypasses all checks. Role management endpoints require `settingsWrite` (`PlaySettingsWriteChecker`).
+
 ---
 
 ## 5. Git Commit Format

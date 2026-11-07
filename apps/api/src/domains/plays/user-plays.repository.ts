@@ -1,4 +1,10 @@
 import z from "zod";
+import {
+  ASSIGNABLE_PLAY_ROLES,
+  isPlayRole,
+  playRolePermissions,
+  PLAY_ROLE_PERMISSIONS,
+} from "@marivo/utils";
 import { Result } from "@marivo/utils";
 import { Record } from "../../shared/record.ts";
 import { UserRepositoryBase } from "../../shared/user-repository-base.ts";
@@ -40,12 +46,15 @@ interface PlayDetailsRecordValues {
   owner_username: string;
   owner_full_name: string;
   last_modified_date: Date;
+  role_name: string | null;
   permissions: string | null;
 }
 
 interface PlayParticipantsRecordValues {
   username: string;
   full_name: string;
+  role_name: string | null;
+  permissions: string | null;
 }
 
 /**
@@ -92,8 +101,38 @@ interface PlayDetails {
   permissions: UserPermissions;
 }
 
+/**
+ * Resolve a participant's permissions: standard roles come from the hardcoded
+ * role => permissions matrix; custom roles fall back to the jsonb stored on
+ * the role row; participants without a role get the defaults.
+ */
+function resolveParticipantPermissions(
+  roleName: string | null,
+  dbPermissions: string | null,
+): UserPermissions {
+  if (roleName && isPlayRole(roleName)) {
+    return { ...playRolePermissions(roleName) };
+  }
+  if (dbPermissions) {
+    const result = PERMISSIONS_SCHEMA.safeParse(dbPermissions);
+    if (!result.success) {
+      throw new InternalServerError("Invalid permissions object in database");
+    }
+    return Object.keys(PERMISSIONS_DEFAULTS).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: result.data[key],
+      }),
+      {} as UserPermissions,
+    );
+  }
+  return { ...PERMISSIONS_DEFAULTS };
+}
+
 interface PlayParticipants {
-  participants: { [username: string]: { fullName: string } };
+  participants: {
+    [username: string]: { fullName: string; role: string | null; permissions: UserPermissions };
+  };
 }
 
 export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
@@ -109,20 +148,10 @@ export class PlayDetailsRecord extends Record<PlayDetailsRecordValues> {
         {} as UserPermissions,
       );
     } else {
-      const dbPermissions = this.get("permissions");
-      if (dbPermissions) {
-        const result = PERMISSIONS_SCHEMA.safeParse(dbPermissions);
-        if (!result.success) {
-          throw new InternalServerError("Invalid permissions object in database");
-        }
-        permissionsResolved = Object.keys(PERMISSIONS_DEFAULTS).reduce(
-          (acc, key) => ({
-            ...acc,
-            [key]: result.data[key],
-          }),
-          {} as UserPermissions,
-        );
-      }
+      permissionsResolved = resolveParticipantPermissions(
+        this.get("role_name"),
+        this.get("permissions"),
+      );
     }
     return {
       details: {
@@ -149,11 +178,15 @@ export class PlayParticipantsRecord {
   }
   toModel(): PlayParticipants {
     return this.records.reduce(
-      (acc, { username, full_name }) => {
+      (acc, { username, full_name, role_name, permissions }) => {
         return {
           participants: {
             ...acc.participants,
-            [username]: { fullName: full_name },
+            [username]: {
+              fullName: full_name,
+              role: role_name,
+              permissions: resolveParticipantPermissions(role_name, permissions),
+            },
           },
         };
       },
@@ -185,6 +218,36 @@ export class PlayNotFound extends AppError {
       cause: {
         uri,
       },
+    });
+  }
+}
+
+export class PlayAccessForbidden extends AppError {
+  constructor() {
+    super("Forbidden: missing permission on this play", "FORBIDDEN");
+  }
+}
+
+export class ParticipantNotFound extends AppError {
+  constructor(username: string) {
+    super("Participant not found in this play", "NOT_FOUND", {
+      cause: { username },
+    });
+  }
+}
+
+export class RoleNotFound extends AppError {
+  constructor(role: string) {
+    super("Role not found for this play", "NOT_FOUND", {
+      cause: { role },
+    });
+  }
+}
+
+export class RoleAlreadyExists extends AppError {
+  constructor(name: string) {
+    super("A role with this name already exists for this play", "BAD_REQUEST", {
+      cause: { name },
     });
   }
 }
@@ -270,6 +333,21 @@ export class UserPlaysRepository extends UserRepositoryBase {
         ${this.sql.json(DEFAULT_COMEDIAN_PERMISSIONS)}::jsonb
       );
     `;
+    // Seed the standard assignable roles with their permission matrix, so
+    // participants can be assigned any of them by name.
+    for (const role of ASSIGNABLE_PLAY_ROLES) {
+      await this.sql`
+        INSERT INTO roles (
+          name,
+          play_id,
+          permissions
+        ) VALUES (
+          ${role},
+          ${createdPlayId},
+          ${this.sql.json(PLAY_ROLE_PERMISSIONS[role])}::jsonb
+        );
+      `;
+    }
   }
 
   async getPlayDetails(params: {
@@ -285,6 +363,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
         up.owner_full_name,
         up.owner_username,
         up.last_modified_date,
+        r.name AS role_name,
         r.permissions
       FROM user_plays_view up
         LEFT JOIN roles r ON r.id = up.role_id
@@ -297,9 +376,12 @@ export class UserPlaysRepository extends UserRepositoryBase {
     const participantsResults = await this.sql<PlayParticipantsRecordValues[]>`
       SELECT
         u.username,
-        u.full_name
+        u.full_name,
+        r.name AS role_name,
+        r.permissions
       FROM users_in_plays uip
         JOIN users u ON u.id = uip.user_id
+        LEFT JOIN roles r ON r.id = uip.role_id
       WHERE uip.play_id = ${firstResult.id};
     `;
     return Result.ok({
@@ -315,14 +397,178 @@ export class UserPlaysRepository extends UserRepositoryBase {
         user_role: "owner" | "participant";
       }[]
     >`
-        SELECT 
-          id, 
+        SELECT
+          id,
           user_role
         FROM user_plays_view
         WHERE user_id = ${this.userId()} AND uri = ${params.uri};
       `;
     if (!res || res.length !== 1) {
       return Result.failure(new PlayNotFound(params.uri));
+    }
+    return Result.ok(undefined);
+  }
+
+  /**
+   * Whether the current user is the play owner or has the given permission
+   * on the play (resolved through their assigned role).
+   */
+  async checkPlayPermission(params: {
+    uri: string;
+    permission: keyof UserPermissions;
+  }): Promise<Result<undefined, PlayNotFound | PlayAccessForbidden>> {
+    const access = await this.checkPlayAccess({ uri: params.uri });
+    if (access.isFailure()) {
+      return Result.failure(access.errorOrThrow());
+    }
+    const details = await this.getPlayDetails({ uri: params.uri });
+    if (details.isFailure()) {
+      return Result.failure(new PlayNotFound(params.uri));
+    }
+    const { details: playDetails, permissions } = details.dataOrThrow();
+    if (playDetails.isOwner || permissions[params.permission]) {
+      return Result.ok(undefined);
+    }
+    return Result.failure(new PlayAccessForbidden());
+  }
+
+  /**
+   * Assign a standard role to a participant of the play, by username.
+   * The role row must exist for the play (seeded at play creation).
+   */
+  async setParticipantRole(params: {
+    playUri: string;
+    username: string;
+    role: string;
+  }): Promise<Result<undefined, PlayNotFound | ParticipantNotFound | RoleNotFound>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const [roleRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM roles WHERE play_id = ${playRow.id} AND name = ${params.role}
+    `;
+    if (!roleRow) {
+      return Result.failure(new RoleNotFound(params.role));
+    }
+    const [userRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM users WHERE username = ${params.username}
+    `;
+    if (!userRow) {
+      return Result.failure(new ParticipantNotFound(params.username));
+    }
+    const [updated] = await this.sql<{ user_id: number }[]>`
+      UPDATE users_in_plays
+      SET role_id = ${roleRow.id}
+      WHERE play_id = ${playRow.id} AND user_id = ${userRow.id}
+      RETURNING user_id
+    `;
+    if (!updated) {
+      return Result.failure(new ParticipantNotFound(params.username));
+    }
+    return Result.ok(undefined);
+  }
+
+  /** All roles defined for a play (owner is virtual, not stored). */
+  async getPlayRoles(params: {
+    playUri: string;
+  }): Promise<Result<{ id: number; name: string; permissions: UserPermissions }[], PlayNotFound>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const rows = await this.sql<{ id: number; name: string; permissions: string | null }[]>`
+      SELECT id, name, permissions FROM roles WHERE play_id = ${playRow.id} ORDER BY id
+    `;
+    return Result.ok(
+      rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        permissions: resolveParticipantPermissions(row.name, row.permissions),
+      })),
+    );
+  }
+
+  /** Create a new role for the play with default (mostly denied) permissions. */
+  async addRole(params: {
+    playUri: string;
+    name: string;
+  }): Promise<Result<{ id: number; name: string }, PlayNotFound | RoleAlreadyExists>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const [existing] = await this.sql<{ id: number }[]>`
+      SELECT id FROM roles WHERE play_id = ${playRow.id} AND name = ${params.name}
+    `;
+    if (existing) {
+      return Result.failure(new RoleAlreadyExists(params.name));
+    }
+    const [newRole] = await this.sql<{ id: number; name: string }[]>`
+      INSERT INTO roles (name, play_id, permissions)
+      VALUES (${params.name}, ${playRow.id}, ${this.sql.json({ ...PERMISSIONS_DEFAULTS })}::jsonb)
+      RETURNING id, name
+    `;
+    if (!newRole) {
+      throw new InternalServerError("Unexpected empty row on role insert");
+    }
+    return Result.ok(newRole);
+  }
+
+  /**
+   * Delete a role. Participants holding it fall back to no role (default
+   * permissions). The builtin owner role is not stored and cannot be removed.
+   */
+  async removeRole(params: {
+    playUri: string;
+    roleName: string;
+  }): Promise<Result<undefined, PlayNotFound | RoleNotFound>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const [roleRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM roles WHERE play_id = ${playRow.id} AND name = ${params.roleName}
+    `;
+    if (!roleRow) {
+      return Result.failure(new RoleNotFound(params.roleName));
+    }
+    await this.sql`
+      UPDATE users_in_plays SET role_id = NULL
+      WHERE play_id = ${playRow.id} AND role_id = ${roleRow.id}
+    `;
+    await this.sql`DELETE FROM roles WHERE id = ${roleRow.id}`;
+    return Result.ok(undefined);
+  }
+
+  /** Overwrite a role's permission set (owner is virtual and cannot be edited). */
+  async updateRolePermissions(params: {
+    playUri: string;
+    roleName: string;
+    permissions: UserPermissions;
+  }): Promise<Result<undefined, PlayNotFound | RoleNotFound>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const [updated] = await this.sql<{ id: number }[]>`
+      UPDATE roles
+      SET permissions = ${this.sql.json(params.permissions)}::jsonb
+      WHERE play_id = ${playRow.id} AND name = ${params.roleName}
+      RETURNING id
+    `;
+    if (!updated) {
+      return Result.failure(new RoleNotFound(params.roleName));
     }
     return Result.ok(undefined);
   }
@@ -336,6 +582,24 @@ export class UserPlaysRepository extends UserRepositoryBase {
       return Result.failure(new PlayNotFound(params.uri));
     }
     return Result.ok(playRow.script_id);
+  }
+
+  /**
+   * Resolve a play's script id after enforcing a play-scoped permission
+   * (owner bypasses). Use this for all script reads/writes on plays.
+   */
+  async getScriptIdForPermission(params: {
+    uri: string;
+    permission: keyof UserPermissions;
+  }): Promise<Result<number, PlayNotFound | PlayAccessForbidden>> {
+    const permission = await this.checkPlayPermission({
+      uri: params.uri,
+      permission: params.permission,
+    });
+    if (permission.isFailure()) {
+      return Result.failure(permission.errorOrThrow());
+    }
+    return this.getScriptId({ uri: params.uri });
   }
 
   async deletePlay(params: { uri: string }): Promise<Result<undefined, PlayNotFound>> {

@@ -1,5 +1,5 @@
 import z from "zod";
-import { assertUnreachable, Result } from "@marivo/utils";
+import { assertUnreachable, PLAY_ROLE_PERMISSIONS, Result } from "@marivo/utils";
 import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
 import {
   PERMISSIONS_SCHEMA,
@@ -33,9 +33,19 @@ export const PlayDetailsUseCaseOutputSchema = z.object({
     z.string(),
     z.object({
       fullName: z.string(),
+      role: z.string().nullable(),
+      permissions: PERMISSIONS_SCHEMA.strict(),
     }),
   ),
   permissions: PERMISSIONS_SCHEMA.strict(),
+  roles: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      builtin: z.boolean(),
+      permissions: PERMISSIONS_SCHEMA.strict(),
+    }),
+  ),
 });
 
 type PlayDetailsUseCaseInput = z.infer<typeof PlayDetailsUseCaseInputSchema>;
@@ -54,15 +64,27 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
   async execute(input: PlayDetailsUseCaseInput) {
     const { uri } = input;
     const detailsResult = await this.playsRepository.getPlayDetails({ uri });
+    const rolesResult = await this.playsRepository.getPlayRoles({ playUri: uri });
+    const dbRoles = rolesResult.isOk()
+      ? rolesResult.dataOrThrow().map((role) => ({ ...role, builtin: false }))
+      : [];
     return detailsResult.match({
       success({ details, permissions, participants }) {
         return Result.ok({
           details,
           permissions,
           participants: {
-            [details.ownerUsername]: { fullName: details.ownerFullName },
+            [details.ownerUsername]: {
+              fullName: details.ownerFullName,
+              role: "owner",
+              permissions: PLAY_ROLE_PERMISSIONS.owner,
+            },
             ...participants,
           },
+          roles: [
+            { id: -1, name: "owner", builtin: true, permissions: PLAY_ROLE_PERMISSIONS.owner },
+            ...dbRoles,
+          ],
         });
       },
       failure(err) {

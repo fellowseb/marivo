@@ -30,6 +30,7 @@ describe("Script write endpoints - integration (happy paths)", () => {
     } as unknown as vi.Mocked<ScriptRepository>;
     userPlaysRepository = {
       getScriptId: vi.fn().mockResolvedValue(Result.ok(SCRIPT_ID)),
+      getScriptIdForPermission: vi.fn().mockResolvedValue(Result.ok(SCRIPT_ID)),
     } as unknown as vi.Mocked<UserPlaysRepository>;
     playsCollectionRepository = {
       getScriptIdByUri: vi.fn(),
