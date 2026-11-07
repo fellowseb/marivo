@@ -3,7 +3,11 @@ import { assertUnreachable, Result } from "@marivo/utils";
 import { type UseCase } from "../../shared/use-case.ts";
 import { type ScriptDiff } from "./script.models.ts";
 import { ScriptNotFound, ScriptRepository } from "./script.repository.ts";
-import type { PlayNotFound, UserPlaysRepository } from "../plays/user-plays.repository.ts";
+import type {
+  PlayAccessForbidden,
+  PlayNotFound,
+  UserPlaysRepository,
+} from "../plays/user-plays.repository.ts";
 import type {
   ScriptImportNotFound,
   ScriptImportsRepository,
@@ -96,13 +100,18 @@ export class LatestScriptChangesUseCase implements UseCase<{
   }): Promise<
     Result<
       ScriptDiff,
-      ScriptNotFound | PlayNotFound | ScriptImportNotFound | CollectionPlayNotFound
+      | ScriptNotFound
+      | PlayNotFound
+      | PlayAccessForbidden
+      | ScriptImportNotFound
+      | CollectionPlayNotFound
     >
   > {
     let scriptIdResult;
     if (params.from === "play") {
-      scriptIdResult = await this.userPlaysRepository.getScriptId({
+      scriptIdResult = await this.userPlaysRepository.getScriptIdForPermission({
         uri: params.uri,
+        permission: "scriptRead",
       });
     } else if (params.from === "import") {
       scriptIdResult = await this.scriptImportsRepository.getResultScriptId({

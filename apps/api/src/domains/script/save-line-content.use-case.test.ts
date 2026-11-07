@@ -20,6 +20,7 @@ describe("SaveLineContentUseCase", () => {
     } as unknown as vi.Mocked<ScriptRepository>;
     userPlaysRepository = {
       getScriptId: vi.fn(),
+      getScriptIdForPermission: vi.fn(),
     } as unknown as vi.Mocked<UserPlaysRepository>;
     playsCollectionRepository = {
       getScriptIdByUri: vi.fn(),
@@ -35,7 +36,7 @@ describe("SaveLineContentUseCase", () => {
 
   it("saves line content when play exists", async () => {
     const uri = "550e8400-e29b-41d4-a716-446655440000";
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(42));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(42));
     scriptRepository.saveLineContent.mockResolvedValue(
       Result.ok({
         contentId: "content-1",
@@ -67,7 +68,9 @@ describe("SaveLineContentUseCase", () => {
   });
 
   it("returns failure when play not found", async () => {
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.failure(new PlayNotFound()));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(
+      Result.failure(new PlayNotFound()),
+    );
 
     const result = await useCase.execute({
       uri: "550e8400-e29b-41d4-a716-446655440000",
@@ -81,7 +84,7 @@ describe("SaveLineContentUseCase", () => {
   });
 
   it("returns failure when script not found", async () => {
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(99));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(99));
     scriptRepository.saveLineContent.mockResolvedValue(Result.failure(new ScriptNotFound()));
 
     const result = await useCase.execute({
@@ -97,7 +100,7 @@ describe("SaveLineContentUseCase", () => {
   it("passes client-provided contentId to the repository", async () => {
     const uri = "550e8400-e29b-41d4-a716-446655440000";
     const contentId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(1));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(1));
     scriptRepository.saveLineContent.mockResolvedValue(
       Result.ok({ contentId, lastModifiedDate: new Date() }),
     );
@@ -118,7 +121,7 @@ describe("SaveLineContentUseCase", () => {
 
   it("passes characters for chartext lines", async () => {
     const uri = "550e8400-e29b-41d4-a716-446655440000";
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(1));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(1));
     scriptRepository.saveLineContent.mockResolvedValue(
       Result.ok({ contentId: "c1", lastModifiedDate: new Date() }),
     );

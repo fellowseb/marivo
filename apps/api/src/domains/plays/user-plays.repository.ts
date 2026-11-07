@@ -584,6 +584,24 @@ export class UserPlaysRepository extends UserRepositoryBase {
     return Result.ok(playRow.script_id);
   }
 
+  /**
+   * Resolve a play's script id after enforcing a play-scoped permission
+   * (owner bypasses). Use this for all script reads/writes on plays.
+   */
+  async getScriptIdForPermission(params: {
+    uri: string;
+    permission: keyof UserPermissions;
+  }): Promise<Result<number, PlayNotFound | PlayAccessForbidden>> {
+    const permission = await this.checkPlayPermission({
+      uri: params.uri,
+      permission: params.permission,
+    });
+    if (permission.isFailure()) {
+      return Result.failure(permission.errorOrThrow());
+    }
+    return this.getScriptId({ uri: params.uri });
+  }
+
   async deletePlay(params: { uri: string }): Promise<Result<undefined, PlayNotFound>> {
     const result = await this.checkPlayAccess({ uri: params.uri });
     if (result.isFailure()) {

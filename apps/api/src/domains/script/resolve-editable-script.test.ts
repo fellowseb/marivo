@@ -12,7 +12,7 @@ const URI = "10000000-0000-4000-8000-000000000001";
 function deps(role?: Role) {
   return {
     userPlaysRepository: {
-      getScriptId: vi.fn().mockResolvedValue(Result.ok(42)),
+      getScriptIdForPermission: vi.fn().mockResolvedValue(Result.ok(42)),
     } as unknown as UserPlaysRepository,
     playsCollectionRepository: {
       getScriptIdByUri: vi.fn().mockResolvedValue(Result.ok(43)),
@@ -27,12 +27,15 @@ describe("resolveEditableScriptId", () => {
     const result = await resolveEditableScriptId({ uri: URI, from: "play" }, d);
     expect(result.isOk()).toBe(true);
     expect(result.dataOrThrow()).toBe(42);
-    expect(d.userPlaysRepository.getScriptId).toHaveBeenCalledWith({ uri: URI });
+    expect(d.userPlaysRepository.getScriptIdForPermission).toHaveBeenCalledWith({
+      uri: URI,
+      permission: "scriptWrite",
+    });
   });
 
   it("propagates PlayNotFound for unknown plays", async () => {
     const d = deps(undefined);
-    (d.userPlaysRepository.getScriptId as ReturnType<typeof vi.fn>).mockResolvedValue(
+    (d.userPlaysRepository.getScriptIdForPermission as ReturnType<typeof vi.fn>).mockResolvedValue(
       Result.failure(new PlayNotFound(URI)),
     );
     const result = await resolveEditableScriptId({ uri: URI, from: "play" }, d);
@@ -67,5 +70,30 @@ describe("resolveEditableScriptId", () => {
     const result = await resolveEditableScriptId({ uri: URI, from: "collection" }, d);
     expect(result.isFailure()).toBe(true);
     expect(result.errorOrThrow().code).toBe("NOT_FOUND");
+  });
+});
+
+describe("resolveEditableScriptId permission enforcement", () => {
+  it("maps PlayAccessForbidden to ForbiddenError (403) for play uris", async () => {
+    const { PlayAccessForbidden } = await import("../plays/user-plays.repository.ts");
+    const d = deps(undefined);
+    (d.userPlaysRepository.getScriptIdForPermission as ReturnType<typeof vi.fn>).mockResolvedValue(
+      Result.failure(new PlayAccessForbidden()),
+    );
+    const result = await resolveEditableScriptId(
+      { uri: URI, from: "play", permission: "scriptWrite" },
+      d,
+    );
+    expect(result.isFailure()).toBe(true);
+    expect(result.errorOrThrow().code).toBe("FORBIDDEN");
+  });
+
+  it("passes the requested permission through (scriptRead for reads)", async () => {
+    const d = deps(undefined);
+    await resolveEditableScriptId({ uri: URI, from: "play", permission: "scriptRead" }, d);
+    expect(d.userPlaysRepository.getScriptIdForPermission).toHaveBeenCalledWith({
+      uri: URI,
+      permission: "scriptRead",
+    });
   });
 });

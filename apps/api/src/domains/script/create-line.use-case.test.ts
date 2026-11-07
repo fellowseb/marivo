@@ -17,6 +17,7 @@ describe("CreateLineUseCase", () => {
     } as unknown as vi.Mocked<ScriptRepository>;
     userPlaysRepository = {
       getScriptId: vi.fn(),
+      getScriptIdForPermission: vi.fn(),
     } as unknown as vi.Mocked<UserPlaysRepository>;
     playsCollectionRepository = {
       getScriptIdByUri: vi.fn(),
@@ -32,7 +33,7 @@ describe("CreateLineUseCase", () => {
 
   it("creates a heading line at position 0", async () => {
     const uri = "550e8400-e29b-41d4-a716-446655440000";
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(7));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(7));
     scriptRepository.createLine.mockResolvedValue(
       Result.ok({ lastModifiedDate: new Date("2026-01-01") }),
     );
@@ -55,7 +56,7 @@ describe("CreateLineUseCase", () => {
 
   it("creates a chartext line at position 5", async () => {
     const uri = "550e8400-e29b-41d4-a716-446655440000";
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(7));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(7));
     scriptRepository.createLine.mockResolvedValue(Result.ok({ lastModifiedDate: new Date() }));
 
     await useCase.execute({
@@ -71,7 +72,9 @@ describe("CreateLineUseCase", () => {
   });
 
   it("returns failure when play not found", async () => {
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.failure(new PlayNotFound()));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(
+      Result.failure(new PlayNotFound()),
+    );
 
     const result = await useCase.execute({
       uri: "550e8400-e29b-41d4-a716-446655440000",
@@ -85,7 +88,7 @@ describe("CreateLineUseCase", () => {
   });
 
   it("returns failure when script not found", async () => {
-    userPlaysRepository.getScriptId.mockResolvedValue(Result.ok(999));
+    userPlaysRepository.getScriptIdForPermission.mockResolvedValue(Result.ok(999));
     scriptRepository.createLine.mockResolvedValue(Result.failure(new ScriptNotFound()));
 
     const result = await useCase.execute({

@@ -606,6 +606,7 @@ function PickStep(props: PickStepProps) {
 type Step = "pick" | "preview" | "name";
 
 function FromCollectionFlow() {
+  const { t } = useTranslation("collection");
   const [step, setStep] = useState<Step>("pick");
   const [selectedUri, setSelectedUri] = useState<string | null>(null);
   const [lineIdsToKeep, setLineIdsToKeep] = useState<string[] | undefined>(undefined);
@@ -635,7 +636,11 @@ function FromCollectionFlow() {
         sourceLabel={t("sourceLabel")}
         onBack={() => setStep("preview")}
         createPlay={(title) =>
-          createFromCollection({ title, collectionUri: selectedUri, lineIdsToKeep })
+          createFromCollection({
+            title,
+            collectionUri: selectedUri,
+            lineIdsToKeep,
+          })
         }
       />
     );

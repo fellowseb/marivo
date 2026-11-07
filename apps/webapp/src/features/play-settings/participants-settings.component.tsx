@@ -6,6 +6,8 @@ import type { PlayPermission, PlayPermissions } from "@marivo/utils";
 import { useTRPC } from "../../trpc";
 import { usePlayContext } from "../play-admin/play.context";
 import styles from "./participants-settings.module.css";
+import Button from "../../components/button.component";
+import Flex from "../../components/flex.component";
 
 const PERMISSION_LABELS: Record<PlayPermission, string> = {
   scriptRead: "view",
@@ -27,11 +29,23 @@ const PERMISSION_GROUPS: { labelKey: string; keys: PlayPermission[] }[] = [
     labelKey: "participants.script",
     keys: ["scriptRead", "scriptWriteSharedDrafts", "scriptWrite"],
   },
-  { labelKey: "participants.stagingDirections", keys: ["stagingNotesRead", "stagingNotesWrite"] },
-  { labelKey: "participants.blocking", keys: ["blockingRead", "blockingWrite"] },
+  {
+    labelKey: "participants.stagingDirections",
+    keys: ["stagingNotesRead", "stagingNotesWrite"],
+  },
+  {
+    labelKey: "participants.blocking",
+    keys: ["blockingRead", "blockingWrite"],
+  },
   { labelKey: "participants.memorize", keys: ["memorizeRead"] },
-  { labelKey: "participants.planning", keys: ["planningRead", "planningWrite"] },
-  { labelKey: "participants.settings", keys: ["settingsRead", "settingsWrite"] },
+  {
+    labelKey: "participants.planning",
+    keys: ["planningRead", "planningWrite"],
+  },
+  {
+    labelKey: "participants.settings",
+    keys: ["settingsRead", "settingsWrite"],
+  },
 ];
 
 type RoleInfo = {
@@ -54,7 +68,9 @@ function ParticipantsSettings() {
   const queryClient = useQueryClient();
   const [newRoleName, setNewRoleName] = useState("");
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: trpc.plays.playDetails.queryKey() });
+    queryClient.invalidateQueries({
+      queryKey: trpc.plays.playDetails.queryKey(),
+    });
   };
   const { mutate: setParticipantRole, isPending: rolePending } = useMutation(
     trpc.plays.setParticipantRole.mutationOptions({ onSuccess: invalidate }),
@@ -66,7 +82,9 @@ function ParticipantsSettings() {
     trpc.plays.removeRole.mutationOptions({ onSuccess: invalidate }),
   );
   const { mutate: updateRolePermissions, isPending: permissionsPending } = useMutation(
-    trpc.plays.updateRolePermissions.mutationOptions({ onSuccess: invalidate }),
+    trpc.plays.updateRolePermissions.mutationOptions({
+      onSuccess: invalidate,
+    }),
   );
 
   const data = playContext?.dataOr(undefined);
@@ -102,7 +120,7 @@ function ParticipantsSettings() {
       <div className={classNames([styles.section])}>
         <div className={classNames([styles.sectionTitle])}>{t("participants.title")}</div>
         <div className={styles.line}>
-          <table className={styles.permissionsTable}>
+          <table className={styles.participantsTable}>
             <thead>
               <tr>
                 <th>{t("participants.userColumn")}</th>
@@ -144,6 +162,21 @@ function ParticipantsSettings() {
       </div>
       <div className={classNames([styles.section])}>
         <div className={classNames([styles.sectionTitle])}>{t("participants.matrixTitle")}</div>
+        {canManage ? (
+          <Flex gap={10} justify="flex-end">
+            <input
+              type="text"
+              size={20}
+              placeholder={t("participants.newRolePlaceholder")}
+              aria-label={t("participants.newRolePlaceholder")}
+              value={newRoleName}
+              onChange={(e) => setNewRoleName(e.target.value)}
+            />
+            <Button disabled={addPending || !newRoleName.trim()} onClick={handleAddRole}>
+              {t("participants.addRole")}
+            </Button>
+          </Flex>
+        ) : null}
         <table className={styles.permissionsTable}>
           <thead>
             <tr>
@@ -154,7 +187,9 @@ function ParticipantsSettings() {
                   {canManage && !role.builtin ? (
                     <button
                       className={styles.deleteFunctionBtn}
-                      aria-label={t("participants.removeRole", { role: role.name })}
+                      aria-label={t("participants.removeRole", {
+                        role: role.name,
+                      })}
                       disabled={removePending}
                       onClick={() =>
                         details && removeRole({ uri: details.uri, roleName: role.name })
@@ -163,25 +198,6 @@ function ParticipantsSettings() {
                   ) : null}
                 </th>
               ))}
-              {canManage ? (
-                <th>
-                  <input
-                    type="text"
-                    size={10}
-                    placeholder={t("participants.newRolePlaceholder")}
-                    aria-label={t("participants.newRolePlaceholder")}
-                    value={newRoleName}
-                    onChange={(e) => setNewRoleName(e.target.value)}
-                  />
-                  <button
-                    className={styles.addFunctionBtn}
-                    disabled={addPending || !newRoleName.trim()}
-                    onClick={handleAddRole}
-                  >
-                    {t("participants.addRole")}
-                  </button>
-                </th>
-              ) : null}
             </tr>
           </thead>
           <tbody>
