@@ -39,9 +39,13 @@ import {
   SetParticipantRoleUseCaseOutputSchema,
 } from "./set-participant-role.use-case.ts";
 import {
-  SetParticipantPermissionsUseCaseInputSchema,
-  SetParticipantPermissionsUseCaseOutputSchema,
-} from "./set-participant-permissions.use-case.ts";
+  AddPlayRoleUseCaseInputSchema,
+  AddPlayRoleUseCaseOutputSchema,
+  RemovePlayRoleUseCaseInputSchema,
+  RemovePlayRoleUseCaseOutputSchema,
+  UpdatePlayRolePermissionsUseCaseInputSchema,
+  UpdatePlayRolePermissionsUseCaseOutputSchema,
+} from "./play-roles.use-case.ts";
 
 function resourceAuth<T>(provider: Provider<ResourceAccessAuth<T>>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,11 +97,21 @@ export default router({
     .use(resourceAuth(providers.PlaySettingsWriteChecker))
     .output(SetParticipantRoleUseCaseOutputSchema)
     .mutation(handleUseCase(providers.SetParticipantRoleUseCase)),
-  setParticipantPermissions: publicProcedure
-    .input(SetParticipantPermissionsUseCaseInputSchema)
+  addRole: publicProcedure
+    .input(AddPlayRoleUseCaseInputSchema)
     .use(resourceAuth(providers.PlaySettingsWriteChecker))
-    .output(SetParticipantPermissionsUseCaseOutputSchema)
-    .mutation(handleUseCase(providers.SetParticipantPermissionsUseCase)),
+    .output(AddPlayRoleUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.AddPlayRoleUseCase)),
+  removeRole: publicProcedure
+    .input(RemovePlayRoleUseCaseInputSchema)
+    .use(resourceAuth(providers.PlaySettingsWriteChecker))
+    .output(RemovePlayRoleUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.RemovePlayRoleUseCase)),
+  updateRolePermissions: publicProcedure
+    .input(UpdatePlayRolePermissionsUseCaseInputSchema)
+    .use(resourceAuth(providers.PlaySettingsWriteChecker))
+    .output(UpdatePlayRolePermissionsUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.UpdatePlayRolePermissionsUseCase)),
   initImportScript: publicProcedure
     .input(InitImportScriptUseCaseInputSchema)
     .output(InitImportScriptUseCaseOutputSchema)

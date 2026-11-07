@@ -4,7 +4,6 @@ import {
   isPlayRole,
   playRolePermissions,
   PLAY_ROLE_PERMISSIONS,
-  type AssignablePlayRole,
 } from "@marivo/utils";
 import { Result } from "@marivo/utils";
 import { Record } from "../../shared/record.ts";
@@ -245,6 +244,14 @@ export class RoleNotFound extends AppError {
   }
 }
 
+export class RoleAlreadyExists extends AppError {
+  constructor(name: string) {
+    super("A role with this name already exists for this play", "BAD_REQUEST", {
+      cause: { name },
+    });
+  }
+}
+
 export class UserPlaysRepository extends UserRepositoryBase {
   /**
    * Retrieves all plays for a given user:
@@ -432,7 +439,7 @@ export class UserPlaysRepository extends UserRepositoryBase {
   async setParticipantRole(params: {
     playUri: string;
     username: string;
-    role: AssignablePlayRole;
+    role: string;
   }): Promise<Result<undefined, PlayNotFound | ParticipantNotFound | RoleNotFound>> {
     const [playRow] = await this.sql<{ id: number }[]>`
       SELECT id FROM plays WHERE uri = ${params.playUri}
@@ -464,64 +471,104 @@ export class UserPlaysRepository extends UserRepositoryBase {
     return Result.ok(undefined);
   }
 
-  /**
-   * Set custom permissions for a participant: upserts a per-participant
-   * custom role (`custom:<username>`) with the given permissions jsonb and
-   * points the membership at it. Standard-role names stay resolvable through
-   * the matrix; custom ones read their jsonb.
-   */
-  async setParticipantPermissions(params: {
+  /** All roles defined for a play (owner is virtual, not stored). */
+  async getPlayRoles(params: {
     playUri: string;
-    username: string;
-    permissions: UserPermissions;
-  }): Promise<Result<undefined, PlayNotFound | ParticipantNotFound>> {
+  }): Promise<Result<{ id: number; name: string; permissions: UserPermissions }[], PlayNotFound>> {
     const [playRow] = await this.sql<{ id: number }[]>`
       SELECT id FROM plays WHERE uri = ${params.playUri}
     `;
     if (!playRow) {
       return Result.failure(new PlayNotFound(params.playUri));
     }
-    const [userRow] = await this.sql<{ id: number }[]>`
-      SELECT id FROM users WHERE username = ${params.username}
+    const rows = await this.sql<{ id: number; name: string; permissions: string | null }[]>`
+      SELECT id, name, permissions FROM roles WHERE play_id = ${playRow.id} ORDER BY id
     `;
-    if (!userRow) {
-      return Result.failure(new ParticipantNotFound(params.username));
-    }
-    const customRoleName = `custom:${params.username}`;
-    const [existingRole] = await this.sql<{ id: number }[]>`
-      SELECT id FROM roles WHERE play_id = ${playRow.id} AND name = ${customRoleName}
+    return Result.ok(
+      rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        permissions: resolveParticipantPermissions(row.name, row.permissions),
+      })),
+    );
+  }
+
+  /** Create a new role for the play with default (mostly denied) permissions. */
+  async addRole(params: {
+    playUri: string;
+    name: string;
+  }): Promise<Result<{ id: number; name: string }, PlayNotFound | RoleAlreadyExists>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
     `;
-    let roleId: number;
-    if (existingRole) {
-      await this.sql`
-        UPDATE roles
-        SET permissions = ${this.sql.json(params.permissions)}::jsonb
-        WHERE id = ${existingRole.id}
-      `;
-      roleId = existingRole.id;
-    } else {
-      const [newRole] = await this.sql<{ id: number }[]>`
-        INSERT INTO roles (name, play_id, permissions)
-        VALUES (
-          ${customRoleName},
-          ${playRow.id},
-          ${this.sql.json(params.permissions)}::jsonb
-        )
-        RETURNING id
-      `;
-      if (!newRole) {
-        throw new InternalServerError("Unexpected empty row on custom role insert");
-      }
-      roleId = newRole.id;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
     }
-    const [updated] = await this.sql<{ user_id: number }[]>`
-      UPDATE users_in_plays
-      SET role_id = ${roleId}
-      WHERE play_id = ${playRow.id} AND user_id = ${userRow.id}
-      RETURNING user_id
+    const [existing] = await this.sql<{ id: number }[]>`
+      SELECT id FROM roles WHERE play_id = ${playRow.id} AND name = ${params.name}
+    `;
+    if (existing) {
+      return Result.failure(new RoleAlreadyExists(params.name));
+    }
+    const [newRole] = await this.sql<{ id: number; name: string }[]>`
+      INSERT INTO roles (name, play_id, permissions)
+      VALUES (${params.name}, ${playRow.id}, ${this.sql.json({ ...PERMISSIONS_DEFAULTS })}::jsonb)
+      RETURNING id, name
+    `;
+    if (!newRole) {
+      throw new InternalServerError("Unexpected empty row on role insert");
+    }
+    return Result.ok(newRole);
+  }
+
+  /**
+   * Delete a role. Participants holding it fall back to no role (default
+   * permissions). The builtin owner role is not stored and cannot be removed.
+   */
+  async removeRole(params: {
+    playUri: string;
+    roleName: string;
+  }): Promise<Result<undefined, PlayNotFound | RoleNotFound>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const [roleRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM roles WHERE play_id = ${playRow.id} AND name = ${params.roleName}
+    `;
+    if (!roleRow) {
+      return Result.failure(new RoleNotFound(params.roleName));
+    }
+    await this.sql`
+      UPDATE users_in_plays SET role_id = NULL
+      WHERE play_id = ${playRow.id} AND role_id = ${roleRow.id}
+    `;
+    await this.sql`DELETE FROM roles WHERE id = ${roleRow.id}`;
+    return Result.ok(undefined);
+  }
+
+  /** Overwrite a role's permission set (owner is virtual and cannot be edited). */
+  async updateRolePermissions(params: {
+    playUri: string;
+    roleName: string;
+    permissions: UserPermissions;
+  }): Promise<Result<undefined, PlayNotFound | RoleNotFound>> {
+    const [playRow] = await this.sql<{ id: number }[]>`
+      SELECT id FROM plays WHERE uri = ${params.playUri}
+    `;
+    if (!playRow) {
+      return Result.failure(new PlayNotFound(params.playUri));
+    }
+    const [updated] = await this.sql<{ id: number }[]>`
+      UPDATE roles
+      SET permissions = ${this.sql.json(params.permissions)}::jsonb
+      WHERE play_id = ${playRow.id} AND name = ${params.roleName}
+      RETURNING id
     `;
     if (!updated) {
-      return Result.failure(new ParticipantNotFound(params.username));
+      return Result.failure(new RoleNotFound(params.roleName));
     }
     return Result.ok(undefined);
   }

@@ -4,8 +4,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PLAY_ROLE_PERMISSIONS, Result } from "@marivo/utils";
 import ParticipantsSettings from "./participants-settings.component";
 
-const setParticipantRoleMutate = vi.fn();
-const setParticipantPermissionsMutate = vi.fn();
+const mocks = {
+  setParticipantRole: vi.fn(),
+  addRole: vi.fn(),
+  removeRole: vi.fn(),
+  updateRolePermissions: vi.fn(),
+};
 
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@tanstack/react-query")>();
@@ -13,13 +17,7 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
     ...mod,
     useMutation: (opts: unknown) => {
       const key = (opts as { mutationKey?: string[] })?.mutationKey?.[0];
-      return {
-        mutate:
-          key === "setParticipantPermissions"
-            ? setParticipantPermissionsMutate
-            : setParticipantRoleMutate,
-        isPending: false,
-      };
+      return { mutate: mocks[key as keyof typeof mocks], isPending: false };
     },
   };
 });
@@ -28,8 +26,10 @@ vi.mock("../../trpc", () => ({
   useTRPC: () => ({
     plays: {
       setParticipantRole: { mutationOptions: () => ({ mutationKey: ["setParticipantRole"] }) },
-      setParticipantPermissions: {
-        mutationOptions: () => ({ mutationKey: ["setParticipantPermissions"] }),
+      addRole: { mutationOptions: () => ({ mutationKey: ["addRole"] }) },
+      removeRole: { mutationOptions: () => ({ mutationKey: ["removeRole"] }) },
+      updateRolePermissions: {
+        mutationOptions: () => ({ mutationKey: ["updateRolePermissions"] }),
       },
       playDetails: { queryKey: () => ["plays", "playDetails"] },
     },
@@ -41,18 +41,13 @@ vi.mock("../play-admin/play.context", () => ({
   usePlayContext: () => mockPlayContext,
 }));
 
-function makePlayContext(overrides?: {
-  isOwner?: boolean;
-  settingsWrite?: boolean;
-  participants?: Record<
-    string,
-    { fullName: string; role: string | null; permissions: typeof PLAY_ROLE_PERMISSIONS.viewer }
-  >;
-}) {
+const URI = "10000000-0000-4000-8000-000000000001";
+
+function makePlayContext(overrides?: { isOwner?: boolean; settingsWrite?: boolean }) {
   return Result.ok({
     details: {
       id: 1,
-      uri: "10000000-0000-4000-8000-000000000001",
+      uri: URI,
       title: "Hamlet",
       createdDate: new Date(),
       lastModifiedDate: new Date(),
@@ -64,10 +59,15 @@ function makePlayContext(overrides?: {
       ...PLAY_ROLE_PERMISSIONS.owner,
       settingsWrite: overrides?.settingsWrite ?? true,
     },
-    participants: overrides?.participants ?? {
+    participants: {
       owner1: { fullName: "Owner One", role: "owner", permissions: PLAY_ROLE_PERMISSIONS.owner },
       alice: { fullName: "Alice A", role: "viewer", permissions: PLAY_ROLE_PERMISSIONS.viewer },
     },
+    roles: [
+      { id: -1, name: "owner", builtin: true, permissions: PLAY_ROLE_PERMISSIONS.owner },
+      { id: 1, name: "viewer", builtin: false, permissions: PLAY_ROLE_PERMISSIONS.viewer },
+      { id: 2, name: "editor", builtin: false, permissions: PLAY_ROLE_PERMISSIONS.editor },
+    ],
   });
 }
 
@@ -82,74 +82,82 @@ function renderComponent() {
 
 describe("ParticipantsSettings", () => {
   beforeEach(() => {
-    setParticipantRoleMutate.mockClear();
-    setParticipantPermissionsMutate.mockClear();
+    Object.values(mocks).forEach((fn) => fn.mockClear());
     mockPlayContext = makePlayContext();
   });
   afterEach(() => cleanup());
 
-  it("lists participants with their roles; the owner role is not editable", () => {
+  it("lists participants with a role select fed by the play's roles; owner row locked", () => {
     renderComponent();
     expect(screen.getByText(/Owner One/)).toBeTruthy();
-    expect(screen.getByText(/Alice A/)).toBeTruthy();
     expect(screen.queryByLabelText("Role for owner1")).toBeNull();
     const select = screen.getByLabelText("Role for alice") as HTMLSelectElement;
     expect(select.value).toBe("viewer");
+    expect([...select.options].map((o) => o.value)).toEqual(["viewer", "editor"]);
   });
 
-  it("assigning a role calls setParticipantRole with uri, username and role", () => {
+  it("matrix header shows all roles with Owner first; owner column has no remove button", () => {
     renderComponent();
-    fireEvent.change(screen.getByLabelText("Role for alice"), { target: { value: "editor" } });
-    expect(setParticipantRoleMutate).toHaveBeenCalledWith({
-      uri: "10000000-0000-4000-8000-000000000001",
-      username: "alice",
-      role: "editor",
-    });
+    expect(screen.getByText("Owner")).toBeTruthy();
+    expect(screen.getAllByText("viewer").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("editor").length).toBeGreaterThan(0);
+    expect(screen.queryByLabelText("Remove role owner")).toBeNull();
+    expect(screen.getByLabelText("Remove role viewer")).toBeTruthy();
   });
 
-  it("permission checkboxes are editable for participants and call setParticipantPermissions", () => {
+  it("toggling a permission of a non-owner role calls updateRolePermissions", () => {
     renderComponent();
-    // viewer has scriptWrite = false -> toggle it on for alice
-    const checkbox = screen.getAllByLabelText("edit alice")[0] as HTMLInputElement;
+    // viewer has scriptWrite=false -> the "edit" checkbox in the viewer column
+    const checkbox = screen.getAllByLabelText("edit viewer")[0] as HTMLInputElement;
     expect(checkbox.checked).toBe(false);
     expect(checkbox.disabled).toBe(false);
     fireEvent.click(checkbox);
-    expect(setParticipantPermissionsMutate).toHaveBeenCalledWith({
-      uri: "10000000-0000-4000-8000-000000000001",
-      username: "alice",
+    expect(mocks.updateRolePermissions).toHaveBeenCalledWith({
+      uri: URI,
+      roleName: "viewer",
       permissions: { ...PLAY_ROLE_PERMISSIONS.viewer, scriptWrite: true },
     });
   });
 
   it("owner column checkboxes are disabled", () => {
     renderComponent();
-    const ownerCheckbox = screen.getAllByLabelText("edit owner1")[0] as HTMLInputElement;
+    const ownerCheckbox = screen.getAllByLabelText("edit owner")[0] as HTMLInputElement;
     expect(ownerCheckbox.checked).toBe(true);
     expect(ownerCheckbox.disabled).toBe(true);
   });
 
-  it("hides editing when the user cannot manage (not owner, no settingsWrite)", () => {
+  it("add role calls addRole with the entered name", () => {
+    renderComponent();
+    fireEvent.change(screen.getByLabelText("New role name"), {
+      target: { value: "Stage manager" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Add role" }));
+    expect(mocks.addRole).toHaveBeenCalledWith({ uri: URI, name: "Stage manager" });
+  });
+
+  it("remove role calls removeRole", () => {
+    renderComponent();
+    fireEvent.click(screen.getByLabelText("Remove role editor"));
+    expect(mocks.removeRole).toHaveBeenCalledWith({ uri: URI, roleName: "editor" });
+  });
+
+  it("assigning a role to a participant calls setParticipantRole", () => {
+    renderComponent();
+    fireEvent.change(screen.getByLabelText("Role for alice"), { target: { value: "editor" } });
+    expect(mocks.setParticipantRole).toHaveBeenCalledWith({
+      uri: URI,
+      username: "alice",
+      role: "editor",
+    });
+  });
+
+  it("hides all editing when the user cannot manage (not owner, no settingsWrite)", () => {
     mockPlayContext = makePlayContext({ isOwner: false, settingsWrite: false });
     renderComponent();
     expect(screen.queryByLabelText("Role for alice")).toBeNull();
-    const checkbox = screen.getAllByLabelText("edit alice")[0] as HTMLInputElement;
+    expect(screen.queryByLabelText("Remove role viewer")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Add role" })).toBeNull();
+    const checkbox = screen.getAllByLabelText("edit viewer")[0] as HTMLInputElement;
     expect(checkbox.disabled).toBe(true);
-  });
-
-  it("shows 'custom' for participants with a non-standard role", () => {
-    mockPlayContext = makePlayContext({
-      participants: {
-        owner1: { fullName: "Owner One", role: "owner", permissions: PLAY_ROLE_PERMISSIONS.owner },
-        alice: {
-          fullName: "Alice A",
-          role: "custom:alice",
-          permissions: { ...PLAY_ROLE_PERMISSIONS.viewer, scriptWrite: true },
-        },
-      },
-    });
-    renderComponent();
-    const select = screen.getByLabelText("Role for alice") as HTMLSelectElement;
-    expect(select.value).toBe("custom");
-    expect(screen.getByText("custom")).toBeTruthy();
   });
 });

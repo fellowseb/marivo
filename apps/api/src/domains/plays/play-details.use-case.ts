@@ -38,6 +38,14 @@ export const PlayDetailsUseCaseOutputSchema = z.object({
     }),
   ),
   permissions: PERMISSIONS_SCHEMA.strict(),
+  roles: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      builtin: z.boolean(),
+      permissions: PERMISSIONS_SCHEMA.strict(),
+    }),
+  ),
 });
 
 type PlayDetailsUseCaseInput = z.infer<typeof PlayDetailsUseCaseInputSchema>;
@@ -56,6 +64,10 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
   async execute(input: PlayDetailsUseCaseInput) {
     const { uri } = input;
     const detailsResult = await this.playsRepository.getPlayDetails({ uri });
+    const rolesResult = await this.playsRepository.getPlayRoles({ playUri: uri });
+    const dbRoles = rolesResult.isOk()
+      ? rolesResult.dataOrThrow().map((role) => ({ ...role, builtin: false }))
+      : [];
     return detailsResult.match({
       success({ details, permissions, participants }) {
         return Result.ok({
@@ -69,6 +81,10 @@ export class PlayDetailsUseCase extends AuthenticatedUseCase<{
             },
             ...participants,
           },
+          roles: [
+            { id: -1, name: "owner", builtin: true, permissions: PLAY_ROLE_PERMISSIONS.owner },
+            ...dbRoles,
+          ],
         });
       },
       failure(err) {

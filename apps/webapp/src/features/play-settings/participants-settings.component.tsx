@@ -1,13 +1,8 @@
+import { useState } from "react";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  ASSIGNABLE_PLAY_ROLES,
-  isPlayRole,
-  type AssignablePlayRole,
-  type PlayPermission,
-  type PlayPermissions,
-} from "@marivo/utils";
+import type { PlayPermission, PlayPermissions } from "@marivo/utils";
 import { useTRPC } from "../../trpc";
 import { usePlayContext } from "../play-admin/play.context";
 import styles from "./participants-settings.module.css";
@@ -39,9 +34,12 @@ const PERMISSION_GROUPS: { labelKey: string; keys: PlayPermission[] }[] = [
   { labelKey: "participants.settings", keys: ["settingsRead", "settingsWrite"] },
 ];
 
-function isAssignableRole(role: string): role is AssignablePlayRole {
-  return (ASSIGNABLE_PLAY_ROLES as readonly string[]).includes(role);
-}
+type RoleInfo = {
+  id: number;
+  name: string;
+  builtin: boolean;
+  permissions: PlayPermissions;
+};
 
 type ParticipantInfo = {
   fullName: string;
@@ -54,37 +52,49 @@ function ParticipantsSettings() {
   const playContext = usePlayContext();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const [newRoleName, setNewRoleName] = useState("");
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: trpc.plays.playDetails.queryKey() });
   };
   const { mutate: setParticipantRole, isPending: rolePending } = useMutation(
     trpc.plays.setParticipantRole.mutationOptions({ onSuccess: invalidate }),
   );
-  const { mutate: setParticipantPermissions, isPending: permissionsPending } = useMutation(
-    trpc.plays.setParticipantPermissions.mutationOptions({ onSuccess: invalidate }),
+  const { mutate: addRole, isPending: addPending } = useMutation(
+    trpc.plays.addRole.mutationOptions({ onSuccess: invalidate }),
+  );
+  const { mutate: removeRole, isPending: removePending } = useMutation(
+    trpc.plays.removeRole.mutationOptions({ onSuccess: invalidate }),
+  );
+  const { mutate: updateRolePermissions, isPending: permissionsPending } = useMutation(
+    trpc.plays.updateRolePermissions.mutationOptions({ onSuccess: invalidate }),
   );
 
   const data = playContext?.dataOr(undefined);
   const details = data?.details;
   const participants = (data?.participants ?? {}) as Record<string, ParticipantInfo>;
+  const roles = (data?.roles ?? []) as RoleInfo[];
   const permissions = data?.permissions;
   const canManage = Boolean(details?.isOwner || permissions?.settingsWrite);
-  const usernames = Object.keys(participants);
 
-  const handleRoleChange = (username: string, role: string) => {
-    if (!details || !isAssignableRole(role)) return;
-    setParticipantRole({ uri: details.uri, username, role });
+  const handleRoleChange = (username: string, roleName: string) => {
+    if (!details || !roleName) return;
+    setParticipantRole({ uri: details.uri, username, role: roleName });
   };
 
-  const handlePermissionToggle = (username: string, key: PlayPermission, checked: boolean) => {
-    if (!details || username === details.ownerUsername) return;
-    const current = participants[username]?.permissions;
-    if (!current) return;
-    setParticipantPermissions({
+  const handlePermissionToggle = (role: RoleInfo, key: PlayPermission, checked: boolean) => {
+    if (!details || role.builtin) return;
+    updateRolePermissions({
       uri: details.uri,
-      username,
-      permissions: { ...current, [key]: checked },
+      roleName: role.name,
+      permissions: { ...role.permissions, [key]: checked },
     });
+  };
+
+  const handleAddRole = () => {
+    const name = newRoleName.trim();
+    if (!details || !name) return;
+    addRole({ uri: details.uri, name });
+    setNewRoleName("");
   };
 
   return (
@@ -100,39 +110,34 @@ function ParticipantsSettings() {
               </tr>
             </thead>
             <tbody>
-              {usernames.map((username) => {
-                const info = participants[username];
-                const isOwnerRow = info.role === "owner";
-                const roleValue = info.role && isPlayRole(info.role) ? info.role : "custom";
-                return (
-                  <tr key={username}>
-                    <td>
-                      {info.fullName} ({username})
-                    </td>
-                    <td>
-                      {isOwnerRow || !canManage ? (
-                        <span>{isOwnerRow ? "owner" : roleValue}</span>
-                      ) : (
-                        <select
-                          aria-label={t("participants.roleFor", { username })}
-                          disabled={rolePending}
-                          value={isAssignableRole(roleValue) ? roleValue : "custom"}
-                          onChange={(e) => handleRoleChange(username, e.target.value)}
-                        >
-                          {!isAssignableRole(roleValue) ? (
-                            <option value="custom">{t("participants.customRole")}</option>
-                          ) : null}
-                          {ASSIGNABLE_PLAY_ROLES.map((role) => (
-                            <option key={role} value={role}>
-                              {role}
+              {Object.entries(participants).map(([username, info]) => (
+                <tr key={username}>
+                  <td>
+                    {info.fullName} ({username})
+                  </td>
+                  <td>
+                    {info.role === "owner" || !canManage ? (
+                      <span>{info.role ?? "—"}</span>
+                    ) : (
+                      <select
+                        aria-label={t("participants.roleFor", { username })}
+                        disabled={rolePending}
+                        value={info.role ?? ""}
+                        onChange={(e) => handleRoleChange(username, e.target.value)}
+                      >
+                        {!info.role ? <option value="">—</option> : null}
+                        {roles
+                          .filter((role) => !role.builtin)
+                          .map((role) => (
+                            <option key={role.id} value={role.name}>
+                              {role.name}
                             </option>
                           ))}
-                        </select>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                      </select>
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -143,11 +148,40 @@ function ParticipantsSettings() {
           <thead>
             <tr>
               <th></th>
-              {usernames.map((username) => (
-                <th key={username}>
-                  {participants[username]?.role === "owner" ? t("participants.owner") : username}
+              {roles.map((role) => (
+                <th key={role.id}>
+                  {role.builtin ? t("participants.owner") : role.name}
+                  {canManage && !role.builtin ? (
+                    <button
+                      className={styles.deleteFunctionBtn}
+                      aria-label={t("participants.removeRole", { role: role.name })}
+                      disabled={removePending}
+                      onClick={() =>
+                        details && removeRole({ uri: details.uri, roleName: role.name })
+                      }
+                    />
+                  ) : null}
                 </th>
               ))}
+              {canManage ? (
+                <th>
+                  <input
+                    type="text"
+                    size={10}
+                    placeholder={t("participants.newRolePlaceholder")}
+                    aria-label={t("participants.newRolePlaceholder")}
+                    value={newRoleName}
+                    onChange={(e) => setNewRoleName(e.target.value)}
+                  />
+                  <button
+                    className={styles.addFunctionBtn}
+                    disabled={addPending || !newRoleName.trim()}
+                    onClick={handleAddRole}
+                  >
+                    {t("participants.addRole")}
+                  </button>
+                </th>
+              ) : null}
             </tr>
           </thead>
           <tbody>
@@ -155,8 +189,7 @@ function ParticipantsSettings() {
               <GroupRows
                 key={group.labelKey}
                 group={group}
-                usernames={usernames}
-                participants={participants}
+                roles={roles}
                 canManage={canManage}
                 pending={permissionsPending}
                 onToggle={handlePermissionToggle}
@@ -171,37 +204,31 @@ function ParticipantsSettings() {
 
 function GroupRows(props: {
   group: { labelKey: string; keys: PlayPermission[] };
-  usernames: string[];
-  participants: Record<string, ParticipantInfo>;
+  roles: RoleInfo[];
   canManage: boolean;
   pending: boolean;
-  onToggle: (username: string, key: PlayPermission, checked: boolean) => void;
+  onToggle: (role: RoleInfo, key: PlayPermission, checked: boolean) => void;
 }) {
   const { t } = useTranslation("settings");
   return (
     <>
       <tr className={styles.permissionsTableGroupRow}>
-        <td colSpan={props.usernames.length + 1}>{t(props.group.labelKey)}</td>
+        <td colSpan={props.roles.length + 1}>{t(props.group.labelKey)}</td>
       </tr>
       {props.group.keys.map((key) => (
         <tr key={key} className={styles.permissionsTablePermissionRow}>
           <td>{PERMISSION_LABELS[key]}</td>
-          {props.usernames.map((username) => {
-            const info = props.participants[username];
-            const isOwnerRow = info.role === "owner";
-            const editable = props.canManage && !isOwnerRow;
-            return (
-              <td key={username}>
-                <input
-                  type="checkbox"
-                  aria-label={`${PERMISSION_LABELS[key]} ${username}`}
-                  checked={info.permissions[key]}
-                  disabled={!editable || props.pending}
-                  onChange={(e) => props.onToggle(username, key, e.target.checked)}
-                />
-              </td>
-            );
-          })}
+          {props.roles.map((role) => (
+            <td key={role.id}>
+              <input
+                type="checkbox"
+                aria-label={`${PERMISSION_LABELS[key]} ${role.name}`}
+                checked={role.permissions[key]}
+                disabled={role.builtin || !props.canManage || props.pending}
+                onChange={(e) => props.onToggle(role, key, e.target.checked)}
+              />
+            </td>
+          ))}
         </tr>
       ))}
     </>

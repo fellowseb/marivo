@@ -1,5 +1,5 @@
 import z from "zod";
-import { ASSIGNABLE_PLAY_ROLES, Result } from "@marivo/utils";
+import { Result } from "@marivo/utils";
 import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.ts";
 import {
   ParticipantNotFound,
@@ -12,7 +12,7 @@ import {
 export const SetParticipantRoleUseCaseInputSchema = z.object({
   uri: z.string().max(36),
   username: z.string().max(80),
-  role: z.enum(ASSIGNABLE_PLAY_ROLES),
+  role: z.string().min(1).max(32),
 });
 
 export const SetParticipantRoleUseCaseOutputSchema = z.object({
