@@ -1,4 +1,5 @@
 import { NavLink } from "react-router";
+import { Trans, useTranslation } from "react-i18next";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import FlowStep from "../../components/flow-step.component";
 import { OngoingImportsSection } from "./ongoing-imports-section.component";
@@ -7,6 +8,7 @@ import { useCollectionMetadataContext } from "./collection-metadata.context";
 import Flex from "../../components/flex.component";
 
 export function NewPlayPageBreadcrumbs() {
+  const { t } = useTranslation("layout");
   return (
     <HeaderBreadcrumbs
       key="new-play"
@@ -16,7 +18,7 @@ export function NewPlayPageBreadcrumbs() {
             pathname: "/plays/new",
           }}
         >
-          New play
+          {t("newPlay")}
         </NavLink>,
       ]}
     />
@@ -24,11 +26,12 @@ export function NewPlayPageBreadcrumbs() {
 }
 
 export function NewPlayPage() {
+  const { t } = useTranslation("newPlay");
   const { count } = useCollectionMetadataContext();
   return (
-    <FlowStep title="Create a new play project">
+    <FlowStep title={t("title")}>
       <Flex direction="column" grow={1} justify="stretch" align="stretch">
-        How do you want to initialize the script ?
+        {t("intro")}
         <Flex className={styles.section} direction="column" grow={1} align="stretch" gap={10}>
           <NavLink
             to={{
@@ -36,9 +39,9 @@ export function NewPlayPage() {
             }}
             className={styles.desc}
           >
-            Import script from an external source
+            {t("import.title")}
           </NavLink>
-          <div className={styles.subdesc}>Supported file formats: PDF, TXT.</div>
+          <div className={styles.subdesc}>{t("import.subtitle")}</div>
           <OngoingImportsSection />
         </Flex>
         <Flex
@@ -54,14 +57,18 @@ export function NewPlayPage() {
               pathname: "from-collection",
             }}
           >
-            Pick from a collection of <strong>{count} scripts</strong> in the Public Domain.
+            <Trans
+              i18nKey="newPlay:collection.title"
+              count={count}
+              components={{ strong: <strong /> }}
+            />
           </NavLink>
           <div className={styles.subdesc}>
-            A large selection of the most famous playwrights for FREE !
+            {t("collection.subtitle.line1")}
             <br />
-            Available languages: French and English. (Soon: Spanish, German)
+            {t("collection.subtitle.line2")}
             <br />
-            You'll be able to modify the script once the project created.
+            {t("collection.subtitle.line3")}
           </div>
         </Flex>
         <Flex
@@ -77,9 +84,9 @@ export function NewPlayPage() {
               pathname: "empty",
             }}
           >
-            Start with an empty script
+            {t("empty.title")}
           </NavLink>
-          <div className={styles.subdesc}>Ideal for playwrights !</div>
+          <div className={styles.subdesc}>{t("empty.subtitle")}</div>
         </Flex>
       </Flex>
     </FlowStep>

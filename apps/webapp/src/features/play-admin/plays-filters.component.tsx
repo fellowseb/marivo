@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./plays-filters.module.css";
 import type { PlayFilterSortOptions, PlaysOrdering } from "./plays.lib";
 import Button from "../../components/button.component";
@@ -12,11 +13,12 @@ interface PlaysFiltersHeaderProps {
 }
 
 function PlaysFiltersHeader(props: PlaysFiltersHeaderProps) {
+  const { t } = useTranslation("plays");
   return (
     <div className={styles.header}>
       <span className={styles.headerTitle}>
         <Icon value="filter" size="small" mode="primary" />
-        Filters
+        {t("filters.title")}
       </span>
       <span
         className={classNames({
@@ -42,6 +44,7 @@ export const DEFAULT_FILTER_OPTIONS: PlayFilterSortOptions = {
 };
 
 function PlaysFilters(props: PlaysFiltersProps) {
+  const { t } = useTranslation("plays");
   const titleFilterRef = useRef<HTMLInputElement>(null);
   const orderByRef = useRef<HTMLSelectElement>(null);
   const onlyPlaysSelfOwnsRef = useRef<HTMLInputElement>(null);
@@ -73,7 +76,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
       >
         <div className={styles.content}>
           <div className={styles.formGrid}>
-            <label>Title:</label>
+            <label>{t("filters.titleLabel")}</label>
             <input
               type="text"
               id="filter-title"
@@ -82,37 +85,37 @@ function PlaysFilters(props: PlaysFiltersProps) {
               size={16}
               value={props.filters.title}
             />
-            <label>Sort by:</label>
+            <label>{t("filters.sortByLabel")}</label>
             <select onChange={handleFiltersChange} ref={orderByRef} value={props.filters.orderBy}>
               <button>
                 <selectedcontent></selectedcontent>
               </button>
               <option value={"orderByLastModificationDateAsc" satisfies PlaysOrdering}>
-                Last modification date
+                {t("filters.order.lastModification")}
                 <Icon value="asc" size="small" mode="primary" />
               </option>
               <option value={"orderByLastModificationDateDesc" satisfies PlaysOrdering}>
-                Last modification date
+                {t("filters.order.lastModification")}
                 <Icon value="desc" size="small" mode="primary" />
               </option>
               <option value={"orderByCreationDateAsc" satisfies PlaysOrdering}>
-                Creation date
+                {t("filters.order.creationDate")}
                 <Icon value="asc" size="small" mode="primary" />
               </option>
               <option value={"orderByCreationDateDesc" satisfies PlaysOrdering}>
-                Creation date
+                {t("filters.order.creationDate")}
                 <Icon value="desc" size="small" mode="primary" />
               </option>
               <option value={"orderByTitleAsc" satisfies PlaysOrdering}>
-                Title
+                {t("filters.order.title")}
                 <Icon value="asc" size="small" mode="primary" />
               </option>
               <option value={"orderByTitleDesc" satisfies PlaysOrdering}>
-                Title
+                {t("filters.order.title")}
                 <Icon value="desc" size="small" mode="primary" />
               </option>
             </select>
-            <label>Plays I own only</label>
+            <label>{t("filters.onlyOwnedLabel")}</label>
             <input
               type="checkbox"
               onChange={handleFiltersChange}
@@ -121,7 +124,7 @@ function PlaysFilters(props: PlaysFiltersProps) {
             />
           </div>
           <Button onClick={handleClearClick} icon="clear">
-            Clear
+            {t("filters.clear")}
           </Button>
         </div>
       </CollapsibleSection>

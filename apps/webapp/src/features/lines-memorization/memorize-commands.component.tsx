@@ -1,19 +1,24 @@
+import { useTranslation } from "react-i18next";
 import Button from "../../components/button.component";
 import { Dialog } from "../../components/dialog.component";
 import styles from "./memorize-commands.module.css";
 
 function MemorizeCommands() {
+  const { t } = useTranslation("settings");
   return (
-    <Dialog title="Start Session" actions={<Button icon="accept">Start</Button>}>
+    <Dialog
+      title={t("memorize.title")}
+      actions={<Button icon="accept">{t("memorize.start")}</Button>}
+    >
       <div className={styles.playOptions}>
         <div className={styles.playOptionsLine}>
-          <label>Character</label>
+          <label>{t("memorize.character")}</label>
           <select>
             <option>LA MÈRE</option>
           </select>
         </div>
         <div className={styles.playOptionsLine}>
-          <label>Parts</label>
+          <label>{t("memorize.parts")}</label>
           <select>
             <option>Whole Play</option>
             <option>Act I</option>
@@ -21,15 +26,15 @@ function MemorizeCommands() {
           </select>
         </div>
         <div className={styles.playOptionsLine}>
-          <label>Randomize lines</label>
+          <label>{t("memorize.randomize")}</label>
           <input type="checkbox" />
         </div>
         <div className={styles.playOptionsLine}>
-          <label>Only cue lines</label>
+          <label>{t("memorize.onlyCueLines")}</label>
           <input type="checkbox" />
         </div>
         <div className={styles.playOptionsLine}>
-          <label>Hide my lines</label>
+          <label>{t("memorize.hideMyLines")}</label>
           <input type="checkbox" />
         </div>
       </div>

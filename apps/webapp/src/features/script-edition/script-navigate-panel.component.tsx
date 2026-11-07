@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Button from "../../components/button.component";
 import Panel from "../../components/panel.component";
 import styles from "./script-navigate-panel.module.css";
@@ -8,6 +9,7 @@ interface ScriptNavigatePanelProps {
 }
 
 function ScriptNavigatePanel(props: ScriptNavigatePanelProps) {
+  const { t } = useTranslation("script");
   const handleHeadingClick = (lineId: string) => () => {
     const elem = document.getElementById(`script-line-${lineId}`);
     if (!elem) {
@@ -20,7 +22,7 @@ function ScriptNavigatePanel(props: ScriptNavigatePanelProps) {
     });
   };
   return (
-    <Panel title="Navigate" icon="navigate" onClose={props.onClose}>
+    <Panel title={t("panels.navigate")} icon="navigate" onClose={props.onClose}>
       <div className={styles.content}>
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Outline</div>

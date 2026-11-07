@@ -121,7 +121,7 @@ describe("OngoingImportsSection", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Ongoing imports \(2\)/ }));
     expect(await screen.findByText("Processing files")).toBeTruthy();
     expect(screen.getByText("Reviewing")).toBeTruthy();
-    expect(screen.getByText(new Date("2026-11-06T10:00:00Z").toLocaleString())).toBeTruthy();
+    expect(screen.getByText(new Date("2026-11-06T10:00:00Z").toLocaleString("en"))).toBeTruthy();
     expect(capturedQueryOpts?.refetchInterval).toBe(5000);
     // no stale values on mount: immediate refetch despite the app-wide 60s staleTime
     expect(capturedQueryOpts?.staleTime).toBe(0);

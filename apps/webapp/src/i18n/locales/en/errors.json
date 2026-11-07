@@ -1,0 +1,9 @@
+{
+  "boundary": {
+    "title": "Something went wrong while rendering this page.",
+    "reload": "Reload page"
+  },
+  "notFound": {
+    "body": "The page or resource you requested doesn't seem to exist !<br/>You may want to click <contact>here</contact> to contact us or<br/> click <plays>here</plays> to get back to your plays list."
+  }
+}

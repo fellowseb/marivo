@@ -4,6 +4,8 @@ import { setupTestDatabase, teardownTestDatabase } from "../../test-utils/db.ts"
 import { PostgresUserPreferencesRepository } from "./user-preferences.repository.ts";
 import { GetUserThemeUseCase } from "./get-user-theme.use-case.ts";
 import { SetUserThemeUseCase } from "./set-user-theme.use-case.ts";
+import { GetUserLanguageUseCase } from "./get-user-language.use-case.ts";
+import { SetUserLanguageUseCase } from "./set-user-language.use-case.ts";
 import type { UserContextService } from "../../shared/use-case.ts";
 
 /**
@@ -77,6 +79,60 @@ describe("userPreferences theme (integration with real Postgres)", () => {
 
     const setResult = await new SetUserThemeUseCase(repository, ctx).execute({
       theme: "sable-dark",
+    });
+    expect(setResult.isFailure()).toBe(true);
+    expect(setResult.errorOrThrow().code).toBe("NOT_FOUND");
+  });
+
+  function makeLanguageUseCases() {
+    const ctx = { get: () => ({ userId }) } as unknown as UserContextService;
+    const repository = new PostgresUserPreferencesRepository(sql, ctx);
+    return {
+      get: new GetUserLanguageUseCase(repository, ctx),
+      set: new SetUserLanguageUseCase(repository, ctx),
+    };
+  }
+
+  it("language: returns the default 'auto' for a new user", async () => {
+    const result = await makeLanguageUseCases().get.execute();
+    expect(result.isOk()).toBe(true);
+    expect(result.dataOrThrow().language).toBe("auto");
+  });
+
+  it("language: stores a language and reads it back", async () => {
+    const { get, set } = makeLanguageUseCases();
+    const setResult = await set.execute({ language: "fr" });
+    expect(setResult.isOk()).toBe(true);
+    expect(setResult.dataOrThrow().language).toBe("fr");
+
+    const getResult = await get.execute();
+    expect(getResult.isOk()).toBe(true);
+    expect(getResult.dataOrThrow().language).toBe("fr");
+
+    const [row] = await sql<{ language: string }[]>`
+      SELECT language FROM users WHERE id = ${userId}
+    `;
+    expect(row.language).toBe("fr");
+  });
+
+  it("language: overwrites a previously stored language (back to auto)", async () => {
+    const { get, set } = makeLanguageUseCases();
+    await set.execute({ language: "en" });
+    await set.execute({ language: "auto" });
+
+    const getResult = await get.execute();
+    expect(getResult.dataOrThrow().language).toBe("auto");
+  });
+
+  it("language: fails for a user that does not exist", async () => {
+    const ctx = { get: () => ({ userId: 999999999 }) } as unknown as UserContextService;
+    const repository = new PostgresUserPreferencesRepository(sql, ctx);
+    const result = await new GetUserLanguageUseCase(repository, ctx).execute();
+    expect(result.isFailure()).toBe(true);
+    expect(result.errorOrThrow().code).toBe("NOT_FOUND");
+
+    const setResult = await new SetUserLanguageUseCase(repository, ctx).execute({
+      language: "fr",
     });
     expect(setResult.isFailure()).toBe(true);
     expect(setResult.errorOrThrow().code).toBe("NOT_FOUND");

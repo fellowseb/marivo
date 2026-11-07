@@ -1,0 +1,15 @@
+{
+  "signOut": "Sign out",
+  "myPlays": "My plays",
+  "newPlay": "New play",
+  "fromCollection": "From collection",
+  "import": "Import",
+  "playMenu": {
+    "script": "Script",
+    "stagingNotes": "Staging notes",
+    "blocking": "Blocking",
+    "memorization": "Memorization",
+    "planning": "Planning",
+    "settings": "Settings"
+  }
+}

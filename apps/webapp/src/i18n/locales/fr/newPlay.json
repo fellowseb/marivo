@@ -1,0 +1,83 @@
+{
+  "title": "Créer un nouveau projet de pièce",
+  "intro": "Comment souhaitez-vous initialiser le script ?",
+  "import": {
+    "breadcrumb": "Importer un script",
+    "title": "Importer un script depuis une source externe",
+    "subtitle": "Formats de fichiers pris en charge : PDF, TXT."
+  },
+  "importStep": {
+    "title": "Créer depuis une source externe ▶  Importer le script",
+    "importButton": "Importer",
+    "intro": "Fournissez le(s) fichier(s) du script, soit en le(s) téléversant depuis le disque, soit en saisissant l'URL d'un emplacement distant.",
+    "formats": "Formats pris en charge : PDF, TXT.",
+    "sources": "Sources connues : libre-theatre.fr, wikisource.com.",
+    "startOver": "Recommencer",
+    "initError": "Échec du démarrage de l'import. Vos fichiers sont toujours sélectionnés — vous pouvez réessayer.",
+    "processing": "Traitement des fichiers… cela peut prendre une minute. Vous pouvez rester sur cette page.",
+    "uploading": "Envoi des fichiers… ({{done}}/{{total}})",
+    "selectedNone": "Fichiers de script sélectionnés : aucun",
+    "selectedCount": "Fichiers de script sélectionnés : {{n}}",
+    "dropHere": "Déposez les fichiers ici",
+    "or": "ou",
+    "browseDisk": "Parcourir votre disque",
+    "urlPlaceholder": "Saisissez l'URL d'un fichier distant..."
+  },
+  "collection": {
+    "title_one": "Choisissez parmi une collection de <strong>{{count}} script</strong> du domaine public.",
+    "title_other": "Choisissez parmi une collection de <strong>{{count}} scripts</strong> du domaine public.",
+    "subtitle": {
+      "line1": "Une grande sélection des dramaturges les plus célèbres, GRATUITEMENT !",
+      "line2": "Langues disponibles : français et anglais. (Bientôt : espagnol, allemand)",
+      "line3": "Vous pourrez modifier le script une fois le projet créé."
+    }
+  },
+  "empty": {
+    "breadcrumb": "Script vierge",
+    "title": "Créer ▶  Nommez votre pièce",
+    "subtitle": "Idéal pour les dramaturges !"
+  },
+  "ongoingImports": {
+    "header": "Imports en cours ({{n}})",
+    "resume": "Reprendre",
+    "delete": "Supprimer",
+    "status": {
+      "uploadingFiles": "Envoi des fichiers",
+      "processingFiles": "Traitement des fichiers",
+      "reviewing": "Vérification",
+      "done": "Terminé",
+      "error": "Erreur"
+    }
+  },
+  "nameStep": {
+    "defaultSource": "Créer depuis une source externe",
+    "defaultTitle": "Nouvelle pièce",
+    "title": "{{source}} ▶ Nommez votre nouvelle pièce",
+    "titleCommons": "{{source}} ▶ Ajouter les détails à la pièce publique",
+    "adminCommands": "Commandes d'administration",
+    "addToCommons": "Ajouter à la bibliothèque du domaine public",
+    "create": "Créer",
+    "retryPublish": "Réessayer la publication",
+    "createError": "Échec de la création de la pièce : {{error}}",
+    "publishError": "Le script n'a pas pu être ajouté à la bibliothèque du domaine public. Vous pouvez réessayer la publication ou revenir en arrière.",
+    "publishedNotification": "« {{title}} » a été ajouté à la collection de scripts en tant qu'archivé.",
+    "intro": "Donnez un nom à votre projet.",
+    "introAdmonition": {
+      "line1": "Ce nom n'a pas besoin de correspondre au titre de la pièce. Par exemple, vous pouvez aussi indiquer le nom de la troupe ou de la compagnie, et peut-être l'année.",
+      "line2": "Vous pourrez le modifier plus tard !"
+    },
+    "projectName": "Nom du projet",
+    "projectNamePlaceholder": "Othello - Shakespeare (Nom de troupe / 2026)",
+    "fields": {
+      "title": "Titre",
+      "author": "Auteur",
+      "language": "Langue",
+      "numberOfRoles": "Nombre de rôles",
+      "numberOfMaleRoles": "Nombre de rôles masculins",
+      "numberOfFemaleRoles": "Nombre de rôles féminins",
+      "genre": "Genre",
+      "period": "Période",
+      "synopsis": "Synopsis"
+    }
+  }
+}

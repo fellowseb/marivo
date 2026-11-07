@@ -1,0 +1,37 @@
+{
+  "createNewPlay": "Créer une nouvelle pièce",
+  "noFilteredPlays": "Les filtres ne correspondent à aucune entrée !",
+  "noPlays": {
+    "title": "Vous n'avez rejoint aucune pièce pour le moment !",
+    "invitesHint": "Toutes les invitations reçues seront affichées sur cette page.",
+    "createYourselfPrefix": "Vous pouvez aussi",
+    "createYourselfLink": "créer vous-même une nouvelle pièce"
+  },
+  "listItem": {
+    "ownedBy": "Propriétaire :",
+    "ownedByYou": "Vous",
+    "ownedByOther": "{{name}} ({{username}})",
+    "createdOn": "Créée le",
+    "lastModifiedOn": "Dernière modification le"
+  },
+  "filters": {
+    "title": "Filtres",
+    "titleLabel": "Titre :",
+    "sortByLabel": "Trier par :",
+    "onlyOwnedLabel": "Pièces que je possède uniquement",
+    "clear": "Effacer",
+    "order": {
+      "lastModification": "Date de dernière modification",
+      "creationDate": "Date de création",
+      "title": "Titre"
+    }
+  },
+  "invites": {
+    "error": "Une erreur inattendue est survenue. Rafraîchissez et réessayez dans un instant.",
+    "someone": "Quelqu'un",
+    "invitedYou": "vous a invité à participer à la pièce.",
+    "sentOn": "Envoyée le : {{date}}",
+    "accept": "Accepter",
+    "decline": "Refuser"
+  }
+}

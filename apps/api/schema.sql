@@ -29,7 +29,9 @@ CREATE TABLE users (
     primary_email           varchar(100)    NOT NULL,
     profile_picture         varchar(1024),
     theme                   varchar(20)     NOT NULL
-                                            DEFAULT 'sable-light'
+                                            DEFAULT 'sable-light',
+    language                varchar(10)     NOT NULL
+                                            DEFAULT 'auto'
 );
 
 CREATE TYPE line_type AS ENUM ('heading', 'freetext', 'chartext');

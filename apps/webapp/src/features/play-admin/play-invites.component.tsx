@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import styles from "./play-invites.module.css";
 import Button from "../../components/button.component";
 import { useTRPC } from "../../trpc";
@@ -16,6 +17,7 @@ interface PlayInviteItemProps {
 }
 
 function PlayInviteItem(props: PlayInviteItemProps) {
+  const { t, i18n } = useTranslation("plays");
   const trpc = useTRPC();
   const {
     mutate: mutateAccept,
@@ -61,7 +63,7 @@ function PlayInviteItem(props: PlayInviteItemProps) {
     if (isErrorAccept || isErrorDecline) {
       showNotification({
         type: "error",
-        message: "An unexpected error occured. Refresh and retry in a bit.",
+        message: t("invites.error"),
         autoHide: true,
       });
     }
@@ -74,7 +76,7 @@ function PlayInviteItem(props: PlayInviteItemProps) {
   const ownerIdString =
     props.ownerFullName || props.ownerUsername
       ? `${props.ownerFullName} (${props.ownerUsername})`
-      : "Someone";
+      : t("invites.someone");
   return (
     <li
       className={classNames({
@@ -84,8 +86,8 @@ function PlayInviteItem(props: PlayInviteItemProps) {
     >
       <span>
         <div className={styles.playTitle}>{props.title}</div>
-        {ownerIdString} invited you to participate to the play.
-        <div>Sent on: {props.sentDate.toLocaleString()}</div>
+        {ownerIdString} {t("invites.invitedYou")}
+        <div>{t("invites.sentOn", { date: props.sentDate.toLocaleString(i18n.language) })}</div>
       </span>
       <div className={styles.inviteActions}>
         <Button
@@ -93,14 +95,14 @@ function PlayInviteItem(props: PlayInviteItemProps) {
           onClick={handleAccept}
           disabled={isPending || isSuccess}
         >
-          Accept
+          {t("invites.accept")}
         </Button>
         <Button
           icon={isPendingDecline ? "animatedWaiting" : "decline"}
           onClick={handleDecline}
           disabled={isPending || isSuccess}
         >
-          Decline
+          {t("invites.decline")}
         </Button>
       </div>
     </li>

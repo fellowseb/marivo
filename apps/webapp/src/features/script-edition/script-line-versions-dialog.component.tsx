@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import classNames from "classnames";
 import { formatDistanceToNow } from "date-fns";
 import { type KeyboardEvent } from "react";
@@ -39,7 +40,7 @@ const Header = ({
         <strong>
           {authorUsername
             ? `${participants[authorUsername].fullName ?? ""} (@${authorUsername})`
-            : "Someone"}
+            : t("versions.someone")}
         </strong>
         , {formatDistanceToNow(lastModifiedDate)} ago
       </span>
@@ -60,6 +61,7 @@ interface LineVersionProps {
 }
 
 function LineVersion(props: LineVersionProps) {
+  const { t } = useTranslation("script");
   const {
     participants,
     content: { authorUsername, lastModifiedDate, version },
@@ -103,10 +105,10 @@ function LineVersion(props: LineVersionProps) {
         {!props.hideActions ? (
           <div className={styles.lineVersionActions}>
             <Button icon="accept" onClick={handleApplyAsNewVersionClick}>
-              Apply as new version
+              {t("versions.applyAsNewVersion")}
             </Button>
             <Button icon="delete" onClick={handleDeleteClick}>
-              Delete
+              {t("versions.delete")}
             </Button>
           </div>
         ) : null}
@@ -130,6 +132,7 @@ interface ScriptLineVersionsDialogProps {
 }
 
 export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
+  const { t } = useTranslation("script");
   const playResult = usePlayContext();
   const handleOkClick = () => {
     props.onOK();
@@ -159,16 +162,23 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
   );
   return (
     <Dialog
-      title={`${props.line.type === "heading" ? "Heading" : props.line.type === "chartext" ? "Cue" : "Freetext"} line versions`}
+      title={t("versions.title", {
+        kind:
+          props.line.type === "heading"
+            ? t("versions.kind.heading")
+            : props.line.type === "chartext"
+              ? t("versions.kind.cue")
+              : t("versions.kind.freetext"),
+      })}
       actions={
         <Button icon="accept" onClick={handleOkClick} autoFocus={true}>
-          OK
+          {t("versions.ok")}
         </Button>
       }
       onKeyUp={handleKeyUp}
       customClassNames={[styles.dialog]}
     >
-      <h2 className={styles.sectionTitle}>Current version</h2>
+      <h2 className={styles.sectionTitle}>{t("versions.current")}</h2>
       <div className={classNames([styles.contentContainer, styles.currentContentContainer])}>
         <LineVersion
           participants={playResult.dataOrThrow().participants}
@@ -180,7 +190,7 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
           collapsed={false}
         />
       </div>
-      <h2 className={styles.sectionTitle}>Previous versions</h2>
+      <h2 className={styles.sectionTitle}>{t("versions.previous")}</h2>
       <div className={styles.contentContainer}>
         {(props.previousVersionsContents?.length ?? 0 > 0) ? (
           props.previousVersionsContents.map((sharedContent) => {
@@ -198,10 +208,10 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
             );
           })
         ) : (
-          <span>No previous versions</span>
+          <span>{t("versions.noPrevious")}</span>
         )}
       </div>
-      <h2 className={styles.sectionTitle}>Shared drafts</h2>
+      <h2 className={styles.sectionTitle}>{t("versions.sharedDrafts")}</h2>
       <div className={styles.contentContainer}>
         {(sortedSharedDrafts?.length ?? 0 > 0) ? (
           sortedSharedDrafts.map((sharedContent) => {
@@ -219,7 +229,7 @@ export function ScriptLineVersionsDialog(props: ScriptLineVersionsDialogProps) {
             );
           })
         ) : (
-          <span>No shared drafts</span>
+          <span>{t("versions.noSharedDrafts")}</span>
         )}
       </div>
     </Dialog>

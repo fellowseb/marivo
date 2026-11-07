@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import Button from "../../components/button.component";
 import MenuDropdown from "../../components/menu-dropdown.component";
@@ -25,6 +26,7 @@ import {
 } from "../script/script.utils";
 
 function ScriptTab() {
+  const { t } = useTranslation("script");
   const scriptContext = useScriptContext();
   const scriptEditionContext = useScriptEditionContext();
   const handleInitDraft = (content: LineContent, text?: string, deleted?: boolean) => {
@@ -249,37 +251,37 @@ function ScriptTab() {
         >
           {menuLineContent.lineType === "heading" ? (
             <Button icon="heading" onClick={handleChangeHeadingLevel}>
-              Change heading level
+              {t("lineMenu.changeHeadingLevel")}
             </Button>
           ) : null}
           {menuLineContent.lineType === "chartext" ? (
             <Button icon="characterLine" onClick={handleChangeCharacters}>
-              Change characters
+              {t("lineMenu.changeCharacters")}
             </Button>
           ) : null}
           {!menuLineContent.deleted ? (
             <Button icon="delete" onClick={handleDeleteLine}>
-              Remove line
+              {t("lineMenu.removeLine")}
             </Button>
           ) : null}
           {menuLineInfo.hasDraft ? (
             menuLineInfo.isNewUnsaved ? (
               <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
-                Save
+                {t("lineMenu.save")}
               </Button>
             ) : (
               <>
                 <Button icon="save" onClick={handleSaveChanges}>
-                  Save changes
+                  {t("lineMenu.saveChanges")}
                 </Button>
                 <Button icon="save" onClick={handleSaveChangesAsNewVersion}>
-                  Save as new version
+                  {t("lineMenu.saveAsNewVersion")}
                 </Button>
                 <Button icon="save" onClick={handleSaveChangesAsSharedDraft}>
-                  Save as shared draft
+                  {t("lineMenu.saveAsSharedDraft")}
                 </Button>
                 <Button icon="clear" onClick={handleDiscardChanges}>
-                  Discard changes
+                  {t("lineMenu.discardChanges")}
                 </Button>
               </>
             )
@@ -291,7 +293,7 @@ function ScriptTab() {
               customClassNames={[styles.previousVersionsButton]}
               iconCustomClassNames={[styles.previousVersionsButtonIcon]}
             >
-              Show previous versions
+              {t("lineMenu.showPreviousVersions")}
             </Button>
           ) : null}
           {menuLineInfo.hasSharedDraft ? (
@@ -301,7 +303,7 @@ function ScriptTab() {
               customClassNames={[styles.sharedDraftsButton]}
               iconCustomClassNames={[styles.sharedDraftsButtonIcon]}
             >
-              Show shared drafts
+              {t("lineMenu.showSharedDrafts")}
             </Button>
           ) : null}
         </MenuDropdown>

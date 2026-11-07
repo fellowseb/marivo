@@ -1,0 +1,37 @@
+{
+  "createNewPlay": "Create new play",
+  "noFilteredPlays": "Filters don't match any entry !",
+  "noPlays": {
+    "title": "You haven't joined any play yet !",
+    "invitesHint": "All received invites will be displayed on this page.",
+    "createYourselfPrefix": "You can also",
+    "createYourselfLink": "create a new play yourself"
+  },
+  "listItem": {
+    "ownedBy": "Owned by",
+    "ownedByYou": "You",
+    "ownedByOther": "{{name}} ({{username}})",
+    "createdOn": "Created on",
+    "lastModifiedOn": "Last modified on"
+  },
+  "filters": {
+    "title": "Filters",
+    "titleLabel": "Title:",
+    "sortByLabel": "Sort by:",
+    "onlyOwnedLabel": "Plays I own only",
+    "clear": "Clear",
+    "order": {
+      "lastModification": "Last modification date",
+      "creationDate": "Creation date",
+      "title": "Title"
+    }
+  },
+  "invites": {
+    "error": "An unexpected error occured. Refresh and retry in a bit.",
+    "someone": "Someone",
+    "invitedYou": "invited you to participate to the play.",
+    "sentOn": "Sent on: {{date}}",
+    "accept": "Accept",
+    "decline": "Decline"
+  }
+}

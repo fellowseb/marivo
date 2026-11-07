@@ -1,5 +1,6 @@
 import { useAuth, useUser } from "@clerk/react";
 import { Fragment, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router";
 import styles from "./header.module.css";
 import Button from "../components/button.component";
@@ -35,6 +36,7 @@ function Header(props: HeaderProps) {
   const user = useUser();
   const auth = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation("layout");
   const handleSignout = async () => {
     await auth.signOut();
     navigate("/");
@@ -54,7 +56,7 @@ function Header(props: HeaderProps) {
           <Button icon="help" />
           <Button icon="notification">0</Button>
           <Button icon="signout" onClick={handleSignout}>
-            Sign out
+            {t("signOut")}
           </Button>
         </div>
       </div>

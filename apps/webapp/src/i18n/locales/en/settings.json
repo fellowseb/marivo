@@ -1,0 +1,54 @@
+{
+  "tabs": {
+    "general": "General",
+    "participants": "Participants & Permissions",
+    "integrations": "Integrations"
+  },
+  "general": {
+    "playTitle": "Play Title",
+    "creationDate": "Creation Date",
+    "lastModificationDate": "Last Modification Date",
+    "archive": "Archive the project",
+    "delete": "Delete the project"
+  },
+  "integrations": {
+    "notifyWhatsapp": "Notify WhatsApp group",
+    "scriptUpdates": "Script updates",
+    "blockingUpdates": "Blocking updates",
+    "planningUpdates": "Planning updates",
+    "planningReminders": "Planning reminders"
+  },
+  "participants": {
+    "owner": "Owner",
+    "script": "Script",
+    "stagingDirections": "Staging directions",
+    "blocking": "Blocking",
+    "memorize": "Memorize",
+    "planning": "Planning",
+    "settings": "Settings"
+  },
+  "deleteDialog": {
+    "title": "Delete current play project",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "errorFallback": "Failed to delete play",
+    "body1": "Are you sure you want to delete the current play project \"{{title}}\"? This action is <strong>IRREVERSIBLE</strong> as all related data will be wiped out.",
+    "body2": "You may instead want to <strong>archive it</strong> to disable all modifications from participants."
+  },
+  "staging": {
+    "characters": "Characters",
+    "props": "Props",
+    "costumes": "Costumes",
+    "lights": "Lights",
+    "sounds": "Sounds"
+  },
+  "memorize": {
+    "title": "Start Session",
+    "start": "Start",
+    "character": "Character",
+    "parts": "Parts",
+    "randomize": "Randomize lines",
+    "onlyCueLines": "Only cue lines",
+    "hideMyLines": "Hide my lines"
+  }
+}

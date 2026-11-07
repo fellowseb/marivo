@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Panel from "../../components/panel.component";
 import Button from "../../components/button.component";
 import type { ImportSection, ImportSelection, ImportSelectionModel } from "./import-selection.lib";
@@ -64,6 +65,7 @@ function PartRow(props: {
 
 /** "Import selection" panel: Included (Parts as a hierarchy + Characters) and Excluded (lines). */
 export function ImportSelectionPanel(props: ImportSelectionPanelProps) {
+  const { t } = useTranslation("script");
   const { model, selection, onChange } = props;
   const toggleSection = (id: string) =>
     onChange({ ...selection, excludedSections: toggle(selection.excludedSections, id) });
@@ -86,7 +88,7 @@ export function ImportSelectionPanel(props: ImportSelectionPanelProps) {
     selected.length > 0 && selected.every((id) => selection.excludedLines.has(id));
 
   return (
-    <Panel title="Import selection" icon="filter" onClose={props.onClose}>
+    <Panel title={t("panels.importSelection")} icon="filter" onClose={props.onClose}>
       <div className={styles.summary}>
         {props.keptCount} / {props.totalCount} lines selected
       </div>
@@ -94,17 +96,17 @@ export function ImportSelectionPanel(props: ImportSelectionPanelProps) {
         <div className={styles.selectedActions}>
           {allSelectedExcluded ? (
             <Button icon="next" onClick={() => includeLines(selected)}>
-              Include into import
+              {t("importSelection.include")}
             </Button>
           ) : (
             <Button icon="delete" onClick={() => excludeLines(selected)}>
-              Exclude from import
+              {t("importSelection.exclude")}
             </Button>
           )}
         </div>
       ) : null}
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>Included</div>
+        <div className={styles.sectionTitle}>{t("importSelection.included")}</div>
         <div className={styles.groupLabel}>Parts</div>
         <ul className={styles.list}>
           {model.sections.map((part, idx, arr) => (
@@ -139,7 +141,9 @@ export function ImportSelectionPanel(props: ImportSelectionPanelProps) {
         ) : null}
       </div>
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>Excluded ({excludedLineIds.length})</div>
+        <div className={styles.sectionTitle}>
+          {t("importSelection.excluded", { n: excludedLineIds.length })}
+        </div>
         <ul className={styles.excludedList}>
           {excludedLineIds.map((lineId) => (
             <li key={lineId} className={styles.excludedItem}>

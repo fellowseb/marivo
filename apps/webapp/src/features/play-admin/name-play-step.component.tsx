@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../../trpc";
@@ -62,6 +63,7 @@ interface NamePlayStepProps {
  * to the public collection via `playsCollection.addToCollection`.
  */
 export function NamePlayStep(props: NamePlayStepProps) {
+  const { t } = useTranslation("newPlay");
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [createReady, setCreateReady] = useState(false);
   const [pending, setPending] = useState(false);
@@ -113,7 +115,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
   };
 
   const handleCreate = async () => {
-    const title = titleInputRef.current?.value ?? "New play";
+    const title = titleInputRef.current?.value ?? t("nameStep.defaultTitle");
     setPending(true);
     setPublishError(false);
     setCreateError(null);
@@ -131,7 +133,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
         showNotification({
           type: "info",
           icon: "archive",
-          message: `"${input.title}" was added to the scripts collection as archived.`,
+          message: t("nameStep.publishedNotification", { title: input.title }),
         });
         setDone({ kind: "collection", uri: res.uri });
       } catch (error) {
@@ -162,7 +164,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
       showNotification({
         type: "info",
         icon: "archive",
-        message: `"${lastPublishInput.title}" was added to the scripts collection as archived.`,
+        message: t("nameStep.publishedNotification", { title: lastPublishInput.title }),
       });
       setDone({ kind: "collection", uri: res.uri });
     } catch (error) {
@@ -193,11 +195,11 @@ export function NamePlayStep(props: NamePlayStepProps) {
   const handleToggleAddToCommons = () => {
     setAddToCommonsLib((prev) => !prev);
   };
-  const sourceLabel = props.sourceLabel ?? "Create from an external source";
+  const sourceLabel = props.sourceLabel ?? t("nameStep.defaultSource");
   const flowTitle =
     addToCommonsLib && props.allowAddToCommons
-      ? `${sourceLabel} ▶ Add details to public play`
-      : `${sourceLabel} ▶ Name your new play`;
+      ? t("nameStep.titleCommons", { source: sourceLabel })
+      : t("nameStep.title", { source: sourceLabel });
 
   const roleOptions = Array.from({ length: 20 }, (_, i) => ({
     label: `${i + 1}`,
@@ -211,9 +213,9 @@ export function NamePlayStep(props: NamePlayStepProps) {
   return (
     <>
       {props.allowAddToCommons ? (
-        <Admonition type="info" title="Administator commands">
+        <Admonition type="info" title={t("nameStep.adminCommands")}>
           <ToggleButton
-            label="Add to commons library"
+            label={t("nameStep.addToCommons")}
             onToggle={handleToggleAddToCommons}
             value={addToCommonsLib}
           />
@@ -226,7 +228,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
             <Button icon="previous" onClick={props.onBack} />
             {publishError && lastPublishInput ? (
               <Button icon="redo" disabled={pending} onClick={handleRetryPublish}>
-                Retry publish
+                {t("nameStep.retryPublish")}
               </Button>
             ) : null}
             <Button
@@ -234,26 +236,25 @@ export function NamePlayStep(props: NamePlayStepProps) {
               icon={pending ? "animatedWaiting" : "newPlay"}
               onClick={handleCreate}
             >
-              Create
+              {t("nameStep.create")}
             </Button>
           </>
         }
       >
         {createError ? (
           <div role="alert" style={{ color: "var(--color-error)" }}>
-            Failed to create the play: {createError}
+            {t("nameStep.createError", { error: createError })}
           </div>
         ) : null}
         {publishError ? (
           <div role="alert" style={{ color: "var(--color-error)" }}>
-            The script could not be added to the commons library. You can retry publishing or go
-            back.
+            {t("nameStep.publishError")}
           </div>
         ) : null}
         {commonsMode && commons ? (
           <>
             <div className={styles.row}>
-              <label>Title</label>
+              <label>{t("nameStep.fields.title")}</label>
               <input
                 placeholder=""
                 ref={titleInputRef}
@@ -265,7 +266,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Author</label>
+              <label>{t("nameStep.fields.author")}</label>
               <input
                 type="text"
                 size={60}
@@ -275,7 +276,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Language</label>
+              <label>{t("nameStep.fields.language")}</label>
               <CardsSelect
                 value={commons.language}
                 onChange={(values) => updateCommons({ language: values[0] ?? "fr" })}
@@ -286,7 +287,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Number of roles</label>
+              <label>{t("nameStep.fields.numberOfRoles")}</label>
               <CardsSelect
                 value={String(commons.number_of_roles)}
                 onChange={(values) =>
@@ -296,7 +297,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Number of male roles</label>
+              <label>{t("nameStep.fields.numberOfMaleRoles")}</label>
               <CardsSelect
                 value={String(commons.number_of_male_roles)}
                 onChange={(values) =>
@@ -308,7 +309,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Number of female roles</label>
+              <label>{t("nameStep.fields.numberOfFemaleRoles")}</label>
               <CardsSelect
                 value={String(commons.number_of_female_roles)}
                 onChange={(values) =>
@@ -320,7 +321,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Genre</label>
+              <label>{t("nameStep.fields.genre")}</label>
               <CardsSelect
                 value={commons.genre ?? ""}
                 onChange={(values) => updateCommons({ genre: values[0] ?? "" })}
@@ -328,7 +329,7 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Period</label>
+              <label>{t("nameStep.fields.period")}</label>
               <CardsSelect
                 value={commons.period ?? ""}
                 onChange={(values) => updateCommons({ period: values[0] ?? "" })}
@@ -336,18 +337,17 @@ export function NamePlayStep(props: NamePlayStepProps) {
               />
             </div>
             <div className={styles.row}>
-              <label>Synopsys</label>
+              <label>{t("nameStep.fields.synopsis")}</label>
               <textarea rows={10} value={synopsis} onChange={(e) => setSynopsis(e.target.value)} />
             </div>
           </>
         ) : (
           <>
-            Give a name to your project.
+            {t("nameStep.intro")}
             <Admonition type="info">
-              This name doesn't need to correspond to the title of the play. For instance you might
-              also want to indicate the name of the troupe or company, and maybe the year.
+              {t("nameStep.introAdmonition.line1")}
               <br />
-              You'll be able to change it later on !
+              {t("nameStep.introAdmonition.line2")}
             </Admonition>
             <div
               style={{
@@ -357,9 +357,9 @@ export function NamePlayStep(props: NamePlayStepProps) {
                 alignItems: "center",
               }}
             >
-              <label>Project name</label>
+              <label>{t("nameStep.projectName")}</label>
               <input
-                placeholder="Othello - Shakespeare (Troupe Name / 2026)"
+                placeholder={t("nameStep.projectNamePlaceholder")}
                 ref={titleInputRef}
                 type="text"
                 size={60}

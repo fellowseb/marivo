@@ -1,0 +1,6 @@
+{
+  "network": {
+    "backOnline": "Network status change detected: back online !",
+    "offline": "Network status change detected: you're offline"
+  }
+}

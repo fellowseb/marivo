@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../../trpc";
 import Button from "../../components/button.component";
@@ -19,18 +21,18 @@ interface ScriptImport {
 
 const ONGOING_STATUSES = ["uploading_files", "processing_files", "reviewing"];
 
-function getStatusLabel(status: ScriptImport["status"]): string {
+function getStatusLabel(t: TFunction<"newPlay">, status: ScriptImport["status"]): string {
   switch (status) {
     case "uploading_files":
-      return "Uploading files";
+      return t("ongoingImports.status.uploadingFiles");
     case "processing_files":
-      return "Processing files";
+      return t("ongoingImports.status.processingFiles");
     case "reviewing":
-      return "Reviewing";
+      return t("ongoingImports.status.reviewing");
     case "done":
-      return "Done";
+      return t("ongoingImports.status.done");
     case "error":
-      return "Error";
+      return t("ongoingImports.status.error");
     default:
       return status;
   }
@@ -51,6 +53,7 @@ function OngoingImportItem({ imp }: { imp: ScriptImport }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation("newPlay");
   const [resuming, setResuming] = useState(false);
   const isReviewing = imp.status === "reviewing";
   const statusVariant = getStatusVariant(imp.status);
@@ -92,13 +95,13 @@ function OngoingImportItem({ imp }: { imp: ScriptImport }) {
   return (
     <li className={styles.item}>
       <div className={styles.itemMain}>
-        <span className={styles.itemDate}>{imp.createdAt.toLocaleString()}</span>
+        <span className={styles.itemDate}>{imp.createdAt.toLocaleString(i18n.language)}</span>
         <span
           className={
             styles[`statusBadge${statusVariant.charAt(0).toUpperCase() + statusVariant.slice(1)}`]
           }
         >
-          {getStatusLabel(imp.status)}
+          {getStatusLabel(t, imp.status)}
         </span>
         {isReviewing && imp.title ? (
           <span className={styles.itemTitle} title={imp.title}>
@@ -112,14 +115,14 @@ function OngoingImportItem({ imp }: { imp: ScriptImport }) {
           disabled={!isReviewing || resuming}
           onClick={handleResume}
         >
-          Resume
+          {t("ongoingImports.resume")}
         </Button>
         <Button
           icon={deleteMutation.isPending ? "animatedWaiting" : "delete"}
           disabled={deleteMutation.isPending}
           onClick={handleDelete}
         >
-          Delete
+          {t("ongoingImports.delete")}
         </Button>
       </div>
     </li>
@@ -132,6 +135,7 @@ function OngoingImportItem({ imp }: { imp: ScriptImport }) {
  * and the Resume gating update on their own.
  */
 export function OngoingImportsSection() {
+  const { t } = useTranslation("newPlay");
   const trpc = useTRPC();
   const queryOpts = trpc.plays.allScriptImports.queryOptions();
   queryOpts.refetchInterval = 5000;
@@ -152,7 +156,7 @@ export function OngoingImportsSection() {
         Header={
           <span className={styles.headerTitle}>
             <Icon value="import" size="small" mode="primary" />
-            Ongoing imports ({ongoing.length})
+            {t("ongoingImports.header", { n: ongoing.length })}
           </span>
         }
       >

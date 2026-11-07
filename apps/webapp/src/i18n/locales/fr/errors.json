@@ -1,0 +1,9 @@
+{
+  "boundary": {
+    "title": "Une erreur est survenue lors du rendu de cette page.",
+    "reload": "Recharger la page"
+  },
+  "notFound": {
+    "body": "La page ou la ressource demandée ne semble pas exister !<br/>Vous pouvez cliquer <contact>ici</contact> pour nous contacter ou<br/> cliquer <plays>ici</plays> pour revenir à votre liste de pièces."
+  }
+}

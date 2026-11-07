@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import classNames from "classnames";
 import { useTRPC } from "../../trpc";
@@ -26,19 +27,24 @@ interface PlayListItemProps {
 }
 
 function PlayListItem(props: PlayListItemProps) {
-  const ownerStr = props.isOwner ? "You" : `${props.ownerFullName} (${props.ownerUsername})`;
+  const { t, i18n } = useTranslation("plays");
+  const ownerStr = props.isOwner
+    ? t("listItem.ownedByYou")
+    : t("listItem.ownedByOther", { name: props.ownerFullName, username: props.ownerUsername });
   return (
     <ItemListItem
       to={PLAY_ROUTE_BASE.replace(":uri", props.id)}
       title={props.title}
       details={
         <>
-          Owned by <span className={styles.playDetailsValues}>{ownerStr}</span>
-          Créée le{" "}
-          <span className={styles.playDetailsValues}>{props.creationDate.toLocaleString()}</span>
-          Dernière modification le{" "}
+          {t("listItem.ownedBy")} <span className={styles.playDetailsValues}>{ownerStr}</span>{" "}
+          {t("listItem.createdOn")}{" "}
           <span className={styles.playDetailsValues}>
-            {props.lastModifiedDate ? props.lastModifiedDate.toLocaleString() : "—"}
+            {props.creationDate.toLocaleString(i18n.language)}
+          </span>{" "}
+          {t("listItem.lastModifiedOn")}{" "}
+          <span className={styles.playDetailsValues}>
+            {props.lastModifiedDate ? props.lastModifiedDate.toLocaleString(i18n.language) : "—"}
           </span>
         </>
       }
@@ -55,26 +61,28 @@ function PlayListItem(props: PlayListItemProps) {
 }
 
 function NoFilteredPlays() {
+  const { t } = useTranslation("plays");
   return (
     <div className={styles.noPlaysContainer}>
-      <p>Filters don't match any entry !</p>
+      <p>{t("noFilteredPlays")}</p>
     </div>
   );
 }
 
 function NoPlays() {
+  const { t } = useTranslation("plays");
   return (
     <div className={styles.noPlaysContainer}>
-      <p>You haven't joined any play yet !</p>
-      <p>All received invites will be displayed on this page.</p>
+      <p>{t("noPlays.title")}</p>
+      <p>{t("noPlays.invitesHint")}</p>
       <p>
-        You can also{" "}
+        {t("noPlays.createYourselfPrefix")}{" "}
         <NavLink
           to={{
             pathname: "new",
           }}
         >
-          create a new play yourself
+          {t("noPlays.createYourselfLink")}
         </NavLink>
         {". "}
       </p>

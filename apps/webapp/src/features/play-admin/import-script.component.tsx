@@ -10,6 +10,7 @@ import Button from "../../components/button.component";
 import Icon from "../../components/icon.component";
 import FlowStep from "../../components/flow-step.component";
 import Admonition from "../../components/admonition.component";
+import { useTranslation } from "react-i18next";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import DotsLoader from "../../components/dots-loader.component";
 import styles from "./import-script.module.css";
@@ -32,6 +33,7 @@ type ScriptImportFile =
     };
 
 export function ImportScriptBreadcrumbs() {
+  const { t } = useTranslation();
   return (
     <HeaderBreadcrumbs
       key="new-play"
@@ -41,14 +43,14 @@ export function ImportScriptBreadcrumbs() {
             pathname: "/plays/new",
           }}
         >
-          New play
+          {t("layout:newPlay")}
         </NavLink>,
         <NavLink
           to={{
             pathname: "/plays/new/import",
           }}
         >
-          Import script
+          {t("newPlay:import.breadcrumb")}
         </NavLink>,
       ]}
     />
@@ -68,6 +70,7 @@ interface ImportScriptMetadata {
 }
 
 function ImportStep() {
+  const { t } = useTranslation("newPlay");
   const navigate = useNavigate();
   const trpc = useTRPC();
   const { step, importId, setImportId, startOver } = useImportScriptContext();
@@ -277,7 +280,7 @@ function ImportStep() {
   const importError = step.name === "import" ? step.error : undefined;
   return (
     <FlowStep
-      title="Create from an external source ▶  Import script"
+      title={t("importStep.title")}
       Actions={
         <>
           <Button icon="previous" onClick={handlePrevious} />
@@ -287,17 +290,16 @@ function ImportStep() {
             rightIcon="next"
             onClick={handleInitImport}
           >
-            Import
+            {t("importStep.importButton")}
           </Button>
         </>
       }
     >
-      Provide the script file(s) by either uploading it(/them) from disk or entering a URL to a
-      remote location.
+      {t("importStep.intro")}
       <Admonition type="info">
-        Supported formats: PDF, TXT.
+        {t("importStep.formats")}
         <br />
-        Known sources: libre-theatre.fr, wikisource.com.
+        {t("importStep.sources")}
       </Admonition>
       {importError ? (
         <div
@@ -311,25 +313,23 @@ function ImportStep() {
         >
           <span>{importError}</span>
           <Button icon="redo" onClick={startOver}>
-            Start over
+            {t("importStep.startOver")}
           </Button>
         </div>
       ) : null}
       {initStatus === "error" ? (
         <div role="alert" style={{ color: "var(--color-error)" }}>
-          Failed to start the import. Your files are still selected — you can try again.
+          {t("importStep.initError")}
         </div>
       ) : null}
       {step.name === "import" && step.processing ? (
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <DotsLoader size="medium" />
-          <span>Processing files… this can take a minute. You can stay on this page.</span>
+          <span>{t("importStep.processing")}</span>
         </div>
       ) : null}
       {uploadsPending > 0 ? (
-        <div>
-          Uploading files… ({uploadsDone}/{files.length})
-        </div>
+        <div>{t("importStep.uploading", { done: uploadsDone, total: files.length })}</div>
       ) : null}
       <div
         style={{
@@ -340,7 +340,11 @@ function ImportStep() {
           alignItems: "center",
         }}
       >
-        <div>Selected script files: {files.length === 0 ? "none" : files.length}</div>
+        <div>
+          {files.length === 0
+            ? t("importStep.selectedNone")
+            : t("importStep.selectedCount", { n: files.length })}
+        </div>
         {files.length === 0 ? null : (
           <ul
             style={{
@@ -446,13 +450,13 @@ function ImportStep() {
             }}
           >
             <Icon value="dragNdrop" size="medium" mode="primary" />
-            Drop files here
+            {t("importStep.dropHere")}
           </span>
-          <span className={styles.or}>or</span>
+          <span className={styles.or}>{t("importStep.or")}</span>
           <Button icon="browseFiles" onClick={handleBrowseClick} disabled={isPending}>
-            Browse your disk
+            {t("importStep.browseDisk")}
           </Button>
-          <span className={styles.or}>or</span>
+          <span className={styles.or}>{t("importStep.or")}</span>
           <div
             style={{
               display: "flex",
@@ -463,7 +467,7 @@ function ImportStep() {
             <input
               type="text"
               size={30}
-              placeholder="Enter URL to remote file..."
+              placeholder={t("importStep.urlPlaceholder")}
               ref={inputURLRef}
             />
             <Button icon="next" onClick={handleURLButtonClick} disabled={isPending} />

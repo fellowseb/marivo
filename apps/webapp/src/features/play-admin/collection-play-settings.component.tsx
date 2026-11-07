@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -34,6 +35,7 @@ const roleOptions = Array.from({ length: 20 }, (_, i) => ({
  * gated client-side by capability and enforced server-side.
  */
 export function CollectionPlaySettings(props: { uri: string }) {
+  const { t } = useTranslation("collection");
   const trpc = useTRPC();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -145,7 +147,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         </div>
       ) : null}
       <div className={styles.line}>
-        <label>Title</label>
+        <label>{t("settings.fields.title")}</label>
         <input
           type="text"
           size={60}
@@ -156,7 +158,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Author</label>
+        <label>{t("settings.fields.author")}</label>
         <input
           type="text"
           size={60}
@@ -167,7 +169,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Language</label>
+        <label>{t("settings.fields.language")}</label>
         <CardsSelect
           value={form.language}
           onChange={(values) => set({ language: values[0] ?? "fr" })}
@@ -178,7 +180,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Number of roles</label>
+        <label>{t("settings.fields.numberOfRoles")}</label>
         <CardsSelect
           value={form.numberOfRoles}
           onChange={(values) => set({ numberOfRoles: values[0] ?? "" })}
@@ -186,7 +188,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Number of male roles</label>
+        <label>{t("settings.fields.numberOfMaleRoles")}</label>
         <CardsSelect
           value={form.numberOfMaleRoles}
           onChange={(values) => set({ numberOfMaleRoles: values[0] ?? "" })}
@@ -194,7 +196,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Number of female roles</label>
+        <label>{t("settings.fields.numberOfFemaleRoles")}</label>
         <CardsSelect
           value={form.numberOfFemaleRoles}
           onChange={(values) => set({ numberOfFemaleRoles: values[0] ?? "" })}
@@ -202,7 +204,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Genre</label>
+        <label>{t("settings.fields.genre")}</label>
         <CardsSelect
           value={form.genre}
           onChange={(values) => set({ genre: values[0] ?? "" })}
@@ -210,7 +212,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Period</label>
+        <label>{t("settings.fields.period")}</label>
         <CardsSelect
           value={form.period}
           onChange={(values) => set({ period: values[0] ?? "" })}
@@ -218,7 +220,7 @@ export function CollectionPlaySettings(props: { uri: string }) {
         />
       </div>
       <div className={styles.line}>
-        <label>Synopsis</label>
+        <label>{t("settings.fields.synopsis")}</label>
         <textarea
           rows={6}
           cols={60}
@@ -229,23 +231,23 @@ export function CollectionPlaySettings(props: { uri: string }) {
       </div>
       {canEditMetadata ? (
         <div className={styles.line}>
-          <label>Metadata</label>
+          <label>{t("settings.metadata")}</label>
           <Button icon="save" disabled={updateMutation.isPending} onClick={handleSave}>
-            Save
+            {t("settings.save")}
           </Button>
           <Button
             icon="archive"
             disabled={archiveMutation.isPending}
             onClick={() => archiveMutation.mutate({ uri: props.uri, archived: !details.archived })}
           >
-            {details.archived ? "Unarchive" : "Archive"}
+            {details.archived ? t("settings.unarchive") : t("settings.archive")}
           </Button>
         </div>
       ) : null}
       <div className={classNames([styles.section, styles.sectionDanger])}>
-        <div className={styles.sectionTitle}>Danger zone</div>
+        <div className={styles.sectionTitle}>{t("settings.dangerZone")}</div>
         <div className={styles.line}>
-          <label>Delete the script</label>
+          <label>{t("settings.deleteScript")}</label>
           <Button icon="delete" disabled={!canDelete} onClick={() => setShowDeleteConfirm(true)}>
             Delete
           </Button>
@@ -254,11 +256,9 @@ export function CollectionPlaySettings(props: { uri: string }) {
       {showDeleteConfirm ? (
         <div className={styles.modalContainer} onClick={() => setShowDeleteConfirm(false)}>
           <div onClick={(e) => e.stopPropagation()}>
-            <div>
-              Delete &quot;{details.title}&quot; from the public collection? This cannot be undone.
-            </div>
+            <div>{t("settings.deleteConfirm", { title: details.title })}</div>
             <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-              <Button onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+              <Button onClick={() => setShowDeleteConfirm(false)}>{t("settings.cancel")}</Button>
               <Button
                 icon="delete"
                 disabled={deleteMutation.isPending}

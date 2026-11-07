@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Component, type ErrorInfo, type PropsWithChildren, type ReactNode } from "react";
 import { logger } from "../lib/logger";
 
@@ -34,11 +35,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
 /** Default full-area fallback shown when a boundary catches a render error. */
 export function ErrorFallback() {
+  const { t } = useTranslation("errors");
   return (
     <div role="alert" style={{ padding: "2rem", textAlign: "center" }}>
-      <p>Something went wrong while rendering this page.</p>
+      <p>{t("boundary.title")}</p>
       <button type="button" onClick={() => window.location.reload()}>
-        Reload page
+        {t("boundary.reload")}
       </button>
     </div>
   );

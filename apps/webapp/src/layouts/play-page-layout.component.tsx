@@ -1,7 +1,8 @@
 import { Outlet, Route, Routes } from "react-router";
+import { useTranslation } from "react-i18next";
 import { usePlayContext } from "../features/play-admin/play.context";
 import { MainLayoutBase } from "./main-layout";
-import { PLAY_MENU_DEFINITION } from "../features/play-admin/play-page-menubar";
+import { makePlayMenuDefinition } from "../features/play-admin/play-page-menubar";
 import { MenuBar } from "../components/menubar.component";
 import Toolbar from "../components/toolbar.component";
 import { PlayPageBreadcrumbs } from "../features/play-admin/play-page.component";
@@ -13,6 +14,8 @@ import PageNotFound from "../components/page-not-found.component";
 
 function PlayPageLayout() {
   const playContext = usePlayContext();
+  const { t } = useTranslation("layout");
+  const menuDefinition = makePlayMenuDefinition(t);
   return (
     <MainLayoutBase
       breadcrumbs={
@@ -23,7 +26,7 @@ function PlayPageLayout() {
       Menu={
         playContext?.isOk() ? (
           <Routes>
-            <Route path={`*`} element={<MenuBar definition={PLAY_MENU_DEFINITION} />} />
+            <Route path={`*`} element={<MenuBar definition={menuDefinition} />} />
           </Routes>
         ) : null
       }

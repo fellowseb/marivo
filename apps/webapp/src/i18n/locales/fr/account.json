@@ -1,0 +1,14 @@
+{
+  "breadcrumb": "Mon compte",
+  "themePage": "Thème",
+  "languagePage": "Langue",
+  "language": {
+    "label": "Langue",
+    "hint": "« Auto » suit la langue de votre navigateur.",
+    "options": {
+      "auto": "Auto (navigateur)",
+      "en": "English",
+      "fr": "Français"
+    }
+  }
+}
