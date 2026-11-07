@@ -26,7 +26,10 @@ const PERMISSION_LABELS: Record<string, string> = {
 };
 
 const PERMISSION_GROUPS: { labelKey: string; keys: string[] }[] = [
-  { labelKey: "participants.script", keys: ["scriptRead", "scriptWriteSharedDrafts", "scriptWrite"] },
+  {
+    labelKey: "participants.script",
+    keys: ["scriptRead", "scriptWriteSharedDrafts", "scriptWrite"],
+  },
   { labelKey: "participants.stagingDirections", keys: ["stagingNotesRead", "stagingNotesWrite"] },
   { labelKey: "participants.blocking", keys: ["blockingRead", "blockingWrite"] },
   { labelKey: "participants.memorize", keys: ["memorizeRead"] },
