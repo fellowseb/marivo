@@ -5,4 +5,3 @@ export const TIMELINE_GRID_MS = 500;
 export const DEFAULT_WPM = 140;
 
 /** Max height of the vertical-scrollable track list, in px. */
-export const TRACKS_MAX_HEIGHT_PX = 220;

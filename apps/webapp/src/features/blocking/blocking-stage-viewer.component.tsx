@@ -25,6 +25,10 @@ export function BlockingStageViewer(props: BlockingStageViewerProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    // match the canvas backing resolution to its CSS size so it fills the area
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(50, Math.floor(rect.width));
+    canvas.height = Math.max(50, Math.floor(rect.height));
     const width = canvas.width;
     const height = canvas.height;
     const ctx = canvas.getContext("2d");
@@ -49,13 +53,7 @@ export function BlockingStageViewer(props: BlockingStageViewerProps) {
   return (
     <div className={styles.container}>
       <div className={styles.title}>{t("stage.title")}</div>
-      <canvas
-        ref={canvasRef}
-        width={600}
-        height={200}
-        className={styles.canvas}
-        aria-label={t("stage.label")}
-      />
+      <canvas ref={canvasRef} className={styles.canvas} aria-label={t("stage.label")} />
     </div>
   );
 }

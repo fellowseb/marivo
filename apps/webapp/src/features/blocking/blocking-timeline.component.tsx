@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { Track } from "./blocking.models";
-import { TRACKS_MAX_HEIGHT_PX, TIMELINE_GRID_MS } from "./blocking.config";
+import { TIMELINE_GRID_MS } from "./blocking.config";
 import styles from "./blocking-timeline.module.css";
 
 const PX_PER_MS = 0.05; // 50 px per second
@@ -12,6 +12,9 @@ interface BlockingTimelineProps {
   tracks: Track[];
   playheadMs: number;
   onToggleTrack: (trackId: string) => void;
+  /** ref to the shared horizontal scroller, to sync with the script strip */
+  scrollRef?: React.RefObject<HTMLDivElement | null>;
+  onScroll?: (scrollLeft: number) => void;
 }
 
 /**
@@ -97,7 +100,11 @@ export function BlockingTimeline(props: BlockingTimelineProps) {
           </button>
         ))}
       </div>
-      <div className={styles.tracksScroll} style={{ maxHeight: TRACKS_MAX_HEIGHT_PX }}>
+      <div
+        ref={props.scrollRef}
+        className={styles.tracksScroll}
+        onScroll={(e) => props.onScroll?.(e.currentTarget.scrollLeft)}
+      >
         <canvas ref={canvasRef} className={styles.canvas} />
       </div>
     </div>
