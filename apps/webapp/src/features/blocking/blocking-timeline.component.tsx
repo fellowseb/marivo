@@ -12,9 +12,12 @@ interface BlockingTimelineProps {
   tracks: Track[];
   playheadMs: number;
   onToggleTrack: (trackId: string) => void;
+  /** visible time window — only cues intersecting it are drawn (perf) */
+  windowStartMs: number;
+  windowEndMs: number;
   /** ref to the shared horizontal scroller, to sync with the script strip */
   scrollRef?: React.RefObject<HTMLDivElement | null>;
-  onScroll?: (scrollLeft: number) => void;
+  onScroll?: (scrollLeft: number, clientWidth: number) => void;
 }
 
 /**
@@ -61,6 +64,13 @@ export function BlockingTimeline(props: BlockingTimelineProps) {
       ctx.fillStyle = "#1f2937";
       ctx.fillRect(0, y, width, TRACK_HEIGHT_PX - 2);
       for (const cue of track.cues) {
+        // perf: only draw cues intersecting the visible window (+ preload)
+        if (
+          cue.startMs >= props.windowEndMs ||
+          cue.startMs + cue.durationMs <= props.windowStartMs
+        ) {
+          continue;
+        }
         ctx.fillStyle = track.color;
         ctx.fillRect(
           cue.startMs * PX_PER_MS,
@@ -77,7 +87,7 @@ export function BlockingTimeline(props: BlockingTimelineProps) {
     ctx.moveTo(playheadX, 0);
     ctx.lineTo(playheadX, height);
     ctx.stroke();
-  }, [props.tracks, props.playheadMs, totalMs]);
+  }, [props.tracks, props.playheadMs, props.windowStartMs, props.windowEndMs, totalMs]);
 
   return (
     <div className={styles.container} aria-label={t("timeline.label")}>
@@ -103,7 +113,7 @@ export function BlockingTimeline(props: BlockingTimelineProps) {
       <div
         ref={props.scrollRef}
         className={styles.tracksScroll}
-        onScroll={(e) => props.onScroll?.(e.currentTarget.scrollLeft)}
+        onScroll={(e) => props.onScroll?.(e.currentTarget.scrollLeft, e.currentTarget.clientWidth)}
       >
         <canvas ref={canvasRef} className={styles.canvas} />
       </div>

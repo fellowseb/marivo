@@ -4,6 +4,12 @@ export const TIMELINE_GRID_MS = 500;
 /** Horizontal scale of the timeline canvas: pixels per millisecond (50 px/s). */
 export const TIMELINE_PX_PER_MS = 0.05;
 
+/**
+ * Rendering window: only cues/lines intersecting the visible time range
+ * (expanded by this preload margin on both sides) are rendered.
+ */
+export const PRELOAD_MS = 5000;
+
 /** Default speech rate used to estimate line durations before audio exists (see #209). */
 export const DEFAULT_WPM = 140;
 

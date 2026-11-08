@@ -2,12 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useScriptContext } from "../script/script.context";
 import { getLineContentForDisplayWithInfo } from "../script/script.utils";
-import { TIMELINE_PX_PER_MS } from "./blocking.config";
 import BlockingScriptStrip from "./blocking-script-strip.component";
 import BlockingTimeline from "./blocking-timeline.component";
 import BlockingStageViewer from "./blocking-stage-viewer.component";
-import { buildInitialTracks, timelineDurationMs } from "./blocking-timeline.lib";
+import { buildInitialTracks, timelineDurationMs, visibleWindowMs } from "./blocking-timeline.lib";
 import { CUE_KIND_ORDER, type CueKind } from "./blocking.models";
+import { PRELOAD_MS, TIMELINE_PX_PER_MS } from "./blocking.config";
 import styles from "./blocking-tab.module.css";
 
 /**
@@ -20,10 +20,24 @@ function BlockingTab() {
   const scriptContext = useScriptContext();
   const [playheadMs, setPlayheadMs] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [viewWindow, setViewWindow] = useState({ startMs: 0, endMs: PRELOAD_MS * 2 });
   const lineScrollRef = useRef<HTMLDivElement>(null);
   const tracksScrollRef = useRef<HTMLDivElement>(null);
 
-  // keep the script strip and the timeline on the same horizontal position
+  // keep the script strip and the timeline on the same horizontal position,
+  // and derive the visible time window (used to render only what's near)
+  const updateWindowFromScroll = (scrollLeft: number, clientWidth: number, total: number) => {
+    setViewWindow((prev) => {
+      const next = visibleWindowMs(scrollLeft, clientWidth, total, PRELOAD_MS);
+      // round to limit re-renders while scrolling
+      const rStart = Math.round(next.startMs / 250);
+      const rEnd = Math.round(next.endMs / 250);
+      if (rStart === Math.round(prev.startMs / 250) && rEnd === Math.round(prev.endMs / 250)) {
+        return prev;
+      }
+      return { startMs: rStart * 250, endMs: rEnd * 250 };
+    });
+  };
   const syncScroll = (source: HTMLDivElement | null, target: HTMLDivElement | null) => {
     if (source && target && source.scrollLeft !== target.scrollLeft) {
       target.scrollLeft = source.scrollLeft;
@@ -70,6 +84,27 @@ function BlockingTab() {
   const [tracks, setTracks] = useState(() => buildInitialTracks(lines, trackLabels));
   const totalMs = timelineDurationMs(tracks);
 
+  // per-line start/duration on the audio track, for the one-line strip
+  const stripLines = useMemo(() => {
+    const audioTrack = tracks.find((track) => track.kind === "lineAudio");
+    const cueByLine = new Map(
+      (audioTrack?.cues ?? []).map((cue) => [cue.data?.lineId as string, cue]),
+    );
+    return lines
+      .filter((line) => cueByLine.has(line.id))
+      .map((line) => {
+        const cue = cueByLine.get(line.id)!;
+        const speakerId = line.characters?.[0];
+        return {
+          id: line.id,
+          text: line.text,
+          speaker: speakerId ? (scriptContext.characters[speakerId] ?? null) : null,
+          startMs: cue.startMs,
+          durationMs: cue.durationMs,
+        };
+      });
+  }, [tracks, lines, scriptContext.characters]);
+
   // current line = the lineAudio cue containing the playhead
   const currentCue = useMemo(() => {
     const audioTrack = tracks.find((track) => track.kind === "lineAudio");
@@ -78,19 +113,6 @@ function BlockingTab() {
     );
   }, [tracks, playheadMs]);
   const currentLineId = currentCue?.data?.lineId as string | undefined;
-  const currentLineRaw = currentLineId ? scriptContext.lines.get(currentLineId) : undefined;
-  const currentContent = currentLineRaw
-    ? getLineContentForDisplayWithInfo(
-        currentLineRaw,
-        scriptContext.lineContents,
-        scriptContext.lineToContents,
-      )[0]
-    : null;
-  const speakerId =
-    currentLineRaw?.type === "chartext" && currentContent?.characters[0]
-      ? currentContent.characters[0]
-      : null;
-  const speaker = speakerId ? scriptContext.characters[speakerId] : null;
 
   // playback clock: advance the playhead in real time while playing
   useEffect(() => {
@@ -158,22 +180,32 @@ function BlockingTab() {
       <div className={styles.stripSection}>
         <BlockingScriptStrip
           ref={lineScrollRef}
-          speaker={speaker}
-          lineText={currentContent?.text ?? ""}
+          lines={stripLines}
+          currentLineId={currentLineId ?? null}
+          windowStartMs={viewWindow.startMs}
+          windowEndMs={viewWindow.endMs}
           playing={playing}
           onPlayPause={handlePlayPause}
           onStop={handleStop}
           onJumpToLine={handleJumpToLine}
-          onLineScroll={() => syncScroll(lineScrollRef.current, tracksScrollRef.current)}
+          onLineScroll={(left, width) => {
+            syncScroll(lineScrollRef.current, tracksScrollRef.current);
+            updateWindowFromScroll(left, width, totalMs);
+          }}
         />
       </div>
       <div className={styles.timelineSection}>
         <BlockingTimeline
           tracks={tracks}
           playheadMs={playheadMs}
+          windowStartMs={viewWindow.startMs}
+          windowEndMs={viewWindow.endMs}
           onToggleTrack={handleToggleTrack}
           scrollRef={tracksScrollRef}
-          onScroll={() => syncScroll(tracksScrollRef.current, lineScrollRef.current)}
+          onScroll={(left, width) => {
+            syncScroll(tracksScrollRef.current, lineScrollRef.current);
+            updateWindowFromScroll(left, width, totalMs);
+          }}
         />
       </div>
       <div className={styles.stageSection}>

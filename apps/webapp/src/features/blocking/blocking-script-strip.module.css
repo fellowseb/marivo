@@ -32,13 +32,21 @@
 .lineScroll {
   flex: 1;
   min-width: 0;
-  overflow-x: auto; /* internal horizontal scrollbar for long lines */
+  overflow-x: auto; /* internal horizontal scrollbar for the long line */
   overflow-y: hidden;
   white-space: nowrap;
   display: flex;
   align-items: center;
 }
 
-.lineText {
+.lineFlow {
   font-size: 1.1em;
+}
+
+.currentLine {
+  background: var(--color-accent-a13);
+  border-radius: 4px;
+}
+.linePart {
+  white-space: nowrap;
 }

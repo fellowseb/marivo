@@ -1,6 +1,6 @@
 import type { Cue, CueKind, Track } from "./blocking.models";
 import { CUE_KIND_COLORS, CUE_KIND_ORDER } from "./blocking.models";
-import { DEFAULT_WPM } from "./blocking.config";
+import { DEFAULT_WPM, TIMELINE_PX_PER_MS } from "./blocking.config";
 
 interface LineLike {
   id: string;
@@ -69,4 +69,24 @@ export function timelineDurationMs(tracks: Track[]): number {
 export function snapMs(valueMs: number, gridMs: number, bypass: boolean): number {
   if (bypass || gridMs <= 0) return Math.round(valueMs);
   return Math.round(valueMs / gridMs) * gridMs;
+}
+
+/**
+ * Visible time window from a horizontal scroll position, expanded by the
+ * preload margin on both sides. Used to render only what's near the viewport.
+ */
+export function visibleWindowMs(
+  scrollLeftPx: number,
+  clientWidthPx: number,
+  totalMs: number,
+  preloadMs: number,
+): { startMs: number; endMs: number } {
+  const startMs = Math.max(0, scrollLeftPx / TIMELINE_PX_PER_MS - preloadMs);
+  const endMs = Math.min(totalMs, (scrollLeftPx + clientWidthPx) / TIMELINE_PX_PER_MS + preloadMs);
+  return { startMs, endMs };
+}
+
+/** Cues of a track intersecting [startMs, endMs]. */
+export function cuesInWindow(track: Track, startMs: number, endMs: number): Cue[] {
+  return track.cues.filter((cue) => cue.startMs < endMs && cue.startMs + cue.durationMs > startMs);
 }

@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
   buildInitialTracks,
+  cuesInWindow,
   estimateLineDurationMs,
   snapMs,
   timelineDurationMs,
+  visibleWindowMs,
 } from "./blocking-timeline.lib";
 import { CUE_KIND_ORDER, type CueKind } from "./blocking.models";
 
@@ -53,5 +55,55 @@ describe("blocking-timeline lib", () => {
     expect(snapMs(1234, 500, false)).toBe(1000);
     expect(snapMs(1300, 500, false)).toBe(1500);
     expect(snapMs(1234, 500, true)).toBe(1234);
+  });
+});
+
+describe("windowed rendering", () => {
+  it("visibleWindowMs converts scroll position to a ms window with preload margin", () => {
+    // 0.05 px/ms => 1000px = 20000ms; clientWidth 500px = 10000ms; preload 5000
+    const w = visibleWindowMs(1000, 500, 60000, 5000);
+    expect(w.startMs).toBe(15000);
+    expect(w.endMs).toBe(35000);
+    // clamped at the end
+    const w2 = visibleWindowMs(3000, 500, 60000, 5000);
+    expect(w2.endMs).toBe(60000);
+  });
+
+  it("cuesInWindow keeps only intersecting cues", () => {
+    const track = {
+      id: "t",
+      kind: "movement" as const,
+      label: "m",
+      color: "#fff",
+      collapsed: false,
+      cues: [
+        {
+          id: "c1",
+          trackId: "t",
+          startMs: 0,
+          durationMs: 1000,
+          kind: "movement" as const,
+          editable: true,
+        },
+        {
+          id: "c2",
+          trackId: "t",
+          startMs: 5000,
+          durationMs: 1000,
+          kind: "movement" as const,
+          editable: true,
+        },
+        {
+          id: "c3",
+          trackId: "t",
+          startMs: 9500,
+          durationMs: 1000,
+          kind: "movement" as const,
+          editable: true,
+        },
+      ],
+    };
+    const inWindow = cuesInWindow(track, 4000, 10000).map((c) => c.id);
+    expect(inWindow).toEqual(["c2", "c3"]); // c3 overlaps the end edge
   });
 });
