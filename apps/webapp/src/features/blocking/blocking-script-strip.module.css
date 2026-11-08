@@ -1,9 +1,17 @@
 .strip {
   display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 8px;
+  padding: 4px 8px;
+}
+
+.fixedCol {
+  display: flex;
   flex-direction: column;
   gap: 2px;
-  border-bottom: 1px solid var(--color-border-strong);
-  padding: 4px 8px;
+  flex-shrink: 0;
+  min-width: 140px;
 }
 
 .speaker {
@@ -14,24 +22,21 @@
   text-transform: uppercase;
 }
 
-.lineRow {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-
 .controls {
   display: flex;
   flex-direction: row;
   gap: 4px;
-  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .lineScroll {
   flex: 1;
-  overflow-x: auto;
+  min-width: 0;
+  overflow-x: auto; /* internal horizontal scrollbar for long lines */
+  overflow-y: hidden;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .lineText {

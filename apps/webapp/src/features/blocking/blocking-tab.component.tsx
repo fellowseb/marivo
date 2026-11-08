@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useScriptContext } from "../script/script.context";
 import { getLineContentForDisplayWithInfo } from "../script/script.utils";
@@ -19,6 +19,15 @@ function BlockingTab() {
   const scriptContext = useScriptContext();
   const [playheadMs, setPlayheadMs] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const lineScrollRef = useRef<HTMLDivElement>(null);
+  const tracksScrollRef = useRef<HTMLDivElement>(null);
+
+  // keep the script strip and the timeline on the same horizontal position
+  const syncScroll = (source: HTMLDivElement | null, target: HTMLDivElement | null) => {
+    if (source && target && source.scrollLeft !== target.scrollLeft) {
+      target.scrollLeft = source.scrollLeft;
+    }
+  };
 
   const trackLabels = useMemo(
     () =>
@@ -114,16 +123,30 @@ function BlockingTab() {
 
   return (
     <div className={styles.container}>
-      <BlockingScriptStrip
-        speaker={speaker}
-        lineText={currentContent?.text ?? ""}
-        playing={playing}
-        onPlayPause={handlePlayPause}
-        onStop={handleStop}
-        onJumpToLine={handleJumpToLine}
-      />
-      <BlockingTimeline tracks={tracks} playheadMs={playheadMs} onToggleTrack={handleToggleTrack} />
-      <BlockingStageViewer elements={stageElements} />
+      <div className={styles.stripSection}>
+        <BlockingScriptStrip
+          ref={lineScrollRef}
+          speaker={speaker}
+          lineText={currentContent?.text ?? ""}
+          playing={playing}
+          onPlayPause={handlePlayPause}
+          onStop={handleStop}
+          onJumpToLine={handleJumpToLine}
+          onLineScroll={() => syncScroll(lineScrollRef.current, tracksScrollRef.current)}
+        />
+      </div>
+      <div className={styles.timelineSection}>
+        <BlockingTimeline
+          tracks={tracks}
+          playheadMs={playheadMs}
+          onToggleTrack={handleToggleTrack}
+          scrollRef={tracksScrollRef}
+          onScroll={() => syncScroll(tracksScrollRef.current, lineScrollRef.current)}
+        />
+      </div>
+      <div className={styles.stageSection}>
+        <BlockingStageViewer elements={stageElements} />
+      </div>
     </div>
   );
 }
