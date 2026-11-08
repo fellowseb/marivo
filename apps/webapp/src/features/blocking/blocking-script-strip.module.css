@@ -50,3 +50,10 @@
 .linePart {
   white-space: nowrap;
 }
+
+.lineScroll {
+  scrollbar-width: none;
+}
+.lineScroll::-webkit-scrollbar {
+  display: none;
+}

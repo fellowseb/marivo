@@ -1,10 +1,9 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { Track } from "./blocking.models";
-import { TIMELINE_GRID_MS, TIMELINE_PX_PER_MS } from "./blocking.config";
+import { MAX_CANVAS_WIDTH_PX, TIMELINE_GRID_MS } from "./blocking.config";
 import styles from "./blocking-timeline.module.css";
 
-const PX_PER_MS = TIMELINE_PX_PER_MS;
 const TRACK_HEIGHT_PX = 28;
 const RULER_HEIGHT_PX = 20;
 
@@ -15,79 +14,85 @@ interface BlockingTimelineProps {
   /** visible time window — only cues intersecting it are drawn (perf) */
   windowStartMs: number;
   windowEndMs: number;
-  /** ref to the shared horizontal scroller, to sync with the script strip */
+  /** ref to the horizontal scroller, synced with the script strip */
   scrollRef?: React.RefObject<HTMLDivElement | null>;
   onScroll?: (scrollLeft: number, clientWidth: number) => void;
 }
 
 /**
  * Multi-track timeline (wireframe v3): full-width stacked track rectangles,
- * one cue type+colour per track, shared time ruler and playhead, drawn on a
- * raw 2D canvas (not React components). Vertical scroll with max-height.
+ * one cue type+colour per track, shared ruler + playhead, drawn on a raw 2D
+ * canvas. The canvas is viewport-sized (never the whole timeline, to avoid
+ * the browser canvas-size limit on big scripts) and only the window around
+ * the playhead is painted. The horizontal scrollbar is hidden; the scroller
+ * is positioned programmatically to keep the playhead centered.
  */
 export function BlockingTimeline(props: BlockingTimelineProps) {
   const { t } = useTranslation("blocking");
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const totalMs = Math.max(
-    1000,
-    ...props.tracks.flatMap((track) => track.cues.map((cue) => cue.startMs + cue.durationMs)),
-  );
+  const scrollRef = props.scrollRef;
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const scroller = scrollRef?.current;
     if (!canvas) return;
+    // canvas is viewport-sized, capped to stay well under browser limits
+    const viewWidth = scroller?.clientWidth ?? 800;
+    const width = Math.min(Math.max(50, Math.floor(viewWidth)), MAX_CANVAS_WIDTH_PX);
     const visibleTracks = props.tracks.filter((track) => !track.collapsed);
-    const width = Math.ceil(totalMs * PX_PER_MS) + 40;
     const height = RULER_HEIGHT_PX + visibleTracks.length * TRACK_HEIGHT_PX;
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
+
+    // map the visible ms window onto the viewport-sized canvas
+    const startMs = props.windowStartMs;
+    const endMs = Math.max(props.windowEndMs, startMs + 1);
+    const pxPerMs = width / (endMs - startMs);
+    const toX = (ms: number) => (ms - startMs) * pxPerMs;
+
     // ruler with grid marks
     ctx.strokeStyle = "#888";
     ctx.fillStyle = "#888";
     ctx.font = "10px sans-serif";
-    for (let ms = 0; ms <= totalMs; ms += TIMELINE_GRID_MS) {
-      const x = ms * PX_PER_MS;
+    const gridStep = TIMELINE_GRID_MS;
+    const firstGrid = Math.ceil(startMs / gridStep) * gridStep;
+    for (let ms = firstGrid; ms <= endMs; ms += gridStep) {
+      const x = toX(ms);
       ctx.beginPath();
       ctx.moveTo(x, RULER_HEIGHT_PX - 6);
       ctx.lineTo(x, RULER_HEIGHT_PX);
       ctx.stroke();
-      if (ms % (TIMELINE_GRID_MS * 2) === 0) {
+      if (ms % (gridStep * 2) === 0) {
         ctx.fillText(`${(ms / 1000).toFixed(1)}s`, x + 2, 10);
       }
     }
-    // tracks + cues
+    // tracks + cues (only cues inside the window are painted)
     visibleTracks.forEach((track, row) => {
       const y = RULER_HEIGHT_PX + row * TRACK_HEIGHT_PX;
       ctx.fillStyle = "#1f2937";
       ctx.fillRect(0, y, width, TRACK_HEIGHT_PX - 2);
       for (const cue of track.cues) {
-        // perf: only draw cues intersecting the visible window (+ preload)
-        if (
-          cue.startMs >= props.windowEndMs ||
-          cue.startMs + cue.durationMs <= props.windowStartMs
-        ) {
-          continue;
-        }
+        if (cue.startMs >= endMs || cue.startMs + cue.durationMs <= startMs) continue;
         ctx.fillStyle = track.color;
         ctx.fillRect(
-          cue.startMs * PX_PER_MS,
+          toX(cue.startMs),
           y + 4,
-          Math.max(2, cue.durationMs * PX_PER_MS),
+          Math.max(2, cue.durationMs * pxPerMs),
           TRACK_HEIGHT_PX - 10,
         );
       }
     });
-    // playhead across all tracks
-    const playheadX = props.playheadMs * PX_PER_MS;
+    // playhead (stays centered: the window is centered on it)
+    const playheadX = toX(props.playheadMs);
     ctx.strokeStyle = "#ef4444";
     ctx.beginPath();
     ctx.moveTo(playheadX, 0);
     ctx.lineTo(playheadX, height);
     ctx.stroke();
-  }, [props.tracks, props.playheadMs, props.windowStartMs, props.windowEndMs, totalMs]);
+  }, [props.tracks, props.playheadMs, props.windowStartMs, props.windowEndMs, scrollRef]);
 
   return (
     <div className={styles.container} aria-label={t("timeline.label")}>
