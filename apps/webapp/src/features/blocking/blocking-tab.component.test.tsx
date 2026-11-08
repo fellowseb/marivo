@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import BlockingTab from "./blocking-tab.component";
 
 const lineContents = new Map([
@@ -54,6 +54,23 @@ describe("BlockingTab layout (issue #215)", () => {
     expect(screen.getByRole("button", { name: "Pause" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Stop" }));
     expect(screen.getByRole("button", { name: "Play" })).toBeTruthy();
+  });
+
+  it("play advances the playhead and changes the current line/speaker", () => {
+    vi.useFakeTimers();
+    try {
+      render(<BlockingTab />);
+      fireEvent.click(screen.getByRole("button", { name: "Play" }));
+      // line 1 has 2 words (~857ms at 140wpm); after 1000ms we are on line 2
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(screen.getByText("Bonjour.")).toBeTruthy();
+      expect(screen.getByText("CLÉON")).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+      cleanup();
+    }
   });
 
   it("collapsing a track group hides its header from the expanded state", () => {

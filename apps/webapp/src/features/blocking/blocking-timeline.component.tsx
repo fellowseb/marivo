@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { Track } from "./blocking.models";
-import { TIMELINE_GRID_MS } from "./blocking.config";
+import { TIMELINE_GRID_MS, TIMELINE_PX_PER_MS } from "./blocking.config";
 import styles from "./blocking-timeline.module.css";
 
-const PX_PER_MS = 0.05; // 50 px per second
+const PX_PER_MS = TIMELINE_PX_PER_MS;
 const TRACK_HEIGHT_PX = 28;
 const RULER_HEIGHT_PX = 20;
 
