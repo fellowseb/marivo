@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.title {
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+}
+
+.canvas {
+  width: 100%;
+  flex: 1;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: var(--color-surface);
+}

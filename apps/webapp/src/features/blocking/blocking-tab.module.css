@@ -1,35 +1,7 @@
 .container {
   display: flex;
-  flex-direction: row;
-  gap: 20px;
-}
-
-.stagingTabContainer {
-  display: flex;
-  flex-direction: row;
-}
-
-.stagingPanelsContainer {
-  flex: 1;
-}
-
-.stagingPanelsContainer > div {
-  flex: 1;
-  position: fixed;
-  display: flex;
   flex-direction: column;
-  gap: 20px;
-  top: 120px;
-  height: calc(100vh - 130px);
-}
-
-.propsPanel {
-  flex: 1;
-}
-
-.blockingPanel {
-  flex: 2;
-  background: white;
-  border: 1px solid var(--color-bg);
-  width: 46vw;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
 }

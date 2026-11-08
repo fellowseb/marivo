@@ -1,0 +1,39 @@
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-bottom: 1px solid var(--color-border-strong);
+  padding: 4px 8px;
+}
+
+.speaker {
+  font-weight: 600;
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+  min-height: 1.2em;
+  text-transform: uppercase;
+}
+
+.lineRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.lineScroll {
+  flex: 1;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.lineText {
+  font-size: 1.1em;
+}

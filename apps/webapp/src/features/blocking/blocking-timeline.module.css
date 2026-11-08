@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.groupHeaders {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.groupHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 0.8em;
+  color: inherit;
+  cursor: pointer;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.tracksScroll {
+  overflow: auto;
+  padding: 0 8px 8px;
+}
+
+.canvas {
+  display: block;
+}
