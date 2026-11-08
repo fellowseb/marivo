@@ -3,31 +3,47 @@ import { useTranslation } from "react-i18next";
 import Button from "../../components/button.component";
 import styles from "./blocking-script-strip.module.css";
 
-interface BlockingScriptStripProps {
-  /** name of the character speaking the current line */
+export interface StripLine {
+  id: string;
+  text: string;
   speaker: string | null;
-  /** text of the réplique currently being spoken */
-  lineText: string;
+  startMs: number;
+  durationMs: number;
+}
+
+interface BlockingScriptStripProps {
+  /** all script lines, as one continuous flow (windowed rendering) */
+  lines: StripLine[];
+  /** currently spoken line id (playhead position) */
+  currentLineId: string | null;
+  /** visible time window — only lines intersecting it are rendered */
+  windowStartMs: number;
+  windowEndMs: number;
   playing: boolean;
   onPlayPause: () => void;
   onStop: () => void;
   onJumpToLine: () => void;
-  /** fired when the line strip scrolls horizontally (to sync the timeline) */
-  onLineScroll?: (scrollLeft: number) => void;
+  onLineScroll?: (scrollLeft: number, clientWidth: number) => void;
 }
 
 /**
- * Single-line script strip (wireframe v3): speaker name above the line,
- * play / stop / jump controls inline at the left, line scrolls horizontally
- * inside the strip only (the page itself never scrolls).
+ * Script strip (wireframe v3): the whole script rendered as ONE continuous
+ * line, full width, horizontal scrolling synced with the timeline. Only the
+ * lines inside the visible window (+ preload) are in the DOM. The speaker
+ * name above and the inline play/stop/jump controls sit in a fixed column.
  */
 export const BlockingScriptStrip = forwardRef<HTMLDivElement, BlockingScriptStripProps>(
   function BlockingScriptStrip(props, lineScrollRef) {
     const { t } = useTranslation("blocking");
+    const visibleLines = props.lines.filter(
+      (line) =>
+        line.startMs < props.windowEndMs && line.startMs + line.durationMs > props.windowStartMs,
+    );
+    const currentLine = props.lines.find((line) => line.id === props.currentLineId);
     return (
       <div className={styles.strip} aria-label={t("scriptStrip.label")}>
         <div className={styles.fixedCol}>
-          <div className={styles.speaker}>{props.speaker ?? ""}</div>
+          <div className={styles.speaker}>{currentLine?.speaker ?? ""}</div>
           <div className={styles.controls}>
             <Button onClick={props.onPlayPause}>
               {props.playing ? t("controls.pause") : t("controls.play")}
@@ -39,9 +55,25 @@ export const BlockingScriptStrip = forwardRef<HTMLDivElement, BlockingScriptStri
         <div
           ref={lineScrollRef}
           className={styles.lineScroll}
-          onScroll={(e) => props.onLineScroll?.(e.currentTarget.scrollLeft)}
+          onScroll={(e) =>
+            props.onLineScroll?.(e.currentTarget.scrollLeft, e.currentTarget.clientWidth)
+          }
         >
-          <span className={styles.lineText}>{props.lineText}</span>
+          <span className={styles.lineFlow}>
+            {visibleLines.map((line) => (
+              <span
+                key={line.id}
+                data-line-id={line.id}
+                className={
+                  line.id === props.currentLineId
+                    ? `${styles.linePart} ${styles.currentLine}`
+                    : styles.linePart
+                }
+              >
+                {line.text}{" "}
+              </span>
+            ))}
+          </span>
         </div>
       </div>
     );
