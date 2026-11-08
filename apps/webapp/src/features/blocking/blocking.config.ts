@@ -10,6 +10,9 @@ export const TIMELINE_PX_PER_MS = 0.05;
  */
 export const PRELOAD_MS = 5000;
 
+/** Max canvas backing width in px (browser canvas limit guard). */
+export const MAX_CANVAS_WIDTH_PX = 4096;
+
 /** Default speech rate used to estimate line durations before audio exists (see #209). */
 export const DEFAULT_WPM = 140;
 

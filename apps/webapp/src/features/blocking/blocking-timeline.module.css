@@ -47,3 +47,11 @@
 .canvas {
   display: block;
 }
+
+/* the playhead is kept centered programmatically — no visible scrollbar */
+.tracksScroll {
+  scrollbar-width: none;
+}
+.tracksScroll::-webkit-scrollbar {
+  display: none;
+}

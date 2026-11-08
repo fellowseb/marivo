@@ -5,7 +5,7 @@ import { getLineContentForDisplayWithInfo } from "../script/script.utils";
 import BlockingScriptStrip from "./blocking-script-strip.component";
 import BlockingTimeline from "./blocking-timeline.component";
 import BlockingStageViewer from "./blocking-stage-viewer.component";
-import { buildInitialTracks, timelineDurationMs, visibleWindowMs } from "./blocking-timeline.lib";
+import { buildInitialTracks, timelineDurationMs } from "./blocking-timeline.lib";
 import { CUE_KIND_ORDER, type CueKind } from "./blocking.models";
 import { PRELOAD_MS, TIMELINE_PX_PER_MS } from "./blocking.config";
 import styles from "./blocking-tab.module.css";
@@ -24,20 +24,6 @@ function BlockingTab() {
   const lineScrollRef = useRef<HTMLDivElement>(null);
   const tracksScrollRef = useRef<HTMLDivElement>(null);
 
-  // keep the script strip and the timeline on the same horizontal position,
-  // and derive the visible time window (used to render only what's near)
-  const updateWindowFromScroll = (scrollLeft: number, clientWidth: number, total: number) => {
-    setViewWindow((prev) => {
-      const next = visibleWindowMs(scrollLeft, clientWidth, total, PRELOAD_MS);
-      // round to limit re-renders while scrolling
-      const rStart = Math.round(next.startMs / 250);
-      const rEnd = Math.round(next.endMs / 250);
-      if (rStart === Math.round(prev.startMs / 250) && rEnd === Math.round(prev.endMs / 250)) {
-        return prev;
-      }
-      return { startMs: rStart * 250, endMs: rEnd * 250 };
-    });
-  };
   const syncScroll = (source: HTMLDivElement | null, target: HTMLDivElement | null) => {
     if (source && target && source.scrollLeft !== target.scrollLeft) {
       target.scrollLeft = source.scrollLeft;
@@ -83,6 +69,22 @@ function BlockingTab() {
 
   const [tracks, setTracks] = useState(() => buildInitialTracks(lines, trackLabels));
   const totalMs = timelineDurationMs(tracks);
+
+  // the window is centered on the playhead; scrollers follow it programmatically
+  // (their horizontal scrollbars are hidden), so the read head stays in the middle
+  useEffect(() => {
+    const scroller = tracksScrollRef.current;
+    const clientWidth = scroller?.clientWidth ?? 800;
+    const visibleMs = clientWidth / TIMELINE_PX_PER_MS;
+    setViewWindow({
+      startMs: Math.max(0, playheadMs - PRELOAD_MS),
+      endMs: Math.min(totalMs, playheadMs + visibleMs + PRELOAD_MS),
+    });
+    const targetLeft = Math.max(0, playheadMs * TIMELINE_PX_PER_MS - clientWidth / 2);
+    for (const el of [tracksScrollRef.current, lineScrollRef.current]) {
+      if (el) el.scrollLeft = targetLeft;
+    }
+  }, [playheadMs, totalMs, tracks.length]);
 
   // per-line start/duration on the audio track, for the one-line strip
   const stripLines = useMemo(() => {
@@ -188,10 +190,7 @@ function BlockingTab() {
           onPlayPause={handlePlayPause}
           onStop={handleStop}
           onJumpToLine={handleJumpToLine}
-          onLineScroll={(left, width) => {
-            syncScroll(lineScrollRef.current, tracksScrollRef.current);
-            updateWindowFromScroll(left, width, totalMs);
-          }}
+          onLineScroll={() => syncScroll(lineScrollRef.current, tracksScrollRef.current)}
         />
       </div>
       <div className={styles.timelineSection}>
@@ -202,10 +201,7 @@ function BlockingTab() {
           windowEndMs={viewWindow.endMs}
           onToggleTrack={handleToggleTrack}
           scrollRef={tracksScrollRef}
-          onScroll={(left, width) => {
-            syncScroll(tracksScrollRef.current, lineScrollRef.current);
-            updateWindowFromScroll(left, width, totalMs);
-          }}
+          onScroll={() => syncScroll(tracksScrollRef.current, lineScrollRef.current)}
         />
       </div>
       <div className={styles.stageSection}>
