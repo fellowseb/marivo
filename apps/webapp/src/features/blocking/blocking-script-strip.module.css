@@ -57,3 +57,8 @@
 .lineScroll::-webkit-scrollbar {
   display: none;
 }
+
+/* left offset so the playhead (always centered on the canvas) aligns in the strip */
+.lineFlow {
+  padding-left: 50%;
+}

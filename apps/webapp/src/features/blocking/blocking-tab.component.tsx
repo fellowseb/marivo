@@ -77,11 +77,15 @@ function BlockingTab() {
     const clientWidth = scroller?.clientWidth ?? 800;
     const visibleMs = clientWidth / TIMELINE_PX_PER_MS;
     const half = visibleMs / 2;
+    // never clamped: the playhead is always drawn at the exact center,
+    // leaving empty canvas on the left at the start / right at the end
     setViewWindow({
-      startMs: Math.max(0, playheadMs - half),
-      endMs: Math.min(totalMs, playheadMs + half),
+      startMs: playheadMs - half,
+      endMs: playheadMs + half,
     });
-    const targetLeft = Math.max(0, playheadMs * TIMELINE_PX_PER_MS - clientWidth / 2);
+    // the strip has a 50% left padding, so scrollLeft = playheadX centers it
+    // (the tracks canvas is viewport-sized and never scrolls)
+    const targetLeft = playheadMs * TIMELINE_PX_PER_MS;
     for (const el of [tracksScrollRef.current, lineScrollRef.current]) {
       if (el) el.scrollLeft = targetLeft;
     }

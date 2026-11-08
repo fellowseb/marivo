@@ -65,8 +65,9 @@ export function BlockingTimeline(props: BlockingTimelineProps) {
       ctx.moveTo(x, RULER_HEIGHT_PX - 6);
       ctx.lineTo(x, RULER_HEIGHT_PX);
       ctx.stroke();
-      if (ms % (gridStep * 2) === 0) {
-        ctx.fillText(`${(ms / 1000).toFixed(1)}s`, x + 2, 10);
+      // labels at whole-second precision only
+      if (ms % 1000 === 0) {
+        ctx.fillText(`${Math.round(ms / 1000)}s`, x + 2, 10);
       }
     }
     // tracks + cues (only cues inside the window are painted)
