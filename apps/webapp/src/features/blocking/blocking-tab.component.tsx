@@ -70,15 +70,16 @@ function BlockingTab() {
   const [tracks, setTracks] = useState(() => buildInitialTracks(lines, trackLabels));
   const totalMs = timelineDurationMs(tracks);
 
-  // the window is centered on the playhead; scrollers follow it programmatically
-  // (their horizontal scrollbars are hidden), so the read head stays in the middle
+  // the drawn window is exactly centered on the playhead (red line stays in
+  // the middle); scrollers follow it programmatically (scrollbars hidden)
   useEffect(() => {
     const scroller = tracksScrollRef.current;
     const clientWidth = scroller?.clientWidth ?? 800;
     const visibleMs = clientWidth / TIMELINE_PX_PER_MS;
+    const half = visibleMs / 2;
     setViewWindow({
-      startMs: Math.max(0, playheadMs - PRELOAD_MS),
-      endMs: Math.min(totalMs, playheadMs + visibleMs + PRELOAD_MS),
+      startMs: Math.max(0, playheadMs - half),
+      endMs: Math.min(totalMs, playheadMs + half),
     });
     const targetLeft = Math.max(0, playheadMs * TIMELINE_PX_PER_MS - clientWidth / 2);
     for (const el of [tracksScrollRef.current, lineScrollRef.current]) {
@@ -134,19 +135,6 @@ function BlockingTab() {
     if (totalMs > 0 && playheadMs >= totalMs) setPlaying(false);
   }, [playheadMs, totalMs]);
 
-  // keep the playhead visible in both scrollers while playing
-  useEffect(() => {
-    if (!playing) return;
-    const x = playheadMs * TIMELINE_PX_PER_MS;
-    for (const el of [tracksScrollRef.current, lineScrollRef.current]) {
-      if (!el) continue;
-      const viewLeft = el.scrollLeft;
-      const viewRight = el.scrollLeft + el.clientWidth;
-      if (x < viewLeft + 40) el.scrollLeft = Math.max(0, x - 40);
-      else if (x > viewRight - 80) el.scrollLeft = x - el.clientWidth + 80;
-    }
-  }, [playing, playheadMs]);
-
   const handlePlayPause = () => {
     if (!playing && playheadMs >= totalMs) setPlayheadMs(0);
     setPlaying((prev) => !prev);
@@ -184,8 +172,8 @@ function BlockingTab() {
           ref={lineScrollRef}
           lines={stripLines}
           currentLineId={currentLineId ?? null}
-          windowStartMs={viewWindow.startMs}
-          windowEndMs={viewWindow.endMs}
+          windowStartMs={Math.max(0, viewWindow.startMs - PRELOAD_MS)}
+          windowEndMs={Math.min(totalMs, viewWindow.endMs + PRELOAD_MS)}
           playing={playing}
           onPlayPause={handlePlayPause}
           onStop={handleStop}
