@@ -1,7 +1,8 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useScriptContext } from "../script/script.context";
 import { getLineContentForDisplayWithInfo } from "../script/script.utils";
+import { TIMELINE_PX_PER_MS } from "./blocking.config";
 import BlockingScriptStrip from "./blocking-script-strip.component";
 import BlockingTimeline from "./blocking-timeline.component";
 import BlockingStageViewer from "./blocking-stage-viewer.component";
@@ -90,6 +91,37 @@ function BlockingTab() {
       ? currentContent.characters[0]
       : null;
   const speaker = speakerId ? scriptContext.characters[speakerId] : null;
+
+  // playback clock: advance the playhead in real time while playing
+  useEffect(() => {
+    if (!playing) return;
+    let last = Date.now();
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const dt = now - last;
+      last = now;
+      setPlayheadMs((prev) => Math.min(prev + dt, totalMs));
+    }, 50);
+    return () => clearInterval(interval);
+  }, [playing, totalMs]);
+
+  // stop at the end of the timeline
+  useEffect(() => {
+    if (totalMs > 0 && playheadMs >= totalMs) setPlaying(false);
+  }, [playheadMs, totalMs]);
+
+  // keep the playhead visible in both scrollers while playing
+  useEffect(() => {
+    if (!playing) return;
+    const x = playheadMs * TIMELINE_PX_PER_MS;
+    for (const el of [tracksScrollRef.current, lineScrollRef.current]) {
+      if (!el) continue;
+      const viewLeft = el.scrollLeft;
+      const viewRight = el.scrollLeft + el.clientWidth;
+      if (x < viewLeft + 40) el.scrollLeft = Math.max(0, x - 40);
+      else if (x > viewRight - 80) el.scrollLeft = x - el.clientWidth + 80;
+    }
+  }, [playing, playheadMs]);
 
   const handlePlayPause = () => {
     if (!playing && playheadMs >= totalMs) setPlayheadMs(0);
