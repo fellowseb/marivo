@@ -1,4 +1,4 @@
-bullmq==3.4.6
+bullmq==3.5.0
 python-dotenv==1.2.4
 mistralai==3.6.0
 requests==2.34.2
