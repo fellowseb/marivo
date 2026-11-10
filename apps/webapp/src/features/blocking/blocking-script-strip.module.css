@@ -1,0 +1,64 @@
+.strip {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 8px;
+  padding: 4px 8px;
+}
+
+.fixedCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+.speaker {
+  font-weight: 600;
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+  min-height: 1.2em;
+  text-transform: uppercase;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.lineScroll {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto; /* internal horizontal scrollbar for the long line */
+  overflow-y: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.lineFlow {
+  font-size: 1.1em;
+}
+
+.currentLine {
+  background: var(--color-accent-a13);
+  border-radius: 4px;
+}
+.linePart {
+  white-space: nowrap;
+}
+
+.lineScroll {
+  scrollbar-width: none;
+}
+.lineScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* left offset so the playhead (always centered on the canvas) aligns in the strip */
+.lineFlow {
+  padding-left: 50%;
+}

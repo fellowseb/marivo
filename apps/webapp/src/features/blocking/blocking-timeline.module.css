@@ -1,0 +1,76 @@
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.groupHeaders {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 8px;
+  flex: 0 0 auto;
+}
+
+.groupHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 0.8em;
+  color: inherit;
+  cursor: pointer;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* internal scrollbars live here only — the page itself never scrolls */
+.tracksScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 8px 8px;
+}
+
+.canvas {
+  display: block;
+}
+
+/* the playhead is kept centered programmatically — no visible scrollbar */
+.tracksScroll {
+  scrollbar-width: none;
+}
+.tracksScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* hover tooltip for truncated line labels */
+.tooltip {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  max-width: 320px;
+  padding: 4px 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
