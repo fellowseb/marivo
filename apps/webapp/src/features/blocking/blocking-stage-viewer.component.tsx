@@ -52,7 +52,6 @@ export function BlockingStageViewer(props: BlockingStageViewerProps) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.title}>{t("stage.title")}</div>
       <canvas ref={canvasRef} className={styles.canvas} aria-label={t("stage.label")} />
     </div>
   );

@@ -120,6 +120,10 @@ function BlockingTab() {
     );
   }, [tracks, playheadMs]);
   const currentLineId = currentCue?.data?.lineId as string | undefined;
+  const lineLabels = useMemo(
+    () => new Map(stripLines.map((line) => [line.id, { text: line.text, speaker: line.speaker }])),
+    [stripLines],
+  );
 
   // playback clock: advance the playhead in real time while playing
   useEffect(() => {
@@ -190,6 +194,7 @@ function BlockingTab() {
           tracks={tracks}
           playheadMs={playheadMs}
           windowStartMs={viewWindow.startMs}
+          lineLabels={lineLabels}
           windowEndMs={viewWindow.endMs}
           onToggleTrack={handleToggleTrack}
           scrollRef={tracksScrollRef}
