@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1060" viewBox="0 0 1600 1060" font-family="DejaVu Sans, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8a7a5c"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect width="1600" height="1060" fill="#fef8eb"/>
+
+  <!-- ================= HEADER ================= -->
+  <rect x="0" y="0" width="1600" height="64" fill="#f1e4c9"/>
+  <line x1="0" y1="64" x2="1600" y2="64" stroke="#e0cfae" stroke-width="2"/>
+  <rect x="24" y="14" width="330" height="38" rx="19" fill="#fef8eb" stroke="#e0cfae" stroke-width="2"/>
+  <rect x="40" y="24" width="18" height="18" rx="3" fill="none" stroke="#8a7a5c" stroke-width="2"/>
+  <line x1="44" y1="30" x2="54" y2="30" stroke="#8a7a5c" stroke-width="2"/>
+  <line x1="44" y1="35" x2="54" y2="35" stroke="#8a7a5c" stroke-width="2"/>
+  <text x="68" y="39" font-size="16" fill="#3b2f1c">Le Jeu de l'amour et du hasard</text>
+  <g font-size="15" fill="#6b5a3e">
+    <text x="400" y="40">Script</text>
+    <text x="462" y="40">Blocking</text>
+    <rect x="456" y="46" width="62" height="4" rx="2" fill="#3fad46"/>
+    <text x="540" y="40">Settings</text>
+    <text x="615" y="40">Participants</text>
+  </g>
+  <circle cx="1470" cy="32" r="14" fill="none" stroke="#8a7a5c" stroke-width="2"/>
+  <path d="M1462,24 a12,12 0 1,0 16,16" fill="none" stroke="#8a7a5c" stroke-width="2"/>
+  <circle cx="1512" cy="32" r="14" fill="#e0cfae"/>
+  <text x="1508" y="37" font-size="14" fill="#3b2f1c">M</text>
+
+  <!-- ================= TOOLBAR ================= -->
+  <g font-size="14" fill="#6b5a3e">
+    <rect x="640" y="76" width="320" height="34" rx="17" fill="#f1e4c9"/>
+    <text x="668" y="98">↶ undo</text>
+    <text x="748" y="98">↷ redo</text>
+    <text x="828" y="98">⌕ search</text>
+  </g>
+
+  <!-- ================= SCRIPT LINE (one line, full width) ================= -->
+  <text x="24" y="140" font-size="15" font-weight="bold" fill="#3b2f1c">DORANTE</text>
+  <text x="110" y="140" font-size="13" font-style="italic" fill="#8a7a5c">personnage en train de parler</text>
+  <rect x="24" y="150" width="1552" height="56" rx="8" fill="#ffffff" stroke="#e0cfae" stroke-width="2"/>
+  <rect x="24" y="150" width="10" height="56" rx="5" fill="#3fad46"/>
+  <!-- play / stop / jump controls -->
+  <circle cx="80" cy="178" r="16" fill="#f1e4c9" stroke="#8a7a5c" stroke-width="2"/>
+  <path d="M75,170 L90,178 L75,186 Z" fill="#3b2f1c"/>
+  <circle cx="126" cy="178" r="16" fill="#f1e4c9" stroke="#8a7a5c" stroke-width="2"/>
+  <rect x="120" y="172" width="12" height="12" fill="#3b2f1c"/>
+  <g stroke="#6b5a3e" stroke-width="3" fill="none" stroke-linecap="round">
+    <line x1="156" y1="170" x2="156" y2="186"/>
+    <path d="M156,178 L166,178 M162,174 L168,178 L162,182" />
+    <line x1="196" y1="170" x2="196" y2="186"/>
+    <path d="M196,178 L186,174 L186,182 Z M196,178 L206,174 L206,182 Z" fill="#6b5a3e" stroke="none"/>
+  </g>
+  <text x="240" y="184" font-size="15" fill="#6b5a3e">Je viens vous demander un service de conséquence : c'est de me donner Silvie pour femme.</text>
+  <text x="1540" y="184" font-size="20" fill="#8a7a5c">…</text>
+  <path d="M44,222 C 60,238 640,236 780,244" fill="none" stroke="#8a7a5c" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+  <text x="790" y="250" font-size="13" font-style="italic" fill="#8a7a5c">une seule ligne de script — la réplique en cours (défilement horizontal, sync avec la lecture)</text>
+
+  <!-- ================= TIMELINE — MULTI-TRACK ================= -->
+  <rect x="24" y="268" width="1552" height="290" rx="8" fill="#ffffff" stroke="#e0cfae" stroke-width="2"/>
+  <text x="44" y="296" font-size="15" font-weight="bold" fill="#3b2f1c">Timeline — pistes empilées (une piste = un rectangle pleine largeur, un type de cue)</text>
+  <text x="1300" y="296" font-size="13" fill="#8a7a5c">zoom : − [=======] +</text>
+
+  <!-- time ruler -->
+  <line x1="180" y1="312" x2="1540" y2="312" stroke="#d8d2c6" stroke-width="1"/>
+  <g font-size="11" fill="#8a7a5c">
+    <text x="180" y="328">0:00</text><text x="470" y="328">2:00</text><text x="760" y="328">4:00</text><text x="1050" y="328">6:00</text><text x="1340" y="328">8:00</text>
+  </g>
+
+  <!-- TRACK 1 : Déplacements (blue) -->
+  <rect x="180" y="336" width="1360" height="46" rx="4" fill="#eef4fa" stroke="#c9d8e6" stroke-width="1"/>
+  <text x="44" y="364" font-size="13" fill="#2b5d7c" font-weight="bold">Déplacements</text>
+  <g fill="#4a90c2">
+    <rect x="260" y="344" width="120" height="30" rx="4"/>
+    <rect x="470" y="344" width="90" height="30" rx="4"/>
+    <rect x="700" y="344" width="150" height="30" rx="4"/>
+    <rect x="1000" y="344" width="80" height="30" rx="4"/>
+    <rect x="1240" y="344" width="130" height="30" rx="4"/>
+  </g>
+  <g font-size="11" fill="#ffffff" text-anchor="middle">
+    <text x="320" y="363">D → centre</text>
+    <text x="775" y="363">S traverse</text>
+    <text x="1305" y="363">A recule</text>
+  </g>
+
+  <!-- TRACK 2 : Entrées / Sorties (green) -->
+  <rect x="180" y="386" width="1360" height="46" rx="4" fill="#eef7ee" stroke="#c6dfc8" stroke-width="1"/>
+  <text x="44" y="414" font-size="13" fill="#2c7a34" font-weight="bold">Entrées / Sorties</text>
+  <g fill="#3fad46">
+    <rect x="200" y="394" width="60" height="30" rx="4"/>
+    <rect x="920" y="394" width="70" height="30" rx="4"/>
+    <rect x="1480" y="394" width="60" height="30" rx="4"/>
+  </g>
+  <g font-size="11" fill="#ffffff" text-anchor="middle">
+    <text x="230" y="413">entrée D</text>
+    <text x="955" y="413">entrée A</text>
+    <text x="1510" y="413">sortie S</text>
+  </g>
+
+  <!-- TRACK 3 : Props (orange) -->
+  <rect x="180" y="436" width="1360" height="46" rx="4" fill="#fdf6e7" stroke="#ecd9b0" stroke-width="1"/>
+  <text x="44" y="464" font-size="13" fill="#9c6f1f" font-weight="bold">Props</text>
+  <g fill="#e8b04b">
+    <rect x="390" y="444" width="100" height="30" rx="4"/>
+    <rect x="860" y="444" width="110" height="30" rx="4"/>
+  </g>
+  <g font-size="11" fill="#ffffff" text-anchor="middle">
+    <text x="440" y="463">chaise posée</text>
+    <text x="915" y="463">lettre remise</text>
+  </g>
+
+  <!-- TRACK 4 : Gestes / Regards (purple) -->
+  <rect x="180" y="486" width="1360" height="46" rx="4" fill="#f5f0fa" stroke="#ddd0ea" stroke-width="1"/>
+  <text x="44" y="514" font-size="13" fill="#6b4590" font-weight="bold">Gestes / Regards</text>
+  <g fill="#9b6fc0">
+    <rect x="560" y="494" width="80" height="30" rx="4"/>
+    <rect x="1140" y="494" width="90" height="30" rx="4"/>
+  </g>
+  <g font-size="11" fill="#ffffff" text-anchor="middle">
+    <text x="600" y="513">S se retourne</text>
+    <text x="1185" y="513">D salue</text>
+  </g>
+
+  <!-- playhead -->
+  <line x1="760" y1="312" x2="760" y2="536" stroke="#e8b04b" stroke-width="3"/>
+  <circle cx="760" cy="312" r="6" fill="#e8b04b"/>
+  <text x="775" y="550" font-size="12" font-style="italic" fill="#9c6f1f">position de lecture</text>
+
+  <!-- ================= STAGE VIEWER ================= -->
+  <rect x="24" y="576" width="1552" height="440" rx="8" fill="#ffffff" stroke="#e0cfae" stroke-width="2"/>
+  <text x="44" y="604" font-size="15" font-weight="bold" fill="#3b2f1c">Stage Viewer — plan 2D (rendu animé)</text>
+  <g font-size="13" fill="#6b5a3e">
+    <rect x="1180" y="588" width="150" height="26" rx="13" fill="#f1e4c9"/>
+    <text x="1192" y="606">filtre personnage</text>
+    <rect x="1340" y="588" width="120" height="26" rx="13" fill="#f1e4c9"/>
+    <text x="1352" y="606">vue : face ☰</text>
+  </g>
+  <!-- stage floor -->
+  <path d="M420,650 L1380,650 L1340,970 L460,970 Z" fill="#fbf6ea" stroke="#c9b88f" stroke-width="3"/>
+  <text x="900" y="642" font-size="13" fill="#8a7a5c" text-anchor="middle">FOND DE SCÈNE</text>
+  <text x="900" y="992" font-size="13" fill="#8a7a5c" text-anchor="middle">FACE / PUBLIC</text>
+  <text x="398" y="815" font-size="13" fill="#8a7a5c" text-anchor="middle">Jardin</text>
+  <text x="1402" y="815" font-size="13" fill="#8a7a5c" text-anchor="middle">Cour</text>
+  <!-- characters -->
+  <circle cx="620" cy="740" r="30" fill="#dcebf7" stroke="#4a90c2" stroke-width="3"/>
+  <text x="620" y="746" font-size="18" fill="#2b5d7c" text-anchor="middle" font-weight="bold">D</text>
+  <circle cx="1050" cy="710" r="30" fill="#dcebf7" stroke="#4a90c2" stroke-width="3"/>
+  <text x="1050" y="716" font-size="18" fill="#2b5d7c" text-anchor="middle" font-weight="bold">S</text>
+  <circle cx="820" cy="840" r="30" fill="#dcebf7" stroke="#4a90c2" stroke-width="3"/>
+  <text x="820" y="846" font-size="18" fill="#2b5d7c" text-anchor="middle" font-weight="bold">A</text>
+  <!-- movement arrow synced with track 1 -->
+  <path d="M650,740 Q 830,690 1015,712" fill="none" stroke="#4a90c2" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow)"/>
+  <text x="835" y="672" font-size="13" font-style="italic" fill="#2b5d7c" text-anchor="middle">déplacement en cours (piste bleue)</text>
+  <!-- props -->
+  <rect x="1240" y="880" width="46" height="46" fill="#f3ead9" stroke="#a08a5f" stroke-width="3"/>
+  <text x="1263" y="909" font-size="12" fill="#6b5a3e" text-anchor="middle">chaise</text>
+  <circle cx="540" cy="920" r="12" fill="#dcecd7" stroke="#3fad46" stroke-width="2"/>
+  <text x="540" y="950" font-size="12" fill="#6b5a3e" text-anchor="middle">arbre</text>
+
+  <!-- ================= ANNOTATIONS ================= -->
+  <g font-size="14" font-style="italic" fill="#8a7a5c">
+    <text x="30" y="118" font-weight="bold" fill="#3b2f1c">Page Blocking — esquisse 2D (v2)</text>
+    <path d="M900,550 C 900,565 880,570 860,576" fill="none" stroke="#8a7a5c" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+    <text x="920" y="568" font-size="13">les pistes pilotent le viewer</text>
+  </g>
+
+  <text x="800" y="1040" font-size="13" font-style="italic" fill="#8a7a5c" text-anchor="middle">Wireframe non contractuel (v3) — nom du personnage en cours au-dessus de la ligne de script, contrôles lecture dans la ligne, pistes empilées, stage viewer étendu</text>
+</svg>
