@@ -57,7 +57,7 @@
 }
 
 .logo:focus-visible {
-  transform: rotate(180deg);
+  background-color: inherit;
 }
 
 .user {

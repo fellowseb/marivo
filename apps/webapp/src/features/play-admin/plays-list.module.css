@@ -4,6 +4,7 @@
   flex: 1;
   min-height: 0;
   background-color: var(--color-bg-a20);
+  padding-left: 10px;
 }
 
 .playSkeleton {
