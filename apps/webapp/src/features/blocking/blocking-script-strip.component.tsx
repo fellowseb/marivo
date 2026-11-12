@@ -45,7 +45,7 @@ export const BlockingScriptStrip = forwardRef<HTMLDivElement, BlockingScriptStri
         <div className={styles.fixedCol}>
           <div className={styles.speaker}>{currentLine?.speaker ?? ""}</div>
           <div className={styles.controls}>
-            <Button onClick={props.onPlayPause}>
+            <Button onClick={props.onPlayPause} icon="next">
               {props.playing ? t("controls.pause") : t("controls.play")}
             </Button>
             <Button onClick={props.onStop}>{t("controls.stop")}</Button>
