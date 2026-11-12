@@ -1,12 +1,35 @@
 .container {
+  position: relative;
   display: flex;
   flex-direction: row;
   gap: 2px;
 }
 
+/* sliding pill behind the active tab; positioned via inline transform/width */
+.highlight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 0;
+  opacity: 0;
+  background-color: var(--color-accent-a13);
+  border-bottom: 2px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  transition:
+    transform 200ms ease,
+    width 200ms ease,
+    opacity 150ms ease,
+    background-color 150ms ease;
+  pointer-events: none;
+}
+
 .tab {
+  position: relative;
+  z-index: 1;
   color: var(--color-accent);
-  height: 30px;
+  height: 35px;
   align-content: center;
   text-align: left;
   padding-right: 6px;
@@ -20,13 +43,9 @@
   border: 2px solid transparent;
 }
 
-.selected {
-  background-color: var(--color-accent-a13);
-  background-color: var(--color-highlight);
-}
-
 .tab:hover {
   background-color: var(--color-highlight);
+  border-bottom: 2px solid var(--color-accent);
 }
 
 .tab:focus-visible {
