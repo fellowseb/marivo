@@ -1,4 +1,5 @@
-import { Outlet, Route, Routes } from "react-router";
+import { Suspense, type PropsWithChildren } from "react";
+import { Route, Routes } from "react-router";
 import { useTranslation } from "react-i18next";
 import { usePlayContext } from "../features/play-admin/play.context";
 import { MainLayoutBase } from "./main-layout";
@@ -12,7 +13,23 @@ import { MEMORIZE_TOOLBAR } from "../features/lines-memorization/memorize-tab-to
 import DotsLoader from "../components/dots-loader.component";
 import PageNotFound from "../components/page-not-found.component";
 
-function PlayPageLayout() {
+/** centered loader for the main area while play/script data is loading */
+function CenteredLoader() {
+  return (
+    <div
+      style={{
+        flex: "1",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <DotsLoader size="xlarge" />
+    </div>
+  );
+}
+
+function PlayPageLayout(props: PropsWithChildren) {
   const playContext = usePlayContext();
   const { t } = useTranslation("layout");
   const menuDefinition = makePlayMenuDefinition(t);
@@ -40,25 +57,16 @@ function PlayPageLayout() {
         ) : null
       }
     >
+      {/* the header stays mounted: only the main area is replaced while
+          play details or the script are loading */}
       {playContext?.match({
         success() {
-          return <Outlet />;
+          return <Suspense fallback={<CenteredLoader />}>{props.children}</Suspense>;
         },
         failure() {
           return <PageNotFound />;
         },
-      }) ?? (
-        <div
-          style={{
-            flex: "1",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <DotsLoader size="xlarge" />
-        </div>
-      )}
+      }) ?? <CenteredLoader />}
     </MainLayoutBase>
   );
 }

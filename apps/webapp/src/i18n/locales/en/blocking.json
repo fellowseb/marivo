@@ -1,0 +1,29 @@
+{
+  "controls": {
+    "play": "Play",
+    "pause": "Pause",
+    "stop": "Stop",
+    "jumpToLine": "Jump to line"
+  },
+  "tracks": {
+    "lineAudio": "Line audio",
+    "movement": "Movements",
+    "entranceExit": "Entrances / exits",
+    "prop": "Props",
+    "gesture": "Gestures / looks",
+    "lights": "Lights",
+    "envSound": "Environment sounds"
+  },
+  "timeline": {
+    "label": "Timeline",
+    "collapseGroup": "Collapse {{label}}",
+    "expandGroup": "Expand {{label}}"
+  },
+  "stage": {
+    "label": "Stage",
+    "title": "Stage viewer"
+  },
+  "scriptStrip": {
+    "label": "Current line"
+  }
+}

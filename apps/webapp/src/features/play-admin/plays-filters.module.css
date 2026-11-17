@@ -4,6 +4,8 @@
   align-items: stretch;
   color: var(--color-accent);
   flex: 0 1 0;
+  align-self: center;
+  min-width: 400px;
 }
 
 .playFilters label {
@@ -15,6 +17,7 @@
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  gap: 10px;
 }
 
 .hidden {

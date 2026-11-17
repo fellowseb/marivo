@@ -1,0 +1,29 @@
+{
+  "controls": {
+    "play": "Lecture",
+    "pause": "Pause",
+    "stop": "Stop",
+    "jumpToLine": "Aller à la réplique"
+  },
+  "tracks": {
+    "lineAudio": "Audio des répliques",
+    "movement": "Déplacements",
+    "entranceExit": "Entrées / sorties",
+    "prop": "Accessoires",
+    "gesture": "Gestes / regards",
+    "lights": "Lumières",
+    "envSound": "Sons d'ambiance"
+  },
+  "timeline": {
+    "label": "Timeline",
+    "collapseGroup": "Replier {{label}}",
+    "expandGroup": "Déplier {{label}}"
+  },
+  "stage": {
+    "label": "Scène",
+    "title": "Visualiseur de scène"
+  },
+  "scriptStrip": {
+    "label": "Réplique en cours"
+  }
+}

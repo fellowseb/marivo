@@ -4,6 +4,7 @@ import { HeaderBreadcrumbs } from "../../layouts/header.component";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import Button from "../../components/button.component";
+import Flex from "../../components/flex.component";
 
 export function PlaysPageBreadcrumbs() {
   const { t } = useTranslation("layout");
@@ -21,14 +22,14 @@ function PlaysPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <Flex direction="column" gap={10} grow={1} className={styles.container}>
       <PlayList />
       <div className={styles.playListActions}>
         <Button onClick={handleCreateNewPlay} icon="new">
           {t("createNewPlay")}
         </Button>
       </div>
-    </div>
+    </Flex>
   );
 }
 

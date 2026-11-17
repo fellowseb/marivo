@@ -25,8 +25,7 @@
   border: 1px solid var(--color-accent);
   border-left: 10px solid var(--color-focus);
   border-radius: var(--radius-sm);
-  background-color: var(--color-accent);
-  color: var(--color-card);
+  background-color: var(--color-surface);
   text-decoration: none;
   margin: 0;
   width: 100%;
@@ -39,7 +38,7 @@
 }
 
 .link:hover {
-  background-color: var(--color-accent-a80);
+  background-color: var(--color-surface-deep);
   border-left: 10px solid var(--color-accent);
 }
 

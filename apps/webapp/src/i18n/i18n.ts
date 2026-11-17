@@ -11,6 +11,7 @@ import enSettings from "./locales/en/settings.json";
 import enAccount from "./locales/en/account.json";
 import enNotifications from "./locales/en/notifications.json";
 import enErrors from "./locales/en/errors.json";
+import enBlocking from "./locales/en/blocking.json";
 import frCommon from "./locales/fr/common.json";
 import frLayout from "./locales/fr/layout.json";
 import frPlays from "./locales/fr/plays.json";
@@ -21,6 +22,7 @@ import frSettings from "./locales/fr/settings.json";
 import frAccount from "./locales/fr/account.json";
 import frNotifications from "./locales/fr/notifications.json";
 import frErrors from "./locales/fr/errors.json";
+import frBlocking from "./locales/fr/blocking.json";
 
 export const LANGUAGE_STORAGE_KEY = "marivo-language";
 
@@ -35,6 +37,7 @@ export const NAMESPACES = [
   "account",
   "notifications",
   "errors",
+  "blocking",
 ] as const;
 
 export type Namespace = (typeof NAMESPACES)[number];
@@ -51,6 +54,7 @@ export const resources = {
     account: enAccount,
     notifications: enNotifications,
     errors: enErrors,
+    blocking: enBlocking,
   },
   fr: {
     common: frCommon,
@@ -63,6 +67,7 @@ export const resources = {
     account: frAccount,
     notifications: frNotifications,
     errors: frErrors,
+    blocking: frBlocking,
   },
 } as const;
 

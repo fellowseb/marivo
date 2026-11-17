@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Route, Routes, useNavigate, useParams } from "react-router";
 import { HeaderBreadcrumbs } from "../../layouts/header.component";
@@ -132,89 +132,72 @@ function PlayPage() {
     return null;
   }
   return (
-    <>
-      <ErrorBoundary fallback={<PageNotFound />}>
-        <Suspense
-          fallback={
-            <div
-              style={{
-                flex: "1",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <DotsLoader size="xlarge" />
-            </div>
-          }
-        >
-          <PlayContextProvider uri={uri}>
-            <ScriptTabToolbarContextProvider>
-              <ScriptUndoRedoContextProvider>
-                <ScriptContextProvider uri={uri} from="play">
-                  <Routes>
-                    <Route path="*" element={<PlayPageLayout />}>
-                      <Route
-                        path={PLAY_SUB_ROUTES_PATHS.script}
-                        element={
-                          <PermissionProtected>
-                            <ScriptEditionContextProvider uri={uri} from="play">
-                              <ScriptTab />
-                            </ScriptEditionContextProvider>
-                          </PermissionProtected>
-                        }
-                      />
-                      <Route
-                        path={PLAY_SUB_ROUTES_PATHS.stagingNotes}
-                        element={
-                          <PermissionProtected>
-                            <StagingDirectionsTab />
-                          </PermissionProtected>
-                        }
-                      />
-                      <Route
-                        path={PLAY_SUB_ROUTES_PATHS.blocking}
-                        element={
-                          <PermissionProtected>
-                            <BlockingTab />
-                          </PermissionProtected>
-                        }
-                      />
-                      <Route
-                        path={PLAY_SUB_ROUTES_PATHS.memorize}
-                        element={
-                          <PermissionProtected>
-                            <MemorizeTab />
-                          </PermissionProtected>
-                        }
-                      />
-                      <Route
-                        path={PLAY_SUB_ROUTES_PATHS.planning}
-                        element={
-                          <PermissionProtected>
-                            <PlanningTab />
-                          </PermissionProtected>
-                        }
-                      />
-                      <Route
-                        path={PLAY_SUB_ROUTES_PATHS.settings}
-                        element={
-                          <PermissionProtected>
-                            <PlaySettingsTab />
-                          </PermissionProtected>
-                        }
-                      />
-                      <Route index element={<NavigateToDefaultSubpath />} />
-                      <Route path="*" element={<PageNotFound />} />
-                    </Route>
-                  </Routes>
-                </ScriptContextProvider>
-              </ScriptUndoRedoContextProvider>
-            </ScriptTabToolbarContextProvider>
-          </PlayContextProvider>
-        </Suspense>
-      </ErrorBoundary>
-    </>
+    <ErrorBoundary fallback={<PageNotFound />}>
+      <PlayContextProvider uri={uri}>
+        <ScriptTabToolbarContextProvider>
+          <ScriptUndoRedoContextProvider>
+            <PlayPageLayout>
+              <ScriptContextProvider uri={uri} from="play">
+                <Routes>
+                  <Route
+                    path={PLAY_SUB_ROUTES_PATHS.script}
+                    element={
+                      <PermissionProtected>
+                        <ScriptEditionContextProvider uri={uri} from="play">
+                          <ScriptTab />
+                        </ScriptEditionContextProvider>
+                      </PermissionProtected>
+                    }
+                  />
+                  <Route
+                    path={PLAY_SUB_ROUTES_PATHS.stagingNotes}
+                    element={
+                      <PermissionProtected>
+                        <StagingDirectionsTab />
+                      </PermissionProtected>
+                    }
+                  />
+                  <Route
+                    path={PLAY_SUB_ROUTES_PATHS.blocking}
+                    element={
+                      <PermissionProtected>
+                        <BlockingTab />
+                      </PermissionProtected>
+                    }
+                  />
+                  <Route
+                    path={PLAY_SUB_ROUTES_PATHS.memorize}
+                    element={
+                      <PermissionProtected>
+                        <MemorizeTab />
+                      </PermissionProtected>
+                    }
+                  />
+                  <Route
+                    path={PLAY_SUB_ROUTES_PATHS.planning}
+                    element={
+                      <PermissionProtected>
+                        <PlanningTab />
+                      </PermissionProtected>
+                    }
+                  />
+                  <Route
+                    path={PLAY_SUB_ROUTES_PATHS.settings}
+                    element={
+                      <PermissionProtected>
+                        <PlaySettingsTab />
+                      </PermissionProtected>
+                    }
+                  />
+                  <Route index element={<NavigateToDefaultSubpath />} />
+                  <Route path="*" element={<PageNotFound />} />
+                </Routes>
+              </ScriptContextProvider>
+            </PlayPageLayout>
+          </ScriptUndoRedoContextProvider>
+        </ScriptTabToolbarContextProvider>
+      </PlayContextProvider>
+    </ErrorBoundary>
   );
 }
 
