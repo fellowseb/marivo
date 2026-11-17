@@ -86,7 +86,7 @@ La timeline est une **séquence de cues**, pas une courbe de positions. Les keyf
 ```
 
 - **Axe vertical = qui** : une piste par personnage, colorée comme sur la scène.
-- **Axe horizontal = temps** : les frontières de répliques (╪) sont dessinées comme des marqueurs pleine hauteur. Les keyframes étant générées par réplique, les marqueurs *sont* la grille.
+- **Axe horizontal = temps** : les frontières de répliques (╪) sont dessinées comme des marqueurs pleine hauteur. Les keyframes étant générées par réplique, les marqueurs _sont_ la grille.
 - **Scrub vs sélection** : tap sur la timeline = scrub (aperçu) ; tap sur un cue ou une réplique = sélection (cible d'édition). Ces deux verbes ont des états visuels distincts.
 
 ---
@@ -95,26 +95,26 @@ La timeline est une **séquence de cues**, pas une courbe de positions. Les keyf
 
 ### Tier 1 — Core (v1)
 
-| Type | Description | Création | Panneau |
-| --- | --- | --- | --- |
-| **Cue de réplique** | Ancrage d'une réplique du script (1 par ligne + subdivisions intra-réplique pour les longues). Contenu immuable (vient du script), durée éditable. | Auto-généré | Texte (lecture seule), locuteur, durée |
-| **Cue de mouvement** | Position d'un personnage à un instant donné. | Implicite (drag du personnage sur la scène) ou explicite | Personnage, position from (ghost) → to, durée, notes |
+| Type                 | Description                                                                                                                                        | Création                                                 | Panneau                                              |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
+| **Cue de réplique**  | Ancrage d'une réplique du script (1 par ligne + subdivisions intra-réplique pour les longues). Contenu immuable (vient du script), durée éditable. | Auto-généré                                              | Texte (lecture seule), locuteur, durée               |
+| **Cue de mouvement** | Position d'un personnage à un instant donné.                                                                                                       | Implicite (drag du personnage sur la scène) ou explicite | Personnage, position from (ghost) → to, durée, notes |
 
 ### Tier 2 — Structurel (v1.x)
 
-| Type | Description | Notes |
-| --- | --- | --- |
-| **Cue de décor (prop)** | Idem mouvement, sujet = élément de décor. | `PropState[]` existe déjà dans le domaine |
-| **Cue d'entrée / sortie** | Apparition / départ d'un personnage. Rend la présence *factuelle* et non inférée. | Rendu distinct (flèche in/out) |
-| **Cue de pause / beat** | Durée sans contenu : silence, attente. Indispensable en mode manuel. | Trivial dans le modèle |
+| Type                      | Description                                                                       | Notes                                     |
+| ------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------- |
+| **Cue de décor (prop)**   | Idem mouvement, sujet = élément de décor.                                         | `PropState[]` existe déjà dans le domaine |
+| **Cue d'entrée / sortie** | Apparition / départ d'un personnage. Rend la présence _factuelle_ et non inférée. | Rendu distinct (flèche in/out)            |
+| **Cue de pause / beat**   | Durée sans contenu : silence, attente. Indispensable en mode manuel.              | Trivial dans le modèle                    |
 
 ### Tier 3 — Annotations & futur
 
-| Type | Description |
-| --- | --- |
-| **Cue de note** | Marqueur texte libre du metteur en scène ("table ici", "ralentir ici"). N'anime rien. Cible naturelle de la génération IA de mouvements (cf. DEV_PLAN). |
-| **Marqueurs de scène / acte** | Dérivés du script (non éditables) ; rendus en séparateurs pleine hauteur, pilotent la présence et les niveaux de zoom. |
-| **Cues lumière / son** | Hors périmètre du blocking, mais le modèle (sujet + temps + durée + payload) reste générique. Prévoir un champ `type` dès la v1. |
+| Type                          | Description                                                                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cue de note**               | Marqueur texte libre du metteur en scène ("table ici", "ralentir ici"). N'anime rien. Cible naturelle de la génération IA de mouvements (cf. DEV_PLAN). |
+| **Marqueurs de scène / acte** | Dérivés du script (non éditables) ; rendus en séparateurs pleine hauteur, pilotent la présence et les niveaux de zoom.                                  |
+| **Cues lumière / son**        | Hors périmètre du blocking, mais le modèle (sujet + temps + durée + payload) reste générique. Prévoir un champ `type` dès la v1.                        |
 
 ### Règles de modèle
 
@@ -169,17 +169,17 @@ Modèle Photoshop/Figma : **docké et permanent**, pas de popover.
 - **Occupation** : où un personnage a des cues (par définition creux).
 - **Géométrie** : la piste existe-t-elle en pleine largeur ?
 
-| Zoom | Rendu |
-| --- | --- |
-| **Scène (édition, état normal)** | Pistes pleine largeur pour les personnages actifs de la scène. Ordre = ordre de la distribution (stable, jamais alphabétique). |
-| **Vue pièce (dézoomée)** | **Bandes de présence** : chaque personnage devient une bande continue sur sa plage de présence. La vue d'ensemble devient une carte "qui est où dans la pièce". |
-| Transition | Continue (pinch-zoom), les bandes se résolvent en pistes avec blocs. Pas de switch de mode. |
+| Zoom                             | Rendu                                                                                                                                                           |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scène (édition, état normal)** | Pistes pleine largeur pour les personnages actifs de la scène. Ordre = ordre de la distribution (stable, jamais alphabétique).                                  |
+| **Vue pièce (dézoomée)**         | **Bandes de présence** : chaque personnage devient une bande continue sur sa plage de présence. La vue d'ensemble devient une carte "qui est où dans la pièce". |
+| Transition                       | Continue (pinch-zoom), les bandes se résolvent en pistes avec blocs. Pas de switch de mode.                                                                     |
 
 ### Visibilité
 
 - **Auto par défaut** : pistes des personnages ayant des cues dans la fenêtre courante. Une piste par personnage apparaît quand la 1ère position est posée.
 - **Chips de filtrage** au-dessus de la timeline : "Tous" / "Sur scène" / chips par personnage.
-  - Un chip personnage **épingle** la piste (pleine largeur, y compris les zones vides ; les absences *sont* l'information). Les zones vides épinglées sont rendues en retrait visuel et **n'acceptent pas** d'édition.
+  - Un chip personnage **épingle** la piste (pleine largeur, y compris les zones vides ; les absences _sont_ l'information). Les zones vides épinglées sont rendues en retrait visuel et **n'acceptent pas** d'édition.
   - "Sur scène" désépingle tout et revient au mode auto.
 - **Chip "+ distribution"** en fin de rangée : ajouter une piste (et une première position) à un personnage sans cue, pour planifier en avance.
 
@@ -207,19 +207,19 @@ Modèle Photoshop/Figma : **docké et permanent**, pas de popover.
 
 ## ❓ Décisions ouvertes
 
-| Décision | Options | Recommandation |
-| --- | --- | --- |
-| Affichage du texte dans le mode metteur en scène | bandeau réplique courante seul / panneau script complet à un tap / rien | bandeau par défaut, panneau à un tap |
-| Cues intra-réplique : densité visuelle | zoom obligatoire / libellés compacts | zoom + libellés |
-| Ordre des pistes | distribution / ordre d'apparition | distribution (stabilité musculaire) |
-| Modélisation explicite entrée/sortie en v1 ou v1.x | v1 / v1.x | v1.x (présence dérivée d'abord) |
+| Décision                                           | Options                                                                 | Recommandation                       |
+| -------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------ |
+| Affichage du texte dans le mode metteur en scène   | bandeau réplique courante seul / panneau script complet à un tap / rien | bandeau par défaut, panneau à un tap |
+| Cues intra-réplique : densité visuelle             | zoom obligatoire / libellés compacts                                    | zoom + libellés                      |
+| Ordre des pistes                                   | distribution / ordre d'apparition                                       | distribution (stabilité musculaire)  |
+| Modélisation explicite entrée/sortie en v1 ou v1.x | v1 / v1.x                                                               | v1.x (présence dérivée d'abord)      |
 
 ---
 
 ## 🔄 Historique
 
-| Version | Date | Source | Changements |
-| --- | --- | --- | --- |
-| 1.0 | 2026-11-14 | Discussion UX (Vibe) | Création initiale |
+| Version | Date       | Source               | Changements       |
+| ------- | ---------- | -------------------- | ----------------- |
+| 1.0     | 2026-11-14 | Discussion UX (Vibe) | Création initiale |
 
 > Généré à partir de la discussion de design UX menée avec Mistral Vibe.
