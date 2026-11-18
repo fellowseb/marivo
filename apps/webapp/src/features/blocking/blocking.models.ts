@@ -53,3 +53,27 @@ export const CUE_KIND_ORDER: CueKind[] = [
   "lights",
   "envSound",
 ];
+
+/**
+ * Keyframe (#209): a timing marker derived from a script line. One keyframe
+ * per line start; long lines get extra intra-line keyframes split on
+ * punctuation. `startMs`/`durationMs` are resolved by `computeTimings`.
+ */
+export interface Keyframe {
+  id: string;
+  lineId: string;
+  /** ordinal of this keyframe within its line (0 = line start) */
+  index: number;
+  /** word offset within the line (0 = line start) */
+  wordOffset: number;
+  /** number of words from this keyframe to the next one of the same line */
+  segmentWords: number;
+  kind: "lineStart" | "intraLine";
+  startMs: number;
+  durationMs: number;
+}
+
+export interface Timeline {
+  keyframes: Keyframe[];
+  totalDurationMs: number;
+}

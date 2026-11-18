@@ -1,4 +1,4 @@
-import type { Cue, CueKind, Track } from "./blocking.models";
+import type { Cue, CueKind, Keyframe, Timeline, Track } from "./blocking.models";
 import { CUE_KIND_COLORS, CUE_KIND_ORDER } from "./blocking.models";
 import { DEFAULT_WPM, TIMELINE_PX_PER_MS } from "./blocking.config";
 
@@ -7,6 +7,100 @@ interface LineLike {
   type: string;
   text: string;
   characters?: string[];
+}
+
+/** Lines longer than this get intra-line keyframes split on punctuation (#209). */
+export const LONG_LINE_WORD_THRESHOLD = 15;
+
+const PUNCTUATION_END = /[.,;:!?—…]["'”’]?$/;
+
+/**
+ * Split a long line into word segments at punctuation boundaries.
+ * Returns one segment for short lines or lines without punctuation.
+ */
+function splitLineSegments(text: string): { wordOffset: number; words: number }[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length <= LONG_LINE_WORD_THRESHOLD) {
+    return [{ wordOffset: 0, words: words.length }];
+  }
+  const segments: { wordOffset: number; words: number }[] = [];
+  let offset = 0;
+  let count = 0;
+  for (const word of words) {
+    count += 1;
+    if (PUNCTUATION_END.test(word)) {
+      segments.push({ wordOffset: offset, words: count });
+      offset += count;
+      count = 0;
+    }
+  }
+  if (count > 0) segments.push({ wordOffset: offset, words: count });
+  // no punctuation found: keep a single segment (no intra-line keyframes)
+  if (segments.length <= 1) return [{ wordOffset: 0, words: words.length }];
+  return segments;
+}
+
+/**
+ * Generate keyframes from script lines (#209): one keyframe per chartext
+ * line start, plus intra-line keyframes for lines longer than
+ * LONG_LINE_WORD_THRESHOLD words, split on punctuation. Timings are not
+ * resolved yet (startMs/durationMs = 0) — see computeTimings.
+ */
+export function generateKeyframes(lines: LineLike[]): Keyframe[] {
+  const keyframes: Keyframe[] = [];
+  let seq = 0;
+  for (const line of lines) {
+    if (line.type !== "chartext") continue;
+    const segments = splitLineSegments(line.text);
+    segments.forEach((seg, index) => {
+      keyframes.push({
+        id: `kf-${line.id}-${index}`,
+        lineId: line.id,
+        index,
+        wordOffset: seg.wordOffset,
+        segmentWords: seg.words,
+        kind: index === 0 ? "lineStart" : "intraLine",
+        startMs: 0,
+        durationMs: 0,
+      });
+      seq += 1;
+    });
+  }
+  return keyframes;
+}
+
+export interface TimingOverride {
+  startMs?: number;
+  durationMs?: number;
+}
+
+/**
+ * Resolve keyframe timings (#209): each segment lasts segmentWords / wpm,
+ * laid out sequentially; manual overrides pin a keyframe's startMs and/or
+ * durationMs. Returns the timeline with resolved startMs/durationMs.
+ */
+export function computeTimings(
+  keyframes: Keyframe[],
+  opts: { wpm?: number; overrides?: Record<string, TimingOverride> } = {},
+): Timeline {
+  const wpm = opts.wpm ?? DEFAULT_WPM;
+  let cursor = 0;
+  const resolved = keyframes.map((kf) => {
+    const override = opts.overrides?.[kf.id];
+    const durationMs = override?.durationMs ?? Math.round((kf.segmentWords / wpm) * 60 * 1000);
+    const startMs = override?.startMs ?? cursor;
+    cursor = startMs + durationMs;
+    return { ...kf, startMs, durationMs };
+  });
+  return { keyframes: resolved, totalDurationMs: cursor };
+}
+
+/** Build a timeline from script lines: generate keyframes + resolve timings. */
+export function buildTimeline(
+  lines: LineLike[],
+  opts: { wpm?: number; overrides?: Record<string, TimingOverride> } = {},
+): Timeline {
+  return computeTimings(generateKeyframes(lines), opts);
 }
 
 /** Duration estimate of a line from its word count (WPM-based). */
@@ -37,22 +131,29 @@ export function buildInitialTracks(lines: LineLike[], labels: Record<CueKind, st
     cues: [],
   }));
   const audioTrack = tracks.find((t) => t.kind === "lineAudio");
-  let cursorMs = 0;
+  if (!audioTrack) return tracks;
+  // one read-only lineAudio cue per chartext line, timed via keyframes (#209)
+  const timeline = buildTimeline(lines);
+  const byLine = new Map<string, { startMs: number; durationMs: number }>();
+  for (const kf of timeline.keyframes) {
+    const acc = byLine.get(kf.lineId) ?? { startMs: kf.startMs, durationMs: 0 };
+    acc.durationMs += kf.durationMs;
+    if (kf.kind === "lineStart") acc.startMs = kf.startMs;
+    byLine.set(kf.lineId, acc);
+  }
   for (const line of lines) {
     if (line.type !== "chartext") continue;
-    const durationMs = estimateLineDurationMs(line.text);
-    if (!audioTrack || durationMs <= 0) continue;
-    const cue: Cue = {
+    const timing = byLine.get(line.id);
+    if (!timing || timing.durationMs <= 0) continue;
+    audioTrack.cues.push({
       id: nextCueId(),
       trackId: audioTrack.id,
-      startMs: cursorMs,
-      durationMs,
+      startMs: timing.startMs,
+      durationMs: timing.durationMs,
       kind: "lineAudio",
       data: { lineId: line.id, characters: line.characters ?? [] },
       editable: false,
-    };
-    audioTrack.cues.push(cue);
-    cursorMs += durationMs;
+    });
   }
   return tracks;
 }
