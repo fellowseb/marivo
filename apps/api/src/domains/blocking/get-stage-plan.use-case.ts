@@ -12,14 +12,20 @@ export const GetStagePlanUseCaseInputSchema = z.object({
   name: z.string().max(100).optional(),
 });
 
+export const StagePlanSummarySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  version: z.number().int().positive(),
+  description: z.string().nullable(),
+  stageLabel: z.string().nullable(),
+  isActive: z.boolean(),
+  lastModifiedDate: z.date(),
+  createdDate: z.date(),
+});
+
 export const GetStagePlanUseCaseOutputSchema = z.object({
-  plan: z.object({
-    id: z.number(),
-    name: z.string(),
+  plan: StagePlanSummarySchema.extend({
     state: StagePlanStateSchema,
-    version: z.number().int().positive(),
-    lastModifiedDate: z.date(),
-    createdDate: z.date(),
   }),
 });
 
@@ -69,6 +75,9 @@ export class GetStagePlanUseCase extends AuthenticatedUseCase<{
         name: p.name,
         state: p.state,
         version: p.version,
+        description: p.description,
+        stageLabel: p.stageLabel,
+        isActive: p.isActive,
         lastModifiedDate: p.lastModifiedDate,
         createdDate: p.createdDate,
       },

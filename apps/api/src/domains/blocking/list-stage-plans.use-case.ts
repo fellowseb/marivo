@@ -4,21 +4,14 @@ import { AuthenticatedUseCase, UserContextService } from "../../shared/use-case.
 import type { UserPlaysRepository } from "../plays/user-plays.repository.ts";
 import { PlayAccessForbidden, PlayNotFound } from "../plays/user-plays.repository.ts";
 import { StagePlanRepository } from "./stage-plan.repository.ts";
+import { StagePlanSummarySchema } from "./get-stage-plan.use-case.ts";
 
 export const ListStagePlansUseCaseInputSchema = z.object({
   uri: z.string().max(36),
 });
 
 export const ListStagePlansUseCaseOutputSchema = z.object({
-  plans: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
-      version: z.number().int().positive(),
-      lastModifiedDate: z.date(),
-      createdDate: z.date(),
-    }),
-  ),
+  plans: z.array(StagePlanSummarySchema),
 });
 
 type Input = z.infer<typeof ListStagePlansUseCaseInputSchema>;

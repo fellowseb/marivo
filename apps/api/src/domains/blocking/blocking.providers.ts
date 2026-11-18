@@ -5,6 +5,8 @@ import { StagePlanRepository } from "./stage-plan.repository.ts";
 import { GetStagePlanUseCase } from "./get-stage-plan.use-case.ts";
 import { ListStagePlansUseCase } from "./list-stage-plans.use-case.ts";
 import { SaveStagePlanUseCase } from "./save-stage-plan.use-case.ts";
+import { SetActiveStagePlanUseCase } from "./set-active-stage-plan.use-case.ts";
+import { DuplicateStagePlanUseCase } from "./duplicate-stage-plan.use-case.ts";
 
 export const providers = {
   GetStagePlanUseCase: {
@@ -37,4 +39,24 @@ export const providers = {
       );
     },
   } as Provider<SaveStagePlanUseCase>,
+  SetActiveStagePlanUseCase: {
+    instantiate({ req, sql }) {
+      const userService = new UserContextService(req);
+      return new SetActiveStagePlanUseCase(
+        new StagePlanRepository(sql, userService),
+        new UserPlaysRepository(sql, userService),
+        userService,
+      );
+    },
+  } as Provider<SetActiveStagePlanUseCase>,
+  DuplicateStagePlanUseCase: {
+    instantiate({ req, sql }) {
+      const userService = new UserContextService(req);
+      return new DuplicateStagePlanUseCase(
+        new StagePlanRepository(sql, userService),
+        new UserPlaysRepository(sql, userService),
+        userService,
+      );
+    },
+  } as Provider<DuplicateStagePlanUseCase>,
 };

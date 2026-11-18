@@ -14,6 +14,14 @@ import {
   SaveStagePlanUseCaseInputSchema,
   SaveStagePlanUseCaseOutputSchema,
 } from "./save-stage-plan.use-case.ts";
+import {
+  SetActiveStagePlanUseCaseInputSchema,
+  SetActiveStagePlanUseCaseOutputSchema,
+} from "./set-active-stage-plan.use-case.ts";
+import {
+  DuplicateStagePlanUseCaseInputSchema,
+  DuplicateStagePlanUseCaseOutputSchema,
+} from "./duplicate-stage-plan.use-case.ts";
 
 export default router({
   getStagePlan: publicProcedure
@@ -31,4 +39,14 @@ export default router({
     .use(requirePlayPermission("blockingWrite"))
     .output(SaveStagePlanUseCaseOutputSchema)
     .mutation(handleUseCase(providers.SaveStagePlanUseCase)),
+  setActiveStagePlan: publicProcedure
+    .input(SetActiveStagePlanUseCaseInputSchema)
+    .use(requirePlayPermission("blockingWrite"))
+    .output(SetActiveStagePlanUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.SetActiveStagePlanUseCase)),
+  duplicateStagePlan: publicProcedure
+    .input(DuplicateStagePlanUseCaseInputSchema)
+    .use(requirePlayPermission("blockingWrite"))
+    .output(DuplicateStagePlanUseCaseOutputSchema)
+    .mutation(handleUseCase(providers.DuplicateStagePlanUseCase)),
 });

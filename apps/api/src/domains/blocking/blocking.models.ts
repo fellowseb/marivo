@@ -112,6 +112,9 @@ export interface StagePlan {
   name: string;
   state: StagePlanState;
   version: number;
+  description: string | null;
+  stageLabel: string | null;
+  isActive: boolean;
   lastModifiedDate: Date;
   createdDate: Date;
 }
@@ -120,6 +123,9 @@ export interface StagePlanSummary {
   id: number;
   name: string;
   version: number;
+  description: string | null;
+  stageLabel: string | null;
+  isActive: boolean;
   lastModifiedDate: Date;
   createdDate: Date;
 }

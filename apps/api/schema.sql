@@ -247,6 +247,9 @@ CREATE TABLE stage_plans (
     name                    varchar(100)    NOT NULL,
     state                   jsonb           NOT NULL,
     version                 integer         NOT NULL DEFAULT 1,
+    description             text            ,
+    stage_label             varchar(100)    ,
+    is_active               boolean         NOT NULL DEFAULT false,
     last_modified_date      timestamp(0)    NOT NULL DEFAULT now(),
     created_date            timestamp(0)    NOT NULL DEFAULT now(),
 

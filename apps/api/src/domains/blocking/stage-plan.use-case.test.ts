@@ -19,6 +19,9 @@ import {
   SaveStagePlanUseCase,
   SaveStagePlanUseCaseInputSchema,
 } from "./save-stage-plan.use-case.ts";
+import { SetActiveStagePlanUseCase } from "./set-active-stage-plan.use-case.ts";
+import { DuplicateStagePlanUseCase } from "./duplicate-stage-plan.use-case.ts";
+import { StagePlanNameTaken } from "./stage-plan.repository.ts";
 
 const PLAY_URI = "550e8400-e29b-41d4-a716-446655440000";
 const PLAY_ID = 42;
@@ -60,6 +63,9 @@ const samplePlan: StagePlan = {
   name: "default",
   state: sampleState,
   version: 3,
+  description: null,
+  stageLabel: "Salle de répétition",
+  isActive: true,
   lastModifiedDate: new Date(0),
   createdDate: new Date(0),
 };
@@ -83,6 +89,16 @@ describe("blocking stage-plan use cases (unit, mocked repositories)", () => {
         },
       ]),
       saveStagePlan: vi.fn().mockResolvedValue(Result.ok(4)),
+      setActiveStagePlan: vi.fn().mockResolvedValue(Result.ok(undefined)),
+      duplicateStagePlan: vi
+        .fn()
+        .mockResolvedValue(
+          Result.ok({
+            plan: { ...samplePlan, id: 8, name: "show", version: 1, isActive: false },
+            copiedCues: 2,
+            outOfBoundsElementIds: [],
+          }),
+        ),
     } as unknown as vi.Mocked<StagePlanRepository>;
     userPlaysRepository = {
       checkPlayPermission: vi.fn().mockResolvedValue(Result.ok(undefined)),
@@ -246,6 +262,96 @@ describe("blocking stage-plan use cases (unit, mocked repositories)", () => {
         version: 1,
       });
       expect(parsed.success).toBe(false);
+    });
+  });
+
+  describe("SetActiveStagePlanUseCase", () => {
+    it("activates the named plan (blockingWrite)", async () => {
+      const uc = new SetActiveStagePlanUseCase(
+        stagePlanRepository,
+        userPlaysRepository,
+        userContext,
+      );
+      const res = await uc.execute({ uri: PLAY_URI, name: "default" });
+      expect(res.isOk()).toBe(true);
+      expect(res.dataOrThrow()).toEqual({ name: "default", isActive: true });
+      expect(userPlaysRepository.checkPlayPermission).toHaveBeenCalledWith({
+        uri: PLAY_URI,
+        permission: "blockingWrite",
+      });
+    });
+
+    it("fails with FORBIDDEN when blockingWrite is missing", async () => {
+      userPlaysRepository.checkPlayPermission.mockResolvedValueOnce(
+        Result.failure(new PlayAccessForbidden()),
+      );
+      const uc = new SetActiveStagePlanUseCase(
+        stagePlanRepository,
+        userPlaysRepository,
+        userContext,
+      );
+      const res = await uc.execute({ uri: PLAY_URI, name: "default" });
+      expect(res.isFailure()).toBe(true);
+      expect(res.errorOrThrow().code).toBe("FORBIDDEN");
+    });
+  });
+
+  describe("DuplicateStagePlanUseCase", () => {
+    it("duplicates a project with optional new stage dimensions (blockingWrite)", async () => {
+      const uc = new DuplicateStagePlanUseCase(
+        stagePlanRepository,
+        userPlaysRepository,
+        userContext,
+      );
+      const res = await uc.execute({
+        uri: PLAY_URI,
+        name: "default",
+        newName: "show",
+        stageLabel: "Théâtre du Soleil",
+        newLibraryPlanId: "real:soleil",
+        newDimensionsMm: { width: 6000, height: 4000 },
+      });
+      expect(res.isOk()).toBe(true);
+      expect(res.dataOrThrow().plan.name).toBe("show");
+      expect(res.dataOrThrow().plan.version).toBe(1);
+      expect(res.dataOrThrow().copiedCues).toBe(2);
+      expect(stagePlanRepository.duplicateStagePlan).toHaveBeenCalledWith(
+        expect.objectContaining({
+          playId: PLAY_ID,
+          name: "default",
+          newName: "show",
+          newDimensionsMm: { width: 6000, height: 4000 },
+        }),
+      );
+    });
+
+    it("fails with BAD_REQUEST when the new name is taken", async () => {
+      stagePlanRepository.duplicateStagePlan.mockResolvedValueOnce(
+        Result.failure(new StagePlanNameTaken("show")),
+      );
+      const uc = new DuplicateStagePlanUseCase(
+        stagePlanRepository,
+        userPlaysRepository,
+        userContext,
+      );
+      const res = await uc.execute({ uri: PLAY_URI, name: "default", newName: "show" });
+      expect(res.isFailure()).toBe(true);
+      expect(res.errorOrThrow()).toBeInstanceOf(StagePlanNameTaken);
+    });
+
+    it("fails with FORBIDDEN for a viewer", async () => {
+      userPlaysRepository.checkPlayPermission.mockResolvedValueOnce(
+        Result.failure(new PlayAccessForbidden()),
+      );
+      const uc = new DuplicateStagePlanUseCase(
+        stagePlanRepository,
+        userPlaysRepository,
+        userContext,
+      );
+      const res = await uc.execute({ uri: PLAY_URI, name: "default", newName: "show" });
+      expect(res.isFailure()).toBe(true);
+      expect(res.errorOrThrow().code).toBe("FORBIDDEN");
+      expect(stagePlanRepository.duplicateStagePlan).not.toHaveBeenCalled();
     });
   });
 });

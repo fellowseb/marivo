@@ -16,6 +16,8 @@ export const SaveStagePlanUseCaseInputSchema = z.object({
   state: StagePlanStateSchema,
   /** last version the client saw; the save only applies if it still matches (LWW) */
   version: z.number().int().positive(),
+  description: z.string().max(2000).nullish(),
+  stageLabel: z.string().max(100).nullish(),
 });
 
 export const SaveStagePlanUseCaseOutputSchema = z.object({
@@ -62,6 +64,8 @@ export class SaveStagePlanUseCase extends AuthenticatedUseCase<{
       name: input.name,
       state: input.state,
       expectedVersion: input.version,
+      description: input.description,
+      stageLabel: input.stageLabel,
     });
     if (saved.isFailure()) {
       return Result.failure(saved.errorOrThrow());
