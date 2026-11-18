@@ -90,15 +90,13 @@ describe("blocking stage-plan use cases (unit, mocked repositories)", () => {
       ]),
       saveStagePlan: vi.fn().mockResolvedValue(Result.ok(4)),
       setActiveStagePlan: vi.fn().mockResolvedValue(Result.ok(undefined)),
-      duplicateStagePlan: vi
-        .fn()
-        .mockResolvedValue(
-          Result.ok({
-            plan: { ...samplePlan, id: 8, name: "show", version: 1, isActive: false },
-            copiedCues: 2,
-            outOfBoundsElementIds: [],
-          }),
-        ),
+      duplicateStagePlan: vi.fn().mockResolvedValue(
+        Result.ok({
+          plan: { ...samplePlan, id: 8, name: "show", version: 1, isActive: false },
+          copiedCues: 2,
+          outOfBoundsElementIds: [],
+        }),
+      ),
     } as unknown as vi.Mocked<StagePlanRepository>;
     userPlaysRepository = {
       checkPlayPermission: vi.fn().mockResolvedValue(Result.ok(undefined)),
