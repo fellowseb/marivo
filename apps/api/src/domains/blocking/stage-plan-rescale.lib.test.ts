@@ -9,7 +9,7 @@ import {
 const baseState: StagePlanState = {
   schemaVersion: 1,
   plan: {
-    libraryPlanId: "builtin:proscenium-12000x8000",
+    collectionStagePlanId: 1,
     name: "Proscenium 12x8 m",
     dimensionsMm: { width: 12000, height: 8000 },
     background: {

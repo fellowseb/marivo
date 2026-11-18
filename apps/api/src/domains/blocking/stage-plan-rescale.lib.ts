@@ -48,7 +48,7 @@ export interface RescaledState {
 
 /**
  * Returns a copy of `state` adapted to `newDims`. The caller is responsible for
- * swapping `libraryPlanId` / background if a new library plan is chosen.
+ * swapping `collectionStagePlanId` / background if a new library plan is chosen.
  */
 export function rescaleStagePlanState(
   state: StagePlanState,

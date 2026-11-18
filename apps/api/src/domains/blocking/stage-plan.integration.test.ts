@@ -26,7 +26,7 @@ describe("blocking stage plans (real Postgres)", () => {
   const sampleState: StagePlanState = {
     schemaVersion: 1,
     plan: {
-      libraryPlanId: "builtin:proscenium-12000x8000",
+      collectionStagePlanId: 1,
       name: "Proscenium 12x8 m",
       dimensionsMm: { width: 12000, height: 8000 },
       background: {
@@ -260,7 +260,7 @@ describe("blocking stage plans (real Postgres)", () => {
       name: "default",
       newName: "show-6000x4000",
       stageLabel: "Théâtre du Soleil",
-      newLibraryPlanId: "real:soleil",
+      newCollectionStagePlanId: 2,
       newDimensionsMm: { width: 6000, height: 4000 },
     });
     expect(res.isOk()).toBe(true);
@@ -274,7 +274,7 @@ describe("blocking stage plans (real Postgres)", () => {
     const got = await owner.get.execute({ uri: playUri, name: "show-6000x4000" });
     const newState = got.dataOrThrow().plan.state;
     expect(newState.plan.dimensionsMm).toEqual({ width: 6000, height: 4000 });
-    expect(newState.plan.libraryPlanId).toBe("real:soleil");
+    expect(newState.plan.collectionStagePlanId).toBe(2);
     // element c1 at (4200, 5100) -> (2100, 2550)
     expect(newState.elements[0]).toMatchObject({ xMm: 2100, yMm: 2550 });
 
