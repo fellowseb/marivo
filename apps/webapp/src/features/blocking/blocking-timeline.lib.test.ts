@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
   buildInitialTracks,
+  computeTimings,
   cuesInWindow,
   estimateLineDurationMs,
+  generateKeyframes,
   snapMs,
   timelineDurationMs,
   visibleWindowMs,
@@ -105,5 +107,97 @@ describe("windowed rendering", () => {
     };
     const inWindow = cuesInWindow(track, 4000, 10000).map((c) => c.id);
     expect(inWindow).toEqual(["c2", "c3"]); // c3 overlaps the end edge
+  });
+});
+
+describe("keyframe generation & timing (#209)", () => {
+  it("generateKeyframes: one keyframe per chartext line start, non-spoken lines skipped", () => {
+    const kfs = generateKeyframes([
+      { id: "l1", type: "heading", text: "ACTE I" },
+      { id: "l2", type: "chartext", text: "Bonjour monsieur" },
+      { id: "l3", type: "freetext", text: "didascalie" },
+      { id: "l4", type: "chartext", text: "oui" },
+    ]);
+    expect(kfs.map((k) => [k.lineId, k.kind, k.wordOffset])).toEqual([
+      ["l2", "lineStart", 0],
+      ["l4", "lineStart", 0],
+    ]);
+    expect(kfs.every((k) => k.startMs === 0 && k.durationMs === 0)).toBe(true);
+  });
+
+  it("generateKeyframes: empty script yields no keyframes", () => {
+    expect(generateKeyframes([])).toEqual([]);
+  });
+
+  it("generateKeyframes: long lines (>15 words) split into intra-line keyframes on punctuation", () => {
+    // 20 words with punctuation after words 5, 10, 15
+    const text =
+      "un deux trois quatre cinq, six sept huit neuf dix; onze douze treize quatorze quinze. seize dix-sept dix-huit dix-neuf vingt";
+    const kfs = generateKeyframes([{ id: "l1", type: "chartext", text }]);
+    expect(kfs).toHaveLength(4);
+    expect(kfs.map((k) => k.kind)).toEqual(["lineStart", "intraLine", "intraLine", "intraLine"]);
+    // word offsets are cumulative: 0, 5, 10, 15
+    expect(kfs.map((k) => k.wordOffset)).toEqual([0, 5, 10, 15]);
+    // segment word counts sum to the total 20
+    expect(kfs.reduce((sum, k) => sum + k.segmentWords, 0)).toBe(20);
+  });
+
+  it("generateKeyframes: long line without punctuation stays a single keyframe", () => {
+    const text = Array.from({ length: 20 }, (_, i) => `w${i}`).join(" ");
+    const kfs = generateKeyframes([{ id: "l1", type: "chartext", text }]);
+    expect(kfs).toHaveLength(1);
+    expect(kfs[0].segmentWords).toBe(20);
+  });
+
+  it("computeTimings: WPM math lays segments out sequentially", () => {
+    const kfs = generateKeyframes([
+      { id: "l1", type: "chartext", text: "one two three four five six seven" }, // 7 words
+      { id: "l2", type: "chartext", text: "eight nine ten" }, // 3 words
+    ]);
+    const tl = computeTimings(kfs, { wpm: 140 });
+    // 7 words @140wpm = 3000ms, 3 words = 1286ms (rounded)
+    expect(tl.keyframes[0]).toMatchObject({ startMs: 0, durationMs: 3000 });
+    expect(tl.keyframes[1]).toMatchObject({
+      startMs: 3000,
+      durationMs: Math.round((3 / 140) * 60000),
+    });
+    expect(tl.totalDurationMs).toBe(3000 + Math.round((3 / 140) * 60000));
+  });
+
+  it("computeTimings: manual overrides pin duration and shift subsequent keyframes", () => {
+    const kfs = generateKeyframes([
+      { id: "l1", type: "chartext", text: "one two three four" },
+      { id: "l2", type: "chartext", text: "five six" },
+    ]);
+    const tl = computeTimings(kfs, {
+      wpm: 140,
+      overrides: { "kf-l1-0": { durationMs: 10_000 } },
+    });
+    expect(tl.keyframes[0].durationMs).toBe(10_000);
+    expect(tl.keyframes[1].startMs).toBe(10_000);
+    // an explicit startMs override pins the keyframe
+    const tl2 = computeTimings(kfs, {
+      wpm: 140,
+      overrides: { "kf-l2-0": { startMs: 60_000 } },
+    });
+    expect(tl2.keyframes[1].startMs).toBe(60_000);
+    expect(tl2.totalDurationMs).toBe(60_000 + tl2.keyframes[1].durationMs);
+  });
+
+  it("computeTimings: empty input gives an empty timeline", () => {
+    expect(computeTimings([])).toEqual({ keyframes: [], totalDurationMs: 0 });
+  });
+
+  it("buildInitialTracks times lineAudio cues via the keyframe timeline", () => {
+    const tracks = buildInitialTracks(
+      [
+        { id: "l1", type: "chartext", text: "one two three four five six seven" }, // 3000ms
+        { id: "l2", type: "chartext", text: "eight nine ten" },
+      ],
+      labels,
+    );
+    const audio = tracks.find((t) => t.kind === "lineAudio")!;
+    expect(audio.cues[0]).toMatchObject({ startMs: 0, durationMs: 3000, editable: false });
+    expect(audio.cues[1].startMs).toBe(3000);
   });
 });
