@@ -236,3 +236,44 @@ CREATE VIEW user_pending_invites_view AS (
  ORDER BY i.sent_date DESC
 );
 
+-- Blocking feature (#208): persisted stage plans per play + timeline cues.
+-- state jsonb holds the floor plan (see agreed model on issue #208):
+-- integer millimeters, schemaVersion, plan + elements + groups.
+CREATE TABLE stage_plans (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    play_id                 integer         NOT NULL
+                                            REFERENCES plays(id) ON DELETE CASCADE,
+    name                    varchar(100)    NOT NULL,
+    state                   jsonb           NOT NULL,
+    version                 integer         NOT NULL DEFAULT 1,
+    last_modified_date      timestamp(0)    NOT NULL DEFAULT now(),
+    created_date            timestamp(0)    NOT NULL DEFAULT now(),
+
+    CONSTRAINT one_stage_plan_name_per_play UNIQUE (play_id, name)
+);
+
+CREATE INDEX stage_plans_play_id_idx ON stage_plans (play_id);
+
+-- Timeline cues for a stage plan (#211). data jsonb holds the motion model
+-- (discriminated union on motion.type, see issue #211).
+CREATE TABLE blocking_cues (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    stage_plan_id           integer         NOT NULL
+                                            REFERENCES stage_plans(id) ON DELETE CASCADE,
+    track_id                varchar(64)     NOT NULL,
+    element_id              varchar(64)     ,
+    group_id                varchar(64)     ,
+    kind                    varchar(32)     NOT NULL,
+    start_ms                integer         NOT NULL,
+    duration_ms             integer         NOT NULL,
+    data                    jsonb           NOT NULL DEFAULT '{}'::jsonb,
+    editable                boolean         NOT NULL DEFAULT true,
+    created_date            timestamp(0)    NOT NULL DEFAULT now(),
+
+    CONSTRAINT cue_target_is_element_or_group
+        CHECK ((element_id IS NOT NULL) <> (group_id IS NOT NULL))
+);
+
+CREATE INDEX blocking_cues_stage_plan_id_idx ON blocking_cues (stage_plan_id);
