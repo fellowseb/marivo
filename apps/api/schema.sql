@@ -280,3 +280,27 @@ CREATE TABLE blocking_cues (
 );
 
 CREATE INDEX blocking_cues_stage_plan_id_idx ON blocking_cues (stage_plan_id);
+
+-- Blocking stage library (#230): server-side collection of floor-plan
+-- templates (built-in generic layouts + real theatres). Maintained through
+-- the collection-maintainer capability (Clerk metadata), like the plays
+-- collection. Templates are copied on use; rows are never shared with plays.
+CREATE TABLE collection_stage_plans (
+    id                      integer         PRIMARY KEY
+                                            GENERATED ALWAYS AS IDENTITY,
+    name                    varchar(200)    NOT NULL,
+    state                   jsonb           NOT NULL,
+    version                 integer         NOT NULL DEFAULT 1,
+    is_generic              boolean         NOT NULL,
+    layout_type             varchar(32)     , -- proscenium | thrust | arena | blackbox | traverse (when is_generic)
+    theatre_name            varchar(200)    , -- when not generic
+    city                    varchar(100)    ,
+    country                 varchar(100)    ,
+    archived                boolean         NOT NULL DEFAULT false,
+    created_by              integer         REFERENCES users(id) ON DELETE SET NULL,
+    created_date            timestamp(0)    NOT NULL DEFAULT now(),
+    last_modified_date      timestamp(0)    NOT NULL DEFAULT now()
+);
+
+CREATE INDEX collection_stage_plans_active_idx
+    ON collection_stage_plans (is_generic, archived, name);

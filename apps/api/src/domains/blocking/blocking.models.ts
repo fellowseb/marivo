@@ -83,8 +83,9 @@ export const StageGroupSchema = z.object({
 export const StagePlanStateSchema = z.object({
   schemaVersion: z.literal(1),
   plan: z.object({
-    /** provenance only; the resolved background is inlined (copy-on-write) */
-    libraryPlanId: z.string().nullable().optional(),
+    /** provenance only; the resolved background is inlined (copy-on-write).
+     *  References collection_stage_plans.id (#230) */
+    collectionStagePlanId: z.number().int().positive().nullable().optional(),
     name: z.string().max(100),
     dimensionsMm: z.object({ width: mmInt, height: mmInt }),
     background: z.object({
@@ -129,3 +130,35 @@ export interface StagePlanSummary {
   lastModifiedDate: Date;
   createdDate: Date;
 }
+
+/** Stage library (#230): a floor-plan template in the server-side collection. */
+export const STAGE_LAYOUT_TYPES = [
+  "proscenium",
+  "thrust",
+  "arena",
+  "blackbox",
+  "traverse",
+] as const;
+
+export const CollectionStagePlanMetaSchema = z.object({
+  name: z.string().min(1).max(200),
+  isGeneric: z.boolean(),
+  layoutType: z.enum(STAGE_LAYOUT_TYPES).nullish(),
+  theatreName: z.string().max(200).nullish(),
+  city: z.string().max(100).nullish(),
+  country: z.string().max(100).nullish(),
+});
+
+export type CollectionStagePlanMeta = z.infer<typeof CollectionStagePlanMetaSchema>;
+
+export interface CollectionStagePlan extends CollectionStagePlanMeta {
+  id: number;
+  state: StagePlanState;
+  version: number;
+  archived: boolean;
+  createdBy: number | null;
+  lastModifiedDate: Date;
+  createdDate: Date;
+}
+
+export type CollectionStagePlanSummary = Omit<CollectionStagePlan, "state">;

@@ -29,7 +29,7 @@ const PLAY_ID = 42;
 const sampleState: StagePlanState = {
   schemaVersion: 1,
   plan: {
-    libraryPlanId: "builtin:proscenium-12000x8000",
+    collectionStagePlanId: 1,
     name: "Proscenium 12x8 m",
     dimensionsMm: { width: 12000, height: 8000 },
     background: {
@@ -306,7 +306,7 @@ describe("blocking stage-plan use cases (unit, mocked repositories)", () => {
         name: "default",
         newName: "show",
         stageLabel: "Théâtre du Soleil",
-        newLibraryPlanId: "real:soleil",
+        newCollectionStagePlanId: 2,
         newDimensionsMm: { width: 6000, height: 4000 },
       });
       expect(res.isOk()).toBe(true);

@@ -12,6 +12,7 @@ import {
   rescaleStagePlanState,
   type NewDimensionsMm,
 } from "./stage-plan-rescale.lib.ts";
+import { CollectionStagePlanNotFound } from "./collection-stage-plan.repository.ts";
 
 export class StagePlanNotFound extends AppError {
   constructor(name: string) {
@@ -231,6 +232,94 @@ export class StagePlanRepository extends UserRepositoryBase {
   }
 
   /**
+   * Seeds a new per-play stage plan from a stage-library template
+   * (copy-on-use, #230). Version starts at 1, no cues copied.
+   */
+  async createFromCollectionPlan(params: {
+    playId: number;
+    collectionPlanId: number;
+    newName: string;
+    description?: string | null | undefined;
+    stageLabel?: string | null | undefined;
+    newDimensionsMm?: NewDimensionsMm | undefined;
+  }): Promise<
+    Result<
+      { plan: StagePlan; copiedCues: number; outOfBoundsElementIds: string[] },
+      CollectionStagePlanNotFound | StagePlanNameTaken
+    >
+  > {
+    const [template] = await this.sql<
+      {
+        state: unknown;
+        name: string;
+        theatre_name: string | null;
+        city: string | null;
+        country: string | null;
+      }[]
+    >`
+      SELECT state, name, theatre_name, city, country
+      FROM collection_stage_plans
+      WHERE id = ${params.collectionPlanId} AND archived = false
+    `;
+    if (!template) {
+      return Result.failure(new CollectionStagePlanNotFound(params.collectionPlanId));
+    }
+
+    const [taken] = await this.sql<{ id: number }[]>`
+      SELECT id FROM stage_plans
+      WHERE play_id = ${params.playId} AND name = ${params.newName}
+    `;
+    if (taken) return Result.failure(new StagePlanNameTaken(params.newName));
+
+    const parsed = StagePlanStateSchema.safeParse(parseJsonb(template.state));
+    if (!parsed.success) {
+      throw new InternalServerError(
+        `Collection stage plan state is invalid: ${parsed.error.message}`,
+      );
+    }
+    let newState = parsed.data;
+    let outOfBoundsElementIds: string[] = [];
+    if (params.newDimensionsMm) {
+      const rescaled = rescaleStagePlanState(newState, params.newDimensionsMm);
+      newState = rescaled.state;
+      outOfBoundsElementIds = rescaled.outOfBoundsElementIds;
+    }
+    newState = {
+      ...newState,
+      plan: { ...newState.plan, collectionStagePlanId: params.collectionPlanId },
+    };
+
+    const stageLabel =
+      params.stageLabel ??
+      (template.theatre_name
+        ? [template.theatre_name, template.city, template.country].filter(Boolean).join(", ")
+        : template.name);
+
+    const [inserted] = await this.sql<StagePlanRow[]>`
+      INSERT INTO stage_plans
+        (play_id, name, state, version, description, stage_label, is_active)
+      VALUES (
+        ${params.playId},
+        ${params.newName},
+        ${JSON.stringify(newState)}::jsonb,
+        1,
+        ${params.description ?? null},
+        ${stageLabel},
+        false
+      )
+      RETURNING ${this.sql.unsafe(STAGE_PLAN_COLUMNS)}
+    `;
+    if (!inserted) {
+      throw new InternalServerError("Unexpected empty row on createFromCollectionPlan insert");
+    }
+    return Result.ok({
+      plan: rowToStagePlan(inserted),
+      copiedCues: 0,
+      outOfBoundsElementIds,
+    });
+  }
+
+  /**
    * Copies a stage plan (and all its cues) under `newName`, version reset to 1.
    * If `newDimensionsMm` is given, every mm coordinate in the state and in the
    * cue data is rescaled to the new stage size. Returns the out-of-bounds
@@ -242,7 +331,7 @@ export class StagePlanRepository extends UserRepositoryBase {
     newName: string;
     description?: string | null | undefined;
     stageLabel?: string | null | undefined;
-    newLibraryPlanId?: string | null | undefined;
+    newCollectionStagePlanId?: number | null | undefined;
     newDimensionsMm?: NewDimensionsMm | undefined;
   }): Promise<
     Result<
@@ -267,10 +356,10 @@ export class StagePlanRepository extends UserRepositoryBase {
       newState = rescaled.state;
       outOfBoundsElementIds = rescaled.outOfBoundsElementIds;
     }
-    if (params.newLibraryPlanId !== undefined) {
+    if (params.newCollectionStagePlanId !== undefined) {
       newState = {
         ...newState,
-        plan: { ...newState.plan, libraryPlanId: params.newLibraryPlanId },
+        plan: { ...newState.plan, collectionStagePlanId: params.newCollectionStagePlanId },
       };
     }
 

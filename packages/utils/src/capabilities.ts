@@ -15,6 +15,9 @@ export const CAPABILITIES = [
   "edit_collection_play_metadata",
   "edit_collection_play_script",
   "delete_collection_play",
+  "create_stage_plan",
+  "edit_stage_plan",
+  "delete_stage_plan",
 ] as const;
 export type Capability = (typeof CAPABILITIES)[number];
 
@@ -30,6 +33,9 @@ export const ROLE_CAPABILITIES: Record<Role, readonly Capability[]> = {
     "edit_collection_play_metadata",
     "edit_collection_play_script",
     "delete_collection_play",
+    "create_stage_plan",
+    "edit_stage_plan",
+    "delete_stage_plan",
   ],
 };
 

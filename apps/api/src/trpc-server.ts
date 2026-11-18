@@ -17,6 +17,7 @@ import storageRoutes from "./domains/storage/storage.trpc-routes.ts";
 import scriptRoutes from "./domains/script/script.trpc-routes.ts";
 import userPreferencesRoutes from "./domains/user-preferences/user-preferences.trpc-routes.ts";
 import blockingRoutes from "./domains/blocking/blocking.trpc-routes.ts";
+import blockingCollectionRoutes from "./domains/blocking/blocking-collection.trpc-routes.ts";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 const appRouter = router({
@@ -25,6 +26,7 @@ const appRouter = router({
   script: scriptRoutes,
   userPreferences: userPreferencesRoutes,
   blocking: blockingRoutes,
+  blockingCollection: blockingCollectionRoutes,
 });
 
 const workerRouter = router({

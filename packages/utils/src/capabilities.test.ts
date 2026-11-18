@@ -36,6 +36,9 @@ describe("hasCapability", () => {
     expect(hasCapability("collection-maintainer", "edit_collection_play_metadata")).toBe(true);
     expect(hasCapability("collection-maintainer", "edit_collection_play_script")).toBe(true);
     expect(hasCapability("collection-maintainer", "delete_collection_play")).toBe(true);
+    expect(hasCapability("collection-maintainer", "create_stage_plan")).toBe(true);
+    expect(hasCapability("collection-maintainer", "edit_stage_plan")).toBe(true);
+    expect(hasCapability("collection-maintainer", "delete_stage_plan")).toBe(true);
   });
 
   it("denies everything when there is no role", () => {
