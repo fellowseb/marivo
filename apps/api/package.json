@@ -23,8 +23,8 @@
     "@aws-sdk/client-s3": "^3.1045.0",
     "@aws-sdk/lib-storage": "^3.1045.0",
     "@aws-sdk/s3-request-presigner": "^3.1045.0",
-    "@clerk/backend": "3.29.0",
-    "@clerk/express": "2.1.90",
+    "@clerk/backend": "3.31.4",
+    "@clerk/express": "2.1.96",
     "@marivo/utils": "workspace:*",
     "@trpc/server": "^11.17.0",
     "@types/cors": "^2.8.19",
@@ -53,5 +53,5 @@
     "typescript": "5.9.3",
     "vitest": "^5.0.0"
   },
-  "packageManager": "pnpm@12.21.0"
+  "packageManager": "pnpm@12.22.0"
 }
